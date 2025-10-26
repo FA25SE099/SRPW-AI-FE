@@ -32,7 +32,6 @@ const AppRoot = () => {
     if (user.data?.role === ROLES.AgronomyExpert) {
       return <Navigate to={paths.app.expert.dashboard.getHref()} replace />;
     }
-    // Default fallback to dashboard for other roles
     return <Navigate to={paths.app.dashboard.getHref()} replace />;
   }
 

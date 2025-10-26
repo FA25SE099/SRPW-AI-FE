@@ -1,4 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router';
+import { useUser } from '@/lib/auth';
 
 import { AuthLayout } from '@/components/layouts/auth-layout';
 import { paths } from '@/config/paths';
@@ -8,17 +9,21 @@ const LoginRoute = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = searchParams.get('redirectTo');
+  const user = useUser();
 
   return (
     <AuthLayout title="Log in to your account">
       <LoginForm
         onSuccess={() => {
-          navigate(
-            `${redirectTo ? `${redirectTo}` : paths.app.expert.dashboard.getHref()}`,
-            {
-              replace: true,
-            },
-          );
+          // Wait for user query to refetch before navigating
+          user.refetch().then(() => {
+            navigate(
+              `${redirectTo ? `${redirectTo}` : paths.app.root.getHref()}`,
+              {
+                replace: true,
+              },
+            );
+          });
         }}
       />
     </AuthLayout>
