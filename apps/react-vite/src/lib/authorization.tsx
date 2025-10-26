@@ -1,23 +1,30 @@
 import * as React from 'react';
 
-import { Comment, User } from '@/types/api';
+import { Comment, User, UserRole } from '@/types/api';
 
 import { useUser } from './auth';
 
+// ROLES enum matching backend
 export enum ROLES {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
+  Admin = 'Admin',
+  ClusterManager = 'ClusterManager',
+  Supervisor = 'Supervisor',
+  Farmer = 'Farmer',
+  AgronomyExpert = 'AgronomyExpert',
+  UavVendor = 'UavVendor',
 }
 
 type RoleTypes = keyof typeof ROLES;
 
 export const POLICIES = {
   'comment:delete': (user: User, comment: Comment) => {
-    if (user.role === 'ADMIN') {
+    // Admin has full access
+    if (user.role === 'Admin') {
       return true;
     }
 
-    if (user.role === 'USER' && comment.author?.id === user.id) {
+    // Users can delete their own comments
+    if (comment.author?.id === user.id) {
       return true;
     }
 
@@ -50,15 +57,15 @@ type AuthorizationProps = {
   forbiddenFallback?: React.ReactNode;
   children: React.ReactNode;
 } & (
-  | {
+    | {
       allowedRoles: RoleTypes[];
       policyCheck?: never;
     }
-  | {
+    | {
       allowedRoles?: never;
       policyCheck: boolean;
     }
-);
+  );
 
 export const Authorization = ({
   policyCheck,

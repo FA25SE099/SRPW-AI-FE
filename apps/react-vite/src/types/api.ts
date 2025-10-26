@@ -17,15 +17,47 @@ export type Meta = {
   totalPages: number;
 };
 
+// User roles matching backend enum
+export type UserRole =
+  | 'Admin'
+  | 'ClusterManager'
+  | 'Supervisor'
+  | 'AgronomyExpert'
+  | 'UavVendor';
+
 export type User = Entity<{
   firstName: string;
   lastName: string;
   email: string;
-  role: 'ADMIN' | 'USER';
+  role: UserRole;
   teamId: string;
   bio: string;
 }>;
 
+// Backend Result wrapper
+export type Result<T> = {
+  succeeded: boolean;
+  data: T;
+  message?: string;
+  errors?: string[];
+};
+
+// Token data from login/refresh endpoints
+export type TokenData = {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string; // ISO date string
+};
+
+// Login response
+export type LoginResponse = {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  user: User;
+};
+
+// Legacy type for backward compatibility
 export type AuthResponse = {
   jwt: string;
   user: User;

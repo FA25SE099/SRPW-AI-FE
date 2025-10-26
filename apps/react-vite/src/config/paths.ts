@@ -23,8 +23,8 @@ export const paths = {
       getHref: () => '/app',
     },
     dashboard: {
-      path: '',
-      getHref: () => '/app',
+      path: 'dashboard',
+      getHref: () => '/app/dashboard',
     },
     discussions: {
       path: 'discussions',
@@ -41,6 +41,36 @@ export const paths = {
     profile: {
       path: 'profile',
       getHref: () => '/app/profile',
+    },
+    expert: {
+      root: {
+        path: 'expert',
+        getHref: () => '/app/expert',
+      },
+      dashboard: {
+        path: 'expert',
+        getHref: () => '/app/expert',
+      },
+      approvals: {
+        path: 'expert/approvals',
+        getHref: () => '/app/expert/approvals',
+      },
+      emergency: {
+        path: 'expert/emergency',
+        getHref: () => '/app/expert/emergency',
+      },
+      standards: {
+        path: 'expert/standards',
+        getHref: () => '/app/expert/standards',
+      },
+      materials: {
+        path: 'expert/materials',
+        getHref: () => '/app/expert/materials',
+      },
+      reports: {
+        path: 'expert/reports',
+        getHref: () => '/app/expert/reports',
+      },
     },
   },
 } as const;

@@ -71,6 +71,41 @@ export const createAppRouter = (queryClient: QueryClient) =>
           lazy: () =>
             import('./routes/app/dashboard').then(convert(queryClient)),
         },
+        {
+          path: 'expert',
+          children: [
+            {
+              index: true,
+              lazy: () =>
+                import('./routes/app/expert/dashboard').then(convert(queryClient)),
+            },
+            {
+              path: 'approvals',
+              lazy: () =>
+                import('./routes/app/expert/approvals').then(convert(queryClient)),
+            },
+            {
+              path: 'emergency',
+              lazy: () =>
+                import('./routes/app/expert/emergency').then(convert(queryClient)),
+            },
+            {
+              path: 'standards',
+              lazy: () =>
+                import('./routes/app/expert/standards').then(convert(queryClient)),
+            },
+            {
+              path: 'materials',
+              lazy: () =>
+                import('./routes/app/expert/materials').then(convert(queryClient)),
+            },
+            {
+              path: 'reports',
+              lazy: () =>
+                import('./routes/app/expert/reports').then(convert(queryClient)),
+            },
+          ],
+        },
       ],
     },
     {
