@@ -5,48 +5,23 @@ const StandardsRoute = () => {
     const standardPlans = [
         {
             id: 1,
-            name: 'Rice Cultivation Standard',
-            crop: 'Rice',
+            name: 'Rice Cultivation Standard - Short Duration',
+            crop: 'Rice (Short Duration)',
             version: '2.1',
             lastUpdated: '2024-01-15',
             status: 'active',
-            farms: 45,
+            farms: 28,
+            duration: '90-110 days',
         },
         {
             id: 2,
-            name: 'Wheat Growing Guidelines',
-            crop: 'Wheat',
-            version: '1.8',
-            lastUpdated: '2024-01-10',
+            name: 'Rice Cultivation Standard - Medium Duration',
+            crop: 'Rice (Medium Duration)',
+            version: '2.1',
+            lastUpdated: '2024-01-15',
             status: 'active',
-            farms: 32,
-        },
-        {
-            id: 3,
-            name: 'Corn Production Protocol',
-            crop: 'Corn',
-            version: '3.0',
-            lastUpdated: '2024-01-05',
-            status: 'active',
-            farms: 28,
-        },
-        {
-            id: 4,
-            name: 'Pest Management Standard',
-            crop: 'All Crops',
-            version: '1.5',
-            lastUpdated: '2023-12-20',
-            status: 'review',
-            farms: 105,
-        },
-        {
-            id: 5,
-            name: 'Organic Farming Standards',
-            crop: 'All Crops',
-            version: '2.0',
-            lastUpdated: '2023-12-15',
-            status: 'active',
-            farms: 18,
+            farms: 17,
+            duration: '120-140 days',
         },
     ];
 
@@ -57,7 +32,7 @@ const StandardsRoute = () => {
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="text-sm text-gray-600">
-                            Manage standard farming plans and protocols
+                            Manage standard rice cultivation plans and protocols
                         </p>
                     </div>
                     <button className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
@@ -79,20 +54,19 @@ const StandardsRoute = () => {
                                         <p className="mt-1 text-sm text-gray-600">{plan.crop}</p>
                                     </div>
                                 </div>
-                                <span
-                                    className={`rounded-full px-2 py-1 text-xs font-medium ${plan.status === 'active'
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-yellow-100 text-yellow-700'
-                                        }`}
-                                >
+                                <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
                                     {plan.status}
                                 </span>
                             </div>
 
-                            <div className="mt-4 grid grid-cols-2 gap-4 border-t pt-4">
+                            <div className="mt-4 grid grid-cols-3 gap-4 border-t pt-4">
                                 <div>
                                     <p className="text-xs text-gray-500">Version</p>
                                     <p className="mt-1 font-medium">{plan.version}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500">Duration</p>
+                                    <p className="mt-1 font-medium">{plan.duration}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500">Active Farms</p>
