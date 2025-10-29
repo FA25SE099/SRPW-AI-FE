@@ -81,6 +81,120 @@ export type Comment = Entity<{
   author: User;
 }>;
 
+// Expert Approval Types
+export type TaskStatus = 
+  | 'PendingApproval'
+  | 'Approved'
+  | 'Rejected'
+  | 'InProgress'
+  | 'Completed'
+  | 'Cancelled';
+
+export type TaskPriority = 
+  | 'Low'
+  | 'Medium'
+  | 'High'
+  | 'Urgent';
+
+export type ExpertPendingPlanItem = {
+    id: string;
+    planName: string;
+    groupId: string;
+    groupArea: string;
+    basePlantingDate: string;
+    status: TaskStatus;
+    submittedAt: string | null;
+    submitterName: string;
+};
+
+export type GetPendingApprovalsParams = {
+  currentPage?: number;
+  pageSize?: number;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+};
+
+export type PagedResult<T> = {
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  succeeded: boolean;
+  data: T;
+  message?: string;
+  errors?: string[];
+};
+
+export type ApproveRejectPlanInput = {
+  planId: string;
+  approved: boolean;
+  notes?: string;
+};
+
+// Plan Detail types for expert plan details endpoint
+export type PlanDetailMaterial = {
+  materialId: string;
+  materialName: string;
+  materialUnit: string;
+  quantityPerHa: number;
+  estimatedAmount: number;
+};
+
+export type PlanDetailTask = {
+  id: string;
+  taskName: string;
+  description: string | null;
+  taskType: string;
+  scheduledDate: string | null;
+  scheduledEndDate: string | null;
+  priority: TaskPriority | string;
+  sequenceOrder: number;
+  estimatedMaterialCost: number;
+  materials: PlanDetailMaterial[];
+};
+
+export type PlanDetailStage = {
+  id: string;
+  stageName: string;
+  sequenceOrder: number;
+  typicalDurationDays: number;
+  colorCode: string | null;
+  tasks: PlanDetailTask[];
+};
+
+export type PlanDetailPlot = {
+  id: string;
+  area: number;
+  soThua: string | null;
+  soTo: string | null;
+  soilType: string | null;
+  status: string;
+  farmerId: string;
+};
+
+export type PlanDetailGroup = {
+  id: string;
+  clusterName: string;
+  totalArea: number;
+  status: string;
+  plots: PlanDetailPlot[];
+};
+
+export type PlanDetail = {
+  id: string;
+  planName: string;
+  standardPlanId: string;
+  groupId: string;
+  totalArea: number;
+  basePlantingDate: string;
+  status: TaskStatus | string;
+  estimatedTotalPlanCost: number;
+  groupDetails: PlanDetailGroup;
+  stages: PlanDetailStage[];
+};
+
 // Material Management Types
 export enum MaterialType {
   Fertilizer = 0,
