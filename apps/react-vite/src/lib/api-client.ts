@@ -69,6 +69,11 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      // If response has pagination info (totalCount, currentPage, etc), return full response
+      if (data.totalCount !== undefined || data.currentPage !== undefined) {
+        return data;
+      }
+
       // Return the unwrapped data for successful results
       return data.data;
     }
