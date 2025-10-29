@@ -7,6 +7,9 @@ import {
   FileText,
   Beaker,
   TrendingUp,
+  MapPin,
+  UserCheck,
+  ClipboardList,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
@@ -31,6 +34,9 @@ const AppRoot = () => {
     }
     if (user.data?.role === ROLES.AgronomyExpert) {
       return <Navigate to={paths.app.expert.dashboard.getHref()} replace />;
+    }
+    if (user.data?.role == ROLES.ClusterManager) {
+      return <Navigate to={paths.app.cluster.dashboard.getHref()} replace />
     }
     return <Navigate to={paths.app.dashboard.getHref()} replace />;
   }
@@ -74,6 +80,41 @@ const AppRoot = () => {
       {
         name: 'Reports',
         to: paths.app.expert.reports.getHref(),
+        icon: TrendingUp,
+        end: true,
+      },
+    ];
+  }
+  //Cluster Dashboard specific navigation
+  if (location.pathname.startsWith('/app/cluster')) {
+    navigationItems = [
+      {
+        name: 'Overview',
+        to: paths.app.cluster.dashboard.getHref(),
+        icon: Home,
+        end: true,
+      },
+      {
+        name: 'Fields',
+        to: paths.app.cluster.fields.getHref(),
+        icon: MapPin,
+        end: true,
+      },
+      {
+        name: 'Farmers',
+        to: paths.app.cluster.farmers.getHref(),
+        icon: UserCheck,
+        end: true,
+      },
+      {
+        name: 'Plans',
+        to: paths.app.cluster.plans.getHref(),
+        icon: ClipboardList,
+        end: true,
+      },
+      {
+        name: 'Groups',
+        to: paths.app.cluster.groups.getHref(),
         icon: TrendingUp,
         end: true,
       },
@@ -134,6 +175,7 @@ const AppRoot = () => {
       },
     ].filter(Boolean) as SideNavigationItem[];
   }
+
 
   return (
     <DashboardLayout navigationItems={navigationItems}>

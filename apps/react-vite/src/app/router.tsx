@@ -10,6 +10,7 @@ import {
   default as AppRoot,
   ErrorBoundary as AppRootErrorBoundary,
 } from './routes/app/root';
+import { queryByRole } from '@testing-library/react';
 
 const convert = (queryClient: QueryClient) => (m: any) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
@@ -104,6 +105,26 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/expert/reports').then(convert(queryClient)),
             },
+          ],
+        },
+        {
+          path: 'cluster',
+          children: [
+            {
+              index: true,
+              lazy: () =>
+                import('./routes/app/cluster/dashboard').then(convert(queryClient)),
+            },
+            {
+              path: 'field',
+              lazy: () =>
+                import('./routes/app/cluster/field').then(convert(queryClient)),
+            },
+            {
+              path: 'farmers',
+              lazy: () =>
+                import('./routes/app/cluster/farmers').then(convert(queryClient)),
+            }
           ],
         },
       ],

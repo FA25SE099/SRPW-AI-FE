@@ -72,5 +72,31 @@ export const paths = {
         getHref: () => '/app/expert/reports',
       },
     },
+    cluster: {
+      root: {
+        path: 'cluster',
+        getHref: () => '/app/cluster',
+      },
+      dashboard: {
+        path: 'cluster/dashboard',
+        getHref: () => '/app/cluster',
+      },
+      fields: {
+        path: 'cluster/field',
+        getHref: () => 'cluster/field',
+      },
+      farmers: {
+        path: 'cluster/farmers',
+        getHref: () => 'cluster/farmers'
+      },
+      plans: {
+        path: 'cluster/plans',
+        getHref: () => 'cluster/plans'
+      },
+      groups: {
+        path: 'cluster/groups',
+        getHref: () => 'cluster/groups'
+      },
+    },
   },
 } as const;
