@@ -10,6 +10,7 @@ import {
   MapPin,
   UserCheck,
   ClipboardList,
+  Sprout,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
@@ -26,7 +27,7 @@ const AppRoot = () => {
   const user = useUser();
   const location = useLocation();
   const { checkAccess } = useAuthorization();
-
+  console.log('location.pathname', user.data?.role);
   // Role-based redirect when accessing /app root
   if (location.pathname === paths.app.root.path) {
     if (user.data?.role === ROLES.Admin) {
@@ -67,7 +68,7 @@ const AppRoot = () => {
       },
       {
         name: 'Standard Plans',
-        to: paths.app.expert.standards.getHref(),
+        to: paths.app.expert.standardPlans.getHref(),
         icon: FileText,
         end: true,
       },
@@ -75,6 +76,12 @@ const AppRoot = () => {
         name: 'Materials',
         to: paths.app.expert.materials.getHref(),
         icon: Beaker,
+        end: true,
+      },
+      {
+        name: 'Rice Varieties',
+        to: paths.app.expert.riceVarieties.getHref(),
+        icon: Sprout,
         end: true,
       },
       {

@@ -2,7 +2,7 @@ import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
-
+import { Outlet } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { ProtectedRoute } from '@/lib/auth';
 
@@ -99,6 +99,16 @@ export const createAppRouter = (queryClient: QueryClient) =>
               path: 'materials',
               lazy: () =>
                 import('./routes/app/expert/materials').then(convert(queryClient)),
+            },
+            {
+              path: 'rice-varieties',
+              lazy: () =>
+                import('./routes/app/expert/rice-varieties').then(convert(queryClient)),
+            },
+            {
+              path: 'standard-plans',
+              lazy: () =>
+                import('./routes/app/expert/standard-plans').then(convert(queryClient)),
             },
             {
               path: 'reports',
