@@ -17,6 +17,7 @@ const LoginRoute = () => {
         onSuccess={() => {
           // Wait for user query to refetch before navigating
           user.refetch().then(() => {
+            console.log('Refetched user role:', user.data?.role);  
             navigate(
               `${redirectTo ? `${redirectTo}` : paths.app.root.getHref()}`,
               {

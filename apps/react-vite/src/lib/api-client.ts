@@ -69,6 +69,17 @@ api.interceptors.response.use(
         return Promise.reject(error);
       }
 
+      // Check if this is a PagedResult (has pagination fields)
+      // PagedResult extends Result but includes pagination metadata
+      if (
+        'currentPage' in data &&
+        'totalPages' in data &&
+        'totalCount' in data
+      ) {
+        // Return the full PagedResult, don't unwrap
+        return data;
+      }
+
       // If response has pagination info (totalCount, currentPage, etc), return full response
       if (data.totalCount !== undefined || data.currentPage !== undefined) {
         return data;
@@ -171,13 +182,23 @@ api.interceptors.response.use(
     }
 
     // Handle other errors
-    const message = (error.response?.data as any)?.message || error.message;
+    const responseData = error.response?.data as any;
+    
+    // Check for errors array first (validation errors), then message, then fallback
+    let message: string;
+    if (responseData?.errors && Array.isArray(responseData.errors) && responseData.errors.length > 0) {
+      // Join all validation errors with line breaks for better readability
+      message = responseData.errors.join('\n');
+    } else {
+      message = responseData?.message || error.message;
+    }
+    
     useNotifications.getState().addNotification({
       type: 'error',
       title: 'Error',
       message,
     });
 
-    return Promise.reject(error);
+    return Promise.reject(error);    return Promise.reject(error);
   },
 );

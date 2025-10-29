@@ -67,6 +67,14 @@ export const paths = {
         path: 'expert/materials',
         getHref: () => '/app/expert/materials',
       },
+      riceVarieties: {
+        path: 'expert/rice-varieties',
+        getHref: () => '/app/expert/rice-varieties',
+      },
+      standardPlans: {
+        path: 'expert/standard-plans',
+        getHref: () => '/app/expert/standard-plans',
+      },
       reports: {
         path: 'expert/reports',
         getHref: () => '/app/expert/reports',
