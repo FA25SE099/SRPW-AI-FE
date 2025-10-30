@@ -119,6 +119,7 @@ export const createAppRouter = (queryClient: QueryClient) =>
         {
           path: 'cluster',
           children: [
+            
             {
               index: true,
               lazy: () =>

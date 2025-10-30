@@ -1,12 +1,24 @@
 import { useState } from "react";
 import { ContentLayout } from "@/components/layouts";
-import { Users, MapPin, Phone, Mail, Download, Search, Loader2 } from "lucide-react";
+import { Users, MapPin, Phone, Mail, Download, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/form";
+import { Spinner } from "@/components/ui/spinner";
+import { useNotifications } from "@/components/ui/notifications";
 import { useFarmers } from "@/features/farmers/api/get-farmers";
+import { ImportFarmersDialog } from "@/features/farmers/components/import-farmers-dialog";
+import { useExportFarmers } from "@/features/farmers/api/export-farmers";
+import { FarmerDetailDialog } from "@/features/farmers/components/farmer-detail-dialog";
 
 const ClusterFarmers = () => {
     const [pageNumber, setPageNumber] = useState(1);
-    const [pageSize] = useState(9); // 9 items để fit grid 3 columns
+    const [pageSize] = useState(9);
     const [searchTerm, setSearchTerm] = useState("");
+    const [importDialogOpen, setImportDialogOpen] = useState(false);
+    const [selectedFarmerId, setSelectedFarmerId] = useState<string | null>(null);
+    const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+    
+    const { addNotification } = useNotifications();
 
     const { data, isLoading, isError } = useFarmers({
         params: {
@@ -21,11 +33,49 @@ const ClusterFarmers = () => {
     const totalCount = data?.totalCount || 0;
     const currentPage = data?.currentPage || 1;
 
+    const exportMutation = useExportFarmers({
+        mutationConfig: {
+            onSuccess: (blob) => {
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `farmers_${new Date().toISOString().split('T')[0]}.xlsx`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                
+                addNotification({
+                    type: 'success',
+                    title: 'Export Successful',
+                    message: 'Farmers data has been exported successfully',
+                });
+            },
+            onError: (error: any) => {
+                addNotification({
+                    type: 'error',
+                    title: 'Export Failed',
+                    message: error.message || 'Unknown error occurred',
+                });
+            },
+        },
+    });
+
+    const handleExport = () => {
+        const today = new Date().toISOString();
+        exportMutation.mutate(today);
+    };
+
+    const handleViewDetails = (farmerId: string) => {
+        setSelectedFarmerId(farmerId);
+        setDetailDialogOpen(true);
+    };
+
     if (isLoading) {
         return (
             <ContentLayout title="Farmers Management">
-                <div className="flex items-center justify-center h-96">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="flex h-96 items-center justify-center">
+                    <Spinner size="lg" />
                 </div>
             </ContentLayout>
         );
@@ -34,10 +84,10 @@ const ClusterFarmers = () => {
     if (isError) {
         return (
             <ContentLayout title="Farmers Management">
-                <div className="flex items-center justify-center h-96">
+                <div className="flex h-96 items-center justify-center">
                     <div className="text-center">
-                        <p className="text-red-500 text-lg font-semibold">Failed to load farmers</p>
-                        <p className="text-muted-foreground mt-2">Please try again later</p>
+                        <p className="text-lg font-semibold text-red-500">Failed to load farmers</p>
+                        <p className="mt-2 text-muted-foreground">Please try again later</p>
                     </div>
                 </div>
             </ContentLayout>
@@ -48,18 +98,18 @@ const ClusterFarmers = () => {
         <ContentLayout title="Farmers Management">
             <div className="space-y-6">
                 {/* Header */}
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                     <div>
                         <h2 className="text-2xl font-bold">Farmers Directory</h2>
                         <p className="text-muted-foreground">Manage all farmers in your cluster</p>
                     </div>
                     <div className="flex gap-2">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <div className="relative w-64">
+                            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 transform text-muted-foreground" />
                             <input
                                 type="text"
                                 placeholder="Search by name, phone, or code..."
-                                className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary w-64"
+                                className="w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
@@ -67,13 +117,20 @@ const ClusterFarmers = () => {
                                 }}
                             />
                         </div>
-                        <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+                        <Button
+                            onClick={() => setImportDialogOpen(true)}
+                        >
                             Import Farmer
-                        </button>
-                        <button className="px-4 py-2 border rounded-md hover:bg-muted text-sm flex items-center gap-2">
-                            <Download className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            onClick={handleExport}
+                            disabled={exportMutation.isPending}
+                            isLoading={exportMutation.isPending}
+                            variant="outline"
+                            icon={<Download className="size-4" />}
+                        >
                             Export
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
@@ -81,7 +138,7 @@ const ClusterFarmers = () => {
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
                     <div className="rounded-lg border bg-card p-6">
                         <div className="flex items-center gap-2">
-                            <Users className="h-5 w-5 text-blue-600" />
+                            <Users className="size-5 text-blue-600" />
                             <h3 className="text-sm font-medium text-muted-foreground">Total Farmers</h3>
                         </div>
                         <p className="mt-2 text-3xl font-bold">{totalCount}</p>
@@ -89,7 +146,7 @@ const ClusterFarmers = () => {
 
                     <div className="rounded-lg border bg-card p-6">
                         <div className="flex items-center gap-2">
-                            <Users className="h-5 w-5 text-green-600" />
+                            <Users className="size-5 text-green-600" />
                             <h3 className="text-sm font-medium text-muted-foreground">Active Farmers</h3>
                         </div>
                         <p className="mt-2 text-3xl font-bold">
@@ -99,7 +156,7 @@ const ClusterFarmers = () => {
 
                     <div className="rounded-lg border bg-card p-6">
                         <div className="flex items-center gap-2">
-                            <Users className="h-5 w-5 text-purple-600" />
+                            <Users className="size-5 text-purple-600" />
                             <h3 className="text-sm font-medium text-muted-foreground">Current Page</h3>
                         </div>
                         <p className="mt-2 text-3xl font-bold">{farmers.length}</p>
@@ -107,7 +164,7 @@ const ClusterFarmers = () => {
 
                     <div className="rounded-lg border bg-card p-6">
                         <div className="flex items-center gap-2">
-                            <MapPin className="h-5 w-5 text-orange-600" />
+                            <MapPin className="size-5 text-orange-600" />
                             <h3 className="text-sm font-medium text-muted-foreground">Total Plots</h3>
                         </div>
                         <p className="mt-2 text-3xl font-bold">
@@ -118,10 +175,10 @@ const ClusterFarmers = () => {
 
                 {/* Farmers Grid */}
                 {farmers.length === 0 ? (
-                    <div className="col-span-full text-center py-12 border rounded-lg">
-                        <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                    <div className="col-span-full rounded-lg border py-12 text-center">
+                        <Users className="mx-auto mb-4 size-12 text-muted-foreground" />
                         <p className="text-lg font-medium">No farmers found</p>
-                        <p className="text-muted-foreground mt-2">
+                        <p className="mt-2 text-muted-foreground">
                             {searchTerm ? "Try adjusting your search" : "Start by importing farmers"}
                         </p>
                     </div>
@@ -131,8 +188,8 @@ const ClusterFarmers = () => {
                             <div key={farmer.farmerId} className="rounded-lg border bg-card p-6">
                                 <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                            <Users className="h-6 w-6 text-blue-600" />
+                                        <div className="flex size-12 items-center justify-center rounded-full bg-blue-100">
+                                            <Users className="size-6 text-blue-600" />
                                         </div>
                                         <div>
                                             <h3 className="font-semibold">{farmer.fullName}</h3>
@@ -141,7 +198,7 @@ const ClusterFarmers = () => {
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         {farmer.isActive && (
-                                            <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">
+                                            <span className="rounded-full bg-green-100 px-2 py-1 text-xs text-green-800">
                                                 Active
                                             </span>
                                         )}
@@ -150,15 +207,15 @@ const ClusterFarmers = () => {
 
                                 <div className="mt-4 space-y-2">
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Phone className="h-4 w-4" />
+                                        <Phone className="size-4" />
                                         <span>{farmer.phoneNumber}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <MapPin className="h-4 w-4" />
+                                        <MapPin className="size-4" />
                                         <span>{farmer.address}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <Mail className="h-4 w-4" />
+                                        <Mail className="size-4" />
                                         <span>
                                             Last: {new Date(farmer.lastActivityAt).toLocaleDateString('en-US', {
                                                 year: 'numeric',
@@ -169,7 +226,7 @@ const ClusterFarmers = () => {
                                     </div>
                                 </div>
 
-                                <div className="mt-4 pt-4 border-t">
+                                <div className="mt-4 border-t pt-4">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Total Plots:</span>
                                         <span className="font-medium">{farmer.plotCount}</span>
@@ -177,9 +234,14 @@ const ClusterFarmers = () => {
                                 </div>
 
                                 <div className="mt-4 flex gap-2">
-                                    <button className="flex-1 px-4 py-2 border rounded-md hover:bg-muted text-sm">
+                                    <Button
+                                        onClick={() => handleViewDetails(farmer.farmerId)}
+                                        variant="outline"
+                                        className="flex-1"
+                                        size="sm"
+                                    >
                                         View Details
-                                    </button>
+                                    </Button>
                                 </div>
                             </div>
                         ))}
@@ -193,13 +255,14 @@ const ClusterFarmers = () => {
                             Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} farmers
                         </p>
                         <div className="flex items-center gap-2">
-                            <button
+                            <Button
                                 onClick={() => setPageNumber((prev) => Math.max(1, prev - 1))}
                                 disabled={currentPage === 1}
-                                className="px-4 py-2 border rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                                variant="outline"
+                                size="sm"
                             >
                                 Previous
-                            </button>
+                            </Button>
                             <div className="flex items-center gap-1">
                                 {[...Array(Math.min(5, totalPages))].map((_, idx) => {
                                     let pageNum;
@@ -214,30 +277,41 @@ const ClusterFarmers = () => {
                                     }
 
                                     return (
-                                        <button
+                                        <Button
                                             key={pageNum}
                                             onClick={() => setPageNumber(pageNum)}
-                                            className={`px-3 py-2 rounded-md text-sm ${currentPage === pageNum
-                                                ? 'bg-primary text-primary-foreground'
-                                                : 'border hover:bg-muted'
-                                                }`}
+                                            variant={currentPage === pageNum ? "default" : "outline"}
+                                            size="sm"
+                                            className="min-w-[40px]"
                                         >
                                             {pageNum}
-                                        </button>
+                                        </Button>
                                     );
                                 })}
                             </div>
-                            <button
+                            <Button
                                 onClick={() => setPageNumber((prev) => Math.min(totalPages, prev + 1))}
                                 disabled={currentPage === totalPages}
-                                className="px-4 py-2 border rounded-md hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                                variant="outline"
+                                size="sm"
                             >
                                 Next
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}
             </div>
+
+            {/* Dialogs */}
+            <FarmerDetailDialog
+                farmerId={selectedFarmerId}
+                open={detailDialogOpen}
+                onOpenChange={setDetailDialogOpen}
+            />
+            <ImportFarmersDialog
+                open={importDialogOpen}
+                onOpenChange={setImportDialogOpen}
+            />
         </ContentLayout>
     );
 };
