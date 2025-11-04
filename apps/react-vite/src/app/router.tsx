@@ -116,6 +116,36 @@ export const createAppRouter = (queryClient: QueryClient) =>
             },
           ],
         },
+        {
+          path: 'admin',
+          children: [
+            {
+              index: true,
+              lazy: () =>
+                import('./routes/app/admin/dashboard').then(convert(queryClient)),
+            },
+            {
+              path: 'users',
+              lazy: () =>
+                import('./routes/app/admin/users').then(convert(queryClient)),
+            },
+            {
+              path: 'roles',
+              lazy: () =>
+                import('./routes/app/admin/roles').then(convert(queryClient)),
+            },
+            {
+              path: 'settings',
+              lazy: () =>
+                import('./routes/app/admin/settings').then(convert(queryClient)),
+            },
+            {
+              path: 'reports',
+              lazy: () =>
+                import('./routes/app/admin/reports').then(convert(queryClient)),
+            },
+          ],
+        },
       ],
     },
     {

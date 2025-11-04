@@ -8,6 +8,9 @@ import {
   Beaker,
   TrendingUp,
   Sprout,
+  Shield,
+  Settings,
+  BarChart3,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
@@ -28,7 +31,7 @@ const AppRoot = () => {
   // Role-based redirect when accessing /app root
   if (location.pathname === paths.app.root.path) {
     if (user.data?.role === ROLES.Admin) {
-      return <Navigate to={paths.app.dashboard.getHref()} replace />;
+      return <Navigate to={paths.app.admin.dashboard.getHref()} replace />;
     }
     if (user.data?.role === ROLES.AgronomyExpert) {
       return <Navigate to={paths.app.expert.dashboard.getHref()} replace />;
@@ -88,27 +91,39 @@ const AppRoot = () => {
   }
   // Admin Dashboard specific navigation
   else if (
-    location.pathname.startsWith('/app/dashboard') &&
+    location.pathname.startsWith('/app/admin') &&
     checkAccess({ allowedRoles: [ROLES.Admin] })
   ) {
     navigationItems = [
       {
         name: 'Overview',
-        to: paths.app.dashboard.getHref(),
+        to: paths.app.admin.dashboard.getHref(),
         icon: Home,
         end: true,
       },
       {
         name: 'Users',
-        to: paths.app.users.getHref(),
+        to: paths.app.admin.users.getHref(),
         icon: Users,
         end: true,
       },
       {
-        name: 'Discussions',
-        to: paths.app.discussions.getHref(),
-        icon: Folder,
-        end: false,
+        name: 'Roles & Permissions',
+        to: paths.app.admin.roles.getHref(),
+        icon: Shield,
+        end: true,
+      },
+      {
+        name: 'System Settings',
+        to: paths.app.admin.settings.getHref(),
+        icon: Settings,
+        end: true,
+      },
+      {
+        name: 'Reports',
+        to: paths.app.admin.reports.getHref(),
+        icon: BarChart3,
+        end: true,
       },
     ];
   }
@@ -117,7 +132,7 @@ const AppRoot = () => {
     navigationItems = [
       checkAccess({ allowedRoles: [ROLES.Admin] }) && {
         name: 'Admin Dashboard',
-        to: paths.app.dashboard.getHref(),
+        to: paths.app.admin.dashboard.getHref(),
         icon: Home,
         end: true,
       },

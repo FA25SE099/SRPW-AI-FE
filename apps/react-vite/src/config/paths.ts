@@ -80,5 +80,31 @@ export const paths = {
         getHref: () => '/app/expert/reports',
       },
     },
+    admin: {
+      root: {
+        path: 'admin',
+        getHref: () => '/app/admin',
+      },
+      dashboard: {
+        path: 'admin',
+        getHref: () => '/app/admin',
+      },
+      users: {
+        path: 'admin/users',
+        getHref: () => '/app/admin/users',
+      },
+      roles: {
+        path: 'admin/roles',
+        getHref: () => '/app/admin/roles',
+      },
+      settings: {
+        path: 'admin/settings',
+        getHref: () => '/app/admin/settings',
+      },
+      reports: {
+        path: 'admin/reports',
+        getHref: () => '/app/admin/reports',
+      },
+    },
   },
 } as const;
