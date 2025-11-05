@@ -89,9 +89,9 @@ export const paths = {
         path: 'cluster/dashboard',
         getHref: () => '/app/cluster',
       },
-      fields: {
-        path: 'cluster/field',
-        getHref: () => 'cluster/field',
+      plots: {
+        path: 'cluster/plots',
+        getHref: () => 'cluster/plots',
       },
       farmers: {
         path: 'cluster/farmers',

@@ -141,7 +141,9 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                     farmer.groups.map((group) => (
                       <div key={group.groupId} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                         <div className="flex items-center justify-between mb-3">
-                          <h4 className="font-semibold">{group.area}</h4>
+                          <div>
+                            <p className="text-xs text-muted-foreground mt-1">Group ID: {group.groupId}</p>
+                          </div>
                           <span
                             className={`px-3 py-1 rounded-full text-xs ${group.status === "Active" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
                               }`}
@@ -149,15 +151,9 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                             {group.status}
                           </span>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div>
-                            <p className="text-muted-foreground">Group ID</p>
-                            <p className="font-mono text-xs">{group.groupId.slice(0, 8)}...</p>
-                          </div>
-                          <div>
-                            <p className="text-muted-foreground">Total Area</p>
-                            <p className="font-medium">{group.totalArea} ha</p>
-                          </div>
+                        <div className="flex justify-between text-sm pt-3 border-t">
+                          <span className="text-muted-foreground">Total Area</span>
+                          <span className="font-medium">{group.totalArea} ha</span>
                         </div>
                       </div>
                     ))
@@ -204,7 +200,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                           </div>
                           <div>
                             <p className="text-muted-foreground">Plot ID</p>
-                            <p className="font-mono text-xs">{plot.plotId.slice(0, 8)}...</p>
+                            <p className="font-mono text-xs">{plot.plotId}</p>
                           </div>
                         </div>
                       </div>
@@ -212,6 +208,8 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                   )}
                 </div>
               )}
+
+
             </div>
           </div>
         )}

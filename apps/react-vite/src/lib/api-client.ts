@@ -178,7 +178,7 @@ api.interceptors.response.use(
 
     // Handle other errors
     const responseData = error.response?.data as any;
-    
+
     // Check for errors array first (validation errors), then message, then fallback
     let message: string;
     if (responseData?.errors && Array.isArray(responseData.errors) && responseData.errors.length > 0) {
@@ -187,13 +187,13 @@ api.interceptors.response.use(
     } else {
       message = responseData?.message || error.message;
     }
-    
+
     useNotifications.getState().addNotification({
       type: 'error',
       title: 'Error',
       message,
     });
 
-    return Promise.reject(error);    return Promise.reject(error);
+    return Promise.reject(error); return Promise.reject(error);
   },
 );

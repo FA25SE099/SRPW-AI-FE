@@ -17,7 +17,7 @@ const ClusterFarmers = () => {
     const [importDialogOpen, setImportDialogOpen] = useState(false);
     const [selectedFarmerId, setSelectedFarmerId] = useState<string | null>(null);
     const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-    
+
     const { addNotification } = useNotifications();
 
     const { data, isLoading, isError } = useFarmers({
@@ -44,7 +44,7 @@ const ClusterFarmers = () => {
                 link.click();
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(url);
-                
+
                 addNotification({
                     type: 'success',
                     title: 'Export Successful',
@@ -100,7 +100,6 @@ const ClusterFarmers = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold">Farmers Directory</h2>
                         <p className="text-muted-foreground">Manage all farmers in your cluster</p>
                     </div>
                     <div className="flex gap-2">
