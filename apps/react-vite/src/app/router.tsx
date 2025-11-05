@@ -144,6 +144,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/admin/reports').then(convert(queryClient)),
             },
+            {
+              path: 'clusters',
+              lazy: () =>
+                import('./routes/app/admin/clusters').then(convert(queryClient)),
+            },
           ],
         },
       ],

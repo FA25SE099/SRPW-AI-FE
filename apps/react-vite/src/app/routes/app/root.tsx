@@ -11,6 +11,7 @@ import {
   Shield,
   Settings,
   BarChart3,
+  Network,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
@@ -99,6 +100,12 @@ const AppRoot = () => {
         name: 'Overview',
         to: paths.app.admin.dashboard.getHref(),
         icon: Home,
+        end: true,
+      },
+      {
+        name: 'Clusters',
+        to: paths.app.admin.clusters.getHref(),
+        icon: Network,
         end: true,
       },
       {

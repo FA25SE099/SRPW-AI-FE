@@ -105,6 +105,10 @@ export const paths = {
         path: 'admin/reports',
         getHref: () => '/app/admin/reports',
       },
+      clusters: {
+        path: 'admin/clusters',
+        getHref: () => '/app/admin/clusters',
+      },
     },
   },
 } as const;
