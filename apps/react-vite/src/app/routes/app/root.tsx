@@ -36,6 +36,9 @@ const AppRoot = () => {
     if (user.data?.role === ROLES.AgronomyExpert) {
       return <Navigate to={paths.app.expert.dashboard.getHref()} replace />;
     }
+    if (user.data?.role === ROLES.Supervisor) {
+      return <Navigate to={paths.app.supervisor.dashboard.getHref()} replace />;
+    }
     return <Navigate to={paths.app.dashboard.getHref()} replace />;
   }
 
@@ -84,6 +87,35 @@ const AppRoot = () => {
       {
         name: 'Reports',
         to: paths.app.expert.reports.getHref(),
+        icon: TrendingUp,
+        end: true,
+      },
+    ];
+  }
+  // Supervisor Dashboard specific navigation
+  else if (location.pathname.startsWith('/app/supervisor')) {
+    navigationItems = [
+      {
+        name: 'Overview',
+        to: paths.app.supervisor.dashboard.getHref(),
+        icon: Home,
+        end: true,
+      },
+      {
+        name: 'Group Management',
+        to: paths.app.supervisor.group.getHref(),
+        icon: Users,
+        end: true,
+      },
+      {
+        name: 'Production Plans',
+        to: paths.app.supervisor.plans.getHref(),
+        icon: Folder,
+        end: true,
+      },
+      {
+        name: 'Reports',
+        to: paths.app.supervisor.reports.getHref(),
         icon: TrendingUp,
         end: true,
       },
@@ -139,6 +171,12 @@ const AppRoot = () => {
       checkAccess({ allowedRoles: [ROLES.AgronomyExpert] }) && {
         name: 'Expert Dashboard',
         to: paths.app.expert.dashboard.getHref(),
+        icon: Home,
+        end: true,
+      },
+      checkAccess({ allowedRoles: [ROLES.Supervisor] }) && {
+        name: 'Supervisor Dashboard',
+        to: paths.app.supervisor.dashboard.getHref(),
         icon: Home,
         end: true,
       },

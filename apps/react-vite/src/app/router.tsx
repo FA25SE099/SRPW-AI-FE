@@ -146,6 +146,31 @@ export const createAppRouter = (queryClient: QueryClient) =>
             },
           ],
         },
+        {
+          path: 'supervisor',
+          children: [
+            {
+              index: true,
+              lazy: () =>
+                import('./routes/app/supervisor/dashboard').then(convert(queryClient)),
+            },
+            {
+              path: 'group',
+              lazy: () =>
+                import('./routes/app/supervisor/group').then(convert(queryClient)),
+            },
+            {
+              path: 'plans',
+              lazy: () =>
+                import('./routes/app/supervisor/plans').then(convert(queryClient)),
+            },
+            {
+              path: 'reports',
+              lazy: () =>
+                import('./routes/app/supervisor/reports').then(convert(queryClient)),
+            },
+          ],
+        },
       ],
     },
     {

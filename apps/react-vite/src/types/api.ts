@@ -114,18 +114,18 @@ export type GetPendingApprovalsParams = {
   priority?: TaskPriority;
 };
 
-export type PagedResult<T> = {
-  currentPage: number;
-  pageSize: number;
-  totalCount: number;
-  totalPages: number;
-  hasPrevious: boolean;
-  hasNext: boolean;
-  succeeded: boolean;
-  data: T;
-  message?: string;
-  errors?: string[];
-};
+// export type PagedResult<T> = {
+//   currentPage: number;
+//   pageSize: number;
+//   totalCount: number;
+//   totalPages: number;
+//   hasPrevious: boolean;
+//   hasNext: boolean;
+//   succeeded: boolean;
+//   data: T;
+//   message?: string;
+//   errors?: string[];
+// };
 
 export type ApproveRejectPlanInput = {
   planId: string;

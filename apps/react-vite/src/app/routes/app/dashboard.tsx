@@ -15,11 +15,17 @@ const DashboardRoute = () => {
       navigate('/app/admin', { replace: true });
     } else if (user.data?.role === ROLES.AgronomyExpert) {
       navigate('/app/expert', { replace: true });
+    } else if (user.data?.role === ROLES.Supervisor) {
+      navigate('/app/supervisor', { replace: true });
     }
   }, [user.data?.role, navigate]);
 
-  // Show spinner while redirecting admins/experts
-  if (user.data?.role === ROLES.Admin || user.data?.role === ROLES.AgronomyExpert) {
+  // Show spinner while redirecting admins/experts/supervisors
+  if (
+    user.data?.role === ROLES.Admin || 
+    user.data?.role === ROLES.AgronomyExpert ||
+    user.data?.role === ROLES.Supervisor
+  ) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Spinner size="lg" />
@@ -27,7 +33,7 @@ const DashboardRoute = () => {
     );
   }
 
-  // Fallback dashboard for other roles (farmers, supervisors, etc.)
+  // Fallback dashboard for other roles (farmers, etc.)
   return (
     <ContentLayout title="Dashboard">
       <div className="space-y-6">

@@ -106,5 +106,27 @@ export const paths = {
         getHref: () => '/app/admin/reports',
       },
     },
+    supervisor: {
+      root: {
+        path: 'supervisor',
+        getHref: () => '/app/supervisor',
+      },
+      dashboard: {
+        path: 'supervisor',
+        getHref: () => '/app/supervisor',
+      },
+      group: {
+        path: 'supervisor/group',
+        getHref: () => '/app/supervisor/group',
+      },
+      plans: {
+        path: 'supervisor/plans',
+        getHref: () => '/app/supervisor/plans',
+      },
+      reports: {
+        path: 'supervisor/reports',
+        getHref: () => '/app/supervisor/reports',
+      },
+    },
   },
 } as const;
