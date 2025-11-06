@@ -2,7 +2,6 @@ import { QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
-import { Outlet } from 'react-router-dom';
 import { paths } from '@/config/paths';
 import { ProtectedRoute } from '@/lib/auth';
 
@@ -10,6 +9,7 @@ import {
   default as AppRoot,
   ErrorBoundary as AppRootErrorBoundary,
 } from './routes/app/root';
+import { queryByRole } from '@testing-library/react';
 
 const convert = (queryClient: QueryClient) => (m: any) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
@@ -168,6 +168,26 @@ export const createAppRouter = (queryClient: QueryClient) =>
               path: 'reports',
               lazy: () =>
                 import('./routes/app/supervisor/reports').then(convert(queryClient)),
+            },
+          ],
+        },
+        {
+          path: 'cluster',
+          children: [
+            {
+              index: true,
+              lazy: () =>
+                import('./routes/app/cluster/dashboard').then(convert(queryClient)),
+            },
+            {
+              path: 'field',
+              lazy: () =>
+                import('./routes/app/cluster/field').then(convert(queryClient)),
+            },
+            {
+              path: 'farmers',
+              lazy: () =>
+                import('./routes/app/cluster/farmers').then(convert(queryClient)),
             },
           ],
         },

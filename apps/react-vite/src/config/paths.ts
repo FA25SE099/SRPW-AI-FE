@@ -128,5 +128,31 @@ export const paths = {
         getHref: () => '/app/supervisor/reports',
       },
     },
+    cluster: {
+      root: {
+        path: 'cluster',
+        getHref: () => '/app/cluster',
+      },
+      dashboard: {
+        path: 'cluster/dashboard',
+        getHref: () => '/app/cluster',
+      },
+      fields: {
+        path: 'cluster/field',
+        getHref: () => '/app/cluster/field',
+      },
+      farmers: {
+        path: 'cluster/farmers',
+        getHref: () => '/app/cluster/farmers',
+      },
+      plans: {
+        path: 'cluster/plans',
+        getHref: () => '/app/cluster/plans',
+      },
+      groups: {
+        path: 'cluster/groups',
+        getHref: () => '/app/cluster/groups',
+      },
+    },
   },
 } as const;

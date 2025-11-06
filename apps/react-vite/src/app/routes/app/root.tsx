@@ -7,6 +7,9 @@ import {
   FileText,
   Beaker,
   TrendingUp,
+  MapPin,
+  UserCheck,
+  ClipboardList,
   Sprout,
   Shield,
   Settings,
@@ -38,6 +41,9 @@ const AppRoot = () => {
     }
     if (user.data?.role === ROLES.Supervisor) {
       return <Navigate to={paths.app.supervisor.dashboard.getHref()} replace />;
+    }
+    if (user.data?.role === ROLES.ClusterManager) {
+      return <Navigate to={paths.app.cluster.dashboard.getHref()} replace />;
     }
     return <Navigate to={paths.app.dashboard.getHref()} replace />;
   }
@@ -121,6 +127,41 @@ const AppRoot = () => {
       },
     ];
   }
+  // Cluster Dashboard specific navigation
+  else if (location.pathname.startsWith('/app/cluster')) {
+    navigationItems = [
+      {
+        name: 'Overview',
+        to: paths.app.cluster.dashboard.getHref(),
+        icon: Home,
+        end: true,
+      },
+      {
+        name: 'Fields',
+        to: paths.app.cluster.fields.getHref(),
+        icon: MapPin,
+        end: true,
+      },
+      {
+        name: 'Farmers',
+        to: paths.app.cluster.farmers.getHref(),
+        icon: UserCheck,
+        end: true,
+      },
+      {
+        name: 'Plans',
+        to: paths.app.cluster.plans.getHref(),
+        icon: ClipboardList,
+        end: true,
+      },
+      {
+        name: 'Groups',
+        to: paths.app.cluster.groups.getHref(),
+        icon: Users,
+        end: true,
+      },
+    ];
+  }
   // Admin Dashboard specific navigation
   else if (
     location.pathname.startsWith('/app/admin') &&
@@ -194,6 +235,7 @@ const AppRoot = () => {
       },
     ].filter(Boolean) as SideNavigationItem[];
   }
+
 
   return (
     <DashboardLayout navigationItems={navigationItems}>
