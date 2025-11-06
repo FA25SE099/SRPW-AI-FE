@@ -1,42 +1,46 @@
-import { queryOptions, useQuery } from '@tanstack/react-query';
+import { useQuery, queryOptions } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { PlotsOutSeasonResponse, GetPlotsOutSeasonParams } from './get-all-plots';
+import type { PlotDTO } from './get-all-plots';
 
-export const getPlotsOutSeason = async (
-    params: GetPlotsOutSeasonParams = {}
-): Promise<PlotsOutSeasonResponse> => {
-    const searchParams = new URLSearchParams();
-    
-    if (params.currentDate) searchParams.append('currentDate', params.currentDate);
-    if (params.searchTerm) searchParams.append('searchTerm', params.searchTerm);
-
-    const queryString = searchParams.toString();
-    const url = queryString ? `/Plot/out-season?${queryString}` : '/Plot/out-season';
-    
-    return api.get(url);
+export type GetPlotsOutSeasonParams = {
+  currentDate?: string; // Format: YYYY-MM-DD or ISO 8601
+  searchTerm?: string;
 };
 
-export const getPlotsOutSeasonQueryOptions = (params: GetPlotsOutSeasonParams = {}) => {
-    return queryOptions({
-        queryKey: ['plots', 'out-season', params],
-        queryFn: () => getPlotsOutSeason(params),
-        staleTime: 30000, // 30 seconds
-    });
+export type GetPlotsOutSeasonResponse = {
+  succeeded: boolean;
+  message?: string;
+  errors?: string[];
+  data: PlotDTO[];
+};
+
+export const getPlotsOutSeason = ({
+  params,
+}: {
+  params?: GetPlotsOutSeasonParams;
+}): Promise<GetPlotsOutSeasonResponse> => {
+  return api.get('/Plot/out-season', { params });
+};
+
+export const getPlotsOutSeasonQueryOptions = (params?: GetPlotsOutSeasonParams) => {
+  return queryOptions({
+    queryKey: ['plots', 'out-season', params],
+    queryFn: () => getPlotsOutSeason({ params }),
+  });
 };
 
 type UsePlotsOutSeasonOptions = {
-    params?: GetPlotsOutSeasonParams;
-    queryConfig?: QueryConfig<typeof getPlotsOutSeasonQueryOptions>;
+  params?: GetPlotsOutSeasonParams;
+  queryConfig?: QueryConfig<typeof getPlotsOutSeasonQueryOptions>;
 };
 
 export const usePlotsOutSeason = ({
-    params = {},
-    queryConfig,
+  params,
+  queryConfig
 }: UsePlotsOutSeasonOptions = {}) => {
-    return useQuery({
-        ...getPlotsOutSeasonQueryOptions(params),
-        ...queryConfig,
-    });
+  return useQuery({
+    ...getPlotsOutSeasonQueryOptions(params),
+    ...queryConfig,
+  });
 };
-

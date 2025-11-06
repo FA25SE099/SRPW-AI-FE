@@ -1,31 +1,36 @@
 import { useState } from "react"
 import { ContentLayout } from "@/components/layouts"
 import { MapPin, Search, AlertTriangle, Plus, FileText, Calendar, TrendingUp } from "lucide-react"
-import { usePlots } from "@/features/plots/api/get-all-plots"
+import { usePlots, type PlotDTO } from "@/features/plots/api/get-all-plots"
 import { usePlotsOutSeason } from "@/features/plots/api/get-plots-out-season"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import type { PlotDTO } from "@/features/plots/api/get-all-plots"
 
 const Plots = () => {
     const [searchTerm, setSearchTerm] = useState("")
     const [pageNumber, setPageNumber] = useState(1)
+    const [activeTab, setActiveTab] = useState<"all" | "out-season">("all")
+    const [selectedDate, setSelectedDate] = useState<string>()
     const pageSize = 12
 
-    // Get all plots with pagination
-    const { data: plotsResponse, isLoading: isLoadingPlots, isError } = usePlots({
+    const { data: plotsResponse, isLoading: isLoadingPlots, isError: isErrorPlots } = usePlots({
         params: { pageNumber, pageSize, searchTerm: searchTerm || undefined },
     })
 
-    // Get out of season plots
-    const { data: outSeasonResponse, isLoading: isLoadingOutSeason } = usePlotsOutSeason({
-        params: { searchTerm: searchTerm || undefined },
+    const { data: outSeasonResponse, isLoading: isLoadingOutSeason, isError: isErrorOutSeason } = usePlotsOutSeason({
+        params: {
+            currentDate: selectedDate,
+            searchTerm: searchTerm || undefined,
+        },
+        queryConfig: {
+            enabled: activeTab === "out-season",
+        },
     })
 
     const plots = plotsResponse?.data || []
-    const outSeasonPlots = outSeasonResponse?.data || []
+    const outSeasonPlots = outSeasonResponse || []
     const totalPages = plotsResponse?.totalPages || 0
     const totalCount = plotsResponse?.totalCount || 0
 
@@ -47,16 +52,16 @@ const Plots = () => {
                     <div className="flex size-12 items-center justify-center rounded-lg bg-green-100">
                         <MapPin className="size-6 text-green-600" />
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-1">
                         <h3 className="text-base font-semibold text-gray-900 leading-snug">
-                            Plot {plot.soThua}/{plot.soTo}
+                            Plot {plot.soThua ?? 'N/A'} / {plot.soTo ?? 'N/A'}
                         </h3>
-                        <p className="text-xs text-gray-500 mt-0.5 font-mono">
-                            {plot.plotId.slice(0, 8)}...
+                        <p className="text-xs text-gray-500 mt-0.5 font-mono break-all">
+                            {plot.plotId}
                         </p>
                     </div>
                 </div>
-                <Badge className={`border ${getStatusColor(plot.status)}`}>
+                <Badge className={`border ${getStatusColor(plot.status)} flex-shrink-0`}>
                     {plot.status}
                 </Badge>
             </div>
@@ -122,6 +127,8 @@ const Plots = () => {
             </div>
         </div>
     )
+
+    const isError = isErrorPlots || isErrorOutSeason
 
     if (isError) {
         return (
@@ -204,7 +211,9 @@ const Plots = () => {
                         </div>
                         <div>
                             <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Out of Season</p>
-                            <p className="text-2xl font-bold text-gray-900 leading-snug mt-1">{outSeasonPlots.length}</p>
+                            <p className="text-2xl font-bold text-gray-900 leading-snug mt-1">
+                                {outSeasonPlots.length}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -224,9 +233,9 @@ const Plots = () => {
                 </div>
             </div>
 
-            {/* Search Bar */}
-            <div className="mb-6">
-                <div className="relative max-w-md">
+            {/* Search Bar & Date Filter */}
+            <div className="mb-6 flex gap-4">
+                <div className="relative flex-1 max-w-md">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
                     <input
                         type="text"
@@ -239,9 +248,31 @@ const Plots = () => {
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors"
                     />
                 </div>
+
+                {activeTab === "out-season" && (
+                    <div className="relative">
+                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400" />
+                        <input
+                            type="date"
+                            value={selectedDate || ''}
+                            onChange={(e) => setSelectedDate(e.target.value || undefined)}
+                            placeholder="Test with date..."
+                            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600 transition-colors"
+                        />
+                        {selectedDate && (
+                            <button
+                                onClick={() => setSelectedDate(undefined)}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                title="Clear date"
+                            >
+                                ×
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
 
-            <Tabs defaultValue="all" className="space-y-6">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "all" | "out-season")} className="space-y-6">
                 <TabsList className="bg-gray-100 p-1">
                     <TabsTrigger
                         value="all"
@@ -259,7 +290,6 @@ const Plots = () => {
                     </TabsTrigger>
                 </TabsList>
 
-                {/* All Plots Tab */}
                 <TabsContent value="all">
                     {isLoadingPlots ? (
                         <div className="flex items-center justify-center py-16">
@@ -289,7 +319,6 @@ const Plots = () => {
                                 ))}
                             </div>
 
-                            {/* Pagination */}
                             {totalPages > 1 && (
                                 <div className="flex items-center justify-center gap-2 mt-6 pt-6 border-t border-gray-200">
                                     <Button
@@ -319,7 +348,6 @@ const Plots = () => {
                     )}
                 </TabsContent>
 
-                {/* Out of Season Tab */}
                 <TabsContent value="out-season">
                     {isLoadingOutSeason ? (
                         <div className="flex items-center justify-center py-16">
@@ -328,9 +356,13 @@ const Plots = () => {
                     ) : outSeasonPlots.length === 0 ? (
                         <div className="bg-white border border-gray-200 border-dashed rounded-lg py-16 text-center">
                             <Calendar className="size-16 mx-auto mb-4 text-green-400" />
-                            <h3 className="text-lg font-semibold text-gray-900">All plots in season</h3>
+                            <h3 className="text-lg font-semibold text-gray-900">
+                                {selectedDate ? `No plots out of season on ${selectedDate}` : 'All plots in season'}
+                            </h3>
                             <p className="mt-2 text-sm text-gray-600 max-w-sm mx-auto">
-                                No plots are currently out of season. All farming operations are active.
+                                {selectedDate
+                                    ? 'Try selecting a different date to test'
+                                    : 'No plots are currently out of season. All farming operations are active.'}
                             </p>
                         </div>
                     ) : (
