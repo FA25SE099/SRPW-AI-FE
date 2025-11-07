@@ -5,6 +5,7 @@ import { Head } from '../seo';
 type ContentLayoutProps = {
   children: React.ReactNode;
   title: string;
+  actions?: React.ReactNode
 };
 
 export const ContentLayout = ({ children, title }: ContentLayoutProps) => {

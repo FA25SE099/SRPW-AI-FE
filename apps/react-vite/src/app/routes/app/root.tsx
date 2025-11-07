@@ -11,6 +11,7 @@ import {
   UserCheck,
   ClipboardList,
   Sprout,
+  Map,
   Shield,
   Settings,
   BarChart3,
@@ -139,7 +140,7 @@ const AppRoot = () => {
       },
       {
         name: 'Fields',
-        to: paths.app.cluster.fields.getHref(),
+        to: paths.app.cluster.plots.getHref(),
         icon: MapPin,
         end: true,
       },
@@ -160,6 +161,12 @@ const AppRoot = () => {
         to: paths.app.cluster.groups.getHref(),
         icon: Users,
         end: true,
+      },
+      {
+        name: 'Map',
+        to: paths.app.cluster.maps.getHref(),
+        icon: Map,
+        end: true
       },
     ];
   }

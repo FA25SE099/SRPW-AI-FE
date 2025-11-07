@@ -92,6 +92,7 @@ export type FarmerDetail = {
     plots: FarmerPlot[];
 };
 
+
 // API Function
 export const getFarmerDetail = (farmerId: string): Promise<FarmerDetail> => {
     return api.get(`/farmer/detail/${farmerId}`);

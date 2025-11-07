@@ -185,14 +185,24 @@ export const createAppRouter = (queryClient: QueryClient) =>
                 import('./routes/app/cluster/dashboard').then(convert(queryClient)),
             },
             {
-              path: 'field',
+              path: 'plots',
               lazy: () =>
-                import('./routes/app/cluster/field').then(convert(queryClient)),
+                import('./routes/app/cluster/plots').then(convert(queryClient)),
             },
             {
               path: 'farmers',
               lazy: () =>
                 import('./routes/app/cluster/farmers').then(convert(queryClient)),
+            },
+            {
+              path: 'groups',
+              lazy: () =>
+                import('./routes/app/cluster/groups').then(convert(queryClient)),
+            },
+            {
+              path: 'map',
+              lazy: () =>
+                import('./routes/app/cluster/map').then(convert(queryClient)),
             },
           ],
         },
