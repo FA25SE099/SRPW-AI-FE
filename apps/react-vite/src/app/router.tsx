@@ -179,10 +179,6 @@ export const createAppRouter = (queryClient: QueryClient) =>
         {
           path: 'cluster',
           children: [
-<<<<<<< HEAD
-
-=======
->>>>>>> f40eed5b866e92c41baec0c23276e6213010219b
             {
               index: true,
               lazy: () =>
@@ -198,7 +194,6 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/cluster/farmers').then(convert(queryClient)),
             },
-<<<<<<< HEAD
             {
               path: 'groups',
               lazy: () =>
@@ -209,8 +204,6 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/cluster/map').then(convert(queryClient)),
             },
-=======
->>>>>>> f40eed5b866e92c41baec0c23276e6213010219b
           ],
         },
       ],

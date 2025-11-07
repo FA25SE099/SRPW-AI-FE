@@ -161,17 +161,6 @@ const Plots = () => {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <Button
-                        variant="outline"
-                        className="gap-2 border-gray-300 text-gray-700 hover:bg-gray-50"
-                    >
-                        <FileText className="size-4" />
-                        Export
-                    </Button>
-                    <Button className="bg-green-600 hover:bg-green-700 text-white font-semibold gap-2 px-6">
-                        <Plus className="size-4" />
-                        Add Plot
-                    </Button>
                 </div>
             </div>
 

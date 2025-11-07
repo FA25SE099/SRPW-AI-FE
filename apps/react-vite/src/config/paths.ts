@@ -158,8 +158,8 @@ export const paths = {
         getHref: () => 'cluster/groups'
       },
       maps: {
-        path: 'cluster/maps',
-        getHref: () => 'cluster/maps'
+        path: 'cluster/map',
+        getHref: () => 'cluster/map'
       },
     },
   },
