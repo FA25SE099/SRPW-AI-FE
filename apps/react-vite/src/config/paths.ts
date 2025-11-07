@@ -80,6 +80,58 @@ export const paths = {
         getHref: () => '/app/expert/reports',
       },
     },
+    admin: {
+      root: {
+        path: 'admin',
+        getHref: () => '/app/admin',
+      },
+      dashboard: {
+        path: 'admin',
+        getHref: () => '/app/admin',
+      },
+      users: {
+        path: 'admin/users',
+        getHref: () => '/app/admin/users',
+      },
+      roles: {
+        path: 'admin/roles',
+        getHref: () => '/app/admin/roles',
+      },
+      settings: {
+        path: 'admin/settings',
+        getHref: () => '/app/admin/settings',
+      },
+      reports: {
+        path: 'admin/reports',
+        getHref: () => '/app/admin/reports',
+      },
+      clusters: {
+        path: 'admin/clusters',
+        getHref: () => '/app/admin/clusters',
+      },
+    },
+    supervisor: {
+      root: {
+        path: 'supervisor',
+        getHref: () => '/app/supervisor',
+      },
+      dashboard: {
+        path: 'supervisor',
+        getHref: () => '/app/supervisor',
+      },
+      group: {
+        path: 'supervisor/group',
+        getHref: () => '/app/supervisor/group',
+      },
+      plans: {
+        path: 'supervisor/plans',
+        getHref: () => '/app/supervisor/plans',
+      },
+      reports: {
+        path: 'supervisor/reports',
+        getHref: () => '/app/supervisor/reports',
+      },
+    },
     cluster: {
       root: {
         path: 'cluster',
@@ -95,11 +147,11 @@ export const paths = {
       },
       farmers: {
         path: 'cluster/farmers',
-        getHref: () => 'cluster/farmers'
+        getHref: () => '/app/cluster/farmers',
       },
       plans: {
         path: 'cluster/plans',
-        getHref: () => 'cluster/plans'
+        getHref: () => '/app/cluster/plans',
       },
       groups: {
         path: 'cluster/groups',

@@ -117,9 +117,72 @@ export const createAppRouter = (queryClient: QueryClient) =>
           ],
         },
         {
+          path: 'admin',
+          children: [
+            {
+              index: true,
+              lazy: () =>
+                import('./routes/app/admin/dashboard').then(convert(queryClient)),
+            },
+            {
+              path: 'users',
+              lazy: () =>
+                import('./routes/app/admin/users').then(convert(queryClient)),
+            },
+            {
+              path: 'roles',
+              lazy: () =>
+                import('./routes/app/admin/roles').then(convert(queryClient)),
+            },
+            {
+              path: 'settings',
+              lazy: () =>
+                import('./routes/app/admin/settings').then(convert(queryClient)),
+            },
+            {
+              path: 'reports',
+              lazy: () =>
+                import('./routes/app/admin/reports').then(convert(queryClient)),
+            },
+            {
+              path: 'clusters',
+              lazy: () =>
+                import('./routes/app/admin/clusters').then(convert(queryClient)),
+            },
+          ],
+        },
+        {
+          path: 'supervisor',
+          children: [
+            {
+              index: true,
+              lazy: () =>
+                import('./routes/app/supervisor/dashboard').then(convert(queryClient)),
+            },
+            {
+              path: 'group',
+              lazy: () =>
+                import('./routes/app/supervisor/group').then(convert(queryClient)),
+            },
+            {
+              path: 'plans',
+              lazy: () =>
+                import('./routes/app/supervisor/plans').then(convert(queryClient)),
+            },
+            {
+              path: 'reports',
+              lazy: () =>
+                import('./routes/app/supervisor/reports').then(convert(queryClient)),
+            },
+          ],
+        },
+        {
           path: 'cluster',
           children: [
+<<<<<<< HEAD
 
+=======
+>>>>>>> f40eed5b866e92c41baec0c23276e6213010219b
             {
               index: true,
               lazy: () =>
@@ -135,6 +198,7 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/cluster/farmers').then(convert(queryClient)),
             },
+<<<<<<< HEAD
             {
               path: 'groups',
               lazy: () =>
@@ -145,6 +209,8 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/cluster/map').then(convert(queryClient)),
             },
+=======
+>>>>>>> f40eed5b866e92c41baec0c23276e6213010219b
           ],
         },
       ],
