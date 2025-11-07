@@ -11,6 +11,7 @@ import {
   UserCheck,
   ClipboardList,
   Sprout,
+  Map,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
@@ -124,6 +125,12 @@ const AppRoot = () => {
         to: paths.app.cluster.groups.getHref(),
         icon: TrendingUp,
         end: true,
+      },
+      {
+        name: 'Map',
+        to: paths.app.cluster.maps.getHref(),
+        icon: Map,
+        end: true
       },
     ];
   }

@@ -3,6 +3,7 @@ import { ContentLayout } from "@/components/layouts"
 import { MapPin, Search, AlertTriangle, Plus, FileText, Calendar, TrendingUp } from "lucide-react"
 import { usePlots, type PlotDTO } from "@/features/plots/api/get-all-plots"
 import { usePlotsOutSeason } from "@/features/plots/api/get-plots-out-season"
+import { PlotsDetailDialog } from "@/features/plots/components/plots-detail-dialog"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { Badge } from "@/components/ui/badge"
@@ -13,6 +14,7 @@ const Plots = () => {
     const [pageNumber, setPageNumber] = useState(1)
     const [activeTab, setActiveTab] = useState<"all" | "out-season">("all")
     const [selectedDate, setSelectedDate] = useState<string>()
+    const [selectedPlotId, setSelectedPlotId] = useState<string>()
     const pageSize = 12
 
     const { data: plotsResponse, isLoading: isLoadingPlots, isError: isErrorPlots } = usePlots({
@@ -46,7 +48,6 @@ const Plots = () => {
 
     const PlotCard = ({ plot }: { plot: PlotDTO }) => (
         <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md hover:border-green-200 transition-all duration-150 flex flex-col">
-            {/* Header */}
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                     <div className="flex size-12 items-center justify-center rounded-lg bg-green-100">
@@ -66,7 +67,6 @@ const Plots = () => {
                 </Badge>
             </div>
 
-            {/* Content - Fixed Height */}
             <div className="flex-1 space-y-3 pb-4 border-b border-gray-100">
                 <div className="flex items-center gap-2 text-sm text-gray-700">
                     <MapPin className="size-4 text-green-600 flex-shrink-0" />
@@ -91,7 +91,6 @@ const Plots = () => {
                     </div>
                 </div>
 
-                {/* Active Seasons */}
                 <div className="min-h-[44px]">
                     {plot.seasons.filter(s => s.isActive).length > 0 && (
                         <div className="text-xs">
@@ -115,12 +114,12 @@ const Plots = () => {
                 </div>
             </div>
 
-            {/* Actions */}
             <div className="mt-4">
                 <Button
                     variant="outline"
                     size="sm"
                     className="w-full border-green-600 text-green-600 hover:bg-green-50 font-medium"
+                    onClick={() => setSelectedPlotId(plot.plotId)}
                 >
                     View Details
                 </Button>
@@ -374,6 +373,13 @@ const Plots = () => {
                     )}
                 </TabsContent>
             </Tabs>
+
+            {/* Dialog Component */}
+            <PlotsDetailDialog
+                plotId={selectedPlotId!}
+                open={!!selectedPlotId}
+                onOpenChange={(open) => !open && setSelectedPlotId(undefined)}
+            />
         </ContentLayout>
     )
 }

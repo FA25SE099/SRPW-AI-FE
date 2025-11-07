@@ -140,6 +140,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/cluster/groups').then(convert(queryClient)),
             },
+            {
+              path: 'map',
+              lazy: () =>
+                import('./routes/app/cluster/map').then(convert(queryClient)),
+            },
           ],
         },
       ],

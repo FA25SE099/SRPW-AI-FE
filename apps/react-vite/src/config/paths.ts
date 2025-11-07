@@ -105,6 +105,10 @@ export const paths = {
         path: 'cluster/groups',
         getHref: () => 'cluster/groups'
       },
+      maps: {
+        path: 'cluster/maps',
+        getHref: () => 'cluster/maps'
+      },
     },
   },
 } as const;
