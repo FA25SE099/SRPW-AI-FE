@@ -1,9 +1,10 @@
 import { useState } from "react"
 import { ContentLayout } from "@/components/layouts"
-import { MapPin, Search, AlertTriangle, Plus, FileText, Calendar, TrendingUp } from "lucide-react"
+import { MapPin, Search, AlertTriangle, Plus, FileText, Calendar, TrendingUp, Upload } from "lucide-react"
 import { usePlots, type PlotDTO } from "@/features/plots/api/get-all-plots"
 import { usePlotsOutSeason } from "@/features/plots/api/get-plots-out-season"
 import { PlotsDetailDialog } from "@/features/plots/components/plots-detail-dialog"
+import { ImportPlotsDialog } from "@/features/plots/components/import-plots-dialog"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { Badge } from "@/components/ui/badge"
@@ -15,6 +16,7 @@ const Plots = () => {
     const [activeTab, setActiveTab] = useState<"all" | "out-season">("all")
     const [selectedDate, setSelectedDate] = useState<string>()
     const [selectedPlotId, setSelectedPlotId] = useState<string>()
+    const [showImportDialog, setShowImportDialog] = useState(false)
     const pageSize = 12
 
     const { data: plotsResponse, isLoading: isLoadingPlots, isError: isErrorPlots } = usePlots({
@@ -92,14 +94,14 @@ const Plots = () => {
                 </div>
 
                 <div className="min-h-[44px]">
-                    {plot.seasons.filter(s => s.isActive).length > 0 && (
+                    {(plot.seasons?.filter(s => s.isActive) || []).length > 0 && (
                         <div className="text-xs">
                             <p className="text-gray-600 flex items-center gap-1 mb-2">
                                 <Calendar className="size-3" />
                                 <span className="uppercase tracking-wide font-medium">Active Seasons</span>
                             </p>
                             <div className="flex flex-wrap gap-1">
-                                {plot.seasons.filter(s => s.isActive).map(season => (
+                                {(plot.seasons?.filter(s => s.isActive) || []).map(season => (
                                     <Badge
                                         key={season.seasonId}
                                         variant="outline"
@@ -161,6 +163,20 @@ const Plots = () => {
                     </p>
                 </div>
                 <div className="flex gap-3">
+                    <Button
+                        onClick={() => setShowImportDialog(true)}
+                        variant="outline"
+                        className="gap-2 border-green-600 text-green-600 hover:bg-green-50"
+                    >
+                        <Upload className="size-4" />
+                        Import Excel
+                    </Button>
+                    <Button
+                        className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                    >
+                        <Plus className="size-4" />
+                        Add Plot
+                    </Button>
                 </div>
             </div>
 
@@ -363,11 +379,16 @@ const Plots = () => {
                 </TabsContent>
             </Tabs>
 
-            {/* Dialog Component */}
+            {/* Dialogs */}
             <PlotsDetailDialog
                 plotId={selectedPlotId!}
                 open={!!selectedPlotId}
                 onOpenChange={(open) => !open && setSelectedPlotId(undefined)}
+            />
+
+            <ImportPlotsDialog
+                open={showImportDialog}
+                onOpenChange={setShowImportDialog}
             />
         </ContentLayout>
     )
