@@ -3,21 +3,45 @@ import { Navigate, useLocation } from 'react-router';
 import { z } from 'zod';
 
 import { paths } from '@/config/paths';
-import { AuthResponse, User } from '@/types/api';
+import { LoginResponse, User } from '@/types/api';
 
 import { api } from './api-client';
+import { tokenStorage } from './token-storage';
 
 // api call definitions for auth (types, schemas, requests):
 // these are not part of features as this is a module shared across features
 
-const getUser = async (): Promise<User> => {
-  const response = await api.get('/auth/me');
+const getUser = async (): Promise<User | null> => {
+  // If no token exists, return null instead of throwing an error
+  // This allows the app to render without authentication
+  if (!tokenStorage.hasToken()) {
+    return null;
+  }
 
-  return response.data;
+  try {
+    // The api client will automatically attach the Authorization header
+    // and unwrap the Result<User> response
+    const user: User = await api.get('/auth/me');
+    return user;
+  } catch (error) {
+    // If the token is invalid or expired, clear it and return null
+    console.error('Failed to fetch user:', error);
+    tokenStorage.clearTokens();
+    return null;
+  }
 };
 
-const logout = (): Promise<void> => {
-  return api.post('/auth/logout');
+const logout = async (): Promise<void> => {
+  try {
+    // Call backend logout endpoint (optional, if it exists)
+    await api.post('/auth/logout');
+  } catch (error) {
+    // If logout endpoint fails, still clear local tokens
+    console.error('Logout API call failed:', error);
+  } finally {
+    // Always clear tokens from localStorage
+    tokenStorage.clearTokens();
+  }
 };
 
 export const loginInputSchema = z.object({
@@ -26,8 +50,24 @@ export const loginInputSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginInputSchema>;
-const loginWithEmailAndPassword = (data: LoginInput): Promise<AuthResponse> => {
-  return api.post('/auth/login', data);
+
+const loginWithEmailAndPassword = async (
+  data: LoginInput,
+): Promise<LoginResponse> => {
+  // Add rememberMe: true as per requirements
+  const response: LoginResponse = await api.post('/auth/login', {
+    ...data,
+    rememberMe: true,
+  });
+
+  // Store tokens in localStorage
+  tokenStorage.setTokens(
+    response.accessToken,
+    response.refreshToken,
+    response.expiresAt,
+  );
+
+  return response;
 };
 
 export const registerInputSchema = z
@@ -53,10 +93,20 @@ export const registerInputSchema = z
 
 export type RegisterInput = z.infer<typeof registerInputSchema>;
 
-const registerWithEmailAndPassword = (
+const registerWithEmailAndPassword = async (
   data: RegisterInput,
-): Promise<AuthResponse> => {
-  return api.post('/auth/register', data);
+): Promise<LoginResponse> => {
+  // Registration also returns tokens and user
+  const response: LoginResponse = await api.post('/auth/register', data);
+
+  // Store tokens in localStorage
+  tokenStorage.setTokens(
+    response.accessToken,
+    response.refreshToken,
+    response.expiresAt,
+  );
+
+  return response;
 };
 
 const authConfig = {

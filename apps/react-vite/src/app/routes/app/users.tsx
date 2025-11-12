@@ -19,7 +19,7 @@ const UsersRoute = () => {
     <ContentLayout title="Users">
       <Authorization
         forbiddenFallback={<div>Only admin can view this.</div>}
-        allowedRoles={[ROLES.ADMIN]}
+        allowedRoles={[ROLES.Admin]}
       >
         <UsersList />
       </Authorization>

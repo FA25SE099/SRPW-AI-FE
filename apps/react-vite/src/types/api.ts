@@ -17,15 +17,47 @@ export type Meta = {
   totalPages: number;
 };
 
+// User roles matching backend enum
+export type UserRole =
+  | 'Admin'
+  | 'ClusterManager'
+  | 'Supervisor'
+  | 'AgronomyExpert'
+  | 'UavVendor';
+
 export type User = Entity<{
   firstName: string;
   lastName: string;
   email: string;
-  role: 'ADMIN' | 'USER';
+  role: UserRole;
   teamId: string;
   bio: string;
 }>;
 
+// Backend Result wrapper
+export type Result<T> = {
+  succeeded: boolean;
+  data: T;
+  message?: string;
+  errors?: string[];
+};
+
+// Token data from login/refresh endpoints
+export type TokenData = {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string; // ISO date string
+};
+
+// Login response
+export type LoginResponse = {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: string;
+  user: User;
+};
+
+// Legacy type for backward compatibility
 export type AuthResponse = {
   jwt: string;
   user: User;
@@ -48,3 +80,392 @@ export type Comment = Entity<{
   discussionId: string;
   author: User;
 }>;
+
+// Expert Approval Types
+export type TaskStatus = 
+  | 'PendingApproval'
+  | 'Approved'
+  | 'Rejected'
+  | 'InProgress'
+  | 'Completed'
+  | 'Cancelled';
+
+export type TaskPriority = 
+  | 'Low'
+  | 'Medium'
+  | 'High'
+  | 'Urgent';
+
+export type ExpertPendingPlanItem = {
+    id: string;
+    planName: string;
+    groupId: string;
+    groupArea: string;
+    basePlantingDate: string;
+    status: TaskStatus;
+    submittedAt: string | null;
+    submitterName: string;
+};
+
+export type GetPendingApprovalsParams = {
+  currentPage?: number;
+  pageSize?: number;
+  status?: TaskStatus;
+  priority?: TaskPriority;
+};
+
+// export type PagedResult<T> = {
+//   currentPage: number;
+//   pageSize: number;
+//   totalCount: number;
+//   totalPages: number;
+//   hasPrevious: boolean;
+//   hasNext: boolean;
+//   succeeded: boolean;
+//   data: T;
+//   message?: string;
+//   errors?: string[];
+// };
+
+export type ApproveRejectPlanInput = {
+  planId: string;
+  approved: boolean;
+  notes?: string;
+};
+
+// Plan Detail types for expert plan details endpoint
+export type PlanDetailMaterial = {
+  materialId: string;
+  materialName: string;
+  materialUnit: string;
+  quantityPerHa: number;
+  estimatedAmount: number;
+};
+
+export type PlanDetailTask = {
+  id: string;
+  taskName: string;
+  description: string | null;
+  taskType: string;
+  scheduledDate: string | null;
+  scheduledEndDate: string | null;
+  priority: TaskPriority | string;
+  sequenceOrder: number;
+  estimatedMaterialCost: number;
+  materials: PlanDetailMaterial[];
+};
+
+export type PlanDetailStage = {
+  id: string;
+  stageName: string;
+  sequenceOrder: number;
+  typicalDurationDays: number;
+  colorCode: string | null;
+  tasks: PlanDetailTask[];
+};
+
+export type PlanDetailPlot = {
+  id: string;
+  area: number;
+  soThua: string | null;
+  soTo: string | null;
+  soilType: string | null;
+  status: string;
+  farmerId: string;
+};
+
+export type PlanDetailGroup = {
+  id: string;
+  clusterName: string;
+  totalArea: number;
+  status: string;
+  plots: PlanDetailPlot[];
+};
+
+export type PlanDetail = {
+  id: string;
+  planName: string;
+  standardPlanId: string;
+  groupId: string;
+  totalArea: number;
+  basePlantingDate: string;
+  status: TaskStatus | string;
+  estimatedTotalPlanCost: number;
+  groupDetails: PlanDetailGroup;
+  stages: PlanDetailStage[];
+};
+
+// Material Management Types
+export enum MaterialType {
+  Fertilizer = 0,
+  Pesticide = 1,
+}
+
+export type Material = {
+  materialId: string;
+  name: string;
+  type: MaterialType;
+  ammountPerMaterial: number;
+  unit: string;
+  showout: string;
+  pricePerMaterial: number;
+  description: string;
+  manufacturer: string;
+  isActive: boolean;
+};
+
+// // PagedResult<T> from backend - extends Result<T> with pagination
+// export type PagedResult<T> = {
+//   succeeded: boolean;
+//   data: T;
+//   currentPage: number;
+//   totalPages: number;
+//   totalCount: number;
+//   pageSize: number;
+//   hasPrevious: boolean;
+//   hasNext: boolean;
+//   message?: string;
+//   errors?: string[];
+// };
+
+// Rice Variety Management Types
+export type RiceVarietyCategory = {
+  id: string;
+  name: string;
+  description?: string;
+};
+
+export type RiceVariety = {
+  id: string;
+  varietyName: string;
+  categoryId: string;
+  categoryName: string;
+  baseGrowthDurationDays: number;
+  baseYieldPerHectare: number;
+  description: string;
+  characteristics: string;
+  isActive: boolean;
+};
+
+export type ChangeRiceSeasonRequest = {
+  riceId: string;
+  seasonId: string;
+};
+
+export type DownloadRiceVarietiesRequest = {
+  inputDate: string;
+  categoryId?: string;
+  isActive?: boolean;
+};
+
+// Season Management Types
+export type Season = {
+  id: string;
+  seasonName: string;
+  startDate: string; // MM/DD format
+  endDate: string; // MM/DD format
+  seasonType: string; // e.g., "Winter-Spring", "Summer-Autumn"
+  isActive: boolean;
+  createdAt: string;
+};
+
+// Rice Variety Season Association Types
+export type RiceVarietySeasonAssociation = {
+  id: string;
+  riceVarietyId: string;
+  riceVarietyName: string;
+  seasonId: string;
+  seasonName: string;
+  growthDurationDays: number;
+  expectedYieldPerHectare: number;
+  optimalPlantingStart: string; // MM/DD format
+  optimalPlantingEnd: string; // MM/DD format
+  riskLevel: number; // 0=Low, 1=Medium, 2=High
+  seasonalNotes?: string;
+  isRecommended: boolean;
+  createdAt: string;
+};
+
+export type RiceVarietyWithSeasons = RiceVariety & {
+  associatedSeasons?: RiceVarietySeasonAssociation[];
+};
+
+// Material CRUD Types
+export type CreateMaterialRequest = {
+  name: string;
+  type: MaterialType;
+  ammountPerMaterial: number;
+  unit: string;
+  pricePerMaterial: number;
+  description?: string;
+  manufacturer?: string;
+  isActive: boolean;
+  priceValidFrom: string;
+};
+
+export type UpdateMaterialRequest = {
+  materialId: string;
+  name: string;
+  type: MaterialType;
+  ammountPerMaterial: number;
+  unit: string;
+  pricePerMaterial: number;
+  description?: string;
+  manufacturer?: string;
+  isActive: boolean;
+  priceValidFrom: string;
+};
+
+// Rice Variety CRUD Types
+export type CreateRiceVarietyRequest = {
+  varietyName: string;
+  categoryId: string;
+  baseGrowthDurationDays: number;
+  baseYieldPerHectare: number;
+  description?: string;
+  characteristics?: string;
+  isActive: boolean;
+};
+
+export type UpdateRiceVarietyRequest = {
+  riceVarietyId: string;
+  varietyName: string;
+  categoryId: string;
+  baseGrowthDurationDays: number;
+  baseYieldPerHectare: number;
+  description?: string;
+  characteristics?: string;
+  isActive: boolean;
+};
+
+// Season CRUD Types
+export type CreateSeasonRequest = {
+  seasonName: string;
+  startDate: string; // MM/DD format
+  endDate: string; // MM/DD format
+  seasonType: string;
+  isActive: boolean;
+};
+
+export type UpdateSeasonRequest = {
+  seasonId: string;
+  seasonName: string;
+  startDate: string; // MM/DD format
+  endDate: string; // MM/DD format
+  seasonType: string;
+  isActive: boolean;
+};
+
+// Rice Variety Season Association CRUD Types
+export type CreateRiceVarietySeasonRequest = {
+  riceVarietyId: string;
+  seasonId: string;
+  growthDurationDays: number;
+  expectedYieldPerHectare: number;
+  optimalPlantingStart: string; // MM/DD format
+  optimalPlantingEnd: string; // MM/DD format
+  riskLevel: number;
+  seasonalNotes?: string;
+  isRecommended: boolean;
+};
+
+export type UpdateRiceVarietySeasonRequest = {
+  riceVarietySeasonId: string;
+  growthDurationDays: number;
+  expectedYieldPerHectare: number;
+  optimalPlantingStart: string; // MM/DD format
+  optimalPlantingEnd: string; // MM/DD format
+  riskLevel: number;
+  seasonalNotes?: string;
+  isRecommended: boolean;
+};
+
+// Standard Plan Types
+export type StandardPlan = {
+  id: string;
+  name: string;
+  description?: string;
+  categoryId: string;
+  categoryName: string;
+  totalDuration: number;
+  isActive: boolean;
+  totalTasks: number;
+  totalStages: number;
+  createdAt: string;
+  createdBy: string;
+  lastModified: string;
+  lastModifiedBy: string;
+};
+
+export type StandardPlanTask = {
+  id: string;
+  taskName: string;
+  sequenceOrder: number;
+  taskType: string;
+  priority: string;
+  description?: string;
+  materials: any[]; // Material usage details
+};
+
+export type StandardPlanStage = {
+  id: string;
+  stageName: string;
+  sequenceOrder: number;
+  expectedDurationDays: number;
+  isMandatory: boolean;
+  notes?: string;
+  tasks: StandardPlanTask[];
+};
+
+export type StandardPlanDetail = {
+  id: string;
+  planName: string;
+  description?: string;
+  totalDurationDays: number;
+  isActive: boolean;
+  categoryId: string;
+  categoryName: string;
+  createdBy: string;
+  creatorName: string;
+  createdAt: string;
+  lastModified: string;
+  stages: StandardPlanStage[];
+  totalStages: number;
+  totalTasks: number;
+  totalMaterialTypes: number;
+};
+
+export type StandardPlanReview = {
+  standardPlanId: string;
+  planName: string;
+  description?: string;
+  categoryId: string;
+  categoryName: string;
+  sowDate: string;
+  areaInHectares: number;
+  estimatedStartDate: string;
+  estimatedEndDate: string;
+  totalDurationDays: number;
+  estimatedTotalCost: number;
+  estimatedCostPerHectare: number;
+  stages: StandardPlanStage[];
+  totalStages: number;
+  totalTasks: number;
+  totalMaterialTypes: number;
+  totalMaterialQuantity: number;
+};
+
+export type UpdateStandardPlanRequest = {
+  standardPlanId: string;
+  planName: string;
+  description?: string;
+  totalDurationDays: number;
+  isActive: boolean;
+};
+
+export type DownloadStandardPlansRequest = {
+  inputDate: string;
+  categoryId?: string;
+  isActive?: boolean;
+};
+

@@ -1,6 +1,7 @@
 import { Home, PanelLeft, Folder, Users, User2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate, useNavigation } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 import logo from '@/assets/logo.svg';
 import { Button } from '@/components/ui/button';
@@ -19,10 +20,11 @@ import {
 } from '../ui/dropdown';
 import { Link } from '../ui/link';
 
-type SideNavigationItem = {
+export type SideNavigationItem = {
   name: string;
   to: string;
-  icon: (props: React.SVGProps<SVGSVGElement>) => JSX.Element;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  end?: boolean;
 };
 
 const Logo = () => {
@@ -76,21 +78,57 @@ const Progress = () => {
   );
 };
 
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
+type DashboardLayoutProps = {
+  children: React.ReactNode;
+  navigationItems?: SideNavigationItem[];
+};
+
+export function DashboardLayout({
+  children,
+  navigationItems,
+}: DashboardLayoutProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const logout = useLogout({
-    onSuccess: () => navigate(paths.auth.login.getHref(location.pathname)),
+    // onSuccess: () => navigate(paths.auth.login.getHref(location.pathname)),
+    onSuccess: () => {
+      queryClient.clear();
+      navigate(paths.auth.login.getHref());
+    },
+
   });
   const { checkAccess } = useAuthorization();
-  const navigation = [
-    { name: 'Dashboard', to: paths.app.dashboard.getHref(), icon: Home },
-    { name: 'Discussions', to: paths.app.discussions.getHref(), icon: Folder },
-    checkAccess({ allowedRoles: [ROLES.ADMIN] }) && {
+
+  // Default navigation if none provided
+  const defaultNavigation = [
+    checkAccess({ allowedRoles: [ROLES.Admin] }) && {
+      name: 'Admin Dashboard',
+      to: paths.app.dashboard.getHref(),
+      icon: Home,
+      end: true,
+    },
+    checkAccess({ allowedRoles: [ROLES.AgronomyExpert] }) && {
+      name: 'Expert Dashboard',
+      to: paths.app.expert.dashboard.getHref(),
+      icon: Home,
+      end: true,
+    },
+    {
+      name: 'Discussions',
+      to: paths.app.discussions.getHref(),
+      icon: Folder,
+      end: false,
+    },
+    checkAccess({ allowedRoles: [ROLES.Admin] }) && {
       name: 'Users',
       to: paths.app.users.getHref(),
       icon: Users,
+      end: true,
     },
   ].filter(Boolean) as SideNavigationItem[];
+
+  const navigation = navigationItems || defaultNavigation;
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -103,7 +141,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <NavLink
               key={item.name}
               to={item.to}
-              end={item.name !== 'Discussions'}
+              end={item.end ?? true}
               className={({ isActive }) =>
                 cn(
                   'text-gray-300 hover:bg-gray-700 hover:text-white',
@@ -146,7 +184,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <NavLink
                     key={item.name}
                     to={item.to}
-                    end
+                    end={item.end ?? true}
                     className={({ isActive }) =>
                       cn(
                         'text-gray-300 hover:bg-gray-700 hover:text-white',
