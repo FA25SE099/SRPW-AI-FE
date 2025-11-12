@@ -33,7 +33,7 @@ const AppRoot = () => {
   const location = useLocation();
   const { checkAccess } = useAuthorization();
   console.log('location.pathname', user.data?.role);
-  
+
   // Role-based redirect when accessing /app root
   if (location.pathname === paths.app.root.path) {
     if (user.data?.role === ROLES.Admin) {
@@ -215,15 +215,15 @@ const AppRoot = () => {
         end: true,
       },
       {
-        name: 'Users',
-        to: paths.app.admin.users.getHref(),
-        icon: Users,
+        name: 'Roles & Users',
+        to: paths.app.admin.roles.getHref(),
+        icon: Shield,
         end: true,
       },
       {
-        name: 'Roles & Permissions',
-        to: paths.app.admin.roles.getHref(),
-        icon: Shield,
+        name: 'Users',
+        to: paths.app.admin.users.getHref(),
+        icon: Users,
         end: true,
       },
       {
