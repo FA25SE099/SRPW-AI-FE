@@ -17,6 +17,11 @@ export const paths = {
     },
   },
 
+  unauthorized: {
+    path: '/unauthorized',
+    getHref: () => '/unauthorized',
+  },
+
   app: {
     root: {
       path: '/app',
@@ -122,6 +127,11 @@ export const paths = {
       group: {
         path: 'supervisor/group',
         getHref: () => '/app/supervisor/group',
+      },
+      planDetails: {
+        path: 'plan-details',
+        getHref: (planId?: string) =>
+          `/app/supervisor/plan-details${planId ? `?planId=${planId}` : ''}`,
       },
       plans: {
         path: 'supervisor/plans',
