@@ -114,6 +114,19 @@ export type GetPendingApprovalsParams = {
   priority?: TaskPriority;
 };
 
+// export type PagedResult<T> = {
+//   currentPage: number;
+//   pageSize: number;
+//   totalCount: number;
+//   totalPages: number;
+//   hasPrevious: boolean;
+//   hasNext: boolean;
+//   succeeded: boolean;
+//   data: T;
+//   message?: string;
+//   errors?: string[];
+// };
+
 export type ApproveRejectPlanInput = {
   planId: string;
   approved: boolean;
@@ -201,19 +214,19 @@ export type Material = {
   isActive: boolean;
 };
 
-// PagedResult<T> from backend - extends Result<T> with pagination
-export type PagedResult<T> = {
-  succeeded: boolean;
-  data: T;
-  currentPage: number;
-  totalPages: number;
-  totalCount: number;
-  pageSize: number;
-  hasPrevious: boolean;
-  hasNext: boolean;
-  message?: string;
-  errors?: string[];
-};
+// // PagedResult<T> from backend - extends Result<T> with pagination
+// export type PagedResult<T> = {
+//   succeeded: boolean;
+//   data: T;
+//   currentPage: number;
+//   totalPages: number;
+//   totalCount: number;
+//   pageSize: number;
+//   hasPrevious: boolean;
+//   hasNext: boolean;
+//   message?: string;
+//   errors?: string[];
+// };
 
 // Rice Variety Management Types
 export type RiceVarietyCategory = {
@@ -455,3 +468,4 @@ export type DownloadStandardPlansRequest = {
   categoryId?: string;
   isActive?: boolean;
 };
+

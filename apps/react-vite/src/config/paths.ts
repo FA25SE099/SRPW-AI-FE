@@ -17,6 +17,11 @@ export const paths = {
     },
   },
 
+  unauthorized: {
+    path: '/unauthorized',
+    getHref: () => '/unauthorized',
+  },
+
   app: {
     root: {
       path: '/app',
@@ -78,6 +83,93 @@ export const paths = {
       reports: {
         path: 'expert/reports',
         getHref: () => '/app/expert/reports',
+      },
+    },
+    admin: {
+      root: {
+        path: 'admin',
+        getHref: () => '/app/admin',
+      },
+      dashboard: {
+        path: 'admin',
+        getHref: () => '/app/admin',
+      },
+      users: {
+        path: 'admin/users',
+        getHref: () => '/app/admin/users',
+      },
+      roles: {
+        path: 'admin/roles',
+        getHref: () => '/app/admin/roles',
+      },
+      settings: {
+        path: 'admin/settings',
+        getHref: () => '/app/admin/settings',
+      },
+      reports: {
+        path: 'admin/reports',
+        getHref: () => '/app/admin/reports',
+      },
+      clusters: {
+        path: 'admin/clusters',
+        getHref: () => '/app/admin/clusters',
+      },
+    },
+    supervisor: {
+      root: {
+        path: 'supervisor',
+        getHref: () => '/app/supervisor',
+      },
+      dashboard: {
+        path: 'supervisor',
+        getHref: () => '/app/supervisor',
+      },
+      group: {
+        path: 'supervisor/group',
+        getHref: () => '/app/supervisor/group',
+      },
+      planDetails: {
+        path: 'plan-details',
+        getHref: (planId?: string) =>
+          `/app/supervisor/plan-details${planId ? `?planId=${planId}` : ''}`,
+      },
+      plans: {
+        path: 'supervisor/plans',
+        getHref: () => '/app/supervisor/plans',
+      },
+      reports: {
+        path: 'supervisor/reports',
+        getHref: () => '/app/supervisor/reports',
+      },
+    },
+    cluster: {
+      root: {
+        path: 'cluster',
+        getHref: () => '/app/cluster',
+      },
+      dashboard: {
+        path: 'cluster/dashboard',
+        getHref: () => '/app/cluster',
+      },
+      plots: {
+        path: 'cluster/plots',
+        getHref: () => 'cluster/plots',
+      },
+      farmers: {
+        path: 'cluster/farmers',
+        getHref: () => '/app/cluster/farmers',
+      },
+      plans: {
+        path: 'cluster/plans',
+        getHref: () => '/app/cluster/plans',
+      },
+      groups: {
+        path: 'cluster/groups',
+        getHref: () => 'cluster/groups'
+      },
+      maps: {
+        path: 'cluster/map',
+        getHref: () => 'cluster/map'
       },
     },
   },
