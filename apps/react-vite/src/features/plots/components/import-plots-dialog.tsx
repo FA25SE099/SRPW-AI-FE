@@ -29,20 +29,29 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
             onSuccess: (data) => {
                 console.log('📦 Import response:', JSON.stringify(data, null, 2))
 
-                // ✅ Check 'success' field (not 'succeeded')
-                if (data.success === true) {
-                    // SUCCESS case
-                    setSuccessMessage(data.message || 'Plots imported successfully!')
+                // ✅ Check if response is wrapped object or raw array
+                if (Array.isArray(data)) {
+                    // Backend returned array directly (old format)
+                    setSuccessMessage(`Successfully imported ${data.length} plots!`)
                     setErrors([])
-                    toast.success(data.message || 'Plots imported successfully!')
+                    toast.success(`Successfully imported ${data.length} plots!`)
 
-                    // Auto close after 2 seconds
                     setTimeout(() => {
                         onOpenChange(false)
                         resetForm()
                     }, 2000)
-                } else {
-                    // FAILED case
+                } else if (data.success === true) {
+                    // Backend returned wrapped response (new format)
+                    setSuccessMessage(data.message || 'Plots imported successfully!')
+                    setErrors([])
+                    toast.success(data.message || 'Plots imported successfully!')
+
+                    setTimeout(() => {
+                        onOpenChange(false)
+                        resetForm()
+                    }, 2000)
+                } else if (data.success === false) {
+                    // Backend returned error in wrapped format
                     const errorMessages = data.errors && data.errors.length > 0
                         ? data.errors
                         : [data.message || 'Import failed']
@@ -50,18 +59,34 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     setErrors(errorMessages)
                     setSuccessMessage('')
                     toast.error(data.message || 'Import failed')
+                } else {
+                    // Unknown format
+                    console.error('Unknown response format:', data)
+                    setErrors(['Unexpected response format'])
+                    toast.error('Import failed - unexpected response')
                 }
             },
             onError: (error: any) => {
                 console.error('❌ Import error:', error)
+                console.error('Error response:', error?.response?.data)
 
-                // Network or server error
-                const errorMsg = error?.response?.data?.message || 'Failed to import plots'
-                const errorList = error?.response?.data?.errors || [errorMsg]
+                const responseData = error?.response?.data
 
-                setErrors(errorList)
+                if (responseData && responseData.success === false) {
+                    // Backend returned error response
+                    const errorMessages = responseData.errors && responseData.errors.length > 0
+                        ? responseData.errors
+                        : [responseData.message || 'Import failed']
+
+                    setErrors(errorMessages)
+                    toast.error(responseData.message || 'Import failed')
+                } else {
+                    // Network or unknown error
+                    setErrors(['Failed to import plots. Please try again.'])
+                    toast.error('Failed to import plots')
+                }
+
                 setSuccessMessage('')
-                toast.error(errorMsg)
             },
         },
     })
