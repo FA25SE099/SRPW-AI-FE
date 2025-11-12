@@ -1,6 +1,7 @@
 import { Home, PanelLeft, Folder, Users, User2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate, useNavigation } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
 
 import logo from '@/assets/logo.svg';
 import { Button } from '@/components/ui/button';
@@ -87,8 +88,15 @@ export function DashboardLayout({
   navigationItems,
 }: DashboardLayoutProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
   const logout = useLogout({
-    onSuccess: () => navigate(paths.auth.login.getHref(location.pathname)),
+    // onSuccess: () => navigate(paths.auth.login.getHref(location.pathname)),
+    onSuccess: () => {
+      queryClient.clear();
+      navigate(paths.auth.login.getHref());
+    },
+
   });
   const { checkAccess } = useAuthorization();
 

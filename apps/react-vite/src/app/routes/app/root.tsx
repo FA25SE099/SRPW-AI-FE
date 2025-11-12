@@ -32,6 +32,7 @@ const AppRoot = () => {
   const location = useLocation();
   const { checkAccess } = useAuthorization();
   console.log('location.pathname', user.data?.role);
+  
   // Role-based redirect when accessing /app root
   if (location.pathname === paths.app.root.path) {
     if (user.data?.role === ROLES.Admin) {
@@ -47,6 +48,31 @@ const AppRoot = () => {
       return <Navigate to={paths.app.cluster.dashboard.getHref()} replace />;
     }
     return <Navigate to={paths.app.dashboard.getHref()} replace />;
+  }
+
+  // Role-based route protection - Redirect unauthorized users to 403 page
+  if (location.pathname.startsWith('/app/expert')) {
+    if (!checkAccess({ allowedRoles: [ROLES.AgronomyExpert] })) {
+      return <Navigate to={paths.unauthorized.getHref()} replace />;
+    }
+  }
+
+  if (location.pathname.startsWith('/app/supervisor')) {
+    if (!checkAccess({ allowedRoles: [ROLES.Supervisor] })) {
+      return <Navigate to={paths.unauthorized.getHref()} replace />;
+    }
+  }
+
+  if (location.pathname.startsWith('/app/cluster')) {
+    if (!checkAccess({ allowedRoles: [ROLES.ClusterManager] })) {
+      return <Navigate to={paths.unauthorized.getHref()} replace />;
+    }
+  }
+
+  if (location.pathname.startsWith('/app/admin')) {
+    if (!checkAccess({ allowedRoles: [ROLES.Admin] })) {
+      return <Navigate to={paths.unauthorized.getHref()} replace />;
+    }
   }
 
   // Determine navigation based on current path and role

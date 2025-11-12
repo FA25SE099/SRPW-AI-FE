@@ -36,6 +36,10 @@ export const createAppRouter = (queryClient: QueryClient) =>
       lazy: () => import('./routes/auth/login').then(convert(queryClient)),
     },
     {
+      path: paths.unauthorized.path,
+      lazy: () => import('./routes/unauthorized').then(convert(queryClient)),
+    },
+    {
       path: paths.app.root.path,
       element: (
         <ProtectedRoute>
@@ -163,6 +167,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               path: 'group',
               lazy: () =>
                 import('./routes/app/supervisor/group').then(convert(queryClient)),
+            },
+            {
+              path: 'plan-details',
+              lazy: () =>
+                import('./routes/app/supervisor/plan-details').then(convert(queryClient)),
             },
             {
               path: 'plans',
