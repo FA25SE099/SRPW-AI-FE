@@ -1,7 +1,6 @@
-// src/app/routes/app/cluster/map.tsx
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { usePlots } from "@/features/plots/api/get-all-plots";
 import type { PlotStatus, PlotDTO } from "@/features/plots/api/get-all-plots";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +11,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Spinner } from "@/components/ui/spinner";
 import { Map, MapPin, User, Satellite, Layers, Search, Filter } from "lucide-react";
 import { PlotsDetailDialog } from "@/features/plots/components/plots-detail-dialog";
-import { MapClient, type PlotMapData } from "@/features/plots/components/MapClient";
+
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+
+type PlotMapData = {
+    plotId: string;
+    soThua: string;
+    soTo: string;
+    farmerName: string;
+    area: number;
+    status: PlotStatus;
+    geoJson: any;
+};
 
 const parseWKTtoGeoJSON = (wkt: string): any => {
     const polygonMatch = wkt.match(/POLYGON\s*\(\((.*?)\)\)/);
@@ -22,7 +35,7 @@ const parseWKTtoGeoJSON = (wkt: string): any => {
             const parts = pair.trim().split(/\s+/);
             const lng = Number(parts[0]);
             const lat = Number(parts[1]);
-            return [lat, lng]; // ✅ Store as [lat, lng] for Leaflet
+            return [lng, lat];
         });
         return { type: "Polygon", coordinates: [coords] };
     }
@@ -32,13 +45,17 @@ const parseWKTtoGeoJSON = (wkt: string): any => {
         const parts = pointMatch[1].trim().split(/\s+/);
         const lng = Number(parts[0]);
         const lat = Number(parts[1]);
-        return { type: "Point", coordinates: [lat, lng] }; // ✅ Store as [lat, lng]
+        return { type: "Point", coordinates: [lng, lat] };
     }
 
     throw new Error("Unsupported WKT format");
 };
 
 const MapPage = () => {
+    const mapContainer = useRef<HTMLDivElement>(null);
+    const map = useRef<mapboxgl.Map | null>(null);
+    const popupRef = useRef<mapboxgl.Popup | null>(null);
+
     const [selectedPlotId, setSelectedPlotId] = useState<string | null>(null);
     const [hoveredPlotId, setHoveredPlotId] = useState<string | null>(null);
     const [focusedPlot, setFocusedPlot] = useState<PlotMapData | null>(null);
@@ -46,6 +63,7 @@ const MapPage = () => {
     const [statusFilter, setStatusFilter] = useState<PlotStatus | "all">("all");
     const [mapType, setMapType] = useState<"vector" | "satellite">("vector");
     const [isClient, setIsClient] = useState(false);
+    const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
     const { data, isLoading } = usePlots({
         params: { pageNumber: 1, pageSize: 500 },
@@ -54,8 +72,31 @@ const MapPage = () => {
     const plots: PlotDTO[] = data?.data || [];
     const totalPlots = data?.totalCount || 0;
 
+    // Get user's current location
     useEffect(() => {
         setIsClient(true);
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setUserLocation([longitude, latitude]);
+                    console.log("📍 User location:", latitude, longitude);
+                },
+                (error) => {
+                    console.warn("❌ Could not get user location:", error.message);
+                    // Fallback to Vietnam center immediately on error
+                    setUserLocation([106.6297, 10.8231]);
+                },
+                {
+                    timeout: 3000,
+                    maximumAge: 0,
+                    enableHighAccuracy: false
+                }
+            );
+        } else {
+            setUserLocation([106.6297, 10.8231]);
+        }
     }, []);
 
     const plotsWithGeo: PlotMapData[] = useMemo(() => {
@@ -68,15 +109,6 @@ const MapPage = () => {
 
                     try {
                         geoJson = JSON.parse(geoJsonString);
-                        // ✅ Convert GeoJSON coordinates to [lat, lng] format for Leaflet
-                        if (geoJson.type === "Polygon") {
-                            geoJson.coordinates = geoJson.coordinates.map((ring: number[][]) =>
-                                ring.map(([lng, lat]) => [lat, lng])
-                            );
-                        } else if (geoJson.type === "Point") {
-                            const [lng, lat] = geoJson.coordinates;
-                            geoJson.coordinates = [lat, lng];
-                        }
                     } catch {
                         geoJson = parseWKTtoGeoJSON(geoJsonString);
                     }
@@ -101,7 +133,6 @@ const MapPage = () => {
     const filteredPlots = useMemo(() => {
         let result = plotsWithGeo;
 
-        // Search filter
         if (searchTerm.trim()) {
             const term = searchTerm.toLowerCase();
             result = result.filter(
@@ -112,7 +143,6 @@ const MapPage = () => {
             );
         }
 
-        // Status filter
         if (statusFilter !== "all") {
             result = result.filter((p) => p.status === statusFilter);
         }
@@ -120,61 +150,252 @@ const MapPage = () => {
         return result;
     }, [plotsWithGeo, searchTerm, statusFilter]);
 
-    // ✅ Calculate map center from filtered plots
     const getMapCenter = (): [number, number] => {
-        if (filteredPlots.length === 0) return [10.8231, 106.6297]; // Default Vietnam center
+        if (userLocation) {
+            return userLocation;
+        }
 
-        const allCoords: number[][] = [];
-        filteredPlots.forEach((plot) => {
-            if (plot.geoJson.type === "Polygon" && plot.geoJson.coordinates?.[0]) {
-                allCoords.push(...plot.geoJson.coordinates[0]);
-            } else if (plot.geoJson.type === "Point" && plot.geoJson.coordinates) {
-                allCoords.push(plot.geoJson.coordinates);
+        if (filteredPlots.length > 0) {
+            const allCoords: number[][] = [];
+            filteredPlots.forEach((plot) => {
+                if (plot.geoJson.type === "Polygon" && plot.geoJson.coordinates?.[0]) {
+                    allCoords.push(...plot.geoJson.coordinates[0]);
+                } else if (plot.geoJson.type === "Point" && plot.geoJson.coordinates) {
+                    allCoords.push(plot.geoJson.coordinates);
+                }
+            });
+
+            if (allCoords.length > 0) {
+                const lngs = allCoords.map((c) => c[0]);
+                const lats = allCoords.map((c) => c[1]);
+                return [
+                    (Math.max(...lngs) + Math.min(...lngs)) / 2,
+                    (Math.max(...lats) + Math.min(...lats)) / 2,
+                ];
             }
-        });
+        }
 
-        if (allCoords.length === 0) return [10.8231, 106.6297];
-
-        const lats = allCoords.map((c) => c[0]); // First element is lat
-        const lngs = allCoords.map((c) => c[1]); // Second element is lng
-
-        return [
-            (Math.max(...lats) + Math.min(...lats)) / 2,
-            (Math.max(...lngs) + Math.min(...lngs)) / 2,
-        ];
+        return [106.6297, 10.8231];
     };
 
     const mapCenter = getMapCenter();
 
-    const getPolygonStyle = (plotId: string, status: PlotStatus) => {
-        const isHovered = hoveredPlotId === plotId;
-        const isFocused = focusedPlot?.plotId === plotId;
-
-        const baseColors: Record<PlotStatus, string> = {
+    const getPlotColor = (status: PlotStatus) => {
+        const colors: Record<PlotStatus, string> = {
             Active: "#10b981",
             Inactive: "#6b7280",
             Emergency: "#ef4444",
             Locked: "#f59e0b",
         };
-
-        const color = baseColors[status] || "#10b981";
-
-        return {
-            color,
-            weight: isHovered || isFocused ? 4 : 2,
-            fillColor: color,
-            fillOpacity: isHovered || isFocused ? 0.6 : 0.3,
-            opacity: 1,
-        };
+        return colors[status] || "#10b981";
     };
+
+    // Initialize Mapbox map
+    useEffect(() => {
+        if (!isClient || !MAPBOX_TOKEN || !mapContainer.current || !userLocation) return;
+
+        mapboxgl.accessToken = MAPBOX_TOKEN;
+
+        const center = userLocation || [106.6297, 10.8231];
+        const zoom = 13;
+
+        map.current = new mapboxgl.Map({
+            container: mapContainer.current,
+            style: mapType === "satellite"
+                ? "mapbox://styles/mapbox/satellite-v9"
+                : "mapbox://styles/mapbox/streets-v12",
+            center: center as [number, number],
+            zoom: zoom,
+        });
+
+        map.current.on("load", () => {
+            addPlotSources();
+        });
+
+        return () => {
+            map.current?.remove();
+        };
+    }, [isClient, mapType, MAPBOX_TOKEN, userLocation]);
+
+    // Update map center when location changes
+    useEffect(() => {
+        if (map.current && userLocation) {
+            map.current.flyTo({
+                center: mapCenter,
+                zoom: 13,
+                duration: 1500,
+            });
+        }
+    }, [mapCenter, userLocation]);
+
+    // Add plot sources and layers
+    const addPlotSources = () => {
+        if (!map.current) return;
+
+        filteredPlots.forEach((plot) => {
+            const sourceId = `plot-${plot.plotId}`;
+            const layerId = `plot-layer-${plot.plotId}`;
+            const outlineLayerId = `plot-outline-${plot.plotId}`;
+
+            if (!map.current!.getSource(sourceId)) {
+                map.current!.addSource(sourceId, {
+                    type: "geojson",
+                    data: plot.geoJson,
+                });
+
+                const color = getPlotColor(plot.status);
+                const isHovered = hoveredPlotId === plot.plotId;
+                const isFocused = focusedPlot?.plotId === plot.plotId;
+
+                // Fill layer
+                map.current!.addLayer({
+                    id: layerId,
+                    type: plot.geoJson.type === "Point" ? "circle" : "fill",
+                    source: sourceId,
+                    paint:
+                        plot.geoJson.type === "Point"
+                            ? {
+                                "circle-radius": 8,
+                                "circle-color": color,
+                                "circle-opacity": isHovered || isFocused ? 0.8 : 0.6,
+                            }
+                            : {
+                                "fill-color": color,
+                                "fill-opacity": isHovered || isFocused ? 0.6 : 0.3,
+                            },
+                });
+
+                // Outline layer
+                if (plot.geoJson.type !== "Point") {
+                    map.current!.addLayer({
+                        id: outlineLayerId,
+                        type: "line",
+                        source: sourceId,
+                        paint: {
+                            "line-color": color,
+                            "line-width": isHovered || isFocused ? 4 : 2,
+                        },
+                    });
+                }
+
+                // Add interactions
+                map.current!.on("click", layerId, () => {
+                    setSelectedPlotId(plot.plotId);
+                    setFocusedPlot(plot);
+                });
+
+                map.current!.on("mouseenter", layerId, () => {
+                    setHoveredPlotId(plot.plotId);
+                    map.current!.getCanvas().style.cursor = "pointer";
+                });
+
+                map.current!.on("mouseleave", layerId, () => {
+                    setHoveredPlotId(null);
+                    map.current!.getCanvas().style.cursor = "";
+                });
+
+                // Show popup on click
+                map.current!.on("click", layerId, () => {
+                    if (popupRef.current) {
+                        popupRef.current.remove();
+                    }
+
+                    const coordinates =
+                        plot.geoJson.type === "Point"
+                            ? plot.geoJson.coordinates
+                            : plot.geoJson.coordinates[0][0];
+
+                    popupRef.current = new mapboxgl.Popup({ offset: 25 })
+                        .setLngLat(coordinates)
+                        .setHTML(`
+                            <div class="p-3 min-w-[240px] space-y-3">
+                                <div class="flex items-start justify-between">
+                                    <h3 class="font-bold text-base text-neutral-900">
+                                        Thửa ${plot.soThua}/${plot.soTo}
+                                    </h3>
+                                    <span class="text-xs px-2 py-1 rounded font-medium ${plot.status === "Active"
+                                ? "bg-emerald-100 text-emerald-700"
+                                : plot.status === "Emergency"
+                                    ? "bg-red-100 text-red-700"
+                                    : plot.status === "Locked"
+                                        ? "bg-amber-100 text-amber-700"
+                                        : "bg-gray-100 text-gray-700"
+                            }">
+                                        ${plot.status}
+                                    </span>
+                                </div>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-neutral-600">Nông dân:</span>
+                                        <span class="text-neutral-800">${plot.farmerName}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-medium text-neutral-600">Diện tích:</span>
+                                        <span class="text-neutral-800">${plot.area.toFixed(2)} ha</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `)
+                        .addTo(map.current!);
+                });
+            }
+        });
+    };
+
+    // Update layers when hover/focus state changes
+    useEffect(() => {
+        if (!map.current) return;
+
+        filteredPlots.forEach((plot) => {
+            const layerId = `plot-layer-${plot.plotId}`;
+            const outlineLayerId = `plot-outline-${plot.plotId}`;
+            const isHovered = hoveredPlotId === plot.plotId;
+            const isFocused = focusedPlot?.plotId === plot.plotId;
+
+            if (map.current!.getLayer(layerId)) {
+                if (plot.geoJson.type === "Point") {
+                    map.current!.setPaintProperty(layerId, "circle-opacity", isHovered || isFocused ? 0.8 : 0.6);
+                } else {
+                    map.current!.setPaintProperty(layerId, "fill-opacity", isHovered || isFocused ? 0.6 : 0.3);
+                }
+            }
+
+            if (map.current!.getLayer(outlineLayerId)) {
+                map.current!.setPaintProperty(outlineLayerId, "line-width", isHovered || isFocused ? 4 : 2);
+            }
+        });
+    }, [hoveredPlotId, focusedPlot, filteredPlots]);
 
     const handlePlotFocus = (plot: PlotMapData) => {
         setFocusedPlot(plot);
         setHoveredPlotId(plot.plotId);
-    };
 
-    const handlePlotHover = (plotId: string | null) => {
-        setHoveredPlotId(plotId);
+        // Fly to plot location with validation
+        if (map.current && plot.geoJson) {
+            let coords: [number, number] | null = null;
+
+            if (plot.geoJson.type === "Point" && plot.geoJson.coordinates) {
+                coords = plot.geoJson.coordinates as [number, number];
+            } else if (plot.geoJson.type === "Polygon" && plot.geoJson.coordinates?.[0]?.[0]) {
+                coords = plot.geoJson.coordinates[0][0] as [number, number];
+            }
+
+            // Validate coordinates before flying
+            if (coords && Array.isArray(coords) && coords.length === 2) {
+                const [lng, lat] = coords;
+                if (!isNaN(lng) && !isNaN(lat) && lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90) {
+                    map.current.flyTo({
+                        center: coords,
+                        zoom: 15,
+                        duration: 1000,
+                    });
+                } else {
+                    console.error("Invalid coordinates:", coords);
+                }
+            } else {
+                console.error("Invalid plot geometry:", plot.geoJson);
+            }
+        }
     };
 
     if (isLoading || !isClient) {
@@ -211,7 +432,6 @@ const MapPage = () => {
                             <p className="text-xs text-neutral-600">trong tổng {totalPlots} thửa</p>
                         </div>
 
-                        {/* Controls */}
                         <div className="flex items-center gap-3">
                             <div className="relative">
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-neutral-400" />
@@ -241,7 +461,6 @@ const MapPage = () => {
                                 size="icon"
                                 variant={mapType === "satellite" ? "default" : "outline"}
                                 onClick={() => setMapType(mapType === "vector" ? "satellite" : "vector")}
-                                className="relative"
                             >
                                 {mapType === "satellite" ? (
                                     <Layers className="size-4" />
@@ -258,31 +477,7 @@ const MapPage = () => {
             <div className="flex-1 flex gap-6 p-6 overflow-hidden">
                 {/* Map */}
                 <div className="flex-1 rounded-xl border-2 border-neutral-200 overflow-hidden shadow-2xl bg-white">
-                    {filteredPlots.length > 0 ? (
-                        <MapClient
-                            plots={filteredPlots}
-                            mapCenter={mapCenter}
-                            mapType={mapType}
-                            focusedPlot={focusedPlot}
-                            hoveredPlotId={hoveredPlotId}
-                            onPlotClick={setSelectedPlotId}
-                            onPlotHover={handlePlotHover}
-                            getPolygonStyle={getPolygonStyle}
-                        />
-                    ) : (
-                        <div className="h-full flex items-center justify-center bg-neutral-50">
-                            <div className="text-center">
-                                <Map className="size-20 mx-auto text-neutral-300 mb-4" />
-                                <h3 className="text-xl font-semibold text-neutral-700 mb-2">Không tìm thấy thửa ruộng</h3>
-                                <p className="text-sm text-neutral-500">
-                                    {searchTerm || statusFilter !== "all"
-                                        ? "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm"
-                                        : "Chưa có dữ liệu thửa ruộng với tọa độ"
-                                    }
-                                </p>
-                            </div>
-                        </div>
-                    )}
+                    <div ref={mapContainer} style={{ width: "100%", height: "100%" }} />
                 </div>
 
                 {/* Sidebar */}
@@ -309,8 +504,8 @@ const MapPage = () => {
                                                 ? "border-emerald-400 bg-emerald-50 shadow-md"
                                                 : "border-neutral-200 hover:border-emerald-300 hover:bg-emerald-50/50"
                                             }`}
-                                        onMouseEnter={() => handlePlotHover(plot.plotId)}
-                                        onMouseLeave={() => handlePlotHover(null)}
+                                        onMouseEnter={() => setHoveredPlotId(plot.plotId)}
+                                        onMouseLeave={() => setHoveredPlotId(null)}
                                         onClick={() => handlePlotFocus(plot)}
                                     >
                                         <div className="flex items-start justify-between mb-2">
