@@ -61,7 +61,7 @@ const MapPage = () => {
     const [focusedPlot, setFocusedPlot] = useState<PlotMapData | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<PlotStatus | "all">("all");
-    const [mapType, setMapType] = useState<"vector" | "satellite">("vector");
+    const [mapType, setMapType] = useState<"vector" | "satellite">("satellite"); // Changed default to "satellite"
     const [isClient, setIsClient] = useState(false);
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
@@ -202,7 +202,7 @@ const MapPage = () => {
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
             style: mapType === "satellite"
-                ? "mapbox://styles/mapbox/satellite-v9"
+                ? "mapbox://styles/mapbox/satellite-streets-v12" // Changed to satellite-streets-v12
                 : "mapbox://styles/mapbox/streets-v12",
             center: center as [number, number],
             zoom: zoom,
@@ -219,14 +219,19 @@ const MapPage = () => {
 
     // Update map center when location changes
     useEffect(() => {
-        if (map.current && userLocation) {
-            map.current.flyTo({
-                center: mapCenter,
-                zoom: 13,
-                duration: 1500,
-            });
-        }
-    }, [mapCenter, userLocation]);
+        if (!map.current) return;
+
+        const newStyle = mapType === "satellite"
+            ? "mapbox://styles/mapbox/satellite-streets-v12" // Changed from satellite-v9
+            : "mapbox://styles/mapbox/streets-v12";
+
+        map.current.setStyle(newStyle);
+
+        // Re-add plot sources after style is loaded
+        map.current.once("style.load", () => {
+            addPlotSources();
+        });
+    }, [mapType]);
 
     // Add plot sources and layers
     const addPlotSources = () => {
