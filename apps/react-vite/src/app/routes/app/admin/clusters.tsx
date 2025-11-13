@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Users, UserCheck, Search, Check, Edit, Trash2, Eye } from 'lucide-react';
+import {
+  Plus,
+  Users,
+  UserCheck,
+  Search,
+  Check,
+  Edit,
+  Trash2,
+  Eye,
+} from 'lucide-react';
 import { ContentLayout } from '@/components/layouts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,14 +134,18 @@ const AdminClustersRoute = () => {
   const [managerPhoneSearch, setManagerPhoneSearch] = useState('');
   const [managerPage, setManagerPage] = useState(1);
   const [managerPageSize] = useState(10);
-  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<boolean | null>(null);
+  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<
+    boolean | null
+  >(null);
 
   // Search and pagination for experts
   const [expertSearch, setExpertSearch] = useState('');
   const [expertPhoneSearch, setExpertPhoneSearch] = useState('');
   const [expertPage, setExpertPage] = useState(1);
   const [expertPageSize] = useState(10);
-  const [expertFreeOrAssigned, setExpertFreeOrAssigned] = useState<boolean | null>(true);
+  const [expertFreeOrAssigned, setExpertFreeOrAssigned] = useState<
+    boolean | null
+  >(true);
 
   const [newManager, setNewManager] = useState({
     fullName: '',
@@ -217,27 +230,29 @@ const AdminClustersRoute = () => {
   });
 
   // Fetch managers for edit dialog
-  const { data: editManagersData, isLoading: isLoadingEditManagers } = useQuery({
-    queryKey: [
-      'edit-cluster-managers',
-      managerPage,
-      managerPageSize,
-      managerSearch,
-      managerPhoneSearch,
-      managerFreeOrAssigned,
-    ],
-    queryFn: async () => {
-      const response = await api.post('/ClusterManager/get-all', {
-        currentPage: managerPage,
-        pageSize: managerPageSize,
-        freeOrAssigned: managerFreeOrAssigned,
-        search: managerSearch,
-        phoneNumber: managerPhoneSearch,
-      });
-      return response;
+  const { data: editManagersData, isLoading: isLoadingEditManagers } = useQuery(
+    {
+      queryKey: [
+        'edit-cluster-managers',
+        managerPage,
+        managerPageSize,
+        managerSearch,
+        managerPhoneSearch,
+        managerFreeOrAssigned,
+      ],
+      queryFn: async () => {
+        const response = await api.post('/ClusterManager/get-all', {
+          currentPage: managerPage,
+          pageSize: managerPageSize,
+          freeOrAssigned: managerFreeOrAssigned,
+          search: managerSearch,
+          phoneNumber: managerPhoneSearch,
+        });
+        return response;
+      },
+      enabled: isManagerSelectOpen && isEditMode,
     },
-    enabled: isManagerSelectOpen && isEditMode,
-  });
+  );
 
   // Fetch experts for edit dialog
   const { data: editExpertsData, isLoading: isLoadingEditExperts } = useQuery({
@@ -293,7 +308,8 @@ const AdminClustersRoute = () => {
 
   // Create cluster manager mutation
   const createManagerMutation = useMutation({
-    mutationFn: (data: CreateClusterManagerDto) => api.post('/ClusterManager', data),
+    mutationFn: (data: CreateClusterManagerDto) =>
+      api.post('/ClusterManager', data),
     onSuccess: async (response) => {
       console.log('Manager created, full response:', response);
 
@@ -309,12 +325,24 @@ const AdminClustersRoute = () => {
       const managerFullName = newManager.fullName;
       const managerPhone = newManager.phoneNumber;
 
-      console.log('Setting manager - ID:', newManagerId, 'Name:', managerFullName, 'Phone:', managerPhone);
+      console.log(
+        'Setting manager - ID:',
+        newManagerId,
+        'Name:',
+        managerFullName,
+        'Phone:',
+        managerPhone,
+      );
 
       setSelectedManagerId(newManagerId);
       setSelectedManagerName(`${managerFullName} (${managerPhone})`);
 
-      console.log('After setting - selectedManagerId:', newManagerId, 'selectedManagerName:', `${managerFullName} (${managerPhone})`);
+      console.log(
+        'After setting - selectedManagerId:',
+        newManagerId,
+        'selectedManagerName:',
+        `${managerFullName} (${managerPhone})`,
+      );
 
       setIsManagerDialogOpen(false);
       setNewManager({ fullName: '', email: '', phoneNumber: '' });
@@ -325,7 +353,7 @@ const AdminClustersRoute = () => {
         console.log('Fetched manager details:', managerDetails);
         if (managerDetails && managerDetails.succeeded && managerDetails.data) {
           setSelectedManagerName(
-            `${managerDetails.data.clusterManagerName} (${managerDetails.data.clusterManagerPhoneNumber})`
+            `${managerDetails.data.clusterManagerName} (${managerDetails.data.clusterManagerPhoneNumber})`,
           );
         }
       } catch (error) {
@@ -337,14 +365,16 @@ const AdminClustersRoute = () => {
       addNotification({
         type: 'error',
         title: 'Error',
-        message: error?.response?.data?.message || 'Failed to create cluster manager',
+        message:
+          error?.response?.data?.message || 'Failed to create cluster manager',
       });
     },
   });
 
   // Create agronomy expert mutation
   const createExpertMutation = useMutation({
-    mutationFn: (data: CreateAgronomyExpertDto) => api.post('/AgronomyExpert', data),
+    mutationFn: (data: CreateAgronomyExpertDto) =>
+      api.post('/AgronomyExpert', data),
     onSuccess: async (response) => {
       console.log('Expert created, full response:', response);
 
@@ -360,12 +390,24 @@ const AdminClustersRoute = () => {
       const expertFullName = newExpert.fullName;
       const expertPhone = newExpert.phoneNumber;
 
-      console.log('Setting expert - ID:', newExpertId, 'Name:', expertFullName, 'Phone:', expertPhone);
+      console.log(
+        'Setting expert - ID:',
+        newExpertId,
+        'Name:',
+        expertFullName,
+        'Phone:',
+        expertPhone,
+      );
 
       setSelectedExpertId(newExpertId);
       setSelectedExpertName(`${expertFullName} (${expertPhone})`);
 
-      console.log('After setting - selectedExpertId:', newExpertId, 'selectedExpertName:', `${expertFullName} (${expertPhone})`);
+      console.log(
+        'After setting - selectedExpertId:',
+        newExpertId,
+        'selectedExpertName:',
+        `${expertFullName} (${expertPhone})`,
+      );
 
       setIsExpertDialogOpen(false);
       setNewExpert({ fullName: '', email: '', phoneNumber: '' });
@@ -375,7 +417,9 @@ const AdminClustersRoute = () => {
         const expertDetails = await fetchExpertById(newExpertId);
         console.log('Fetched expert details:', expertDetails);
         if (expertDetails && expertDetails.succeeded && expertDetails.data) {
-          setSelectedExpertName(`${expertDetails.data.expertName} (${expertDetails.data.expertPhoneNumber})`);
+          setSelectedExpertName(
+            `${expertDetails.data.expertName} (${expertDetails.data.expertPhoneNumber})`,
+          );
         }
       } catch (error) {
         console.error('Failed to fetch expert details:', error);
@@ -386,14 +430,16 @@ const AdminClustersRoute = () => {
       addNotification({
         type: 'error',
         title: 'Error',
-        message: error?.response?.data?.message || 'Failed to create agronomy expert',
+        message:
+          error?.response?.data?.message || 'Failed to create agronomy expert',
       });
     },
   });
 
   // Update cluster mutation
   const updateClusterMutation = useMutation({
-    mutationFn: (data: UpdateClusterDto) => api.put('/Cluster/Update-name-and-human-resource', data),
+    mutationFn: (data: UpdateClusterDto) =>
+      api.put('/Cluster/Update-name-and-human-resource', data),
     onSuccess: () => {
       addNotification({
         type: 'success',
@@ -425,11 +471,13 @@ const AdminClustersRoute = () => {
     setClusterName(cluster.clusterName);
     setSelectedManagerId(cluster.clusterManagerId);
     setSelectedExpertId(cluster.agronomyExpertId || '');
-    setSelectedManagerName(`${cluster.clusterManagerName} (${cluster.clusterManagerPhoneNumber})`);
+    setSelectedManagerName(
+      `${cluster.clusterManagerName} (${cluster.clusterManagerPhoneNumber})`,
+    );
     setSelectedExpertName(
       cluster.agronomyExpertName
         ? `${cluster.agronomyExpertName} (${cluster.agronomyExpertPhoneNumber})`
-        : ''
+        : '',
     );
     setIsEditMode(true);
     setIsEditDialogOpen(true);
@@ -457,7 +505,12 @@ const AdminClustersRoute = () => {
   const handleUpdateCluster = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!editingCluster || !clusterName || !selectedManagerId || !selectedExpertId) {
+    if (
+      !editingCluster ||
+      !clusterName ||
+      !selectedManagerId ||
+      !selectedExpertId
+    ) {
       addNotification({
         type: 'error',
         title: 'Validation Error',
@@ -498,7 +551,7 @@ const AdminClustersRoute = () => {
   const handleSelectManager = (manager: ClusterManager) => {
     setSelectedManagerId(manager.clusterManagerId);
     setSelectedManagerName(
-      `${manager.clusterManagerName} (${manager.clusterManagerPhoneNumber})`
+      `${manager.clusterManagerName} (${manager.clusterManagerPhoneNumber})`,
     );
     setIsManagerSelectOpen(false);
   };
@@ -541,7 +594,10 @@ const AdminClustersRoute = () => {
               Manage clusters, assign managers and agronomy experts
             </p>
           </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button onClick={() => setIsEditMode(false)}>
                 Create Cluster
@@ -569,7 +625,10 @@ const AdminClustersRoute = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label>Cluster Manager *</Label>
-                    <Dialog open={isManagerDialogOpen} onOpenChange={setIsManagerDialogOpen}>
+                    <Dialog
+                      open={isManagerDialogOpen}
+                      onOpenChange={setIsManagerDialogOpen}
+                    >
                       <DialogTrigger asChild>
                         <Button type="button" variant="outline" size="sm">
                           Create New Cluster Manager
@@ -579,14 +638,20 @@ const AdminClustersRoute = () => {
                         <DialogHeader>
                           <DialogTitle>Create Cluster Manager</DialogTitle>
                         </DialogHeader>
-                        <form onSubmit={handleCreateManager} className="space-y-4">
+                        <form
+                          onSubmit={handleCreateManager}
+                          className="space-y-4"
+                        >
                           <div className="space-y-2">
                             <Label htmlFor="managerName">Full Name *</Label>
                             <Input
                               id="managerName"
                               value={newManager.fullName}
                               onChange={(e) =>
-                                setNewManager({ ...newManager, fullName: e.target.value })
+                                setNewManager({
+                                  ...newManager,
+                                  fullName: e.target.value,
+                                })
                               }
                               required
                             />
@@ -598,7 +663,10 @@ const AdminClustersRoute = () => {
                               type="email"
                               value={newManager.email}
                               onChange={(e) =>
-                                setNewManager({ ...newManager, email: e.target.value })
+                                setNewManager({
+                                  ...newManager,
+                                  email: e.target.value,
+                                })
                               }
                               required
                             />
@@ -609,7 +677,10 @@ const AdminClustersRoute = () => {
                               id="managerPhone"
                               value={newManager.phoneNumber}
                               onChange={(e) =>
-                                setNewManager({ ...newManager, phoneNumber: e.target.value })
+                                setNewManager({
+                                  ...newManager,
+                                  phoneNumber: e.target.value,
+                                })
                               }
                               required
                             />
@@ -619,16 +690,25 @@ const AdminClustersRoute = () => {
                             className="w-full"
                             disabled={createManagerMutation.isPending}
                           >
-                            {createManagerMutation.isPending ? 'Creating...' : 'Create Manager'}
+                            {createManagerMutation.isPending
+                              ? 'Creating...'
+                              : 'Create Manager'}
                           </Button>
                         </form>
                       </DialogContent>
                     </Dialog>
                   </div>
 
-                  <Dialog open={isManagerSelectOpen} onOpenChange={setIsManagerSelectOpen}>
+                  <Dialog
+                    open={isManagerSelectOpen}
+                    onOpenChange={setIsManagerSelectOpen}
+                  >
                     <DialogTrigger asChild>
-                      <Button type="button" variant="outline" className="w-full justify-start">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
                         {selectedManagerId ? (
                           <div className="flex items-center gap-2">
                             <Users className="h-4 w-4" />
@@ -675,7 +755,11 @@ const AdminClustersRoute = () => {
                         <div className="flex gap-2">
                           <Button
                             type="button"
-                            variant={managerFreeOrAssigned === null ? 'default' : 'outline'}
+                            variant={
+                              managerFreeOrAssigned === null
+                                ? 'default'
+                                : 'outline'
+                            }
                             size="sm"
                             onClick={() => {
                               setManagerFreeOrAssigned(null);
@@ -686,7 +770,11 @@ const AdminClustersRoute = () => {
                           </Button>
                           <Button
                             type="button"
-                            variant={managerFreeOrAssigned === true ? 'default' : 'outline'}
+                            variant={
+                              managerFreeOrAssigned === true
+                                ? 'default'
+                                : 'outline'
+                            }
                             size="sm"
                             onClick={() => {
                               setManagerFreeOrAssigned(true);
@@ -697,7 +785,11 @@ const AdminClustersRoute = () => {
                           </Button>
                           <Button
                             type="button"
-                            variant={managerFreeOrAssigned === false ? 'default' : 'outline'}
+                            variant={
+                              managerFreeOrAssigned === false
+                                ? 'default'
+                                : 'outline'
+                            }
                             size="sm"
                             onClick={() => {
                               setManagerFreeOrAssigned(false);
@@ -711,9 +803,13 @@ const AdminClustersRoute = () => {
 
                       <div className="border rounded-md max-h-[400px] overflow-y-auto">
                         {isLoadingManagers ? (
-                          <div className="p-4 text-center text-gray-500">Loading managers...</div>
+                          <div className="p-4 text-center text-gray-500">
+                            Loading managers...
+                          </div>
                         ) : managers.length === 0 ? (
-                          <div className="p-4 text-center text-gray-500">No managers found</div>
+                          <div className="p-4 text-center text-gray-500">
+                            No managers found
+                          </div>
                         ) : (
                           <div className="divide-y">
                             {managers.map((manager) => (
@@ -726,14 +822,19 @@ const AdminClustersRoute = () => {
                                 <div className="flex items-center gap-3 flex-1">
                                   <Users className="h-5 w-5 text-gray-400 flex-shrink-0" />
                                   <div className="text-left flex-1">
-                                    <div className="font-medium">{manager.clusterManagerName}</div>
+                                    <div className="font-medium">
+                                      {manager.clusterManagerName}
+                                    </div>
                                     <div className="text-sm text-gray-500">
                                       {manager.clusterManagerPhoneNumber}
                                     </div>
-                                    <div className="text-sm text-gray-400">{manager.email}</div>
+                                    <div className="text-sm text-gray-400">
+                                      {manager.email}
+                                    </div>
                                   </div>
                                 </div>
-                                {selectedManagerId === manager.clusterManagerId && (
+                                {selectedManagerId ===
+                                  manager.clusterManagerId && (
                                   <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
                                 )}
                               </button>
@@ -745,7 +846,8 @@ const AdminClustersRoute = () => {
                       {managers.length > 0 && (
                         <div className="flex items-center justify-between text-sm border-t pt-4">
                           <span className="text-gray-600">
-                            Page {managerPage} of {managersData?.totalPages || 1} (
+                            Page {managerPage} of{' '}
+                            {managersData?.totalPages || 1} (
                             {managersData?.totalCount || 0} total)
                           </span>
                           <div className="flex gap-2">
@@ -753,7 +855,9 @@ const AdminClustersRoute = () => {
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => setManagerPage((p) => Math.max(1, p - 1))}
+                              onClick={() =>
+                                setManagerPage((p) => Math.max(1, p - 1))
+                              }
                               disabled={!managerHasPrevious}
                             >
                               Previous
@@ -778,7 +882,10 @@ const AdminClustersRoute = () => {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label>Agronomy Expert *</Label>
-                    <Dialog open={isExpertDialogOpen} onOpenChange={setIsExpertDialogOpen}>
+                    <Dialog
+                      open={isExpertDialogOpen}
+                      onOpenChange={setIsExpertDialogOpen}
+                    >
                       <DialogTrigger asChild>
                         <Button type="button" variant="outline" size="sm">
                           Create New Agronomy Expert
@@ -788,14 +895,20 @@ const AdminClustersRoute = () => {
                         <DialogHeader>
                           <DialogTitle>Create Agronomy Expert</DialogTitle>
                         </DialogHeader>
-                        <form onSubmit={handleCreateExpert} className="space-y-4">
+                        <form
+                          onSubmit={handleCreateExpert}
+                          className="space-y-4"
+                        >
                           <div className="space-y-2">
                             <Label htmlFor="expertName">Full Name *</Label>
                             <Input
                               id="expertName"
                               value={newExpert.fullName}
                               onChange={(e) =>
-                                setNewExpert({ ...newExpert, fullName: e.target.value })
+                                setNewExpert({
+                                  ...newExpert,
+                                  fullName: e.target.value,
+                                })
                               }
                               required
                             />
@@ -806,7 +919,12 @@ const AdminClustersRoute = () => {
                               id="expertEmail"
                               type="email"
                               value={newExpert.email}
-                              onChange={(e) => setNewExpert({ ...newExpert, email: e.target.value })}
+                              onChange={(e) =>
+                                setNewExpert({
+                                  ...newExpert,
+                                  email: e.target.value,
+                                })
+                              }
                               required
                             />
                           </div>
@@ -816,7 +934,10 @@ const AdminClustersRoute = () => {
                               id="expertPhone"
                               value={newExpert.phoneNumber}
                               onChange={(e) =>
-                                setNewExpert({ ...newExpert, phoneNumber: e.target.value })
+                                setNewExpert({
+                                  ...newExpert,
+                                  phoneNumber: e.target.value,
+                                })
                               }
                               required
                             />
@@ -826,16 +947,25 @@ const AdminClustersRoute = () => {
                             className="w-full"
                             disabled={createExpertMutation.isPending}
                           >
-                            {createExpertMutation.isPending ? 'Creating...' : 'Create Expert'}
+                            {createExpertMutation.isPending
+                              ? 'Creating...'
+                              : 'Create Expert'}
                           </Button>
                         </form>
                       </DialogContent>
                     </Dialog>
                   </div>
 
-                  <Dialog open={isExpertSelectOpen} onOpenChange={setIsExpertSelectOpen}>
+                  <Dialog
+                    open={isExpertSelectOpen}
+                    onOpenChange={setIsExpertSelectOpen}
+                  >
                     <DialogTrigger asChild>
-                      <Button type="button" variant="outline" className="w-full justify-start">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start"
+                      >
                         {selectedExpertId ? (
                           <div className="flex items-center gap-2">
                             <UserCheck className="h-4 w-4" />
@@ -882,7 +1012,11 @@ const AdminClustersRoute = () => {
                         <div className="flex gap-2">
                           <Button
                             type="button"
-                            variant={expertFreeOrAssigned === null ? 'default' : 'outline'}
+                            variant={
+                              expertFreeOrAssigned === null
+                                ? 'default'
+                                : 'outline'
+                            }
                             size="sm"
                             onClick={() => {
                               setExpertFreeOrAssigned(null);
@@ -893,7 +1027,11 @@ const AdminClustersRoute = () => {
                           </Button>
                           <Button
                             type="button"
-                            variant={expertFreeOrAssigned === true ? 'default' : 'outline'}
+                            variant={
+                              expertFreeOrAssigned === true
+                                ? 'default'
+                                : 'outline'
+                            }
                             size="sm"
                             onClick={() => {
                               setExpertFreeOrAssigned(true);
@@ -904,7 +1042,11 @@ const AdminClustersRoute = () => {
                           </Button>
                           <Button
                             type="button"
-                            variant={expertFreeOrAssigned === false ? 'default' : 'outline'}
+                            variant={
+                              expertFreeOrAssigned === false
+                                ? 'default'
+                                : 'outline'
+                            }
                             size="sm"
                             onClick={() => {
                               setExpertFreeOrAssigned(false);
@@ -918,9 +1060,13 @@ const AdminClustersRoute = () => {
 
                       <div className="border rounded-md max-h-[400px] overflow-y-auto">
                         {isLoadingExperts ? (
-                          <div className="p-4 text-center text-gray-500">Loading experts...</div>
+                          <div className="p-4 text-center text-gray-500">
+                            Loading experts...
+                          </div>
                         ) : experts.length === 0 ? (
-                          <div className="p-4 text-center text-gray-500">No experts found</div>
+                          <div className="p-4 text-center text-gray-500">
+                            No experts found
+                          </div>
                         ) : (
                           <div className="divide-y">
                             {experts.map((expert) => (
@@ -933,7 +1079,9 @@ const AdminClustersRoute = () => {
                                 <div className="flex items-center gap-3 flex-1">
                                   <UserCheck className="h-5 w-5 text-gray-400 flex-shrink-0" />
                                   <div className="text-left flex-1">
-                                    <div className="font-medium">{expert.expertName}</div>
+                                    <div className="font-medium">
+                                      {expert.expertName}
+                                    </div>
                                     <div className="text-sm text-gray-500">
                                       {expert.expertPhoneNumber}
                                     </div>
@@ -954,15 +1102,17 @@ const AdminClustersRoute = () => {
                       {experts.length > 0 && (
                         <div className="flex items-center justify-between text-sm border-t pt-4">
                           <span className="text-gray-600">
-                            Page {expertPage} of {expertsData?.totalPages || 1} (
-                            {expertsData?.totalCount || 0} total)
+                            Page {expertPage} of {expertsData?.totalPages || 1}{' '}
+                            ({expertsData?.totalCount || 0} total)
                           </span>
                           <div className="flex gap-2">
                             <Button
                               type="button"
                               variant="outline"
                               size="sm"
-                              onClick={() => setExpertPage((p) => Math.max(1, p - 1))}
+                              onClick={() =>
+                                setExpertPage((p) => Math.max(1, p - 1))
+                              }
                               disabled={!expertHasPrevious}
                             >
                               Previous
@@ -985,11 +1135,20 @@ const AdminClustersRoute = () => {
 
                 {/* Submit Buttons */}
                 <div className="flex justify-end gap-3 pt-4 border-t">
-                  <Button type="button" variant="outline" onClick={handleCreateDialogClose}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCreateDialogClose}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createClusterMutation.isPending}>
-                    {createClusterMutation.isPending ? 'Creating...' : 'Create Cluster'}
+                  <Button
+                    type="submit"
+                    disabled={createClusterMutation.isPending}
+                  >
+                    {createClusterMutation.isPending
+                      ? 'Creating...'
+                      : 'Create Cluster'}
                   </Button>
                 </div>
               </form>
@@ -1021,7 +1180,10 @@ const AdminClustersRoute = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Cluster Manager *</Label>
-                  <Dialog open={isManagerDialogOpen} onOpenChange={setIsManagerDialogOpen}>
+                  <Dialog
+                    open={isManagerDialogOpen}
+                    onOpenChange={setIsManagerDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button type="button" variant="outline" size="sm">
                         Create New Cluster Manager
@@ -1031,14 +1193,20 @@ const AdminClustersRoute = () => {
                       <DialogHeader>
                         <DialogTitle>Create Cluster Manager</DialogTitle>
                       </DialogHeader>
-                      <form onSubmit={handleCreateManager} className="space-y-4">
+                      <form
+                        onSubmit={handleCreateManager}
+                        className="space-y-4"
+                      >
                         <div className="space-y-2">
                           <Label htmlFor="editManagerName">Full Name *</Label>
                           <Input
                             id="editManagerName"
                             value={newManager.fullName}
                             onChange={(e) =>
-                              setNewManager({ ...newManager, fullName: e.target.value })
+                              setNewManager({
+                                ...newManager,
+                                fullName: e.target.value,
+                              })
                             }
                             required
                           />
@@ -1050,18 +1218,26 @@ const AdminClustersRoute = () => {
                             type="email"
                             value={newManager.email}
                             onChange={(e) =>
-                              setNewManager({ ...newManager, email: e.target.value })
+                              setNewManager({
+                                ...newManager,
+                                email: e.target.value,
+                              })
                             }
                             required
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="editManagerPhone">Phone Number *</Label>
+                          <Label htmlFor="editManagerPhone">
+                            Phone Number *
+                          </Label>
                           <Input
                             id="editManagerPhone"
                             value={newManager.phoneNumber}
                             onChange={(e) =>
-                              setNewManager({ ...newManager, phoneNumber: e.target.value })
+                              setNewManager({
+                                ...newManager,
+                                phoneNumber: e.target.value,
+                              })
                             }
                             required
                           />
@@ -1071,16 +1247,25 @@ const AdminClustersRoute = () => {
                           className="w-full"
                           disabled={createManagerMutation.isPending}
                         >
-                          {createManagerMutation.isPending ? 'Creating...' : 'Create Manager'}
+                          {createManagerMutation.isPending
+                            ? 'Creating...'
+                            : 'Create Manager'}
                         </Button>
                       </form>
                     </DialogContent>
                   </Dialog>
                 </div>
 
-                <Dialog open={isManagerSelectOpen} onOpenChange={setIsManagerSelectOpen}>
+                <Dialog
+                  open={isManagerSelectOpen}
+                  onOpenChange={setIsManagerSelectOpen}
+                >
                   <DialogTrigger asChild>
-                    <Button type="button" variant="outline" className="w-full justify-start">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-start"
+                    >
                       {selectedManagerId ? (
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4" />
@@ -1127,7 +1312,11 @@ const AdminClustersRoute = () => {
                       <div className="flex gap-2">
                         <Button
                           type="button"
-                          variant={managerFreeOrAssigned === null ? 'default' : 'outline'}
+                          variant={
+                            managerFreeOrAssigned === null
+                              ? 'default'
+                              : 'outline'
+                          }
                           size="sm"
                           onClick={() => {
                             setManagerFreeOrAssigned(null);
@@ -1138,7 +1327,11 @@ const AdminClustersRoute = () => {
                         </Button>
                         <Button
                           type="button"
-                          variant={managerFreeOrAssigned === true ? 'default' : 'outline'}
+                          variant={
+                            managerFreeOrAssigned === true
+                              ? 'default'
+                              : 'outline'
+                          }
                           size="sm"
                           onClick={() => {
                             setManagerFreeOrAssigned(true);
@@ -1149,7 +1342,11 @@ const AdminClustersRoute = () => {
                         </Button>
                         <Button
                           type="button"
-                          variant={managerFreeOrAssigned === false ? 'default' : 'outline'}
+                          variant={
+                            managerFreeOrAssigned === false
+                              ? 'default'
+                              : 'outline'
+                          }
                           size="sm"
                           onClick={() => {
                             setManagerFreeOrAssigned(false);
@@ -1163,9 +1360,13 @@ const AdminClustersRoute = () => {
 
                     <div className="border rounded-md max-h-[400px] overflow-y-auto">
                       {isLoadingManagers ? (
-                        <div className="p-4 text-center text-gray-500">Loading managers...</div>
+                        <div className="p-4 text-center text-gray-500">
+                          Loading managers...
+                        </div>
                       ) : managers.length === 0 ? (
-                        <div className="p-4 text-center text-gray-500">No managers found</div>
+                        <div className="p-4 text-center text-gray-500">
+                          No managers found
+                        </div>
                       ) : (
                         <div className="divide-y">
                           {managers.map((manager) => (
@@ -1178,14 +1379,19 @@ const AdminClustersRoute = () => {
                               <div className="flex items-center gap-3 flex-1">
                                 <Users className="h-5 w-5 text-gray-400 flex-shrink-0" />
                                 <div className="text-left flex-1">
-                                  <div className="font-medium">{manager.clusterManagerName}</div>
+                                  <div className="font-medium">
+                                    {manager.clusterManagerName}
+                                  </div>
                                   <div className="text-sm text-gray-500">
                                     {manager.clusterManagerPhoneNumber}
                                   </div>
-                                  <div className="text-sm text-gray-400">{manager.email}</div>
+                                  <div className="text-sm text-gray-400">
+                                    {manager.email}
+                                  </div>
                                 </div>
                               </div>
-                              {selectedManagerId === manager.clusterManagerId && (
+                              {selectedManagerId ===
+                                manager.clusterManagerId && (
                                 <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
                               )}
                             </button>
@@ -1197,15 +1403,17 @@ const AdminClustersRoute = () => {
                     {managers.length > 0 && (
                       <div className="flex items-center justify-between text-sm border-t pt-4">
                         <span className="text-gray-600">
-                          Page {managerPage} of {managersData?.totalPages || 1} (
-                          {managersData?.totalCount || 0} total)
+                          Page {managerPage} of {managersData?.totalPages || 1}{' '}
+                          ({managersData?.totalCount || 0} total)
                         </span>
                         <div className="flex gap-2">
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => setManagerPage((p) => Math.max(1, p - 1))}
+                            onClick={() =>
+                              setManagerPage((p) => Math.max(1, p - 1))
+                            }
                             disabled={!managerHasPrevious}
                           >
                             Previous
@@ -1230,7 +1438,10 @@ const AdminClustersRoute = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label>Agronomy Expert *</Label>
-                  <Dialog open={isExpertDialogOpen} onOpenChange={setIsExpertDialogOpen}>
+                  <Dialog
+                    open={isExpertDialogOpen}
+                    onOpenChange={setIsExpertDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button type="button" variant="outline" size="sm">
                         Create New Agronomy Expert
@@ -1247,7 +1458,10 @@ const AdminClustersRoute = () => {
                             id="expertName"
                             value={newExpert.fullName}
                             onChange={(e) =>
-                              setNewExpert({ ...newExpert, fullName: e.target.value })
+                              setNewExpert({
+                                ...newExpert,
+                                fullName: e.target.value,
+                              })
                             }
                             required
                           />
@@ -1258,7 +1472,12 @@ const AdminClustersRoute = () => {
                             id="expertEmail"
                             type="email"
                             value={newExpert.email}
-                            onChange={(e) => setNewExpert({ ...newExpert, email: e.target.value })}
+                            onChange={(e) =>
+                              setNewExpert({
+                                ...newExpert,
+                                email: e.target.value,
+                              })
+                            }
                             required
                           />
                         </div>
@@ -1268,7 +1487,10 @@ const AdminClustersRoute = () => {
                             id="expertPhone"
                             value={newExpert.phoneNumber}
                             onChange={(e) =>
-                              setNewExpert({ ...newExpert, phoneNumber: e.target.value })
+                              setNewExpert({
+                                ...newExpert,
+                                phoneNumber: e.target.value,
+                              })
                             }
                             required
                           />
@@ -1278,16 +1500,25 @@ const AdminClustersRoute = () => {
                           className="w-full"
                           disabled={createExpertMutation.isPending}
                         >
-                          {createExpertMutation.isPending ? 'Creating...' : 'Create Expert'}
+                          {createExpertMutation.isPending
+                            ? 'Creating...'
+                            : 'Create Expert'}
                         </Button>
                       </form>
                     </DialogContent>
                   </Dialog>
                 </div>
 
-                <Dialog open={isExpertSelectOpen} onOpenChange={setIsExpertSelectOpen}>
+                <Dialog
+                  open={isExpertSelectOpen}
+                  onOpenChange={setIsExpertSelectOpen}
+                >
                   <DialogTrigger asChild>
-                    <Button type="button" variant="outline" className="w-full justify-start">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-start"
+                    >
                       {selectedExpertId ? (
                         <div className="flex items-center gap-2">
                           <UserCheck className="h-4 w-4" />
@@ -1334,7 +1565,11 @@ const AdminClustersRoute = () => {
                       <div className="flex gap-2">
                         <Button
                           type="button"
-                          variant={expertFreeOrAssigned === null ? 'default' : 'outline'}
+                          variant={
+                            expertFreeOrAssigned === null
+                              ? 'default'
+                              : 'outline'
+                          }
                           size="sm"
                           onClick={() => {
                             setExpertFreeOrAssigned(null);
@@ -1345,7 +1580,11 @@ const AdminClustersRoute = () => {
                         </Button>
                         <Button
                           type="button"
-                          variant={expertFreeOrAssigned === true ? 'default' : 'outline'}
+                          variant={
+                            expertFreeOrAssigned === true
+                              ? 'default'
+                              : 'outline'
+                          }
                           size="sm"
                           onClick={() => {
                             setExpertFreeOrAssigned(true);
@@ -1356,7 +1595,11 @@ const AdminClustersRoute = () => {
                         </Button>
                         <Button
                           type="button"
-                          variant={expertFreeOrAssigned === false ? 'default' : 'outline'}
+                          variant={
+                            expertFreeOrAssigned === false
+                              ? 'default'
+                              : 'outline'
+                          }
                           size="sm"
                           onClick={() => {
                             setExpertFreeOrAssigned(false);
@@ -1370,9 +1613,13 @@ const AdminClustersRoute = () => {
 
                     <div className="border rounded-md max-h-[400px] overflow-y-auto">
                       {isLoadingExperts ? (
-                        <div className="p-4 text-center text-gray-500">Loading experts...</div>
+                        <div className="p-4 text-center text-gray-500">
+                          Loading experts...
+                        </div>
                       ) : experts.length === 0 ? (
-                        <div className="p-4 text-center text-gray-500">No experts found</div>
+                        <div className="p-4 text-center text-gray-500">
+                          No experts found
+                        </div>
                       ) : (
                         <div className="divide-y">
                           {experts.map((expert) => (
@@ -1385,7 +1632,9 @@ const AdminClustersRoute = () => {
                               <div className="flex items-center gap-3 flex-1">
                                 <UserCheck className="h-5 w-5 text-gray-400 flex-shrink-0" />
                                 <div className="text-left flex-1">
-                                  <div className="font-medium">{expert.expertName}</div>
+                                  <div className="font-medium">
+                                    {expert.expertName}
+                                  </div>
                                   <div className="text-sm text-gray-500">
                                     {expert.expertPhoneNumber}
                                   </div>
@@ -1414,7 +1663,9 @@ const AdminClustersRoute = () => {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => setExpertPage((p) => Math.max(1, p - 1))}
+                            onClick={() =>
+                              setExpertPage((p) => Math.max(1, p - 1))
+                            }
                             disabled={!expertHasPrevious}
                           >
                             Previous
@@ -1437,11 +1688,20 @@ const AdminClustersRoute = () => {
 
               {/* Submit Buttons */}
               <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={handleEditDialogClose}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleEditDialogClose}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={updateClusterMutation.isPending}>
-                  {updateClusterMutation.isPending ? 'Updating...' : 'Update Cluster'}
+                <Button
+                  type="submit"
+                  disabled={updateClusterMutation.isPending}
+                >
+                  {updateClusterMutation.isPending
+                    ? 'Updating...'
+                    : 'Update Cluster'}
                 </Button>
               </div>
             </form>
@@ -1499,9 +1759,15 @@ const AdminClustersRoute = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={SortBy.NameAscending}>Name (A-Z)</SelectItem>
-                <SelectItem value={SortBy.NameDescending}>Name (Z-A)</SelectItem>
-                <SelectItem value={SortBy.DateCreatedAscending}>Date (Oldest)</SelectItem>
-                <SelectItem value={SortBy.DateCreatedDescending}>Date (Newest)</SelectItem>
+                <SelectItem value={SortBy.NameDescending}>
+                  Name (Z-A)
+                </SelectItem>
+                <SelectItem value={SortBy.DateCreatedAscending}>
+                  Date (Oldest)
+                </SelectItem>
+                <SelectItem value={SortBy.DateCreatedDescending}>
+                  Date (Newest)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -1510,11 +1776,15 @@ const AdminClustersRoute = () => {
         {/* Clusters List */}
         <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
           {isLoadingClusters ? (
-            <div className="p-8 text-center text-gray-500">Loading clusters...</div>
+            <div className="p-8 text-center text-gray-500">
+              Loading clusters...
+            </div>
           ) : clusters.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <p className="text-lg font-medium">No clusters found</p>
-              <p className="text-sm mt-2">Create your first cluster to get started</p>
+              <p className="text-sm mt-2">
+                Create your first cluster to get started
+              </p>
             </div>
           ) : (
             <>
@@ -1580,7 +1850,9 @@ const AdminClustersRoute = () => {
                               </div>
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-500">Not assigned</span>
+                            <span className="text-sm text-gray-500">
+                              Not assigned
+                            </span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -1611,8 +1883,8 @@ const AdminClustersRoute = () => {
               {/* Pagination */}
               <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                 <div className="text-sm text-gray-600">
-                  Showing page {clusterPage} of {clustersData?.totalPages || 1} ({clustersData?.totalCount || 0}{' '}
-                  total clusters)
+                  Showing page {clusterPage} of {clustersData?.totalPages || 1}{' '}
+                  ({clustersData?.totalCount || 0} total clusters)
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -1642,4 +1914,3 @@ const AdminClustersRoute = () => {
 };
 
 export default AdminClustersRoute;
-
