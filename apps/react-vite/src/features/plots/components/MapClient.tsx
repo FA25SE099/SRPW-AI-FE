@@ -79,9 +79,6 @@ export const MapClient = ({
                 center={mapCenter}
                 zoom={15}
                 style={{ height: "100%", width: "100%" }}
-                whenCreated={(map) => {
-                    console.log("✅ Map created successfully:", map);
-                }}
                 whenReady={() => {
                     console.log("✅ Map ready");
                 }}
