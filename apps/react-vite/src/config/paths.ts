@@ -141,6 +141,10 @@ export const paths = {
         path: 'supervisor/reports',
         getHref: () => '/app/supervisor/reports',
       },
+      maps: {
+        path: 'supervisor/maps',
+        getHref: () => '/app/supervisor/maps',
+      },
     },
     cluster: {
       root: {

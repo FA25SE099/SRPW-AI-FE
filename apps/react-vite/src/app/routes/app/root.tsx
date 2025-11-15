@@ -33,7 +33,7 @@ const AppRoot = () => {
   const location = useLocation();
   const { checkAccess } = useAuthorization();
   console.log('location.pathname', user.data?.role);
-  
+
   // Role-based redirect when accessing /app root
   if (location.pathname === paths.app.root.path) {
     if (user.data?.role === ROLES.Admin) {
@@ -153,6 +153,12 @@ const AppRoot = () => {
         icon: TrendingUp,
         end: true,
       },
+      {
+        name: 'Maps',
+        to: paths.app.supervisor.maps.getHref(),
+        icon: Map,
+        end: true,
+      }
     ];
   }
   // Cluster Dashboard specific navigation

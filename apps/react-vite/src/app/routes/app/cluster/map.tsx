@@ -97,7 +97,7 @@ const MapPage = () => {
         } else {
             setUserLocation([106.6297, 10.8231]);
         }
-    }, []);
+    }, [isLoading]);
 
     const plotsWithGeo: PlotMapData[] = useMemo(() => {
         return plots
