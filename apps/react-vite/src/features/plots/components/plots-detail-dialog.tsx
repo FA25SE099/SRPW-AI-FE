@@ -313,8 +313,8 @@ export const PlotsDetailDialog = ({ plotId, open, onOpenChange }: PlotsDetailDia
                                             <div
                                                 key={season.seasonId}
                                                 className={`border rounded-lg p-5 transition-all ${season.isActive
-                                                        ? "bg-emerald-50 border-emerald-200 shadow-sm"
-                                                        : "bg-white border-neutral-200 hover:shadow-sm"
+                                                    ? "bg-emerald-50 border-emerald-200 shadow-sm"
+                                                    : "bg-white border-neutral-200 hover:shadow-sm"
                                                     }`}
                                             >
                                                 <div className="flex items-start justify-between mb-4">
@@ -435,11 +435,11 @@ export const PlotsDetailDialog = ({ plotId, open, onOpenChange }: PlotsDetailDia
                                                                                 className="h-full bg-emerald-500 rounded-full transition-all"
                                                                                 style={{
                                                                                     width: `${stage.productionPlanTasks && stage.productionPlanTasks.length > 0
-                                                                                            ? (stage.productionPlanTasks.filter((t) => t.status === "Completed")
-                                                                                                .length /
-                                                                                                stage.productionPlanTasks.length) *
-                                                                                            100
-                                                                                            : 0
+                                                                                        ? (stage.productionPlanTasks.filter((t) => t.status === "Completed")
+                                                                                            .length /
+                                                                                            stage.productionPlanTasks.length) *
+                                                                                        100
+                                                                                        : 0
                                                                                         }%`,
                                                                                 }}
                                                                             />
@@ -492,18 +492,16 @@ export const PlotsDetailDialog = ({ plotId, open, onOpenChange }: PlotsDetailDia
 
                                                 <div className="grid grid-cols-3 gap-4 mb-4 pb-4 border-b border-neutral-200">
                                                     <div>
-                                                        <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">
-                                                            Actual Yield
-                                                        </p>
+                                                        <p className="text-xs font-semibold text-neutral-500 mb-0.5">Actual Yield</p>
                                                         <p className="text-lg font-bold text-emerald-600">{cultivation.actualYield.toFixed(2)}</p>
                                                         <p className="text-xs text-neutral-600">tons</p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">Season ID</p>
+                                                        <p className="text-xs font-semibold text-neutral-500 mb-0.5">Season ID</p>
                                                         <p className="font-mono text-xs text-neutral-600 truncate">{cultivation.seasonId}</p>
                                                     </div>
                                                     <div>
-                                                        <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">Variety</p>
+                                                        <p className="text-xs font-semibold text-neutral-500 mb-0.5">Variety</p>
                                                         <p className="font-mono text-xs text-neutral-600 truncate">{cultivation.riceVarietyId}</p>
                                                     </div>
                                                 </div>
@@ -549,10 +547,10 @@ export const PlotsDetailDialog = ({ plotId, open, onOpenChange }: PlotsDetailDia
                                                                             <Badge
                                                                                 variant="outline"
                                                                                 className={`text-xs whitespace-nowrap ml-3 ${taskStatus === "Completed"
-                                                                                        ? "border-emerald-300 text-emerald-700 bg-emerald-50"
-                                                                                        : taskStatus === "InProgress"
-                                                                                            ? "border-amber-300 text-amber-700 bg-amber-50"
-                                                                                            : "border-neutral-300 text-neutral-700"
+                                                                                    ? "border-emerald-300 text-emerald-700 bg-emerald-50"
+                                                                                    : taskStatus === "InProgress"
+                                                                                        ? "border-amber-300 text-amber-700 bg-amber-50"
+                                                                                        : "border-neutral-300 text-neutral-700"
                                                                                     }`}
                                                                             >
                                                                                 {taskStatus}

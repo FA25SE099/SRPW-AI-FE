@@ -183,6 +183,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/supervisor/reports').then(convert(queryClient)),
             },
+            {
+              path: 'maps',
+              lazy: () =>
+                import('./routes/app/supervisor/maps').then(convert(queryClient))
+            }
           ],
         },
         {
