@@ -178,6 +178,7 @@ const SupervisorMap = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+    const [activeTab, setActiveTab] = useState<"tasks" | "completed">("tasks");
 
     const { data: plotsData, isLoading: plotsLoading, refetch: refetchPlots } = usePlots({
         params: { pageNumber: 1, pageSize: 500 },
@@ -190,6 +191,10 @@ const SupervisorMap = () => {
     const completeTaskMutation = useCompletePolygonTask({
         mutationConfig: {
             onSuccess: async () => {
+                // FIXED: Lưu vị trí và zoom hiện tại
+                const currentCenter = map.current?.getCenter();
+                const currentZoom = map.current?.getZoom();
+
                 // Reset drawing state
                 setSelectedTask(null);
                 setIsDrawing(false);
@@ -200,12 +205,22 @@ const SupervisorMap = () => {
                     draw.current.deleteAll();
                 }
 
-                // FIXED: Refetch data và rebuild map
+                // Refetch data và rebuild map
                 await Promise.all([refetchPlots(), refetchTasks()]);
 
                 // Clear và rebuild markers
                 clearMarkers();
                 setMarkersAdded(false);
+
+                // FIXED: Restore lại vị trí và zoom
+                if (map.current && currentCenter && currentZoom) {
+                    setTimeout(() => {
+                        map.current?.jumpTo({
+                            center: [currentCenter.lng, currentCenter.lat],
+                            zoom: currentZoom
+                        });
+                    }, 100);
+                }
             },
         }
     });
@@ -247,6 +262,11 @@ const SupervisorMap = () => {
 
         return result;
     }, [tasks, searchTerm, statusFilter]);
+
+    // Lọc plots đã có polygon
+    const completedPlots = useMemo(() => {
+        return plots.filter(plot => plot.boundaryGeoJson);
+    }, [plots]);
 
     const getMapCenter = (): [number, number] => {
         if (userLocation) {
@@ -375,107 +395,11 @@ const SupervisorMap = () => {
         if (!map.current || markersAdded) return;
 
         plots.forEach((plot, index) => {
-            const el = document.createElement('div');
-            el.className = 'plot-marker';
-
             const hasTask = tasks.find(t => t.plotId === plot.plotId);
             const taskStatus = hasTask?.status;
 
-            el.style.cssText = `
-                width: 14px;
-                height: 14px;
-                background: ${taskStatus === 'Completed' ? '#10B981' :
-                    hasTask ? '#F59E0B' :
-                        plot.status === 'Active' ? '#10B981' :
-                            plot.status === 'Emergency' ? '#EF4444' : '#6B7280'
-                };
-                border: 2px solid white;
-                border-radius: 50%;
-                cursor: pointer;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                transition: box-shadow 0.2s ease, filter 0.2s ease;
-                position: relative;
-                ${hasTask ? 'animation: pulse 2s infinite;' : ''}
-            `;
-
-            el.onmouseenter = () => {
-                el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.4)';
-                el.style.filter = 'brightness(1.2)';
-                el.style.zIndex = '1000';
-            };
-            el.onmouseleave = () => {
-                el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-                el.style.filter = 'brightness(1)';
-                el.style.zIndex = 'auto';
-            };
-
-            let coordinates: [number, number];
-            if (plot.coordinateGeoJson) {
-                const coordsFromGeoJSON = getCoordinatesFromGeoJSON(plot.coordinateGeoJson);
-                if (coordsFromGeoJSON) {
-                    coordinates = coordsFromGeoJSON;
-                } else {
-                    console.warn(`Invalid coordinateGeoJson for plot ${plot.plotId}:`, plot.coordinateGeoJson);
-                    coordinates = [
-                        selectedZone.center[0] + (index * 0.001),
-                        selectedZone.center[1] + (index * 0.001)
-                    ];
-                }
-            } else {
-                coordinates = [
-                    selectedZone.center[0] + (index * 0.001),
-                    selectedZone.center[1] + (index * 0.001)
-                ];
-            }
-
-            const marker = new mapboxgl.Marker(el)
-                .setLngLat(coordinates)
-                .addTo(map.current!);
-
-            markersRef.current.push(marker);
-
-            el.addEventListener('click', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
-
-                const task = tasks.find(t => t.plotId === plot.plotId);
-                if (task) {
-                    setSelectedTask(task);
-                    setFocusedTask(task);
-                    startDrawingForTask(task);
-
-                    if (popupRef.current) {
-                        popupRef.current.remove();
-                    }
-                } else {
-                    if (popupRef.current) {
-                        popupRef.current.remove();
-                    }
-
-                    popupRef.current = new mapboxgl.Popup({ offset: 15 })
-                        .setLngLat(coordinates)
-                        .setHTML(`
-                            <div class="p-3 min-w-[200px]">
-                                <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
-                                <div class="space-y-1">
-                                    <div class="text-sm"><span class="font-medium">Farmer:</span> ${plot.farmerName}</div>
-                                    <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
-                                    <div class="text-sm"><span class="font-medium">Variety:</span> ${plot.varietyName}</div>
-                                    <div class="text-sm">
-                                        <span class="font-medium">Status:</span> 
-                                        <span class="px-2 py-1 rounded text-xs ${plot.status === 'Active' ? 'bg-green-100 text-green-800' :
-                                plot.status === 'Emergency' ? 'bg-red-100 text-red-800' :
-                                    'bg-gray-100 text-gray-800'
-                            }">${plot.status}</span>
-                                    </div>
-                                    <div class="text-xs text-gray-500 mt-2">No drawing task assigned</div>
-                                </div>
-                            </div>
-                        `)
-                        .addTo(map.current!);
-                }
-            });
-
+            // Chỉ add polygon boundaries, không add dot markers
+            // Chỉ add polygon boundaries, không add dot markers
             if (plot.boundaryGeoJson) {
                 try {
                     let boundaryGeoJSON: any;
@@ -492,49 +416,133 @@ const SupervisorMap = () => {
                             data: boundaryGeoJSON
                         });
 
+                        // Fill layer với opacity cao hơn để dễ click
                         map.current!.addLayer({
                             id: `plot-boundary-fill-${plot.plotId}`,
                             type: 'fill',
                             source: `plot-boundary-${plot.plotId}`,
                             paint: {
                                 'fill-color': hasTask ? '#F59E0B' : (plot.status === 'Active' ? '#10B981' : '#6B7280'),
-                                'fill-opacity': 0.15
+                                'fill-opacity': 0.3
                             }
                         });
 
+                        // Outline layer
                         map.current!.addLayer({
                             id: `plot-boundary-line-${plot.plotId}`,
                             type: 'line',
                             source: `plot-boundary-${plot.plotId}`,
                             paint: {
                                 'line-color': hasTask ? '#F59E0B' : (plot.status === 'Active' ? '#10B981' : '#6B7280'),
-                                'line-width': 2,
-                                'line-opacity': 0.8
+                                'line-width': 3,
+                                'line-opacity': 1
                             }
                         });
 
+                        // Click handler - hiển thị popup với thông tin
                         map.current!.on('click', `plot-boundary-fill-${plot.plotId}`, (e) => {
                             e.originalEvent.stopPropagation();
 
                             const task = tasks.find(t => t.plotId === plot.plotId);
+
+                            // Get coordinates từ click event hoặc polygon centroid
+                            let coordinates: [number, number];
+                            if (e.lngLat) {
+                                coordinates = [e.lngLat.lng, e.lngLat.lat];
+                            } else if (plot.coordinateGeoJson) {
+                                const coords = getCoordinatesFromGeoJSON(plot.coordinateGeoJson);
+                                coordinates = coords || selectedZone.center;
+                            } else {
+                                coordinates = selectedZone.center;
+                            }
+
+                            if (popupRef.current) {
+                                popupRef.current.remove();
+                            }
+
                             if (task) {
-                                setSelectedTask(task);
-                                setFocusedTask(task);
-                                startDrawingForTask(task);
+                                // Nếu có task, hiển thị popup với option Start Drawing
+                                popupRef.current = new mapboxgl.Popup({ offset: 15 })
+                                    .setLngLat(coordinates)
+                                    .setHTML(`
+                                        <div class="p-3 min-w-[250px]">
+                                            <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
+                                            <div class="space-y-1 mb-3">
+                                                <div class="text-sm"><span class="font-medium">Farmer:</span> ${task.farmerName || plot.farmerName}</div>
+                                                <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
+                                                <div class="text-sm"><span class="font-medium">Phone:</span> ${task.farmerPhone || 'N/A'}</div>
+                                                <div class="inline-block px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 mt-2">
+                                                    Drawing Task Available
+                                                </div>
+                                            </div>
+                                            <button 
+                                                id="start-drawing-btn-${plot.plotId}"
+                                                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
+                                            >
+                                                Start Drawing
+                                            </button>
+                                        </div>
+                                    `)
+                                    .addTo(map.current!);
+
+                                // Add click handler cho button
+                                setTimeout(() => {
+                                    const btn = document.getElementById(`start-drawing-btn-${plot.plotId}`);
+                                    if (btn) {
+                                        btn.onclick = () => {
+                                            setSelectedTask(task);
+                                            setFocusedTask(task);
+                                            startDrawingForTask(task);
+                                            if (popupRef.current) {
+                                                popupRef.current.remove();
+                                            }
+                                        };
+                                    }
+                                }, 0);
+                            } else {
+                                // Không có task, chỉ hiển thị thông tin
+                                popupRef.current = new mapboxgl.Popup({ offset: 15 })
+                                    .setLngLat(coordinates)
+                                    .setHTML(`
+                                        <div class="p-3 min-w-[200px]">
+                                            <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
+                                            <div class="space-y-1">
+                                                <div class="text-sm"><span class="font-medium">Farmer:</span> ${plot.farmerName}</div>
+                                                <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
+                                                <div class="text-sm"><span class="font-medium">Variety:</span> ${plot.varietyName || 'N/A'}</div>
+                                                <div class="text-sm">
+                                                    <span class="font-medium">Status:</span> 
+                                                    <span class="px-2 py-1 rounded text-xs ${plot.status === 'Active' ? 'bg-green-100 text-green-800' :
+                                            plot.status === 'Emergency' ? 'bg-red-100 text-red-800' :
+                                                'bg-gray-100 text-gray-800'
+                                        }">${plot.status}</span>
+                                                </div>
+                                                <div class="text-xs text-gray-500 mt-2">No drawing task assigned</div>
+                                            </div>
+                                        </div>
+                                    `)
+                                    .addTo(map.current!);
                             }
                         });
 
+                        // Hover effects
                         map.current!.on('mouseenter', `plot-boundary-fill-${plot.plotId}`, () => {
                             map.current!.getCanvas().style.cursor = 'pointer';
+                            // Highlight on hover
+                            map.current!.setPaintProperty(`plot-boundary-fill-${plot.plotId}`, 'fill-opacity', 0.5);
                         });
 
                         map.current!.on('mouseleave', `plot-boundary-fill-${plot.plotId}`, () => {
                             map.current!.getCanvas().style.cursor = '';
+                            map.current!.setPaintProperty(`plot-boundary-fill-${plot.plotId}`, 'fill-opacity', 0.3);
                         });
                     }
                 } catch (error) {
                     console.error(`Failed to add boundary for plot ${plot.plotId}:`, error);
                 }
+            } else {
+                // Nếu không có boundary, log warning
+                console.warn(`Plot ${plot.plotId} (${plot.soThua}/${plot.soTo}) has no boundary data`);
             }
         });
     };
@@ -612,6 +620,53 @@ const SupervisorMap = () => {
         }
     };
 
+    const handlePlotFocus = (plot: PlotDTO) => {
+        if (map.current) {
+            let coords: [number, number] | null = null;
+
+            if (plot.coordinateGeoJson) {
+                coords = getCoordinatesFromGeoJSON(plot.coordinateGeoJson);
+            }
+
+            if (coords && Array.isArray(coords) && coords.length === 2) {
+                const [lng, lat] = coords;
+                if (!isNaN(lng) && !isNaN(lat) && lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90) {
+                    map.current.flyTo({
+                        center: coords,
+                        zoom: 16,
+                        duration: 1000,
+                    });
+
+                    // Hiển thị popup
+                    if (popupRef.current) {
+                        popupRef.current.remove();
+                    }
+
+                    popupRef.current = new mapboxgl.Popup({ offset: 15 })
+                        .setLngLat(coords)
+                        .setHTML(`
+                            <div class="p-3 min-w-[200px]">
+                                <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
+                                <div class="space-y-1">
+                                    <div class="text-sm"><span class="font-medium">Farmer:</span> ${plot.farmerName}</div>
+                                    <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
+                                    <div class="text-sm"><span class="font-medium">Variety:</span> ${plot.varietyName || 'N/A'}</div>
+                                    <div class="text-sm">
+                                        <span class="font-medium">Status:</span> 
+                                        <span class="px-2 py-1 rounded text-xs bg-green-100 text-green-800">${plot.status}</span>
+                                    </div>
+                                    <div class="inline-block px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-2">
+                                        ✓ Has Polygon
+                                    </div>
+                                </div>
+                            </div>
+                        `)
+                        .addTo(map.current);
+                }
+            }
+        }
+    };
+
     if (plotsLoading || tasksLoading || !isClient) {
         return (
             <div className="flex h-screen items-center justify-center bg-neutral-50">
@@ -645,75 +700,7 @@ const SupervisorMap = () => {
                             <p className="text-xs text-neutral-600">tasks available</p>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            <div className="bg-white rounded shadow-lg px-3 py-2 flex items-center gap-2">
-                                <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">VN</span>
-                                </div>
-                                <span className="font-medium">Vietnam</span>
-                            </div>
 
-                            <div className="bg-white rounded shadow-lg px-3 py-2 relative">
-                                <button
-                                    onClick={() => setShowZoneSelector(!showZoneSelector)}
-                                    className="flex items-center gap-2 hover:bg-gray-50 px-2 py-1 rounded transition-colors"
-                                >
-                                    <span className="font-medium">{selectedZone.name}</span>
-                                    <ChevronDown className="w-4 h-4" />
-                                </button>
-
-                                {showZoneSelector && (
-                                    <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-50 min-w-full">
-                                        {ZONES.map((zone) => (
-                                            <button
-                                                key={zone.id}
-                                                className="w-full text-left px-3 py-2 hover:bg-gray-50 whitespace-nowrap first:rounded-t last:rounded-b transition-colors"
-                                                onClick={() => {
-                                                    setSelectedZone(zone);
-                                                    setShowZoneSelector(false);
-                                                }}
-                                            >
-                                                {zone.name}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 size-4 text-neutral-400" />
-                                <Input
-                                    placeholder="Search tasks..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-64 pl-10"
-                                />
-                            </div>
-
-                            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v)}>
-                                <SelectTrigger className="w-40">
-                                    <Filter className="size-4 mr-2" />
-                                    <SelectValue placeholder="Status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Status</SelectItem>
-                                    <SelectItem value="Pending">Pending</SelectItem>
-                                    <SelectItem value="Completed">Completed</SelectItem>
-                                </SelectContent>
-                            </Select>
-
-                            <Button
-                                size="icon"
-                                variant={mapType === "satellite" ? "default" : "outline"}
-                                onClick={() => setMapType(mapType === "vector" ? "satellite" : "vector")}
-                            >
-                                {mapType === "satellite" ? (
-                                    <Layers className="size-4" />
-                                ) : (
-                                    <Satellite className="size-4" />
-                                )}
-                            </Button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -778,137 +765,214 @@ const SupervisorMap = () => {
                     )}
 
                     {/* Map Stats Overlay */}
-                    <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur rounded-lg shadow-lg p-3">
-                        <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                    <span>Total: <span className="font-medium">{tasks.length}</span></span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                                    <span>Pending: <span className="font-medium">{tasks.filter(t => t.status === 'Pending').length}</span></span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                    <span>Completed: <span className="font-medium">{tasks.filter(t => t.status === 'Completed').length}</span></span>
-                                </div>
-                            </div>
-                            <div className="text-gray-500 text-xs">
-                                {!mapLoaded ? 'Loading map...' : `${plots.length} plots loaded`}
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 {/* Sidebar */}
                 <div className="w-80 space-y-4 overflow-y-auto">
-                    <Card className="shadow-lg">
-                        <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-emerald-50">
-                            <CardTitle className="text-base flex items-center gap-2">
-                                <MapPin className="size-5 text-blue-600" />
-                                Drawing Tasks ({filteredTasks.length})
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2 max-h-[500px] overflow-y-auto pt-4">
-                            {filteredTasks.length === 0 ? (
-                                <p className="text-sm text-neutral-500 text-center py-8">
-                                    No drawing tasks available
-                                </p>
-                            ) : (
-                                filteredTasks.map((task) => {
-                                    const priorityLevel = getPriorityLevel(task.priority);
-                                    const priorityText = getPriorityText(task.priority);
+                    {/* Tabs */}
+                    <div className="bg-white rounded-lg shadow-lg p-1 flex gap-1">
+                        <button
+                            onClick={() => setActiveTab("tasks")}
+                            className={`flex-1 px-4 py-2 rounded text-sm font-medium transition-colors ${activeTab === "tasks"
+                                ? "bg-blue-600 text-white"
+                                : "text-gray-600 hover:bg-gray-100"
+                                }`}
+                        >
+                            Drawing Tasks ({filteredTasks.length})
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("completed")}
+                            className={`flex-1 px-4 py-2 rounded text-sm font-medium transition-colors ${activeTab === "completed"
+                                ? "bg-blue-600 text-white"
+                                : "text-gray-600 hover:bg-gray-100"
+                                }`}
+                        >
+                            With Polygon ({completedPlots.length})
+                        </button>
+                    </div>
 
-                                    return (
+                    {/* Tasks Tab */}
+                    {activeTab === "tasks" && (
+                        <Card className="shadow-lg">
+                            <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-emerald-50">
+                                <CardTitle className="text-base flex items-center gap-2">
+                                    <MapPin className="size-5 text-blue-600" />
+                                    Drawing Tasks
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2 max-h-[500px] overflow-y-auto pt-4">
+                                {filteredTasks.length === 0 ? (
+                                    <p className="text-sm text-neutral-500 text-center py-8">
+                                        No drawing tasks available
+                                    </p>
+                                ) : (
+                                    filteredTasks.map((task) => {
+                                        const priorityLevel = getPriorityLevel(task.priority);
+                                        const priorityText = getPriorityText(task.priority);
+
+                                        return (
+                                            <div
+                                                key={task.id}
+                                                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${focusedTask?.id === task.id
+                                                    ? "border-blue-500 bg-blue-100 shadow-lg scale-[1.02]"
+                                                    : hoveredTaskId === task.id
+                                                        ? "border-blue-400 bg-blue-50 shadow-md"
+                                                        : selectedTask?.id === task.id
+                                                            ? "border-green-500 bg-green-50"
+                                                            : "border-neutral-200 hover:border-blue-300 hover:bg-blue-50/50"
+                                                    }`}
+                                                onMouseEnter={() => setHoveredTaskId(task.id)}
+                                                onMouseLeave={() => setHoveredTaskId(null)}
+                                                onClick={() => handleTaskFocus(task)}
+                                            >
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <MapPin className="w-4 h-4 text-blue-600" />
+                                                        <div>
+                                                            <div className="font-medium text-sm">
+                                                                Plot {task.soThua}/{task.soTo}
+                                                            </div>
+                                                            <div className="text-xs text-gray-600">
+                                                                {task.plotId.slice(0, 8)}...
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {priorityLevel === "High" && (
+                                                        <AlertTriangle className="w-4 h-4 text-red-500" />
+                                                    )}
+                                                    {task.status === "Completed" && (
+                                                        <CheckCircle className="w-4 h-4 text-green-500" />
+                                                    )}
+                                                </div>
+
+                                                <div className="space-y-1 text-xs text-gray-600">
+                                                    {task.farmerName && (
+                                                        <div className="flex items-center gap-1">
+                                                            <User className="w-3 h-3" />
+                                                            <span>{task.farmerName}</span>
+                                                        </div>
+                                                    )}
+
+                                                    <div className="flex items-center gap-1">
+                                                        <Clock className="w-3 h-3" />
+                                                        <span>{new Date(task.assignedAt).toLocaleDateString()}</span>
+                                                    </div>
+
+                                                    {task.priority !== undefined && (
+                                                        <div
+                                                            className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${priorityLevel === "High"
+                                                                ? "bg-red-100 text-red-700"
+                                                                : priorityLevel === "Medium"
+                                                                    ? "bg-orange-100 text-orange-700"
+                                                                    : priorityLevel === "Low"
+                                                                        ? "bg-green-100 text-green-700"
+                                                                        : "bg-gray-100 text-gray-700"
+                                                                }`}
+                                                        >
+                                                            {priorityText} Priority
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {selectedTask?.id === task.id && (
+                                                    <div className="mt-2 text-xs text-blue-600 font-medium">
+                                                        → Drawing in progress...
+                                                    </div>
+                                                )}
+
+                                                {focusedTask?.id === task.id && !selectedTask && (
+                                                    <div className="mt-2">
+                                                        <Button
+                                                            size="sm"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                startDrawingForTask(task);
+                                                            }}
+                                                            className="w-full"
+                                                        >
+                                                            Start Drawing
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Completed Plots Tab */}
+                    {activeTab === "completed" && (
+                        <Card className="shadow-lg">
+                            <CardHeader className="pb-3 bg-gradient-to-r from-green-50 to-blue-50">
+                                <CardTitle className="text-base flex items-center gap-2">
+                                    <CheckCircle className="size-5 text-green-600" />
+                                    Plots with Polygon
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2 max-h-[500px] overflow-y-auto pt-4">
+                                {completedPlots.length === 0 ? (
+                                    <p className="text-sm text-neutral-500 text-center py-8">
+                                        No plots with polygon yet
+                                    </p>
+                                ) : (
+                                    completedPlots.map((plot) => (
                                         <div
-                                            key={task.id}
-                                            className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${focusedTask?.id === task.id
-                                                ? "border-blue-500 bg-blue-100 shadow-lg scale-[1.02]"
-                                                : hoveredTaskId === task.id
-                                                    ? "border-blue-400 bg-blue-50 shadow-md"
-                                                    : selectedTask?.id === task.id
-                                                        ? "border-green-500 bg-green-50"
-                                                        : "border-neutral-200 hover:border-blue-300 hover:bg-blue-50/50"
-                                                }`}
-                                            onMouseEnter={() => setHoveredTaskId(task.id)}
-                                            onMouseLeave={() => setHoveredTaskId(null)}
-                                            onClick={() => handleTaskFocus(task)}
+                                            key={plot.plotId}
+                                            className="p-3 rounded-lg border-2 border-neutral-200 hover:border-green-300 hover:bg-green-50/50 transition-all cursor-pointer"
+                                            onClick={() => handlePlotFocus(plot)}
                                         >
                                             <div className="flex items-start justify-between mb-2">
                                                 <div className="flex items-center gap-2">
-                                                    <MapPin className="w-4 h-4 text-blue-600" />
+                                                    <CheckCircle className="w-4 h-4 text-green-600" />
                                                     <div>
                                                         <div className="font-medium text-sm">
-                                                            Plot {task.soThua}/{task.soTo}
+                                                            Plot {plot.soThua}/{plot.soTo}
                                                         </div>
                                                         <div className="text-xs text-gray-600">
-                                                            {task.plotId.slice(0, 8)}...
+                                                            {plot.plotId.slice(0, 8)}...
                                                         </div>
                                                     </div>
                                                 </div>
-
-                                                {priorityLevel === 'High' && (
-                                                    <AlertTriangle className="w-4 h-4 text-red-500" />
-                                                )}
-                                                {task.status === 'Completed' && (
-                                                    <CheckCircle className="w-4 h-4 text-green-500" />
-                                                )}
+                                                <div
+                                                    className={`px-2 py-1 rounded text-xs font-medium ${plot.status === "Active"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : plot.status === "Emergency"
+                                                            ? "bg-red-100 text-red-800"
+                                                            : "bg-gray-100 text-gray-800"
+                                                        }`}
+                                                >
+                                                    {plot.status}
+                                                </div>
                                             </div>
 
                                             <div className="space-y-1 text-xs text-gray-600">
-                                                {task.farmerName && (
-                                                    <div className="flex items-center gap-1">
-                                                        <User className="w-3 h-3" />
-                                                        <span>{task.farmerName}</span>
-                                                    </div>
-                                                )}
-
                                                 <div className="flex items-center gap-1">
-                                                    <Clock className="w-3 h-3" />
-                                                    <span>{new Date(task.assignedAt).toLocaleDateString()}</span>
+                                                    <User className="w-3 h-3" />
+                                                    <span>{plot.farmerName}</span>
                                                 </div>
-
-                                                {task.priority !== undefined && (
-                                                    <div className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${priorityLevel === 'High'
-                                                        ? 'bg-red-100 text-red-700'
-                                                        : priorityLevel === 'Medium'
-                                                            ? 'bg-orange-100 text-orange-700'
-                                                            : priorityLevel === 'Low'
-                                                                ? 'bg-green-100 text-green-700'
-                                                                : 'bg-gray-100 text-gray-700'
-                                                        }`}>
-                                                        {priorityText} Priority
+                                                <div>
+                                                    <span className="font-medium">Area:</span> {plot.area}ha
+                                                </div>
+                                                {plot.varietyName && (
+                                                    <div>
+                                                        <span className="font-medium">Variety:</span> {plot.varietyName}
                                                     </div>
                                                 )}
                                             </div>
 
-                                            {selectedTask?.id === task.id && (
-                                                <div className="mt-2 text-xs text-blue-600 font-medium">
-                                                    → Drawing in progress...
-                                                </div>
-                                            )}
-
-                                            {focusedTask?.id === task.id && !selectedTask && (
-                                                <div className="mt-2">
-                                                    <Button
-                                                        size="sm"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            startDrawingForTask(task);
-                                                        }}
-                                                        className="w-full"
-                                                    >
-                                                        Start Drawing
-                                                    </Button>
-                                                </div>
-                                            )}
+                                            <div className="mt-2 text-xs text-green-600 font-medium">
+                                                ✓ Polygon available
+                                            </div>
                                         </div>
-                                    );
-                                })
-                            )}
-                        </CardContent>
-                    </Card>
+                                    ))
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
 
                     <Card className="shadow-lg">
                         <CardHeader className="pb-3">
