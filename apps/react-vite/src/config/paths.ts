@@ -148,12 +148,12 @@ export const paths = {
         getHref: () => '/app/cluster',
       },
       dashboard: {
-        path: 'cluster/dashboard',
+        path: 'cluster',
         getHref: () => '/app/cluster',
       },
       plots: {
         path: 'cluster/plots',
-        getHref: () => 'cluster/plots',
+        getHref: () => '/app/cluster/plots',
       },
       farmers: {
         path: 'cluster/farmers',
@@ -165,11 +165,11 @@ export const paths = {
       },
       groups: {
         path: 'cluster/groups',
-        getHref: () => 'cluster/groups'
+        getHref: () => '/app/cluster/groups',
       },
       maps: {
         path: 'cluster/map',
-        getHref: () => 'cluster/map'
+        getHref: () => '/app/cluster/map',
       },
     },
   },
