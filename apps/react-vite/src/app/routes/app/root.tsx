@@ -153,6 +153,12 @@ const AppRoot = () => {
         icon: TrendingUp,
         end: true,
       },
+      {
+        name: 'Maps',
+        to: paths.app.supervisor.maps.getHref(),
+        icon: Map,
+        end: true,
+      }
     ];
   }
   // Cluster Dashboard specific navigation

@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 
 import { ContentLayout } from '@/components/layouts';
-import { Tabs, Tab } from '@/components/ui/tabs';
+import { Tabs } from '@/components/ui/tabs';
+import { Tab } from '@/components/ui/tabs/tabs';
 import { useUser } from '@/lib/auth';
 
 type StatCardProps = {
@@ -250,13 +251,12 @@ const OverviewTab = () => {
                             className="flex items-center gap-4 border-b border-gray-100 pb-4 last:border-0"
                         >
                             <div
-                                className={`h-2 w-2 rounded-full ${
-                                    item.status === 'success'
-                                        ? 'bg-green-500'
-                                        : item.status === 'warning'
+                                className={`h-2 w-2 rounded-full ${item.status === 'success'
+                                    ? 'bg-green-500'
+                                    : item.status === 'warning'
                                         ? 'bg-orange-500'
                                         : 'bg-blue-500'
-                                }`}
+                                    }`}
                             ></div>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-900">{item.action}</p>
@@ -411,7 +411,7 @@ const PlansTab = () => {
                         Create New Plan
                     </button>
                 </div>
-                
+
                 {/* Plans List */}
                 <div className="space-y-4">
                     {[
@@ -452,13 +452,12 @@ const PlansTab = () => {
                                     <div className="mb-1 flex items-center gap-2">
                                         <h4 className="font-semibold text-gray-900">{plan.name}</h4>
                                         <span
-                                            className={`rounded px-2 py-0.5 text-xs font-medium ${
-                                                plan.statusColor === 'green'
-                                                    ? 'bg-green-100 text-green-700'
-                                                    : plan.statusColor === 'orange'
+                                            className={`rounded px-2 py-0.5 text-xs font-medium ${plan.statusColor === 'green'
+                                                ? 'bg-green-100 text-green-700'
+                                                : plan.statusColor === 'orange'
                                                     ? 'bg-orange-100 text-orange-700'
                                                     : 'bg-gray-100 text-gray-700'
-                                            }`}
+                                                }`}
                                         >
                                             {plan.status}
                                         </span>
@@ -494,7 +493,7 @@ const ReportsTab = () => {
         <div className="space-y-6">
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 className="mb-4 text-lg font-bold text-gray-900">Reports & Analytics</h2>
-                
+
                 {/* Key Metrics */}
                 <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div className="rounded-lg bg-blue-50 p-4">
