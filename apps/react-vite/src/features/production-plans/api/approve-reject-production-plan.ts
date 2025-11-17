@@ -3,37 +3,40 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { MutationConfig } from '@/lib/react-query';
 
-export type SubmitProductionPlanRequest = {
+export type ApproveRejectProductionPlanRequest = {
   planId: string;
-  supervisorId: string;
+  isApproved: boolean;
+  comments?: string;
 };
 
-export const submitProductionPlan = async (
-  data: SubmitProductionPlanRequest
+export const approveRejectProductionPlan = async (
+  data: ApproveRejectProductionPlanRequest
 ): Promise<string> => {
-  return api.post(`/production-plans/${data.planId}/submit`, data);
+  return api.post(`/production-plans/${data.planId}/approve-reject`, data);
 };
 
-type UseSubmitProductionPlanOptions = {
-  mutationConfig?: MutationConfig<typeof submitProductionPlan>;
+type UseApproveRejectProductionPlanOptions = {
+  mutationConfig?: MutationConfig<typeof approveRejectProductionPlan>;
 };
 
-export const useSubmitProductionPlan = ({
+export const useApproveRejectProductionPlan = ({
   mutationConfig,
-}: UseSubmitProductionPlanOptions = {}) => {
+}: UseApproveRejectProductionPlanOptions = {}) => {
   const queryClient = useQueryClient();
 
   const { onSuccess, ...restConfig } = mutationConfig || {};
 
   return useMutation({
-    mutationFn: submitProductionPlan,
+    mutationFn: approveRejectProductionPlan,
     onSuccess: (...args) => {
       // Invalidate queries to refresh
       queryClient.invalidateQueries({ queryKey: ['production-plans'] });
       queryClient.invalidateQueries({ queryKey: ['production-plan'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-approvals'] });
 
       onSuccess?.(...args);
     },
     ...restConfig,
   });
 };
+
