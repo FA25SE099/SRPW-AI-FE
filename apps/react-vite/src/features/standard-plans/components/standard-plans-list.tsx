@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, FileDown, Eye, Edit, Calendar, Clock, ListChecks } from 'lucide-react';
+import { Download, FileDown, Eye, Edit, Calendar, Clock, ListChecks, Plus, CheckCircle } from 'lucide-react';
 
 import { useStandardPlans } from '../api/get-standard-plans';
 import { useDownloadStandardPlans } from '../api/download-standard-plans';
@@ -11,6 +11,7 @@ import { UpdateStandardPlanDialog } from './update-standard-plan-dialog';
 import { StandardPlan } from '@/types/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import { SimpleDialog } from '@/components/ui/dialog';
 
 export const StandardPlansList = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -19,6 +20,7 @@ export const StandardPlansList = () => {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<StandardPlan | null>(null);
 
   const categoriesQuery = useCategories();
@@ -76,6 +78,14 @@ export const StandardPlansList = () => {
       <div className="space-y-4">
         {/* Filters and Actions */}
         <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setCreateDialogOpen(true)}
+              icon={<Plus className="h-4 w-4" />}
+            >
+              Create Standard Plan
+            </Button>
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button
               variant={selectedCategory === '' ? 'default' : 'outline'}
@@ -249,6 +259,73 @@ export const StandardPlansList = () => {
         onClose={() => setUpdateDialogOpen(false)}
         plan={selectedPlan}
       />
+
+      {/* Create Standard Plan Dialog - Placeholder */}
+      <SimpleDialog
+        isOpen={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
+        title="Create Standard Plan"
+        maxWidth="2xl"
+      >
+        <div className="space-y-4">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+            <div className="flex items-start gap-3">
+              <FileDown className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <h4 className="font-semibold text-blue-900">Create via Excel Template</h4>
+                <p className="text-sm text-blue-800 mt-2">
+                  To create a new standard plan, please follow these steps:
+                </p>
+                <ol className="mt-3 space-y-2 text-sm text-blue-800 list-decimal list-inside">
+                  <li>Download the Excel template using the "Template" button above</li>
+                  <li>Fill in the plan details, stages, tasks, and materials</li>
+                  <li>Upload the completed template (feature coming soon)</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm text-gray-700">
+              The Excel template includes all required fields for:
+            </p>
+            <ul className="space-y-1 text-sm text-gray-600">
+              <li className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                Basic plan information (name, description, duration)
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                Cultivation stages with timing
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                Tasks for each stage
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                Materials and quantities
+              </li>
+            </ul>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                handleDownloadTemplate();
+                setCreateDialogOpen(false);
+              }}
+              icon={<FileDown className="h-4 w-4" />}
+              isLoading={downloadTemplateMutation.isPending}
+            >
+              Download Template
+            </Button>
+          </div>
+        </div>
+      </SimpleDialog>
     </>
   );
 };
