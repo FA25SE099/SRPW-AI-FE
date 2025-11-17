@@ -207,9 +207,23 @@ export const PreviewStep = ({
               {preview.ungroupedPlotsList.slice(0, 3).map((plot) => (
                 <div key={plot.plotId} className="text-xs p-2 bg-white rounded">
                   <div className="font-medium">
-                    {plot.farmerName} - {plot.riceVariety}
+                    {plot.farmerName} - {plot.riceVarietyName}
                   </div>
-                  <div className="text-muted-foreground">{plot.reason}</div>
+                  <div className="text-muted-foreground">{plot.reasonDescription}</div>
+                  
+                  {/* Display suggestions if available */}
+                  {plot.suggestions && plot.suggestions.length > 0 && (
+                    <div className="text-xs text-blue-600 mt-1">
+                      💡 {plot.suggestions.join(', ')}
+                    </div>
+                  )}
+                  
+                  {/* Display nearest group if available */}
+                  {plot.nearbyGroups && plot.nearbyGroups.length > 0 && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Nearest: Group {plot.nearbyGroups[0].groupNumber} ({plot.nearbyGroups[0].distance.toFixed(0)}m away)
+                    </div>
+                  )}
                 </div>
               ))}
               {preview.ungroupedPlotsList.length > 3 && (

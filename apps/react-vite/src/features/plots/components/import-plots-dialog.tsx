@@ -45,8 +45,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                         onOpenChange(false)
                         resetForm()
                     }, 2000)
-                } else if (data.succeeded === true) {
-                    // Backend returned wrapped response with Result<T> format
+                } else if (data.succeeded === true || data.success === true) {
+                    // Backend returned wrapped response (supports both 'succeeded' and 'success')
                     setSuccessMessage(data.message || 'Plots imported successfully!')
                     setErrors([])
                     toast.success(data.message || 'Plots imported successfully!')
@@ -55,7 +55,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                         onOpenChange(false)
                         resetForm()
                     }, 2000)
-                } else if (data.succeeded === false) {
+                } else if (data.succeeded === false || data.success === false) {
                     // Backend returned error in wrapped format
                     const errorMessages = data.errors && data.errors.length > 0
                         ? data.errors
@@ -77,8 +77,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
 
                 const responseData = error?.response?.data
 
-                if (responseData && responseData.succeeded === false) {
-                    // Backend returned error response with Result<T> format
+                if (responseData && (responseData.succeeded === false || responseData.success === false)) {
+                    // Backend returned error response (supports both 'succeeded' and 'success')
                     const errorMessages = responseData.errors && responseData.errors.length > 0
                         ? responseData.errors
                         : [responseData.message || 'Import failed']
