@@ -14,6 +14,7 @@ export type ImportFarmer = {
     fullName: string;
     address: string;
     farmCode: string;
+    numberOfPlots: number;
 };
 
 export type ImportFarmersResponse = {
@@ -26,10 +27,10 @@ export type ImportFarmersResponse = {
 
 export const importFarmers = (file: File): Promise<ImportFarmersResponse> => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('File', file);
     return api.post('/farmer/import', formData, {
         headers: {
-            'Conntent-Type': 'multipart/form-data',
+            'Content-Type': 'multipart/form-data',
         },
     });
 };
