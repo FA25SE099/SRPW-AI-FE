@@ -14,7 +14,7 @@ type CreateStandardPlanDialogProps = {
   onClose: () => void;
 };
 
-const TASK_TYPES = ['Cultivation', 'Planting', 'Fertilizing', 'PestControl', 'Irrigation', 'Harvesting', 'PostHarvest', 'Other'];
+const TASK_TYPES = ['Preparation', 'Planting', 'Fertilization', 'Irrigation', 'PestControl', 'Weeding', 'Monitoring', 'Harvesting', 'PostHarvest', 'Other'];
 const PRIORITIES = ['Low', 'Normal', 'High', 'Critical'];
 
 export const CreateStandardPlanDialog = ({
@@ -27,11 +27,11 @@ export const CreateStandardPlanDialog = ({
   const [planName, setPlanName] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [estimatedDurationDays, setEstimatedDurationDays] = useState<number>(120);
+  const [totalDurationDays, setTotalDurationDays] = useState<number>(120);
   const [stages, setStages] = useState<CreateStandardPlanStage[]>([
     {
       stageName: 'Land Preparation',
-      sequenceOrder: 1,
+      sequenceOrder: 0,
       expectedDurationDays: 7,
       isMandatory: true,
       notes: '',
@@ -68,10 +68,14 @@ export const CreateStandardPlanDialog = ({
         handleClose();
       },
       onError: (error: any) => {
+        console.error('Create standard plan error:', error);
+        console.error('Error response:', error.response?.data);
+        
+        const errorMessage = error.errors?.join('\n') || error.message || 'Failed to create standard plan';
         addNotification({
           type: 'error',
           title: 'Error',
-          message: error.message || 'Failed to create standard plan',
+          message: errorMessage,
         });
       },
     },
@@ -81,11 +85,11 @@ export const CreateStandardPlanDialog = ({
     setPlanName('');
     setDescription('');
     setCategoryId('');
-    setEstimatedDurationDays(120);
+    setTotalDurationDays(120);
     setStages([
       {
         stageName: 'Land Preparation',
-        sequenceOrder: 1,
+        sequenceOrder: 0,
         expectedDurationDays: 7,
         isMandatory: true,
         notes: '',
@@ -100,7 +104,7 @@ export const CreateStandardPlanDialog = ({
       ...stages,
       {
         stageName: '',
-        sequenceOrder: stages.length + 1,
+        sequenceOrder: stages.length,
         expectedDurationDays: 7,
         isMandatory: true,
         notes: '',
@@ -111,9 +115,9 @@ export const CreateStandardPlanDialog = ({
 
   const handleRemoveStage = (index: number) => {
     const newStages = stages.filter((_, i) => i !== index);
-    // Reorder sequence
+    // Reorder sequence (0-based)
     newStages.forEach((stage, i) => {
-      stage.sequenceOrder = i + 1;
+      stage.sequenceOrder = i;
     });
     setStages(newStages);
   };
@@ -132,9 +136,9 @@ export const CreateStandardPlanDialog = ({
       description: '',
       daysAfter: 0,
       durationDays: 1,
-      taskType: 'Cultivation',
+      taskType: 'Preparation',
       priority: 'Normal',
-      sequenceOrder: stage.tasks.length + 1,
+      sequenceOrder: stage.tasks.length,
       materials: [],
     });
     setStages(newStages);
@@ -144,9 +148,9 @@ export const CreateStandardPlanDialog = ({
     const newStages = [...stages];
     const stage = newStages[stageIndex];
     stage.tasks = stage.tasks.filter((_, i) => i !== taskIndex);
-    // Reorder sequence
+    // Reorder sequence (0-based)
     stage.tasks.forEach((task, i) => {
-      task.sequenceOrder = i + 1;
+      task.sequenceOrder = i;
     });
     setStages(newStages);
   };
@@ -196,11 +200,20 @@ export const CreateStandardPlanDialog = ({
 
   const handleSubmit = () => {
     // Validation
-    if (!planName || !categoryId || !estimatedDurationDays) {
+    if (!planName || !categoryId || !totalDurationDays) {
       addNotification({
         type: 'error',
         title: 'Validation Error',
         message: 'Please fill in all required fields',
+      });
+      return;
+    }
+
+    if (totalDurationDays < 1 || totalDurationDays > 365) {
+      addNotification({
+        type: 'error',
+        title: 'Validation Error',
+        message: 'Total duration must be between 1 and 365 days',
       });
       return;
     }
@@ -214,25 +227,72 @@ export const CreateStandardPlanDialog = ({
       return;
     }
 
-    // Check if all stages have tasks
+    // Check if all stages have tasks and validate task data
     for (let i = 0; i < stages.length; i++) {
-      if (stages[i].tasks.length === 0) {
+      const stage = stages[i];
+      
+      if (!stage.stageName || !stage.stageName.trim()) {
         addNotification({
           type: 'error',
           title: 'Validation Error',
-          message: `Stage "${stages[i].stageName}" must have at least one task`,
+          message: `Stage ${i + 1} must have a name`,
         });
         return;
       }
+
+      if (stage.tasks.length === 0) {
+        addNotification({
+          type: 'error',
+          title: 'Validation Error',
+          message: `Stage "${stage.stageName}" must have at least one task`,
+        });
+        return;
+      }
+
+      // Validate each task
+      for (let j = 0; j < stage.tasks.length; j++) {
+        const task = stage.tasks[j];
+        if (!task.taskName || !task.taskName.trim()) {
+          addNotification({
+            type: 'error',
+            title: 'Validation Error',
+            message: `Task ${j + 1} in stage "${stage.stageName}" must have a name`,
+          });
+          return;
+        }
+        if (!task.description || !task.description.trim()) {
+          addNotification({
+            type: 'error',
+            title: 'Validation Error',
+            message: `Task "${task.taskName}" must have a description`,
+          });
+          return;
+        }
+      }
     }
 
-    createMutation.mutate({
-      planName,
-      description,
+    // Clean up the data before sending
+    const cleanedStages = stages.map(stage => ({
+      ...stage,
+      notes: stage.notes && stage.notes.trim() ? stage.notes : undefined,
+      tasks: stage.tasks.map(task => ({
+        ...task,
+        materials: task.materials.filter(m => m.materialId && m.quantityPerHa > 0)
+      }))
+    }));
+
+    const payload = {
       categoryId,
-      estimatedDurationDays,
-      stages,
-    });
+      planName: planName.trim(),
+      description: description && description.trim() ? description.trim() : undefined,
+      totalDurationDays,
+      isActive: true,
+      stages: cleanedStages,
+    };
+
+    console.log('Sending payload:', JSON.stringify(payload, null, 2));
+
+    createMutation.mutate(payload);
   };
 
   const categories = categoriesQuery.data || [];
@@ -296,14 +356,15 @@ export const CreateStandardPlanDialog = ({
 
             <div className="space-y-2 lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700">
-                Estimated Duration (Days) *
+                Total Duration (Days) *
               </label>
               <input
                 type="number"
-                value={estimatedDurationDays}
-                onChange={(e) => setEstimatedDurationDays(parseInt(e.target.value) || 0)}
+                value={totalDurationDays}
+                onChange={(e) => setTotalDurationDays(parseInt(e.target.value) || 0)}
                 disabled={isLoading}
                 min="1"
+                max="365"
                 className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
                 placeholder="e.g., 120, 145"
               />

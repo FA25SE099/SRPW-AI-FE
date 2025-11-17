@@ -30,12 +30,13 @@ export type CreateStandardPlanRequest = {
   categoryId: string;
   planName: string;
   description?: string;
-  estimatedDurationDays: number;
+  totalDurationDays: number;
+  isActive?: boolean;
   stages: CreateStandardPlanStage[];
 };
 
 export const createStandardPlan = async (data: CreateStandardPlanRequest): Promise<string> => {
-  return api.post('/standardplan', data);
+  return api.post('/StandardPlan', data);
 };
 
 type UseCreateStandardPlanOptions = {

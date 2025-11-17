@@ -50,7 +50,7 @@ export const CreateProductionPlanDialog = ({
   });
 
   // Fetch draft preview
-  const { data: draft, isLoading: isDraftLoading } = useProductionPlanDraft({
+  const { data: draft, isLoading: isDraftLoading, error: draftError } = useProductionPlanDraft({
     params: {
       standardPlanId: draftParams?.standardPlanId || '',
       groupId,
@@ -265,7 +265,7 @@ export const CreateProductionPlanDialog = ({
                       {draft.stages.length}
                     </p>
                     <p className="text-xs text-purple-700">
-                      {draft.stages.reduce((sum, s) => sum + s.tasks.length, 0)} tasks total
+                      {draft.stages.reduce((sum, s) => sum + (s.tasks?.length || 0), 0)} tasks total
                     </p>
                   </div>
                 </div>
@@ -288,9 +288,9 @@ export const CreateProductionPlanDialog = ({
                 </div>
 
                 {/* Stages Overview */}
-                <div className="max-h-96 overflow-y-auto rounded-lg border">
+                <div className="max-h-[400px] overflow-y-auto rounded-lg border">
                   <div className="p-4 space-y-3">
-                    <h4 className="font-semibold text-gray-900 sticky top-0 bg-white pb-2">
+                    <h4 className="font-semibold text-gray-900 sticky top-0 bg-white pb-2 z-10">
                       Stages & Tasks
                     </h4>
                     {draft.stages.map((stage, idx) => (
@@ -298,24 +298,28 @@ export const CreateProductionPlanDialog = ({
                         <div className="font-medium text-gray-900">
                           {stage.sequenceOrder}. {stage.stageName}
                         </div>
-                        <div className="mt-2 space-y-2">
-                          {stage.tasks.map((task, taskIdx) => (
-                            <div key={taskIdx} className="text-sm pl-4 border-l-2 border-gray-200">
-                              <div className="font-medium text-gray-700">{task.taskName}</div>
-                              <div className="text-gray-500">
-                                Day {task.daysAfter} • {task.taskType}
-                              </div>
-                              {task.materials.length > 0 && (
-                                <div className="mt-1 text-xs text-gray-600">
-                                  Materials: {task.materials.map(m => m.materialName).join(', ')}
-                                  {task.materials.some(m => m.hasPriceWarning) && (
-                                    <span className="ml-2 text-yellow-600">⚠️</span>
-                                  )}
+                        {stage.tasks && stage.tasks.length > 0 ? (
+                          <div className="mt-2 space-y-2">
+                            {stage.tasks.map((task, taskIdx) => (
+                              <div key={taskIdx} className="text-sm pl-4 border-l-2 border-gray-200">
+                                <div className="font-medium text-gray-700">{task.taskName}</div>
+                                <div className="text-gray-500">
+                                  Day {task.daysAfter} • {task.taskType}
                                 </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
+                                {task.materials && task.materials.length > 0 && (
+                                  <div className="mt-1 text-xs text-gray-600 break-words">
+                                    Materials: {task.materials.map(m => m.materialName).join(', ')}
+                                    {task.materials.some(m => m.hasPriceWarning) && (
+                                      <span className="ml-2 text-yellow-600">⚠️</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="mt-2 text-sm text-gray-500 italic">No tasks defined for this stage</p>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -340,8 +344,13 @@ export const CreateProductionPlanDialog = ({
                 </div>
               </div>
             ) : (
-              <div className="flex h-48 items-center justify-center">
+              <div className="flex h-48 flex-col items-center justify-center gap-2">
                 <p className="text-gray-500">Unable to generate draft preview</p>
+                {draftError && (
+                  <p className="text-sm text-red-600">
+                    Error: {(draftError as Error).message || 'Unknown error'}
+                  </p>
+                )}
               </div>
             )}
           </>

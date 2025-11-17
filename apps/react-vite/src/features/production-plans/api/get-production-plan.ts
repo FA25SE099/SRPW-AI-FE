@@ -4,8 +4,7 @@ import { QueryConfig } from '@/lib/react-query';
 import { ProductionPlan } from '../types';
 
 export const getProductionPlan = async (planId: string): Promise<ProductionPlan> => {
-  const response = await api.get(`/production-plans/${planId}`);
-  return response.data;
+  return api.get(`/production-plans/${planId}`);
 };
 
 type UseProductionPlanOptions = {

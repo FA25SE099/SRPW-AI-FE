@@ -6,8 +6,7 @@ import { CreateProductionPlanInput } from '../types';
 export const createProductionPlan = async (
   data: CreateProductionPlanInput
 ): Promise<{ productionPlanId: string }> => {
-  const response = await api.post('/production-plans', data);
-  return response.data;
+  return api.post('/production-plans', data);
 };
 
 type UseCreateProductionPlanOptions = {
