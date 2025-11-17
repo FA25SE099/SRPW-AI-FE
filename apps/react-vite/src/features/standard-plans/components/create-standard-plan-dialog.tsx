@@ -41,7 +41,21 @@ export const CreateStandardPlanDialog = ({
 
   // Queries
   const categoriesQuery = useCategories();
-  const materialsQuery = useMaterials({ params: { isActive: true } });
+  // Fetch both fertilizers and pesticides
+  const fertilizersQuery = useMaterials({ 
+    params: { 
+      currentPage: 1, 
+      pageSize: 1000,
+      type: 0 // Fertilizer
+    } 
+  });
+  const pesticidesQuery = useMaterials({ 
+    params: { 
+      currentPage: 1, 
+      pageSize: 1000,
+      type: 1 // Pesticide
+    } 
+  });
 
   const createMutation = useCreateStandardPlan({
     mutationConfig: {
@@ -222,23 +236,26 @@ export const CreateStandardPlanDialog = ({
   };
 
   const categories = categoriesQuery.data || [];
-  const materials = materialsQuery.data || [];
-  const isLoading = createMutation.isPending;
+  // Combine fertilizers and pesticides
+  const fertilizers = fertilizersQuery.data?.data || [];
+  const pesticides = pesticidesQuery.data?.data || [];
+  const materials = [...fertilizers, ...pesticides];
+  const isLoading = createMutation.isPending || fertilizersQuery.isLoading || pesticidesQuery.isLoading;
 
   return (
     <SimpleDialog
       isOpen={isOpen}
       onClose={handleClose}
       title="Create Standard Plan"
-      maxWidth="6xl"
+      maxWidth="7xl"
     >
-      <div className="space-y-6">
+      <div className="max-h-[85vh] space-y-6 overflow-y-auto pr-2">
         {/* Basic Information */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-900">Basic Information</h3>
+        <div className="rounded-lg border bg-gray-50 p-6 space-y-4">
+          <h3 className="text-xl font-bold text-gray-900">Basic Information</h3>
           
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div className="space-y-2 lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Plan Name *
               </label>
@@ -247,14 +264,14 @@ export const CreateStandardPlanDialog = ({
                 value={planName}
                 onChange={(e) => setPlanName(e.target.value)}
                 disabled={isLoading}
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                placeholder="e.g., Winter-Spring Rice 2025"
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
+                placeholder="e.g., Winter-Spring Rice 2025 - Long Duration"
               />
             </div>
 
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">
-                Category *
+                Rice Category *
               </label>
               {categoriesQuery.isLoading ? (
                 <div className="flex items-center justify-center py-2">
@@ -265,7 +282,7 @@ export const CreateStandardPlanDialog = ({
                   value={categoryId}
                   onChange={(e) => setCategoryId(e.target.value)}
                   disabled={isLoading}
-                  className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                  className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
                 >
                   <option value="">Select category...</option>
                   {categories.map((category) => (
@@ -277,7 +294,7 @@ export const CreateStandardPlanDialog = ({
               )}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2 lg:col-span-2">
               <label className="block text-sm font-medium text-gray-700">
                 Estimated Duration (Days) *
               </label>
@@ -287,30 +304,31 @@ export const CreateStandardPlanDialog = ({
                 onChange={(e) => setEstimatedDurationDays(parseInt(e.target.value) || 0)}
                 disabled={isLoading}
                 min="1"
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
+                placeholder="e.g., 120, 145"
               />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 lg:col-span-3">
             <label className="block text-sm font-medium text-gray-700">
-              Description
+              Description (Optional)
             </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isLoading}
-              rows={3}
-              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="Plan description..."
+              rows={2}
+              className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
+              placeholder="e.g., Standard cultivation plan for long-duration rice varieties (140-150 days)"
             />
           </div>
         </div>
 
         {/* Stages Section */}
-        <div className="space-y-4">
+        <div className="rounded-lg border bg-white p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Stages & Tasks</h3>
+            <h3 className="text-xl font-bold text-gray-900">Cultivation Stages & Tasks</h3>
             <Button
               size="sm"
               onClick={handleAddStage}
@@ -321,17 +339,19 @@ export const CreateStandardPlanDialog = ({
             </Button>
           </div>
 
-          <div className="max-h-[500px] space-y-4 overflow-y-auto pr-2">
+          <div className="space-y-4">
             {stages.map((stage, stageIndex) => (
               <div
                 key={stageIndex}
-                className="rounded-lg border border-gray-300 bg-gray-50 p-4"
+                className="rounded-lg border-2 border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100 p-4 shadow-sm"
               >
                 {/* Stage Header */}
                 <div className="mb-3 flex items-start gap-3">
-                  <GripVertical className="mt-2 h-5 w-5 flex-shrink-0 text-gray-400" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white font-bold text-sm flex-shrink-0 mt-1">
+                    {stageIndex + 1}
+                  </div>
                   <div className="flex-1 space-y-3">
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-12">
                       <input
                         type="text"
                         value={stage.stageName}
@@ -339,8 +359,8 @@ export const CreateStandardPlanDialog = ({
                           handleUpdateStage(stageIndex, { stageName: e.target.value })
                         }
                         disabled={isLoading}
-                        placeholder="Stage name"
-                        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                        placeholder="e.g., Land Preparation, Planting, Growth & Maintenance"
+                        className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500 lg:col-span-6"
                       />
                       <input
                         type="number"
@@ -352,11 +372,11 @@ export const CreateStandardPlanDialog = ({
                         }
                         disabled={isLoading}
                         min="1"
-                        placeholder="Duration (days)"
-                        className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                        placeholder="Days"
+                        className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 lg:col-span-3"
                       />
-                      <div className="flex items-center gap-2">
-                        <label className="flex items-center gap-2 text-sm">
+                      <div className="flex items-center gap-2 lg:col-span-3">
+                        <label className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm">
                           <input
                             type="checkbox"
                             checked={stage.isMandatory}
@@ -366,9 +386,9 @@ export const CreateStandardPlanDialog = ({
                               })
                             }
                             disabled={isLoading}
-                            className="rounded"
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                           />
-                          Mandatory
+                          <span className="font-medium">Mandatory</span>
                         </label>
                       </div>
                     </div>
@@ -379,8 +399,8 @@ export const CreateStandardPlanDialog = ({
                         handleUpdateStage(stageIndex, { notes: e.target.value })
                       }
                       disabled={isLoading}
-                      placeholder="Stage notes (optional)"
-                      className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                      placeholder="Stage notes (e.g., Prepare soil before planting)"
+                      className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm italic text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                     />
                   </div>
                   {stages.length > 1 && (
@@ -395,9 +415,9 @@ export const CreateStandardPlanDialog = ({
                 </div>
 
                 {/* Tasks */}
-                <div className="ml-8 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-700">Tasks</span>
+                <div className="ml-10 mt-4 space-y-3">
+                  <div className="flex items-center justify-between rounded-md bg-blue-50 px-3 py-2">
+                    <span className="text-sm font-semibold text-blue-900">Tasks</span>
                     <Button
                       size="sm"
                       variant="outline"
@@ -412,11 +432,11 @@ export const CreateStandardPlanDialog = ({
                   {stage.tasks.map((task, taskIndex) => (
                     <div
                       key={taskIndex}
-                      className="rounded-md border border-gray-200 bg-white p-3"
+                      className="rounded-md border-2 border-blue-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow"
                     >
                       <div className="mb-2 flex items-start gap-2">
-                        <div className="flex-1 space-y-2">
-                          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                        <div className="flex-1 space-y-3">
+                          <div className="grid grid-cols-1 gap-2 lg:grid-cols-2">
                             <input
                               type="text"
                               value={task.taskName}
@@ -426,8 +446,8 @@ export const CreateStandardPlanDialog = ({
                                 })
                               }
                               disabled={isLoading}
-                              placeholder="Task name"
-                              className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                              placeholder="e.g., Apply Organic Fertilizer, Sowing Seeds"
+                              className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                             />
                             <input
                               type="text"
@@ -438,82 +458,94 @@ export const CreateStandardPlanDialog = ({
                                 })
                               }
                               disabled={isLoading}
-                              placeholder="Description"
-                              className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                              placeholder="Task description"
+                              className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                             />
                           </div>
 
-                          <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-                            <input
-                              type="number"
-                              value={task.daysAfter}
-                              onChange={(e) =>
-                                handleUpdateTask(stageIndex, taskIndex, {
-                                  daysAfter: parseInt(e.target.value) || 0,
-                                })
-                              }
-                              disabled={isLoading}
-                              placeholder="Days after planting"
-                              className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                            />
-                            <input
-                              type="number"
-                              value={task.durationDays}
-                              onChange={(e) =>
-                                handleUpdateTask(stageIndex, taskIndex, {
-                                  durationDays: parseInt(e.target.value) || 1,
-                                })
-                              }
-                              disabled={isLoading}
-                              min="1"
-                              placeholder="Duration"
-                              className="block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                            />
-                            <select
-                              value={task.taskType}
-                              onChange={(e) =>
-                                handleUpdateTask(stageIndex, taskIndex, {
-                                  taskType: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                              className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                            >
-                              {TASK_TYPES.map((type) => (
-                                <option key={type} value={type}>
-                                  {type}
-                                </option>
-                              ))}
-                            </select>
-                            <select
-                              value={task.priority}
-                              onChange={(e) =>
-                                handleUpdateTask(stageIndex, taskIndex, {
-                                  priority: e.target.value,
-                                })
-                              }
-                              disabled={isLoading}
-                              className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                            >
-                              {PRIORITIES.map((priority) => (
-                                <option key={priority} value={priority}>
-                                  {priority}
-                                </option>
-                              ))}
-                            </select>
+                          <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                            <div className="space-y-1">
+                              <label className="block text-xs font-medium text-gray-600">Days After Planting</label>
+                              <input
+                                type="number"
+                                value={task.daysAfter}
+                                onChange={(e) =>
+                                  handleUpdateTask(stageIndex, taskIndex, {
+                                    daysAfter: parseInt(e.target.value) || 0,
+                                  })
+                                }
+                                disabled={isLoading}
+                                placeholder="0"
+                                className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="block text-xs font-medium text-gray-600">Duration (days)</label>
+                              <input
+                                type="number"
+                                value={task.durationDays}
+                                onChange={(e) =>
+                                  handleUpdateTask(stageIndex, taskIndex, {
+                                    durationDays: parseInt(e.target.value) || 1,
+                                  })
+                                }
+                                disabled={isLoading}
+                                min="1"
+                                placeholder="1"
+                                className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="block text-xs font-medium text-gray-600">Task Type</label>
+                              <select
+                                value={task.taskType}
+                                onChange={(e) =>
+                                  handleUpdateTask(stageIndex, taskIndex, {
+                                    taskType: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                                className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                              >
+                                {TASK_TYPES.map((type) => (
+                                  <option key={type} value={type}>
+                                    {type}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div className="space-y-1">
+                              <label className="block text-xs font-medium text-gray-600">Priority</label>
+                              <select
+                                value={task.priority}
+                                onChange={(e) =>
+                                  handleUpdateTask(stageIndex, taskIndex, {
+                                    priority: e.target.value,
+                                  })
+                                }
+                                disabled={isLoading}
+                                className="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                              >
+                                {PRIORITIES.map((priority) => (
+                                  <option key={priority} value={priority}>
+                                    {priority}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           </div>
 
                           {/* Materials */}
-                          <div className="space-y-2">
+                          <div className="rounded-md border border-gray-200 bg-gray-50 p-3 space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium text-gray-600">
-                                Materials
+                              <span className="text-sm font-semibold text-gray-700">
+                                Materials (per hectare)
                               </span>
                               <button
                                 type="button"
                                 onClick={() => handleAddMaterial(stageIndex, taskIndex)}
                                 disabled={isLoading}
-                                className="text-xs text-blue-600 hover:text-blue-700"
+                                className="text-xs font-medium text-blue-600 hover:text-blue-700 underline"
                               >
                                 + Add Material
                               </button>
@@ -521,7 +553,7 @@ export const CreateStandardPlanDialog = ({
                             {task.materials.map((material, materialIndex) => (
                               <div
                                 key={materialIndex}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-2 rounded-md bg-white p-2 border border-gray-200"
                               >
                                 <select
                                   value={material.materialId}
@@ -534,15 +566,34 @@ export const CreateStandardPlanDialog = ({
                                       e.target.value
                                     )
                                   }
-                                  disabled={isLoading}
-                                  className="flex-1 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                  disabled={isLoading || fertilizersQuery.isLoading || pesticidesQuery.isLoading}
+                                  className="flex-1 rounded-md border border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
                                 >
                                   <option value="">Select material...</option>
-                                  {materials.map((mat) => (
-                                    <option key={mat.id} value={mat.id}>
-                                      {mat.name} ({mat.unit})
-                                    </option>
-                                  ))}
+                                  {fertilizersQuery.isLoading || pesticidesQuery.isLoading ? (
+                                    <option disabled>Loading materials...</option>
+                                  ) : (
+                                    <>
+                                      {fertilizers.length > 0 && (
+                                        <optgroup label="Fertilizers">
+                                          {fertilizers.map((mat) => (
+                                            <option key={mat.materialId} value={mat.materialId}>
+                                              {mat.name} ({mat.unit})
+                                            </option>
+                                          ))}
+                                        </optgroup>
+                                      )}
+                                      {pesticides.length > 0 && (
+                                        <optgroup label="Pesticides">
+                                          {pesticides.map((mat) => (
+                                            <option key={mat.materialId} value={mat.materialId}>
+                                              {mat.name} ({mat.unit})
+                                            </option>
+                                          ))}
+                                        </optgroup>
+                                      )}
+                                    </>
+                                  )}
                                 </select>
                                 <input
                                   type="number"
@@ -559,8 +610,8 @@ export const CreateStandardPlanDialog = ({
                                   disabled={isLoading}
                                   min="0"
                                   step="0.1"
-                                  placeholder="Qty/ha"
-                                  className="w-24 rounded-md border border-gray-300 px-2 py-1.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                  placeholder="Quantity"
+                                  className="w-28 rounded-md border border-gray-300 bg-white px-2 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                 />
                                 <button
                                   type="button"
@@ -572,9 +623,10 @@ export const CreateStandardPlanDialog = ({
                                     )
                                   }
                                   disabled={isLoading}
-                                  className="text-red-600 hover:text-red-700"
+                                  className="p-1.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700 transition-colors"
+                                  title="Remove material"
                                 >
-                                  <Trash2 className="h-3 w-3" />
+                                  <Trash2 className="h-4 w-4" />
                                 </button>
                               </div>
                             ))}
@@ -593,7 +645,9 @@ export const CreateStandardPlanDialog = ({
                   ))}
 
                   {stage.tasks.length === 0 && (
-                    <p className="text-sm text-gray-500">No tasks added yet</p>
+                    <p className="text-sm text-gray-500 italic text-center py-4">
+                      No tasks added yet. Click "Add Task" to create a task for this stage.
+                    </p>
                   )}
                 </div>
               </div>
@@ -602,17 +656,25 @@ export const CreateStandardPlanDialog = ({
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-2 border-t pt-4">
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            isLoading={isLoading}
-            disabled={isLoading}
-          >
-            Create Standard Plan
-          </Button>
+        <div className="sticky bottom-0 bg-white border-t-2 border-gray-200 pt-4 pb-2 -mx-2 px-2">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">
+              {stages.length} stage{stages.length !== 1 ? 's' : ''} • {stages.reduce((sum, s) => sum + s.tasks.length, 0)} total tasks
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSubmit}
+                isLoading={isLoading}
+                disabled={isLoading}
+                size="lg"
+              >
+                Create Standard Plan
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </SimpleDialog>
