@@ -15,6 +15,7 @@ import {
   useCurrentSeason,
   useClusterId,
 } from '@/features/cluster/api';
+import { CreateProductionPlanDialog } from '@/features/production-plans/components';
 import { useUser } from '@/lib/auth';
 import {
   Loader2,
@@ -32,6 +33,8 @@ import { Badge } from '@/components/ui/badge';
 const ClusterDashboard = () => {
   const user = useUser();
   const [showFormationModal, setShowFormationModal] = useState(false);
+  const [showCreatePlanDialog, setShowCreatePlanDialog] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<{ id: string; name: string } | null>(null);
 
   // Get ClusterManagerId from logged-in user
   const clusterManagerId = user.data?.id || '';
@@ -271,7 +274,11 @@ const ClusterDashboard = () => {
               clusterId={clusterId}
               seasonId={currentSeason.currentSeason.seasonId}
               onCreatePlan={(groupId) => {
-                console.log('Create plan for group:', groupId);
+                const group = currentSeason.activeGroups?.find(g => g.groupId === groupId);
+                if (group) {
+                  setSelectedGroup({ id: groupId, name: group.groupName });
+                  setShowCreatePlanDialog(true);
+                }
               }}
               onViewDetails={(groupId) => {
                 console.log('View details for group:', groupId);
@@ -289,6 +296,20 @@ const ClusterDashboard = () => {
             seasonId={currentSeason.currentSeason.seasonId}
             year={currentSeason.currentSeason.year}
             availablePlots={currentSeason.readiness.availablePlots}
+          />
+        )}
+
+        {/* Create Production Plan Dialog */}
+        {selectedGroup && (
+          <CreateProductionPlanDialog
+            isOpen={showCreatePlanDialog}
+            onClose={() => {
+              setShowCreatePlanDialog(false);
+              setSelectedGroup(null);
+            }}
+            groupId={selectedGroup.id}
+            groupName={selectedGroup.name}
+            seasonId={currentSeason.currentSeason.seasonId}
           />
         )}
       </div>

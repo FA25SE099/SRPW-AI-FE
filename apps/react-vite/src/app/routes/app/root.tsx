@@ -107,6 +107,12 @@ const AppRoot = () => {
         end: true,
       },
       {
+        name: 'Plan Monitoring',
+        to: paths.app.expert.planMonitoring.getHref(),
+        icon: ClipboardList,
+        end: true,
+      },
+      {
         name: 'Materials',
         to: paths.app.expert.materials.getHref(),
         icon: Beaker,

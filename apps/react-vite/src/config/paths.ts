@@ -80,6 +80,10 @@ export const paths = {
         path: 'expert/standard-plans',
         getHref: () => '/app/expert/standard-plans',
       },
+      planMonitoring: {
+        path: 'expert/plan-monitoring',
+        getHref: () => '/app/expert/plan-monitoring',
+      },
       reports: {
         path: 'expert/reports',
         getHref: () => '/app/expert/reports',
@@ -132,6 +136,10 @@ export const paths = {
         path: 'plan-details',
         getHref: (planId?: string) =>
           `/app/supervisor/plan-details${planId ? `?planId=${planId}` : ''}`,
+      },
+      planExecution: {
+        path: 'supervisor/plan-execution/:planId',
+        getHref: (planId: string) => `/app/supervisor/plan-execution/${planId}`,
       },
       plans: {
         path: 'supervisor/plans',
