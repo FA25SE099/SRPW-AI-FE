@@ -80,6 +80,10 @@ export const paths = {
         path: 'expert/standard-plans',
         getHref: () => '/app/expert/standard-plans',
       },
+      planMonitoring: {
+        path: 'expert/plan-monitoring',
+        getHref: () => '/app/expert/plan-monitoring',
+      },
       reports: {
         path: 'expert/reports',
         getHref: () => '/app/expert/reports',
@@ -133,6 +137,10 @@ export const paths = {
         getHref: (planId?: string) =>
           `/app/supervisor/plan-details${planId ? `?planId=${planId}` : ''}`,
       },
+      planExecution: {
+        path: 'supervisor/plan-execution/:planId',
+        getHref: (planId: string) => `/app/supervisor/plan-execution/${planId}`,
+      },
       plans: {
         path: 'supervisor/plans',
         getHref: () => '/app/supervisor/plans',
@@ -152,12 +160,12 @@ export const paths = {
         getHref: () => '/app/cluster',
       },
       dashboard: {
-        path: 'cluster/dashboard',
+        path: 'cluster',
         getHref: () => '/app/cluster',
       },
       plots: {
         path: 'cluster/plots',
-        getHref: () => 'cluster/plots',
+        getHref: () => '/app/cluster/plots',
       },
       farmers: {
         path: 'cluster/farmers',
@@ -169,11 +177,11 @@ export const paths = {
       },
       groups: {
         path: 'cluster/groups',
-        getHref: () => 'cluster/groups'
+        getHref: () => '/app/cluster/groups',
       },
       maps: {
         path: 'cluster/map',
-        getHref: () => 'cluster/map'
+        getHref: () => '/app/cluster/map',
       },
     },
   },
