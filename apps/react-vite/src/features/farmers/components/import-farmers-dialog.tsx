@@ -159,7 +159,7 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                     {/* File Upload Area */}
                     {!selectedFile && !importMutation.data && (
                         <div
-                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
+                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${dragActive
                                 ? 'border-primary bg-primary/5'
                                 : 'border-gray-300 hover:border-gray-400'
                                 }`}
@@ -167,6 +167,7 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                             onDragLeave={handleDrag}
                             onDragOver={handleDrag}
                             onDrop={handleDrop}
+                            onClick={() => document.getElementById('file-upload')?.click()}
                         >
                             <FileSpreadsheet className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                             <p className="text-sm text-muted-foreground mb-2">
@@ -179,12 +180,10 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                 className="hidden"
                                 id="file-upload"
                             />
-                            <label htmlFor="file-upload">
-                                <Button variant="outline" type="button" className="cursor-pointer inline-flex items-center">
-                                    <Upload className="h-4 w-4 mr-2" />
-                                    Select File
-                                </Button>
-                            </label>
+                            <div className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors">
+                                <Upload className="h-4 w-4" />
+                                <span className="text-sm font-medium">Select File</span>
+                            </div>
                             <p className="text-xs text-muted-foreground mt-4">
                                 Supported formats: .xls, .xlsx (Max 10MB)
                             </p>

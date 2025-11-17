@@ -87,7 +87,8 @@ export const PreviewStep = ({
       <div className="space-y-3">
         <h3 className="text-lg font-semibold">Proposed Groups</h3>
         <div className="space-y-3 max-h-96 overflow-y-auto">
-          {preview.proposedGroups.map((group, index) => (
+          {preview.proposedGroups && preview.proposedGroups.length > 0 ? (
+            preview.proposedGroups.map((group, index) => (
             <Card key={group.tempGroupId}>
               <CardContent className="p-4">
                 <div className="space-y-3">
@@ -179,7 +180,12 @@ export const PreviewStep = ({
                 </div>
               </CardContent>
             </Card>
-          ))}
+            ))
+          ) : (
+            <div className="p-8 text-center text-muted-foreground border rounded-lg">
+              <p>No groups to display</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -196,21 +202,23 @@ export const PreviewStep = ({
             These plots will require manual assignment after group creation. You can
             assign them to existing groups or create exception groups.
           </p>
-          <div className="space-y-1 max-h-40 overflow-y-auto">
-            {preview.ungroupedPlotsList.slice(0, 3).map((plot) => (
-              <div key={plot.plotId} className="text-xs p-2 bg-white rounded">
-                <div className="font-medium">
-                  {plot.farmerName} - {plot.riceVariety}
+          {preview.ungroupedPlotsList && preview.ungroupedPlotsList.length > 0 && (
+            <div className="space-y-1 max-h-40 overflow-y-auto">
+              {preview.ungroupedPlotsList.slice(0, 3).map((plot) => (
+                <div key={plot.plotId} className="text-xs p-2 bg-white rounded">
+                  <div className="font-medium">
+                    {plot.farmerName} - {plot.riceVariety}
+                  </div>
+                  <div className="text-muted-foreground">{plot.reason}</div>
                 </div>
-                <div className="text-muted-foreground">{plot.reason}</div>
-              </div>
-            ))}
-            {preview.ungroupedPlotsList.length > 3 && (
-              <p className="text-xs text-muted-foreground text-center pt-1">
-                +{preview.ungroupedPlotsList.length - 3} more...
-              </p>
-            )}
-          </div>
+              ))}
+              {preview.ungroupedPlotsList.length > 3 && (
+                <p className="text-xs text-muted-foreground text-center pt-1">
+                  +{preview.ungroupedPlotsList.length - 3} more...
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
 

@@ -24,6 +24,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
     const [errors, setErrors] = useState<string[]>([])
     const [successMessage, setSuccessMessage] = useState<string>('')
     const [isDownloading, setIsDownloading] = useState(false)
+    const [dragActive, setDragActive] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
     
     const plotTemplate = usePlotImportTemplate()
@@ -105,20 +106,53 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
         }
     }
 
+    const validateFile = (file: File): boolean => {
+        const validTypes = [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+        ]
+        if (!validTypes.includes(file.type)) {
+            toast.error('Please select a valid Excel file (.xlsx or .xls)')
+            return false
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('File size must be less than 10MB')
+            return false
+        }
+        return true
+    }
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) {
-            const validTypes = [
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'application/vnd.ms-excel',
-            ]
-            if (!validTypes.includes(file.type)) {
-                toast.error('Please select a valid Excel file (.xlsx or .xls)')
-                return
-            }
+        if (file && validateFile(file)) {
             setSelectedFile(file)
             setErrors([])
             setSuccessMessage('')
+        }
+    }
+
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+            setDragActive(true)
+        } else if (e.type === 'dragleave') {
+            setDragActive(false)
+        }
+    }
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setDragActive(false)
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            const file = e.dataTransfer.files[0]
+            if (validateFile(file)) {
+                setSelectedFile(file)
+                setErrors([])
+                setSuccessMessage('')
+            }
         }
     }
 
@@ -215,9 +249,17 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                 className="hidden"
                                 id="excel-upload"
                             />
-                            <label
-                                htmlFor="excel-upload"
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors"
+                            <div
+                                onDragEnter={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDragOver={handleDrag}
+                                onDrop={handleDrop}
+                                onClick={() => fileInputRef.current?.click()}
+                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                                    dragActive
+                                        ? 'border-green-500 bg-green-50'
+                                        : 'border-gray-300 hover:border-green-500 hover:bg-green-50'
+                                }`}
                             >
                                 <Upload className="size-6 text-gray-400" />
                                 <div className="text-center">
@@ -225,10 +267,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                         {selectedFile ? selectedFile.name : 'Click to upload or drag and drop'}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Excel files only (.xlsx, .xls)
+                                        Excel files only (.xlsx, .xls) - Max 10MB
                                     </p>
                                 </div>
-                            </label>
+                            </div>
                         </div>
 
                         {selectedFile && (

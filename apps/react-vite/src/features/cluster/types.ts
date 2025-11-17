@@ -82,7 +82,7 @@ export type GroupPreviewResult = {
   totalPlotsGrouped: number;
   ungroupedPlots: number;
 
-  proposedGroups: Array<{
+  proposedGroups?: Array<{
     tempGroupId: string;
     riceVariety: string;
     plantingDateRange: {
@@ -107,7 +107,7 @@ export type GroupPreviewResult = {
     }>;
   }>;
 
-  ungroupedPlotsList: Array<{
+  ungroupedPlotsList?: Array<{
     plotId: string;
     farmerName: string;
     riceVariety: string;
