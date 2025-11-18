@@ -19,6 +19,7 @@ import { GroupInfoCard } from '@/features/supervisor/components/group-info-card'
 import { PlotsTable } from '@/features/supervisor/components/plots-table';
 import { PlanProgressCard } from '@/features/supervisor/components/plan-progress-card';
 import { EconomicsCard } from '@/features/supervisor/components/economics-card';
+import { CreateProductionPlanDialog } from '@/features/production-plans/components';
 import { paths } from '@/config/paths';
 import { Head } from '@/components/seo/head';
 
@@ -28,6 +29,7 @@ const SupervisorGroupPage = () => {
     seasonId?: string;
     year?: number;
   }>();
+  const [showCreatePlanDialog, setShowCreatePlanDialog] = useState(false);
 
   // Get available seasons for dropdown
   const { data: availableSeasons, isLoading: isLoadingSeasons } = useAvailableSeasons();
@@ -51,9 +53,7 @@ const SupervisorGroupPage = () => {
   };
 
   const handleCreateProductionPlan = () => {
-    if (group?.groupId) {
-      navigate(`${paths.app.supervisor.plans.getHref()}?groupId=${group.groupId}`);
-    }
+    setShowCreatePlanDialog(true);
   };
 
   const handleFixPolygons = () => {
@@ -291,6 +291,17 @@ const SupervisorGroupPage = () => {
           )}
         </div>
       </div>
+
+      {/* Create Production Plan Dialog */}
+      {group && (
+        <CreateProductionPlanDialog
+          isOpen={showCreatePlanDialog}
+          onClose={() => setShowCreatePlanDialog(false)}
+          groupId={group.groupId}
+          groupName={group.groupName}
+          seasonId={group.season.seasonId}
+        />
+      )}
     </>
   );
 };

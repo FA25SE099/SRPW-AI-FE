@@ -9,9 +9,8 @@ export const getApprovedPlans = async (params?: {
   fromDate?: string;
   toDate?: string;
 }): Promise<ApprovedPlan[]> => {
-  const response = await api.get('/production-plans/approved', { params });
+  const data = await api.get('/production-plans/approved', { params });
   // Ensure we always return an array, never undefined or null
-  const data = response.data;
   return Array.isArray(data) ? data : [];
 };
 

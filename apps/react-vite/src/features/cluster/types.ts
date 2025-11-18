@@ -82,7 +82,7 @@ export type GroupPreviewResult = {
   totalPlotsGrouped: number;
   ungroupedPlots: number;
 
-  proposedGroups: Array<{
+  proposedGroups?: Array<{
     tempGroupId: string;
     riceVariety: string;
     plantingDateRange: {
@@ -107,16 +107,27 @@ export type GroupPreviewResult = {
     }>;
   }>;
 
-  ungroupedPlotsList: Array<{
+  ungroupedPlotsList?: Array<{
     plotId: string;
+    farmerId: string;
     farmerName: string;
-    riceVariety: string;
+    farmerPhone: string;
+    riceVarietyId: string;
+    riceVarietyName: string;
     plantingDate: string;
     area: number;
-    reason: string;
+    coordinate: any;
+    boundaryWkt: string;
+    ungroupReason: string;
+    reasonDescription: string;
+    distanceToNearestGroup: number;
+    nearestGroupNumber: number | null;
     suggestions: string[];
-    nearestGroupId?: string;
-    distanceToNearestKm?: number;
+    nearbyGroups: Array<{
+      groupId: string;
+      groupNumber: number;
+      distance: number;
+    }>;
   }>;
 };
 

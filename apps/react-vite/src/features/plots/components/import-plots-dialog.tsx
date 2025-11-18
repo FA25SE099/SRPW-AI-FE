@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X } from 'lucide-react'
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X, Download, Loader2 } from 'lucide-react'
 import { useImportPlotsExcel } from '../api/import-plots-excel'
+import { usePlotImportTemplate } from '../api/download-plot-import-template'
 import {
     Dialog,
     DialogContent,
@@ -22,7 +23,11 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
     const [importDate, setImportDate] = useState<string>('')
     const [errors, setErrors] = useState<string[]>([])
     const [successMessage, setSuccessMessage] = useState<string>('')
+    const [isDownloading, setIsDownloading] = useState(false)
+    const [dragActive, setDragActive] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    
+    const plotTemplate = usePlotImportTemplate()
 
     const importMutation = useImportPlotsExcel({
         mutationConfig: {
@@ -40,8 +45,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                         onOpenChange(false)
                         resetForm()
                     }, 2000)
-                } else if (data.success === true) {
-                    // Backend returned wrapped response (new format)
+                } else if (data.succeeded === true || data.success === true) {
+                    // Backend returned wrapped response (supports both 'succeeded' and 'success')
                     setSuccessMessage(data.message || 'Plots imported successfully!')
                     setErrors([])
                     toast.success(data.message || 'Plots imported successfully!')
@@ -50,7 +55,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                         onOpenChange(false)
                         resetForm()
                     }, 2000)
-                } else if (data.success === false) {
+                } else if (data.succeeded === false || data.success === false) {
                     // Backend returned error in wrapped format
                     const errorMessages = data.errors && data.errors.length > 0
                         ? data.errors
@@ -72,8 +77,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
 
                 const responseData = error?.response?.data
 
-                if (responseData && responseData.success === false) {
-                    // Backend returned error response
+                if (responseData && (responseData.succeeded === false || responseData.success === false)) {
+                    // Backend returned error response (supports both 'succeeded' and 'success')
                     const errorMessages = responseData.errors && responseData.errors.length > 0
                         ? responseData.errors
                         : [responseData.message || 'Import failed']
@@ -101,20 +106,53 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
         }
     }
 
+    const validateFile = (file: File): boolean => {
+        const validTypes = [
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-excel',
+        ]
+        if (!validTypes.includes(file.type)) {
+            toast.error('Please select a valid Excel file (.xlsx or .xls)')
+            return false
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error('File size must be less than 10MB')
+            return false
+        }
+        return true
+    }
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) {
-            const validTypes = [
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'application/vnd.ms-excel',
-            ]
-            if (!validTypes.includes(file.type)) {
-                toast.error('Please select a valid Excel file (.xlsx or .xls)')
-                return
-            }
+        if (file && validateFile(file)) {
             setSelectedFile(file)
             setErrors([])
             setSuccessMessage('')
+        }
+    }
+
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (e.type === 'dragenter' || e.type === 'dragover') {
+            setDragActive(true)
+        } else if (e.type === 'dragleave') {
+            setDragActive(false)
+        }
+    }
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setDragActive(false)
+
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            const file = e.dataTransfer.files[0]
+            if (validateFile(file)) {
+                setSelectedFile(file)
+                setErrors([])
+                setSuccessMessage('')
+            }
         }
     }
 
@@ -133,8 +171,17 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
         })
     }
 
-    const handleDownloadTemplate = () => {
-        toast.info('Template download feature - to be implemented')
+    const handleDownloadTemplate = async () => {
+        try {
+            setIsDownloading(true)
+            await plotTemplate.download()
+            toast.success('Plot template downloaded successfully!')
+        } catch (error: any) {
+            console.error('Template download error:', error)
+            toast.error(error.message || 'Failed to download template. Please ensure farmers have been imported first.')
+        } finally {
+            setIsDownloading(false)
+        }
     }
 
     return (
@@ -152,22 +199,39 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
 
                 <div className="space-y-6">
                     {/* Download Template */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                            <AlertCircle className="size-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                                <p className="text-sm font-medium text-blue-900 mb-2">
-                                    Don't have a template?
-                                </p>
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={handleDownloadTemplate}
-                                    className="border-blue-300 text-blue-700 hover:bg-blue-100"
-                                >
-                                    Download Excel Template
-                                </Button>
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-3 flex-1">
+                                <FileSpreadsheet className="size-5 text-green-600 flex-shrink-0 mt-0.5" />
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-green-900 mb-1">
+                                        Download Personalized Plot Template
+                                    </p>
+                                    <p className="text-xs text-green-700">
+                                        Template will be pre-filled with your imported farmers and their plot counts. 
+                                        Includes a reference sheet with rice varieties.
+                                    </p>
+                                </div>
                             </div>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleDownloadTemplate}
+                                disabled={isDownloading || importMutation.isPending}
+                                className="border-green-300 text-green-700 hover:bg-green-100 shrink-0"
+                            >
+                                {isDownloading ? (
+                                    <>
+                                        <Loader2 className="size-4 mr-2 animate-spin" />
+                                        Downloading...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Download className="size-4 mr-2" />
+                                        Download Template
+                                    </>
+                                )}
+                            </Button>
                         </div>
                     </div>
 
@@ -185,9 +249,17 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                 className="hidden"
                                 id="excel-upload"
                             />
-                            <label
-                                htmlFor="excel-upload"
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors"
+                            <div
+                                onDragEnter={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDragOver={handleDrag}
+                                onDrop={handleDrop}
+                                onClick={() => fileInputRef.current?.click()}
+                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                                    dragActive
+                                        ? 'border-green-500 bg-green-50'
+                                        : 'border-gray-300 hover:border-green-500 hover:bg-green-50'
+                                }`}
                             >
                                 <Upload className="size-6 text-gray-400" />
                                 <div className="text-center">
@@ -195,10 +267,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                         {selectedFile ? selectedFile.name : 'Click to upload or drag and drop'}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Excel files only (.xlsx, .xls)
+                                        Excel files only (.xlsx, .xls) - Max 10MB
                                     </p>
                                 </div>
-                            </label>
+                            </div>
                         </div>
 
                         {selectedFile && (

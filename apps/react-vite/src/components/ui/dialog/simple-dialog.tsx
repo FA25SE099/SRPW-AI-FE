@@ -12,7 +12,7 @@ type SimpleDialogProps = {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
 };
 
 export const SimpleDialog = ({
@@ -28,6 +28,9 @@ export const SimpleDialog = ({
     lg: 'sm:max-w-lg',
     xl: 'sm:max-w-xl',
     '2xl': 'sm:max-w-2xl',
+    '3xl': 'sm:max-w-3xl',
+    '4xl': 'sm:max-w-4xl',
+    '5xl': 'sm:max-w-5xl',
   };
 
   return (
@@ -39,11 +42,13 @@ export const SimpleDialog = ({
         }
       }}
     >
-      <DialogContent className={maxWidthClasses[maxWidth]}>
+      <DialogContent className={`${maxWidthClasses[maxWidth]} max-h-[90vh] flex flex-col`}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        {children}
+        <div className="overflow-y-auto flex-1 pr-2">
+          {children}
+        </div>
       </DialogContent>
     </Dialog>
   );
