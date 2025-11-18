@@ -5,15 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useNotifications } from '@/components/ui/notifications';
 import { useProductionPlanDraft } from '../api/get-production-plan-draft';
-import { useCreateProductionPlan } from '../api/create-production-plan';
+import { useCreateProductionPlan, CreateProductionPlanDTO } from '../api/create-production-plan';
 import { useStandardPlans } from '@/features/standard-plans/api/get-standard-plans';
-import { 
-  Calendar, 
-  DollarSign, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Calendar,
+  DollarSign,
+  AlertTriangle,
+  CheckCircle,
   Package,
-  FileText 
+  FileText
 } from 'lucide-react';
 
 type CreateProductionPlanDialogProps = {
@@ -87,14 +87,46 @@ export const CreateProductionPlanDialog = ({
   };
 
   const handleCreatePlan = () => {
-    if (!draftParams) return;
-    
-    createPlanMutation.mutate({
-      standardPlanId: draftParams.standardPlanId,
+    if (!draftParams || !draft) return;
+
+    // Transform draft data to match API requirements
+    const createData: CreateProductionPlanDTO = {
       groupId,
+      standardPlanId: draftParams.standardPlanId,
+      planName: draftParams.planName || draft.planName,
       basePlantingDate: draftParams.basePlantingDate,
-      planName: draftParams.planName,
-    });
+      totalArea: draft.totalArea,
+      stages: draft.stages.map(stage => ({
+        stageName: stage.stageName,
+        sequenceOrder: stage.sequenceOrder,
+        description: stage.description,
+        typicalDurationDays: stage.typicalDurationDays || 0,
+        colorCode: stage.colorCode,
+        tasks: (stage.tasks || []).map(task => {
+          const scheduledDate = task.scheduledDate;
+          const scheduledEndDate = task.scheduledEndDate &&
+            new Date(task.scheduledEndDate) >= new Date(scheduledDate)
+            ? task.scheduledEndDate
+            : scheduledDate; // Use scheduledDate as end date if not provided or invalid
+
+          return {
+            taskName: task.taskName,
+            description: task.description,
+            taskType: task.taskType,
+            scheduledDate,
+            scheduledEndDate,
+            priority: task.priority || 'Low',
+            sequenceOrder: task.sequenceOrder || 0,
+            materials: (task.materials || []).map(material => ({
+              materialId: material.materialId,
+              quantityPerHa: material.quantityPerHa,
+            })),
+          };
+        }),
+      })),
+    };
+
+    createPlanMutation.mutate(createData);
   };
 
   const handleClose = () => {
@@ -327,8 +359,8 @@ export const CreateProductionPlanDialog = ({
 
                 {/* Action Buttons */}
                 <div className="flex justify-end gap-2 pt-4 border-t">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={() => setShowDraft(false)}
                     disabled={createPlanMutation.isPending}
                   >
