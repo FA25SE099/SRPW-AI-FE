@@ -206,17 +206,18 @@ const SupervisorGroupPage = () => {
                 Create Production Plan
               </Button>
             )}
-            {group.currentState === 'PrePlanning' && !group.readiness?.isReady && (
-              <Button variant="outline" onClick={handleFixPolygons}>
-                Fix {group.readiness?.plotsWithoutPolygon} Missing Polygons
-              </Button>
-            )}
+            {/* {group.currentState === 'PrePlanning' && !group.readiness?.isReady && (
+              // <Button variant="outline" onClick={handleFixPolygons}>
+              //   Fix {group.readiness?.plotsWithoutPolygon} Missing Polygons
+              // </Button>
+            )} */}
           </div>
         </div>
 
         {/* Season Selector */}
         {availableSeasons && availableSeasons.length > 1 && (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">Production Plan Readiness
+
             <Calendar className="h-5 w-5 text-muted-foreground" />
             <Select
               value={selectedSeason ? `${selectedSeason.seasonId}|${selectedSeason.year}` : 'current'}

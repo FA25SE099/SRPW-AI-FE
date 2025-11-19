@@ -11,11 +11,11 @@ interface ReadinessCardProps {
   readiness: GroupReadinessInfo;
 }
 
-const CheckItem = ({ 
-  passed, 
-  label 
-}: { 
-  passed: boolean; 
+const CheckItem = ({
+  passed,
+  label
+}: {
+  passed: boolean;
   label: string;
 }) => {
   return (
@@ -74,22 +74,22 @@ export const ReadinessCard = ({ readiness }: ReadinessCardProps) => {
         <div className="space-y-3">
           <h4 className="text-sm font-semibold">Requirements Checklist</h4>
           <div className="space-y-2">
-            <CheckItem 
-              passed={readiness.hasRiceVariety} 
-              label="Rice Variety Selected" 
+            <CheckItem
+              passed={readiness.hasRiceVariety}
+              label="Rice Variety Selected"
             />
-            <CheckItem 
-              passed={readiness.hasTotalArea} 
-              label="Total Area Defined" 
+            <CheckItem
+              passed={readiness.hasTotalArea}
+              label="Total Area Defined"
             />
-            <CheckItem 
-              passed={readiness.hasPlots} 
-              label="Plots Assigned" 
+            <CheckItem
+              passed={readiness.hasPlots}
+              label="All Plots Assigned"
             />
-            <CheckItem 
+            {/* <CheckItem 
               passed={readiness.allPlotsHavePolygons} 
               label={`All Polygons (${readiness.plotsWithPolygon}/${readiness.totalPlots})`}
-            />
+            /> */}
           </div>
         </div>
 

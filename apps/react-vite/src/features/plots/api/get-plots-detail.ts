@@ -1,12 +1,23 @@
 import { useQuery, queryOptions } from '@tanstack/react-query';
+
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
 
 // =============== TYPES ===============
 
 export type PlotStatus = 'Active' | 'Inactive' | 'Emergency' | 'Locked';
-export type ProductionPlanStatus = 'Draft' | 'Submitted' | 'Approved' | 'InProgress' | 'Completed' | 'Cancelled';
-export type CultivationStatus = 'Planned' | 'InProgress' | 'Completed' | 'Failed';
+export type ProductionPlanStatus =
+    | 'Draft'
+    | 'Submitted'
+    | 'Approved'
+    | 'InProgress'
+    | 'Completed'
+    | 'Cancelled';
+export type CultivationStatus =
+    | 'Planned'
+    | 'InProgress'
+    | 'Completed'
+    | 'Failed';
 export type GroupStatus = 'Draft' | 'Active' | 'Inactive' | 'Completed';
 export type TaskStatus = 'Pending' | 'InProgress' | 'Completed' | 'Cancelled';
 
@@ -151,7 +162,10 @@ type UsePlotDetailOptions = {
     queryConfig?: QueryConfig<typeof getPlotDetailQueryOptions>;
 };
 
-export const usePlotDetail = ({ plotId, queryConfig }: UsePlotDetailOptions) => {
+export const usePlotDetail = ({
+    plotId,
+    queryConfig,
+}: UsePlotDetailOptions) => {
     return useQuery({
         ...getPlotDetailQueryOptions(plotId),
         ...queryConfig,

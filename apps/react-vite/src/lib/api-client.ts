@@ -199,6 +199,6 @@ api.interceptors.response.use(
       message,
     });
 
-    return Promise.reject(error); return Promise.reject(error);
+    return Promise.reject(error);
   },
 );

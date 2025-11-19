@@ -114,6 +114,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
                 import('./routes/app/expert/standard-plans').then(convert(queryClient)),
             },
             {
+              path: 'plan-monitoring',
+              lazy: () =>
+                import('./routes/app/expert/plan-monitoring').then(convert(queryClient)),
+            },
+            {
               path: 'reports',
               lazy: () =>
                 import('./routes/app/expert/reports').then(convert(queryClient)),
@@ -174,6 +179,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
                 import('./routes/app/supervisor/plan-details').then(convert(queryClient)),
             },
             {
+              path: 'plan-execution/:planId',
+              lazy: () =>
+                import('./routes/app/supervisor/plan-execution').then(convert(queryClient)),
+            },
+            {
               path: 'plans',
               lazy: () =>
                 import('./routes/app/supervisor/plans').then(convert(queryClient)),
@@ -183,6 +193,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/supervisor/reports').then(convert(queryClient)),
             },
+            {
+              path: 'maps',
+              lazy: () =>
+                import('./routes/app/supervisor/maps').then(convert(queryClient))
+            }
           ],
         },
         {
