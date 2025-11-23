@@ -42,3 +42,28 @@ export const useStandardPlans = ({ params, queryConfig }: UseStandardPlansOption
   });
 };
 
+// Get individual standard plan by ID
+export const getStandardPlan = async (standardPlanId: string): Promise<StandardPlan> => {
+  return api.get(`/standardplan/${standardPlanId}`);
+};
+
+export const getStandardPlanQueryOptions = (standardPlanId: string) => {
+  return queryOptions({
+    queryKey: ['standard-plan', standardPlanId],
+    queryFn: () => getStandardPlan(standardPlanId),
+    enabled: !!standardPlanId,
+  });
+};
+
+type UseStandardPlanOptions = {
+  standardPlanId: string;
+  queryConfig?: QueryConfig<typeof getStandardPlanQueryOptions>;
+};
+
+export const useStandardPlan = ({ standardPlanId, queryConfig }: UseStandardPlanOptions) => {
+  return useQuery({
+    ...getStandardPlanQueryOptions(standardPlanId),
+    ...queryConfig,
+  });
+};
+
