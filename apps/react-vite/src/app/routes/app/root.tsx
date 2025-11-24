@@ -16,6 +16,7 @@ import {
   Settings,
   BarChart3,
   Network,
+  ShieldAlert,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
@@ -98,6 +99,12 @@ const AppRoot = () => {
         name: 'Emergency Center',
         to: paths.app.expert.emergency.getHref(),
         icon: AlertTriangle,
+        end: true,
+      },
+      {
+        name: 'Emergency Protocols',
+        to: paths.app.expert.emergencyProtocols.getHref(),
+        icon: ShieldAlert,
         end: true,
       },
       {

@@ -208,7 +208,7 @@ export const CreateProductionPlanDialog = ({
       standardPlanId: formData.standardPlanId,
       planName: formData.planName,
       basePlantingDate: formData.basePlantingDate,
-      totalArea: totalArea, // Use the prop
+      totalArea: totalArea,
       stages: editableStages.map(stage => ({
         stageName: stage.stageName,
         sequenceOrder: stage.sequenceOrder,
@@ -237,7 +237,7 @@ export const CreateProductionPlanDialog = ({
     };
 
     createPlanMutation.mutate(createData);
-  };
+  }; // <-- Add this closing brace and semicolon
 
   const handleClose = () => {
     reset();
@@ -258,6 +258,25 @@ export const CreateProductionPlanDialog = ({
         tasks: [],
       },
     ]);
+  };
+
+  const handleInsertStage = (position: number) => {
+    const newStage: EditableStage = {
+      stageName: '',
+      sequenceOrder: position,
+      typicalDurationDays: 7,
+      tasks: [],
+    };
+
+    const newStages = [...editableStages];
+    newStages.splice(position, 0, newStage);
+
+    // Update sequence orders for all stages after the inserted one
+    newStages.forEach((stage, idx) => {
+      stage.sequenceOrder = idx;
+    });
+
+    setEditableStages(newStages);
   };
 
   const handleRemoveStage = (index: number) => {
@@ -553,370 +572,395 @@ export const CreateProductionPlanDialog = ({
                           const hasStageError = validationErrors[stageKey];
 
                           return (
-                            <div
-                              key={stageIndex}
-                              className={`rounded-lg border-2 ${hasStageError ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100'
-                                } p-3 shadow-sm`}
-                            >
-                              {/* Stage Header */}
-                              <div className="mb-3 flex items-start gap-2">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-white font-bold text-xs flex-shrink-0">
-                                  {stageIndex + 1}
-                                </div>
-                                <div className="flex-1 space-y-2">
-                                  <div className="grid grid-cols-12 gap-2">
-                                    <div className="col-span-9">
+                            <div key={stageIndex} className="relative">
+                              {/* Add stage before this stage - small icon button at the top */}
+                              {stageIndex === 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleInsertStage(0)}
+                                  disabled={isLoading}
+                                  className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 w-6 h-6 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-md transition-colors"
+                                  title="Add stage before"
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+
+                              <div
+                                className={`rounded-lg border-2 ${hasStageError ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100'
+                                  } p-3 shadow-sm`}
+                              >
+                                {/* Stage Header */}
+                                <div className="mb-3 flex items-start gap-2">
+                                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500 text-white font-bold text-xs flex-shrink-0">
+                                    {stageIndex + 1}
+                                  </div>
+                                  <div className="flex-1 space-y-2">
+                                    <div className="grid grid-cols-12 gap-2">
+                                      <div className="col-span-9">
+                                        <input
+                                          type="text"
+                                          value={stage.stageName}
+                                          onChange={(e) =>
+                                            handleUpdateStage(stageIndex, { stageName: e.target.value })
+                                          }
+                                          disabled={isLoading}
+                                          placeholder="Stage name *"
+                                          className={`block w-full rounded-md border ${hasStageError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                                            } px-2.5 py-1 text-sm font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
+                                        />
+                                        {hasStageError && (
+                                          <p className="text-xs text-red-600 mt-1">Stage name is required</p>
+                                        )}
+                                      </div>
                                       <input
-                                        type="text"
-                                        value={stage.stageName}
+                                        type="number"
+                                        value={stage.typicalDurationDays}
                                         onChange={(e) =>
-                                          handleUpdateStage(stageIndex, { stageName: e.target.value })
+                                          handleUpdateStage(stageIndex, {
+                                            typicalDurationDays: parseInt(e.target.value) || 0,
+                                          })
                                         }
                                         disabled={isLoading}
-                                        placeholder="Stage name *"
-                                        className={`block w-full rounded-md border ${hasStageError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                                          } px-2.5 py-1 text-sm font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
+                                        min="1"
+                                        placeholder="Days"
+                                        className="col-span-3 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                       />
-                                      {hasStageError && (
-                                        <p className="text-xs text-red-600 mt-1">Stage name is required</p>
-                                      )}
                                     </div>
                                     <input
-                                      type="number"
-                                      value={stage.typicalDurationDays}
+                                      type="text"
+                                      value={stage.description || ''}
                                       onChange={(e) =>
-                                        handleUpdateStage(stageIndex, {
-                                          typicalDurationDays: parseInt(e.target.value) || 0,
-                                        })
+                                        handleUpdateStage(stageIndex, { description: e.target.value })
                                       }
                                       disabled={isLoading}
-                                      min="1"
-                                      placeholder="Days"
-                                      className="col-span-3 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                      placeholder="Stage description"
+                                      className="block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs italic text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                     />
                                   </div>
-                                  <input
-                                    type="text"
-                                    value={stage.description || ''}
-                                    onChange={(e) =>
-                                      handleUpdateStage(stageIndex, { description: e.target.value })
-                                    }
-                                    disabled={isLoading}
-                                    placeholder="Stage description"
-                                    className="block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs italic text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                                  />
-                                </div>
-                                {editableStages.length > 1 && (
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemoveStage(stageIndex)}
-                                    disabled={isLoading}
-                                    className="p-1 text-red-600 hover:text-red-700"
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </button>
-                                )}
-                              </div>
-
-                              {/* Tasks Grid */}
-                              <div className="space-y-2">
-                                <div className="flex items-center justify-between rounded-md bg-blue-50 px-2.5 py-1.5">
-                                  <span className="text-xs font-semibold text-blue-900">
-                                    Tasks ({stage.tasks.length})
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleAddTask(stageIndex)}
-                                    disabled={isLoading}
-                                    className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
-                                  >
-                                    <Plus className="h-3 w-3" />
-                                    Add Task at End
-                                  </button>
+                                  {editableStages.length > 1 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRemoveStage(stageIndex)}
+                                      disabled={isLoading}
+                                      className="p-1 text-red-600 hover:text-red-700"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  )}
                                 </div>
 
-                                <div className="grid grid-cols-3 gap-2.5">
-                                  {stage.tasks.map((task, taskIndex) => {
-                                    const taskKey = `stage-${stageIndex}-task-${taskIndex}`;
-                                    const hasTaskError = validationErrors[taskKey];
+                                {/* Tasks Grid */}
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between rounded-md bg-blue-50 px-2.5 py-1.5">
+                                    <span className="text-xs font-semibold text-blue-900">
+                                      Tasks ({stage.tasks.length})
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleAddTask(stageIndex)}
+                                      disabled={isLoading}
+                                      className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                                    >
+                                      <Plus className="h-3 w-3" />
+                                      Add Task at End
+                                    </button>
+                                  </div>
 
-                                    return (
-                                      <div key={taskIndex} className="relative">
-                                        {/* Add task before this task - small icon button */}
-                                        {taskIndex === 0 && (
-                                          <button
-                                            type="button"
-                                            onClick={() => handleInsertTask(stageIndex, 0)}
-                                            disabled={isLoading}
-                                            className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
-                                            title="Add task before"
-                                          >
-                                            <Plus className="h-3.5 w-3.5" />
-                                          </button>
-                                        )}
+                                  <div className="grid grid-cols-3 gap-2.5">
+                                    {stage.tasks.map((task, taskIndex) => {
+                                      const taskKey = `stage-${stageIndex}-task-${taskIndex}`;
+                                      const hasTaskError = validationErrors[taskKey];
 
-                                        <div
-                                          className={`rounded-md border-2 ${hasTaskError ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-white'
-                                            } p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col`}
-                                        >
-                                          <div className="flex items-start justify-between mb-2">
-                                            <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
-                                              {taskIndex + 1}
-                                            </span>
+                                      return (
+                                        <div key={taskIndex} className="relative">
+                                          {/* Add task before this task - small icon button */}
+                                          {taskIndex === 0 && (
                                             <button
                                               type="button"
-                                              onClick={() => handleRemoveTask(stageIndex, taskIndex)}
+                                              onClick={() => handleInsertTask(stageIndex, 0)}
                                               disabled={isLoading}
-                                              className="text-red-600 hover:text-red-700"
+                                              className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
+                                              title="Add task before"
                                             >
-                                              <Trash2 className="h-3.5 w-3.5" />
+                                              <Plus className="h-3.5 w-3.5" />
                                             </button>
-                                          </div>
+                                          )}
 
-                                          <div className="space-y-2 flex-1">
-                                            <div className="space-y-0.5">
-                                              <label className="block text-[10px] font-medium text-gray-600">
-                                                Task name *
-                                              </label>
-                                              <input
-                                                type="text"
-                                                value={task.taskName}
-                                                onChange={(e) =>
-                                                  handleUpdateTask(stageIndex, taskIndex, {
-                                                    taskName: e.target.value,
-                                                  })
-                                                }
+                                          <div
+                                            className={`rounded-md border-2 ${hasTaskError ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-white'
+                                              } p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col`}
+                                          >
+                                            <div className="flex items-start justify-between mb-2">
+                                              <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
+                                                {taskIndex + 1}
+                                              </span>
+                                              <button
+                                                type="button"
+                                                onClick={() => handleRemoveTask(stageIndex, taskIndex)}
                                                 disabled={isLoading}
-                                                placeholder="Task name"
-                                                className={`block w-full rounded-md border ${hasTaskError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                                                  } px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
-                                              />
-                                              {hasTaskError && (
-                                                <p className="text-[10px] text-red-600 mt-0.5">Task name is required</p>
-                                              )}
+                                                className="text-red-600 hover:text-red-700"
+                                              >
+                                                <Trash2 className="h-3.5 w-3.5" />
+                                              </button>
                                             </div>
 
-                                            <div className="space-y-0.5">
-                                              <label className="block text-[10px] font-medium text-gray-600">Description</label>
-                                              <textarea
-                                                value={task.description || ''}
-                                                onChange={(e) =>
-                                                  handleUpdateTask(stageIndex, taskIndex, {
-                                                    description: e.target.value,
-                                                  })
-                                                }
-                                                disabled={isLoading}
-                                                placeholder="Description"
-                                                rows={2}
-                                                className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                                              />
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-1.5">
+                                            <div className="space-y-2 flex-1">
                                               <div className="space-y-0.5">
-                                                <label className="block text-[10px] font-medium text-gray-600">Days After</label>
+                                                <label className="block text-[10px] font-medium text-gray-600">
+                                                  Task name *
+                                                </label>
                                                 <input
-                                                  type="number"
-                                                  value={task.daysAfter}
+                                                  type="text"
+                                                  value={task.taskName}
                                                   onChange={(e) =>
                                                     handleUpdateTask(stageIndex, taskIndex, {
-                                                      daysAfter: parseInt(e.target.value) || 0,
+                                                      taskName: e.target.value,
                                                     })
                                                   }
                                                   disabled={isLoading}
-                                                  placeholder="0"
-                                                  className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                  placeholder="Task name"
+                                                  className={`block w-full rounded-md border ${hasTaskError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                                                    } px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
                                                 />
+                                                {hasTaskError && (
+                                                  <p className="text-[10px] text-red-600 mt-0.5">Task name is required</p>
+                                                )}
                                               </div>
+
                                               <div className="space-y-0.5">
-                                                <label className="block text-[10px] font-medium text-gray-600">Duration</label>
-                                                <input
-                                                  type="number"
-                                                  value={task.durationDays}
+                                                <label className="block text-[10px] font-medium text-gray-600">Description</label>
+                                                <textarea
+                                                  value={task.description || ''}
                                                   onChange={(e) =>
                                                     handleUpdateTask(stageIndex, taskIndex, {
-                                                      durationDays: parseInt(e.target.value) || 1,
+                                                      description: e.target.value,
                                                     })
                                                   }
                                                   disabled={isLoading}
-                                                  min="1"
-                                                  placeholder="1"
-                                                  className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                  placeholder="Description"
+                                                  rows={2}
+                                                  className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                                 />
                                               </div>
-                                            </div>
 
-                                            <div className="space-y-0.5">
-                                              <label className="block text-[10px] font-medium text-gray-600">Task Type</label>
-                                              <select
-                                                value={task.taskType}
-                                                onChange={(e) =>
-                                                  handleUpdateTask(stageIndex, taskIndex, {
-                                                    taskType: e.target.value,
-                                                  })
-                                                }
-                                                disabled={isLoading}
-                                                className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                                              >
-                                                <option value="LandPreparation">Land Preparation</option>
-                                                <option value="Fertilization">Fertilization</option>
-                                                <option value="PestControl">Pest Control</option>
-                                                <option value="Harvesting">Harvesting</option>
-                                                <option value="Sowing">Sowing</option>
-                                              </select>
-                                            </div>
-
-                                            <div className="space-y-0.5">
-                                              <label className="block text-[10px] font-medium text-gray-600">Priority</label>
-                                              <select
-                                                value={task.priority}
-                                                onChange={(e) =>
-                                                  handleUpdateTask(stageIndex, taskIndex, {
-                                                    priority: e.target.value,
-                                                  })
-                                                }
-                                                disabled={isLoading}
-                                                className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                                              >
-                                                {PRIORITIES.map((priority) => (
-                                                  <option key={priority} value={priority}>
-                                                    {priority}
-                                                  </option>
-                                                ))}
-                                              </select>
-                                            </div>
-
-                                            {/* Materials */}
-                                            <div className="rounded-md border border-gray-200 bg-gray-50 p-1.5 space-y-1.5">
-                                              <div className="flex items-center justify-between">
-                                                <span className="text-[10px] font-semibold text-gray-700">
-                                                  Materials
-                                                </span>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => handleAddMaterial(stageIndex, taskIndex)}
-                                                  disabled={isLoading}
-                                                  className="text-[10px] font-medium text-blue-600 hover:text-blue-700 underline"
-                                                >
-                                                  + Add
-                                                </button>
-                                              </div>
-                                              {task.materials.map((material, materialIndex) => (
-                                                <div
-                                                  key={materialIndex}
-                                                  className="space-y-1 rounded-md bg-white p-1.5 border border-gray-200"
-                                                >
-                                                  <select
-                                                    value={material.materialId}
+                                              <div className="grid grid-cols-2 gap-1.5">
+                                                <div className="space-y-0.5">
+                                                  <label className="block text-[10px] font-medium text-gray-600">Days After</label>
+                                                  <input
+                                                    type="number"
+                                                    value={task.daysAfter}
                                                     onChange={(e) =>
-                                                      handleUpdateMaterial(
-                                                        stageIndex,
-                                                        taskIndex,
-                                                        materialIndex,
-                                                        'materialId',
-                                                        e.target.value
-                                                      )
+                                                      handleUpdateTask(stageIndex, taskIndex, {
+                                                        daysAfter: parseInt(e.target.value) || 0,
+                                                      })
                                                     }
                                                     disabled={isLoading}
-                                                    className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                    placeholder="0"
+                                                    className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                  />
+                                                </div>
+                                                <div className="space-y-0.5">
+                                                  <label className="block text-[10px] font-medium text-gray-600">Duration</label>
+                                                  <input
+                                                    type="number"
+                                                    value={task.durationDays}
+                                                    onChange={(e) =>
+                                                      handleUpdateTask(stageIndex, taskIndex, {
+                                                        durationDays: parseInt(e.target.value) || 1,
+                                                      })
+                                                    }
+                                                    disabled={isLoading}
+                                                    min="1"
+                                                    placeholder="1"
+                                                    className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                  />
+                                                </div>
+                                              </div>
+
+                                              <div className="space-y-0.5">
+                                                <label className="block text-[10px] font-medium text-gray-600">Task Type</label>
+                                                <select
+                                                  value={task.taskType}
+                                                  onChange={(e) =>
+                                                    handleUpdateTask(stageIndex, taskIndex, {
+                                                      taskType: e.target.value,
+                                                    })
+                                                  }
+                                                  disabled={isLoading}
+                                                  className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                >
+                                                  <option value="LandPreparation">Land Preparation</option>
+                                                  <option value="Fertilization">Fertilization</option>
+                                                  <option value="PestControl">Pest Control</option>
+                                                  <option value="Harvesting">Harvesting</option>
+                                                  <option value="Sowing">Sowing</option>
+                                                </select>
+                                              </div>
+
+                                              <div className="space-y-0.5">
+                                                <label className="block text-[10px] font-medium text-gray-600">Priority</label>
+                                                <select
+                                                  value={task.priority}
+                                                  onChange={(e) =>
+                                                    handleUpdateTask(stageIndex, taskIndex, {
+                                                      priority: e.target.value,
+                                                    })
+                                                  }
+                                                  disabled={isLoading}
+                                                  className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                >
+                                                  {PRIORITIES.map((priority) => (
+                                                    <option key={priority} value={priority}>
+                                                      {priority}
+                                                    </option>
+                                                  ))}
+                                                </select>
+                                              </div>
+
+                                              {/* Materials */}
+                                              <div className="rounded-md border border-gray-200 bg-gray-50 p-1.5 space-y-1.5">
+                                                <div className="flex items-center justify-between">
+                                                  <span className="text-[10px] font-semibold text-gray-700">
+                                                    Materials
+                                                  </span>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => handleAddMaterial(stageIndex, taskIndex)}
+                                                    disabled={isLoading}
+                                                    className="text-[10px] font-medium text-blue-600 hover:text-blue-700 underline"
                                                   >
-                                                    <option value="">Select material...</option>
-                                                    {fertilizers.length > 0 && (
-                                                      <optgroup label="Fertilizers">
-                                                        {fertilizers.map((mat) => (
-                                                          <option key={mat.materialId} value={mat.materialId}>
-                                                            {mat.name} ({mat.unit})
-                                                          </option>
-                                                        ))}
-                                                      </optgroup>
-                                                    )}
-                                                    {pesticides.length > 0 && (
-                                                      <optgroup label="Pesticides">
-                                                        {pesticides.map((mat) => (
-                                                          <option key={mat.materialId} value={mat.materialId}>
-                                                            {mat.name} ({mat.unit})
-                                                          </option>
-                                                        ))}
-                                                      </optgroup>
-                                                    )}
-                                                  </select>
-                                                  <div className="flex items-center gap-1">
-                                                    <input
-                                                      type="number"
-                                                      value={material.quantityPerHa}
+                                                    + Add
+                                                  </button>
+                                                </div>
+                                                {task.materials.map((material, materialIndex) => (
+                                                  <div
+                                                    key={materialIndex}
+                                                    className="space-y-1 rounded-md bg-white p-1.5 border border-gray-200"
+                                                  >
+                                                    <select
+                                                      value={material.materialId}
                                                       onChange={(e) =>
                                                         handleUpdateMaterial(
                                                           stageIndex,
                                                           taskIndex,
                                                           materialIndex,
-                                                          'quantityPerHa',
-                                                          parseFloat(e.target.value) || 0
+                                                          'materialId',
+                                                          e.target.value
                                                         )
                                                       }
                                                       disabled={isLoading}
-                                                      min="0"
-                                                      step="0.1"
-                                                      placeholder="Qty/ha"
-                                                      className="flex-1 rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                                                    />
-                                                    <button
-                                                      type="button"
-                                                      onClick={() =>
-                                                        handleRemoveMaterial(
-                                                          stageIndex,
-                                                          taskIndex,
-                                                          materialIndex
-                                                        )
-                                                      }
-                                                      disabled={isLoading}
-                                                      className="p-0.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700"
+                                                      className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                                     >
-                                                      <Trash2 className="h-3 w-3" />
-                                                    </button>
+                                                      <option value="">Select material...</option>
+                                                      {fertilizers.length > 0 && (
+                                                        <optgroup label="Fertilizers">
+                                                          {fertilizers.map((mat) => (
+                                                            <option key={mat.materialId} value={mat.materialId}>
+                                                              {mat.name} ({mat.unit})
+                                                            </option>
+                                                          ))}
+                                                        </optgroup>
+                                                      )}
+                                                      {pesticides.length > 0 && (
+                                                        <optgroup label="Pesticides">
+                                                          {pesticides.map((mat) => (
+                                                            <option key={mat.materialId} value={mat.materialId}>
+                                                              {mat.name} ({mat.unit})
+                                                            </option>
+                                                          ))}
+                                                        </optgroup>
+                                                      )}
+                                                    </select>
+                                                    <div className="flex items-center gap-1">
+                                                      <input
+                                                        type="number"
+                                                        value={material.quantityPerHa}
+                                                        onChange={(e) =>
+                                                          handleUpdateMaterial(
+                                                            stageIndex,
+                                                            taskIndex,
+                                                            materialIndex,
+                                                            'quantityPerHa',
+                                                            parseFloat(e.target.value) || 0
+                                                          )
+                                                        }
+                                                        disabled={isLoading}
+                                                        min="0"
+                                                        step="0.1"
+                                                        placeholder="Qty/ha"
+                                                        className="flex-1 rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                      />
+                                                      <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                          handleRemoveMaterial(
+                                                            stageIndex,
+                                                            taskIndex,
+                                                            materialIndex
+                                                          )
+                                                        }
+                                                        disabled={isLoading}
+                                                        className="p-0.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700"
+                                                      >
+                                                        <Trash2 className="h-3 w-3" />
+                                                      </button>
+                                                    </div>
                                                   </div>
-                                                </div>
-                                              ))}
-                                              {task.materials.length === 0 && (
-                                                <p className="text-[10px] text-gray-500 italic text-center py-0.5">
-                                                  No materials
-                                                </p>
-                                              )}
+                                                ))}
+                                                {task.materials.length === 0 && (
+                                                  <p className="text-[10px] text-gray-500 italic text-center py-0.5">
+                                                    No materials
+                                                  </p>
+                                                )}
+                                              </div>
                                             </div>
                                           </div>
+
+                                          {/* Add task after this task - small icon button */}
+                                          <button
+                                            type="button"
+                                            onClick={() => handleInsertTask(stageIndex, taskIndex + 1)}
+                                            disabled={isLoading}
+                                            className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
+                                            title="Add task after"
+                                          >
+                                            <Plus className="h-3.5 w-3.5" />
+                                          </button>
                                         </div>
-
-                                        {/* Add task after this task - small icon button */}
-                                        <button
-                                          type="button"
-                                          onClick={() => handleInsertTask(stageIndex, taskIndex + 1)}
-                                          disabled={isLoading}
-                                          className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
-                                          title="Add task after"
-                                        >
-                                          <Plus className="h-3.5 w-3.5" />
-                                        </button>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-
-                                {stage.tasks.length === 0 && (
-                                  <div className="text-center py-8">
-                                    <p className="text-xs text-gray-500 italic mb-3">
-                                      No tasks yet.
-                                    </p>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleAddTask(stageIndex)}
-                                      disabled={isLoading}
-                                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium transition-colors"
-                                    >
-                                      <Plus className="h-3.5 w-3.5" />
-                                      Add First Task
-                                    </button>
+                                      );
+                                    })}
                                   </div>
-                                )}
+
+                                  {stage.tasks.length === 0 && (
+                                    <div className="text-center py-8">
+                                      <p className="text-xs text-gray-500 italic mb-3">
+                                        No tasks yet.
+                                      </p>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleAddTask(stageIndex)}
+                                        disabled={isLoading}
+                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium transition-colors"
+                                      >
+                                        <Plus className="h-3.5 w-3.5" />
+                                        Add First Task
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
+
+                              {/* Add stage after this stage - small icon button at the bottom */}
+                              <button
+                                type="button"
+                                onClick={() => handleInsertStage(stageIndex + 1)}
+                                disabled={isLoading}
+                                className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 w-6 h-6 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-md transition-colors"
+                                title="Add stage after"
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                              </button>
                             </div>
                           );
                         })}
