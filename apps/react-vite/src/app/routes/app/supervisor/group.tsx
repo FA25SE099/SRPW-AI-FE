@@ -299,6 +299,7 @@ const SupervisorGroupPage = () => {
           onClose={() => setShowCreatePlanDialog(false)}
           groupId={group.groupId}
           groupName={group.groupName}
+          totalArea={group.totalArea || 1}
           seasonId={group.season.seasonId}
         />
       )}
