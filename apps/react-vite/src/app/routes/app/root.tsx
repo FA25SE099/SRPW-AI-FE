@@ -102,7 +102,7 @@ const AppRoot = () => {
         end: true,
       },
       {
-        name: 'Emergency Protocols',
+        name: 'Emergency',
         to: paths.app.expert.emergencyProtocols.getHref(),
         icon: ShieldAlert,
         end: true,

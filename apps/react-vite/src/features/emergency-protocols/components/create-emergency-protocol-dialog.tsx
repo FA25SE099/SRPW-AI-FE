@@ -273,7 +273,13 @@ export const CreateEmergencyProtocolDialog = ({
         error,
     });
 
-    const protocolDetails = protocolDetailsResponse?.data;
+    const protocolDetails = protocolDetailsResponse;
+
+    console.log('📦 Protocol Details:', {
+        raw: protocolDetailsResponse,
+        extracted: protocolDetails,
+        planName: protocolDetails?.planName,
+    });
 
     const updateProtocolMutation = useUpdateEmergencyProtocol({
         mutationConfig: {
@@ -298,7 +304,7 @@ export const CreateEmergencyProtocolDialog = ({
     // Load existing data when editing
     useEffect(() => {
         if (isEditMode && protocolDetails && isOpen && !isLoadingDetails) {
-            console.log('Loading protocol data for editing:', protocolDetails);
+            console.log('📝 Populating form with protocol data:', protocolDetails);
 
             // Set basic form data
             const basicData: FormData = {
@@ -311,12 +317,12 @@ export const CreateEmergencyProtocolDialog = ({
 
             setFormData(basicData);
 
-            // Set all form values
-            setValue('categoryId', basicData.categoryId);
-            setValue('planName', basicData.planName);
-            setValue('description', basicData.description);
-            setValue('totalDurationDays', basicData.totalDurationDays);
-            setValue('isActive', basicData.isActive);
+            // IMPORTANT: Set ALL form values to populate the input fields
+            setValue('categoryId', basicData.categoryId, { shouldValidate: true, shouldDirty: true });
+            setValue('planName', basicData.planName, { shouldValidate: true, shouldDirty: true });
+            setValue('description', basicData.description, { shouldValidate: true, shouldDirty: true });
+            setValue('totalDurationDays', basicData.totalDurationDays, { shouldValidate: true, shouldDirty: true });
+            setValue('isActive', basicData.isActive, { shouldValidate: true, shouldDirty: true });
 
             // Convert stages to editable format
             const convertedStages: EditableStage[] = protocolDetails.stages.map(stage => ({
@@ -341,6 +347,7 @@ export const CreateEmergencyProtocolDialog = ({
             }));
 
             setEditableStages(convertedStages);
+            console.log('📋 Loaded stages:', convertedStages);
 
             // Convert thresholds to editable format
             const convertedThresholds: EditableThreshold[] = protocolDetails.thresholds.map(t => ({
@@ -367,9 +374,18 @@ export const CreateEmergencyProtocolDialog = ({
             }));
 
             setEditableThresholds(convertedThresholds);
+            console.log('🎯 Loaded thresholds:', convertedThresholds);
+
+            // Force re-render by triggering form validation
+            setTimeout(() => {
+                console.log('✅ Form populated. Current values:', {
+                    planName: watch('planName'),
+                    categoryId: watch('categoryId'),
+                    description: watch('description'),
+                });
+            }, 100);
         }
-        // Only run when protocol details change, not when dialog closes
-    }, [isEditMode, protocolDetails, isLoadingDetails, setValue]);
+    }, [isEditMode, protocolDetails, isLoadingDetails, isOpen, setValue, watch]);
 
     const handleBasicInfo = (data: FormData) => {
         setFormData(data);
@@ -380,15 +396,30 @@ export const CreateEmergencyProtocolDialog = ({
         const errors: string[] = [];
         const newValidationErrors: { [key: string]: boolean } = {};
 
+        // Check if there's at least one stage
+        if (editableStages.length === 0) {
+            errors.push('At least one stage is required');
+        }
+
         editableStages.forEach((stage, stageIndex) => {
             const stageKey = `stage-${stageIndex}`;
+
+            // Check stage name
             if (!stage.stageName || stage.stageName.trim() === '') {
                 errors.push(`Stage ${stageIndex + 1} is missing a name`);
                 newValidationErrors[stageKey] = true;
             }
 
+            // Check if stage has at least one task
+            if (stage.tasks.length === 0) {
+                errors.push(`Stage ${stageIndex + 1} must have at least one task`);
+                newValidationErrors[stageKey] = true;
+            }
+
             stage.tasks.forEach((task, taskIndex) => {
                 const taskKey = `stage-${stageIndex}-task-${taskIndex}`;
+
+                // Check task name
                 if (!task.taskName || task.taskName.trim() === '') {
                     errors.push(`Stage ${stageIndex + 1}, Task ${taskIndex + 1} is missing a name`);
                     newValidationErrors[taskKey] = true;
@@ -751,7 +782,8 @@ export const CreateEmergencyProtocolDialog = ({
                                         <input
                                             type="text"
                                             {...register('planName', { required: 'Plan name is required' })}
-                                            defaultValue={formData?.planName || ''}
+                                            value={watch('planName') || ''}
+                                            onChange={(e) => setValue('planName', e.target.value)}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             placeholder="Enter plan name"
                                         />
@@ -764,7 +796,8 @@ export const CreateEmergencyProtocolDialog = ({
                                         <label className="block text-sm font-medium text-gray-700">Description *</label>
                                         <textarea
                                             {...register('description', { required: 'Description is required' })}
-                                            defaultValue={formData?.description || ''}
+                                            value={watch('description') || ''}
+                                            onChange={(e) => setValue('description', e.target.value)}
                                             rows={3}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             placeholder="Enter description"
@@ -781,8 +814,10 @@ export const CreateEmergencyProtocolDialog = ({
                                             {...register('totalDurationDays', {
                                                 required: 'Duration is required',
                                                 min: { value: 1, message: 'Duration must be at least 1 day' },
+                                                valueAsNumber: true,
                                             })}
-                                            defaultValue={formData?.totalDurationDays || 30}
+                                            value={watch('totalDurationDays') || 30}
+                                            onChange={(e) => setValue('totalDurationDays', parseInt(e.target.value) || 30)}
                                             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                             placeholder="30"
                                         />
@@ -801,7 +836,8 @@ export const CreateEmergencyProtocolDialog = ({
                                             <>
                                                 <select
                                                     {...register('categoryId', { required: 'Category is required' })}
-                                                    defaultValue={formData?.categoryId || ''}
+                                                    value={watch('categoryId') || ''}
+                                                    onChange={(e) => setValue('categoryId', e.target.value)}
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                                     disabled={categoriesQuery.isLoading}
                                                 >
@@ -824,6 +860,8 @@ export const CreateEmergencyProtocolDialog = ({
                                             <input
                                                 type="checkbox"
                                                 {...register('isActive')}
+                                                checked={watch('isActive')}
+                                                onChange={(e) => setValue('isActive', e.target.checked)}
                                                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                             />
                                             <span className="text-sm font-medium text-gray-700">
@@ -896,7 +934,11 @@ export const CreateEmergencyProtocolDialog = ({
                                                     )}
 
                                                     <div
-                                                        className={`rounded-lg border-2 ${hasStageError ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100'
+                                                        className={`rounded-lg border-2 ${hasStageError
+                                                            ? 'border-red-300 bg-red-50'
+                                                            : stage.tasks.length === 0
+                                                                ? 'border-yellow-300 bg-yellow-50'
+                                                                : 'border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100'
                                                             } p-3 shadow-sm`}
                                                     >
                                                         {/* Stage Header */}
@@ -1257,15 +1299,18 @@ export const CreateEmergencyProtocolDialog = ({
                                                             </div>
 
                                                             {stage.tasks.length === 0 && (
-                                                                <div className="text-center py-8">
-                                                                    <p className="text-xs text-gray-500 italic mb-3">
-                                                                        No tasks yet.
+                                                                <div className="text-center py-8 bg-yellow-50 rounded-lg border border-yellow-200">
+                                                                    <p className="text-sm text-yellow-800 font-medium mb-1">
+                                                                        ⚠️ This stage needs at least one task
+                                                                    </p>
+                                                                    <p className="text-xs text-yellow-600 italic mb-3">
+                                                                        Add a task to proceed to the next step
                                                                     </p>
                                                                     <button
                                                                         type="button"
                                                                         onClick={() => handleAddTask(stageIndex)}
                                                                         disabled={isLoading}
-                                                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium transition-colors"
+                                                                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-medium transition-colors"
                                                                     >
                                                                         <Plus className="h-3.5 w-3.5" />
                                                                         Add First Task
@@ -1305,7 +1350,11 @@ export const CreateEmergencyProtocolDialog = ({
                                         </Button>
                                         <Button
                                             onClick={handleToThresholds}
-                                            disabled={isLoading || editableStages.length === 0}
+                                            disabled={
+                                                isLoading ||
+                                                editableStages.length === 0 ||
+                                                editableStages.some(stage => stage.tasks.length === 0 || !stage.stageName.trim())
+                                            }
                                             icon={<ArrowRight className="h-4 w-4" />}
                                         >
                                             Next: Add Thresholds

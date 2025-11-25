@@ -712,27 +712,13 @@ export const ProtocolsManagementTabs = () => {
                                             </div>
                                             <span
                                                 className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${weather.isActive
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : 'bg-gray-100 text-gray-800'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-gray-100 text-gray-800'
                                                     }`}
                                             >
                                                 {weather.isActive ? 'Active' : 'Inactive'}
                                             </span>
                                         </div>
-
-                                        {weather.imageLinks && weather.imageLinks.length > 0 && (
-                                            <div className="mb-4">
-                                                <img
-                                                    src={weather.imageLinks[0]}
-                                                    alt={weather.name}
-                                                    className="w-full h-32 object-cover rounded-md"
-                                                />
-                                            </div>
-                                        )}
-
-                                        {weather.notes && (
-                                            <p className="text-sm text-gray-600 mb-4 italic">{weather.notes}</p>
-                                        )}
 
                                         <div className="flex gap-2 pt-4 border-t">
                                             <Button
