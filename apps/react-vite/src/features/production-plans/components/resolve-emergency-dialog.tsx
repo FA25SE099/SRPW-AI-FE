@@ -11,6 +11,7 @@ import { useNotifications } from '@/components/ui/notifications';
 import { useUser } from '@/lib/auth';
 import { useProductionPlan } from '../api/get-production-plan';
 import { ProductionPlan } from '../types';
+import { useMaterials } from '@/features/materials/api/get-materials';
 
 type ResolveEmergencyDialogProps = {
     isOpen: boolean;
@@ -65,6 +66,23 @@ export const ResolveEmergencyDialog = ({
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: boolean }>({});
     const [selectedPlotIds, setSelectedPlotIds] = useState<Set<string>>(new Set());
     const [productionStageId, setProductionStageId] = useState<string>('');
+    const fertilizersQuery = useMaterials({
+        params: {
+            currentPage: 1,
+            pageSize: 1000,
+            type: 0
+        }
+    });
+    const pesticidesQuery = useMaterials({
+        params: {
+            currentPage: 1,
+            pageSize: 1000,
+            type: 1
+        }
+    });
+    const fertilizers = fertilizersQuery.data?.data || [];
+    const pesticides = pesticidesQuery.data?.data || [];
+    const isLoadingMaterials = fertilizersQuery.isLoading || pesticidesQuery.isLoading;
 
     const { data: user } = useUser();
     const { addNotification } = useNotifications();
@@ -127,10 +145,13 @@ export const ResolveEmergencyDialog = ({
                     sequenceOrder: task.sequenceOrder,
                     isFromProtocol: false,
                     originalTaskId: task.id, // Store ProductionPlanTask.Id
-                    materials: task.materials.map(m => ({
-                        materialId: m.materialId,
-                        quantityPerHa: m.quantityPerHa,
-                    })),
+                    materials: task.materials.map(m => {
+                        console.log('Loading material:', m.materialId, 'qty:', m.quantityPerHa);
+                        return {
+                            materialId: m.materialId,
+                            quantityPerHa: m.quantityPerHa,
+                        };
+                    }),
                 })),
             }));
             setEditableStages(stages);
@@ -142,6 +163,17 @@ export const ResolveEmergencyDialog = ({
         console.log('selectedProtocolId:', selectedProtocolId);
         console.log('isLoadingDetails:', isLoadingDetails);
     }, [protocolDetails, selectedProtocolId, isLoadingDetails]);
+
+    useEffect(() => {
+        if (fertilizers.length > 0) {
+            console.log('Sample fertilizer:', fertilizers[0]);
+            console.log('Fertilizer has id?', fertilizers[0]?.id);
+        }
+        if (pesticides.length > 0) {
+            console.log('Sample pesticide:', pesticides[0]);
+            console.log('Pesticide has id?', pesticides[0]?.id);
+        }
+    }, [fertilizers, pesticides]);
 
     const handleClose = () => {
         setStep('protocol');
@@ -276,6 +308,34 @@ export const ResolveEmergencyDialog = ({
             delete newValidationErrors[taskKey];
             setValidationErrors(newValidationErrors);
         }
+    };
+
+    const handleUpdateMaterial = (
+        stageIndex: number,
+        taskIndex: number,
+        materialIndex: number,
+        field: 'materialId' | 'quantityPerHa',
+        value: string | number
+    ) => {
+        const newStages = [...editableStages];
+        const material = newStages[stageIndex].tasks[taskIndex].materials[materialIndex];
+        material[field] = value as any;
+        setEditableStages(newStages);
+    };
+
+    const handleRemoveMaterial = (stageIndex: number, taskIndex: number, materialIndex: number) => {
+        const newStages = [...editableStages];
+        newStages[stageIndex].tasks[taskIndex].materials.splice(materialIndex, 1);
+        setEditableStages(newStages);
+    };
+
+    const handleAddMaterial = (stageIndex: number, taskIndex: number) => {
+        const newStages = [...editableStages];
+        newStages[stageIndex].tasks[taskIndex].materials.push({
+            materialId: '',
+            quantityPerHa: 0,
+        });
+        setEditableStages(newStages);
     };
 
     // Update the handleResolve function to properly map the tasks:
@@ -912,14 +972,110 @@ export const ResolveEmergencyDialog = ({
                                                                                                 </select>
                                                                                             </div>
 
-                                                                                            {/* Materials - if needed */}
-                                                                                            {task.materials && task.materials.length > 0 && (
-                                                                                                <div className="rounded-md border border-gray-200 bg-gray-50 p-1.5">
+                                                                                            {/* Materials Section - Editable */}
+                                                                                            {/* Materials */}
+                                                                                            <div className="rounded-md border border-gray-200 bg-gray-50 p-1.5 space-y-1.5">
+                                                                                                <div className="flex items-center justify-between">
                                                                                                     <span className="text-[10px] font-semibold text-gray-700">
-                                                                                                        Materials ({task.materials.length})
+                                                                                                        Materials
                                                                                                     </span>
+                                                                                                    <button
+                                                                                                        type="button"
+                                                                                                        onClick={() => handleAddMaterial(stageIndex, taskIndex)}
+                                                                                                        disabled={isLoading}
+                                                                                                        className="text-[10px] font-medium text-blue-600 hover:text-blue-700 underline"
+                                                                                                    >
+                                                                                                        + Add
+                                                                                                    </button>
                                                                                                 </div>
-                                                                                            )}
+                                                                                                {task.materials.map((material, materialIndex) => (
+                                                                                                    <div
+                                                                                                        key={materialIndex}
+                                                                                                        className="space-y-1 rounded-md bg-white p-1.5 border border-gray-200"
+                                                                                                    >
+                                                                                                        <select
+                                                                                                            value={material.materialId}
+                                                                                                            onChange={(e) => {
+                                                                                                                console.log('Changing material from', material.materialId, 'to', e.target.value);
+                                                                                                                handleUpdateMaterial(
+                                                                                                                    stageIndex,
+                                                                                                                    taskIndex,
+                                                                                                                    materialIndex,
+                                                                                                                    'materialId',
+                                                                                                                    e.target.value
+                                                                                                                )
+                                                                                                            }}
+                                                                                                            disabled={isLoading || isLoadingMaterials}
+                                                                                                            className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
+                                                                                                        >
+                                                                                                            <option value="">Select material...</option>
+                                                                                                            {isLoadingMaterials ? (
+                                                                                                                <option disabled>Loading...</option>
+                                                                                                            ) : (
+                                                                                                                <>
+                                                                                                                    {fertilizers.length > 0 && (
+                                                                                                                        <optgroup label="Fertilizers">
+                                                                                                                            {fertilizers.map((mat) => (
+                                                                                                                                <option key={`fert-${mat.materialId}`} value={mat.materialId}>
+                                                                                                                                    {mat.name} ({mat.unit})
+                                                                                                                                </option>
+                                                                                                                            ))}
+                                                                                                                        </optgroup>
+                                                                                                                    )}
+                                                                                                                    {pesticides.length > 0 && (
+                                                                                                                        <optgroup label="Pesticides">
+                                                                                                                            {pesticides.map((mat) => (
+                                                                                                                                <option key={`pest-${mat.materialId}`} value={mat.materialId}>
+                                                                                                                                    {mat.name} ({mat.unit})
+                                                                                                                                </option>
+                                                                                                                            ))}
+                                                                                                                        </optgroup>
+                                                                                                                    )}
+                                                                                                                </>
+                                                                                                            )}
+                                                                                                        </select>
+                                                                                                        <div className="flex items-center gap-1">
+                                                                                                            <input
+                                                                                                                type="number"
+                                                                                                                value={material.quantityPerHa}
+                                                                                                                onChange={(e) =>
+                                                                                                                    handleUpdateMaterial(
+                                                                                                                        stageIndex,
+                                                                                                                        taskIndex,
+                                                                                                                        materialIndex,
+                                                                                                                        'quantityPerHa',
+                                                                                                                        parseFloat(e.target.value) || 0
+                                                                                                                    )
+                                                                                                                }
+                                                                                                                disabled={isLoading}
+                                                                                                                min="0"
+                                                                                                                step="0.1"
+                                                                                                                placeholder="Qty/ha"
+                                                                                                                className="flex-1 rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                                                                                            />
+                                                                                                            <button
+                                                                                                                type="button"
+                                                                                                                onClick={() =>
+                                                                                                                    handleRemoveMaterial(
+                                                                                                                        stageIndex,
+                                                                                                                        taskIndex,
+                                                                                                                        materialIndex
+                                                                                                                    )
+                                                                                                                }
+                                                                                                                disabled={isLoading}
+                                                                                                                className="p-0.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700"
+                                                                                                            >
+                                                                                                                <Trash2 className="h-3 w-3" />
+                                                                                                            </button>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                ))}
+                                                                                                {task.materials.length === 0 && (
+                                                                                                    <p className="text-[10px] text-gray-500 italic text-center py-0.5">
+                                                                                                        No materials
+                                                                                                    </p>
+                                                                                                )}
+                                                                                            </div>
                                                                                         </div>
                                                                                     </div>
 
@@ -1346,81 +1502,82 @@ export const ResolveEmergencyDialog = ({
                                 </div>
                             </div>
                         )}
-                        <div className="border-t px-6 py-4 flex justify-between bg-gray-50">
-                            {/* Footer */}
-                            <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-                                Cancel
-                            </Button>
-                            <div className="flex gap-2">
-                                {step !== 'protocol' && (
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => {
-                                            if (step === 'plots') setStep('protocol');
-                                            else if (step === 'edit') setStep('plots');
-                                            else if (step === 'name') setStep('edit');
-                                            else if (step === 'preview') setStep('name');
-                                        }}
-                                        disabled={isLoading}
-                                    >
-                                        <ChevronLeft className="h-4 w-4 mr-1" />
-                                        Back
-                                    </Button>
-                                )}
+                    </div>
 
-                                {step === 'protocol' && (
-                                    <Button
-                                        onClick={() => setStep('plots')}
-                                        disabled={!planDetails || isLoadingPlan}
-                                    >
-                                        Next: Select Plots
-                                        <ChevronRight className="h-4 w-4 ml-1" />
-                                    </Button>
-                                )}
+                    {/* Footer - move this INSIDE the main dialog */}
+                    <div className="border-t px-6 py-4 flex justify-between bg-gray-50">
+                        <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+                            Cancel
+                        </Button>
+                        <div className="flex gap-2">
+                            {step !== 'protocol' && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        if (step === 'plots') setStep('protocol');
+                                        else if (step === 'edit') setStep('plots');
+                                        else if (step === 'name') setStep('edit');
+                                        else if (step === 'preview') setStep('name');
+                                    }}
+                                    disabled={isLoading}
+                                >
+                                    <ChevronLeft className="h-4 w-4 mr-1" />
+                                    Back
+                                </Button>
+                            )}
 
-                                {step === 'plots' && (
-                                    <Button
-                                        onClick={() => setStep('edit')}
-                                        disabled={selectedPlotIds.size === 0}
-                                    >
-                                        Next: Edit Tasks
-                                        <ChevronRight className="h-4 w-4 ml-1" />
-                                    </Button>
-                                )}
+                            {step === 'protocol' && (
+                                <Button
+                                    onClick={() => setStep('plots')}
+                                    disabled={!planDetails || isLoadingPlan}
+                                >
+                                    Next: Select Plots
+                                    <ChevronRight className="h-4 w-4 ml-1" />
+                                </Button>
+                            )}
 
-                                {step === 'edit' && (
-                                    <Button onClick={() => setStep('name')} disabled={isLoading}>
-                                        Next: Version Name
-                                        <ChevronRight className="h-4 w-4 ml-1" />
-                                    </Button>
-                                )}
+                            {step === 'plots' && (
+                                <Button
+                                    onClick={() => setStep('edit')}
+                                    disabled={selectedPlotIds.size === 0}
+                                >
+                                    Next: Edit Tasks
+                                    <ChevronRight className="h-4 w-4 ml-1" />
+                                </Button>
+                            )}
 
-                                {step === 'name' && (
-                                    <Button onClick={() => setStep('preview')} disabled={isLoading}>
-                                        Next: Preview
-                                        <ChevronRight className="h-4 w-4 ml-1" />
-                                    </Button>
-                                )}
+                            {step === 'edit' && (
+                                <Button onClick={() => setStep('name')} disabled={isLoading}>
+                                    Next: Version Name
+                                    <ChevronRight className="h-4 w-4 ml-1" />
+                                </Button>
+                            )}
 
-                                {step === 'preview' && (
-                                    <Button
-                                        onClick={handleSubmit(handleResolve)}
-                                        disabled={resolveMutation.isPending || selectedPlotIds.size === 0}
-                                    >
-                                        {resolveMutation.isPending ? (
-                                            <>
-                                                <Spinner size="sm" className="mr-2" />
-                                                Resolving...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <AlertTriangle className="h-4 w-4 mr-2" />
-                                                Resolve Emergency
-                                            </>
-                                        )}
-                                    </Button>
-                                )}
-                            </div>
+                            {step === 'name' && (
+                                <Button onClick={() => setStep('preview')} disabled={isLoading}>
+                                    Next: Preview
+                                    <ChevronRight className="h-4 w-4 ml-1" />
+                                </Button>
+                            )}
+
+                            {step === 'preview' && (
+                                <Button
+                                    onClick={handleSubmit(handleResolve)}
+                                    disabled={resolveMutation.isPending || selectedPlotIds.size === 0}
+                                >
+                                    {resolveMutation.isPending ? (
+                                        <>
+                                            <Spinner size="sm" className="mr-2" />
+                                            Resolving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <AlertTriangle className="h-4 w-4 mr-2" />
+                                            Resolve Emergency
+                                        </>
+                                    )}
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>

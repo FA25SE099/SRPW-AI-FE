@@ -26,6 +26,9 @@ import { Label } from '@/components/ui/label';
 import { useEmergencyProtocol } from '../api/get-emergency-protocol';
 import { useUpdateEmergencyProtocol } from '../api/update-emergency-protocol';
 import type { EmergencyProtocol } from '../api/get-emergency-protocols';
+import { ThresholdDialog } from './threshold-dialog';
+import { PestProtocolDialog } from './pest-protocol-dialog';
+import { WeatherProtocolDialog } from './weather-protocol-dialog';
 
 type CreateEmergencyProtocolDialogProps = {
     isOpen: boolean;
@@ -117,7 +120,7 @@ export const CreateEmergencyProtocolDialog = ({
         name: '',
         description: '',
         type: '',
-        imageLink: '',
+        imageLinks: [] as string[],
         notes: '',
         isActive: true,
     });
@@ -127,7 +130,7 @@ export const CreateEmergencyProtocolDialog = ({
         description: '',
         source: '',
         sourceLink: '',
-        imageLink: '',
+        imageLinks: [] as string[],
         notes: '',
         isActive: true,
     });
@@ -183,15 +186,33 @@ export const CreateEmergencyProtocolDialog = ({
 
     const createPestProtocolMutation = useCreatePestProtocol({
         mutationConfig: {
-            onSuccess: () => {
+            onSuccess: (response) => {
                 addNotification({
                     type: 'success',
                     title: 'Success',
                     message: 'Pest protocol created successfully',
                 });
                 setIsPestProtocolDialogOpen(false);
-                setNewPestProtocol({ name: '', description: '', type: '', imageLink: '', notes: '', isActive: true });
+                setNewPestProtocol({
+                    name: '',
+                    description: '',
+                    type: '',
+                    imageLinks: [],
+                    notes: '',
+                    isActive: true
+                });
+
+                // Refetch pest protocols list
                 queryClient.invalidateQueries({ queryKey: ['pest-protocols'] });
+
+                // Auto-select the newly created pest protocol in threshold dialog
+                if (response?.data?.id && isThresholdDialogOpen) {
+                    // Wait a bit for the list to refresh, then set the value
+                    setTimeout(() => {
+                        const thresholdIndex = editingThresholdIndex !== null ? editingThresholdIndex : editableThresholds.length;
+                        // The threshold dialog will pick this up automatically after refetch
+                    }, 500);
+                }
             },
             onError: (error: any) => {
                 addNotification({
@@ -205,14 +226,24 @@ export const CreateEmergencyProtocolDialog = ({
 
     const createWeatherProtocolMutation = useCreateWeatherProtocol({
         mutationConfig: {
-            onSuccess: () => {
+            onSuccess: (response) => {
                 addNotification({
                     type: 'success',
                     title: 'Success',
                     message: 'Weather protocol created successfully',
                 });
                 setIsWeatherProtocolDialogOpen(false);
-                setNewWeatherProtocol({ name: '', description: '', source: '', sourceLink: '', imageLink: '', notes: '', isActive: true });
+                setNewWeatherProtocol({
+                    name: '',
+                    description: '',
+                    source: '',
+                    sourceLink: '',
+                    imageLinks: [],
+                    notes: '',
+                    isActive: true
+                });
+
+                // Refetch weather protocols list
                 queryClient.invalidateQueries({ queryKey: ['weather-protocols'] });
             },
             onError: (error: any) => {
@@ -266,16 +297,8 @@ export const CreateEmergencyProtocolDialog = ({
 
     // Load existing data when editing
     useEffect(() => {
-        console.log('useEffect triggered:', {
-            isEditMode,
-            hasProtocolDetails: !!protocolDetails,
-            isOpen,
-            isLoadingDetails,
-            protocolId: protocol?.id,
-        });
-
         if (isEditMode && protocolDetails && isOpen && !isLoadingDetails) {
-            console.log('Loading protocol data:', protocolDetails);
+            console.log('Loading protocol data for editing:', protocolDetails);
 
             // Set basic form data
             const basicData: FormData = {
@@ -286,13 +309,14 @@ export const CreateEmergencyProtocolDialog = ({
                 isActive: protocolDetails.isActive,
             };
 
-            console.log('Setting form data:', basicData);
             setFormData(basicData);
 
-            // Use setValue instead of reset for better control
-            Object.keys(basicData).forEach((key) => {
-                setValue(key as keyof FormData, basicData[key as keyof FormData]);
-            });
+            // Set all form values
+            setValue('categoryId', basicData.categoryId);
+            setValue('planName', basicData.planName);
+            setValue('description', basicData.description);
+            setValue('totalDurationDays', basicData.totalDurationDays);
+            setValue('isActive', basicData.isActive);
 
             // Convert stages to editable format
             const convertedStages: EditableStage[] = protocolDetails.stages.map(stage => ({
@@ -316,37 +340,36 @@ export const CreateEmergencyProtocolDialog = ({
                 })),
             }));
 
-            console.log('Setting stages:', convertedStages);
             setEditableStages(convertedStages);
 
             // Convert thresholds to editable format
             const convertedThresholds: EditableThreshold[] = protocolDetails.thresholds.map(t => ({
-                pestProtocolId: t.pestProtocolId,
-                weatherProtocolId: t.weatherProtocolId,
-                pestAffectType: t.pestAffectType,
-                pestSeverityLevel: t.pestSeverityLevel,
+                pestProtocolId: t.pestProtocolId || undefined,
+                weatherProtocolId: t.weatherProtocolId || undefined,
+                pestAffectType: t.pestAffectType || undefined,
+                pestSeverityLevel: t.pestSeverityLevel || undefined,
                 pestAreaThresholdPercent: t.pestAreaThresholdPercent,
-                pestPopulationThreshold: t.pestPopulationThreshold,
+                pestPopulationThreshold: t.pestPopulationThreshold || undefined,
                 pestDamageThresholdPercent: t.pestDamageThresholdPercent,
-                pestGrowthStage: t.pestGrowthStage,
-                pestThresholdNotes: t.pestThresholdNotes,
-                weatherEventType: t.weatherEventType,
-                weatherIntensityLevel: t.weatherIntensityLevel,
+                pestGrowthStage: t.pestGrowthStage || undefined,
+                pestThresholdNotes: t.pestThresholdNotes || undefined,
+                weatherEventType: t.weatherEventType || undefined,
+                weatherIntensityLevel: t.weatherIntensityLevel || undefined,
                 weatherMeasurementThreshold: t.weatherMeasurementThreshold,
-                weatherMeasurementUnit: t.weatherMeasurementUnit,
-                weatherThresholdOperator: t.weatherThresholdOperator,
+                weatherMeasurementUnit: t.weatherMeasurementUnit || undefined,
+                weatherThresholdOperator: t.weatherThresholdOperator || undefined,
                 weatherDurationDaysThreshold: t.weatherDurationDaysThreshold,
-                weatherThresholdNotes: t.weatherThresholdNotes,
-                applicableSeason: t.applicableSeason,
+                weatherThresholdNotes: t.weatherThresholdNotes || undefined,
+                applicableSeason: t.applicableSeason || undefined,
                 riceVarietyId: t.riceVarietyId || undefined,
                 priority: t.priority,
-                generalNotes: t.generalNotes,
+                generalNotes: t.generalNotes || undefined,
             }));
 
-            console.log('Setting thresholds:', convertedThresholds);
             setEditableThresholds(convertedThresholds);
         }
-    }, [isEditMode, protocolDetails, isOpen, isLoadingDetails, protocol?.id]);
+        // Only run when protocol details change, not when dialog closes
+    }, [isEditMode, protocolDetails, isLoadingDetails, setValue]);
 
     const handleBasicInfo = (data: FormData) => {
         setFormData(data);
@@ -455,14 +478,16 @@ export const CreateEmergencyProtocolDialog = ({
     };
 
     const handleClose = () => {
-        reset({
-            isActive: true,
-            totalDurationDays: 30,
-        });
+        if (!isEditMode) {
+            reset({
+                isActive: true,
+                totalDurationDays: 30,
+            });
+            setFormData(null);
+            setEditableStages([]);
+            setEditableThresholds([]);
+        }
         setStep('basic');
-        setFormData(null);
-        setEditableStages([]);
-        setEditableThresholds([]);
         setValidationErrors({});
         setEditingThresholdIndex(null);
         onClose();
@@ -1631,7 +1656,6 @@ export const CreateEmergencyProtocolDialog = ({
                 </div>
             </div>
 
-            {/* Threshold Dialog - Add this at the end */}
             <ThresholdDialog
                 isOpen={isThresholdDialogOpen}
                 onClose={() => setIsThresholdDialogOpen(false)}
@@ -1651,7 +1675,6 @@ export const CreateEmergencyProtocolDialog = ({
                 }}
             />
 
-            {/* Pest Protocol Creation Dialog */}
             <PestProtocolDialog
                 isOpen={isPestProtocolDialogOpen}
                 onClose={() => setIsPestProtocolDialogOpen(false)}
@@ -1661,7 +1684,6 @@ export const CreateEmergencyProtocolDialog = ({
                 setNewPestProtocol={setNewPestProtocol}
             />
 
-            {/* Weather Protocol Creation Dialog */}
             <WeatherProtocolDialog
                 isOpen={isWeatherProtocolDialogOpen}
                 onClose={() => setIsWeatherProtocolDialogOpen(false)}
@@ -1671,312 +1693,5 @@ export const CreateEmergencyProtocolDialog = ({
                 setNewWeatherProtocol={setNewWeatherProtocol}
             />
         </div>
-    );
-};
-
-const ThresholdDialog = ({ isOpen, onClose, onAdd, pestProtocols, weatherProtocols, riceVarieties, onCreatePestProtocol, onCreateWeatherProtocol, initialData, isEditMode, onEditComplete }: any) => {
-    const { register, handleSubmit, reset, setValue } = useForm<EditableThreshold>();
-    const [enablePest, setEnablePest] = useState(!!initialData?.pestProtocolId || true);
-    const [enableWeather, setEnableWeather] = useState(!!initialData?.weatherProtocolId || false);
-
-    useEffect(() => {
-        if (isEditMode && initialData && isOpen) {
-            Object.keys(initialData).forEach((key) => {
-                setValue(key as any, initialData[key]);
-            });
-            setEnablePest(!!initialData.pestProtocolId);
-            setEnableWeather(!!initialData.weatherProtocolId);
-        } else if (!isOpen) {
-            reset();
-            setEnablePest(true);
-            setEnableWeather(false);
-        }
-    }, [isEditMode, initialData, isOpen, setValue, reset]);
-
-    const handleAdd = (data: EditableThreshold) => {
-        if (!enablePest) {
-            data.pestProtocolId = undefined;
-            data.pestAffectType = undefined;
-            data.pestSeverityLevel = undefined;
-            data.pestAreaThresholdPercent = undefined;
-            data.pestPopulationThreshold = undefined;
-            data.pestDamageThresholdPercent = undefined;
-            data.pestGrowthStage = undefined;
-            data.pestThresholdNotes = undefined;
-        }
-
-        if (!enableWeather) {
-            data.weatherProtocolId = undefined;
-            data.weatherEventType = undefined;
-            data.weatherIntensityLevel = undefined;
-            data.weatherMeasurementThreshold = undefined;
-            data.weatherMeasurementUnit = undefined;
-            data.weatherThresholdOperator = undefined;
-            data.weatherDurationDaysThreshold = undefined;
-            data.weatherThresholdNotes = undefined;
-        }
-
-        if (data.riceVarietyId === '') data.riceVarietyId = undefined;
-        if (data.pestProtocolId === '') data.pestProtocolId = undefined;
-        if (data.weatherProtocolId === '') data.weatherProtocolId = undefined;
-
-        if (isEditMode && initialData) {
-            onEditComplete({ ...initialData, ...data });
-        } else {
-            onAdd(data);
-        }
-        reset();
-        onClose();
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 z-[60] overflow-y-auto">
-            <div className="flex min-h-screen items-center justify-center p-4">
-                <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-                <div className="relative z-10 w-full max-w-5xl rounded-lg bg-white shadow-xl">
-                    <div className="flex items-center justify-between border-b px-5 py-3">
-                        <h3 className="text-lg font-bold">{isEditMode ? 'Edit' : 'Add'} Threshold</h3>
-                        <button onClick={onClose} className="rounded-full p-1 hover:bg-gray-100 text-gray-500 hover:text-gray-700">
-                            <span className="text-lg">✕</span>
-                        </button>
-                    </div>
-
-                    <form onSubmit={handleSubmit(handleAdd)} className="p-5 space-y-4">
-                        {/* Threshold Type Selection */}
-                        <div className="flex gap-3">
-                            <label className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-colors ${enablePest ? 'border-orange-500 bg-orange-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}>
-                                <input type="checkbox" checked={enablePest} onChange={(e) => setEnablePest(e.target.checked)} className="rounded text-orange-600 focus:ring-orange-500" />
-                                <Bug className="h-4 w-4 text-orange-600" />
-                                <span className="text-sm font-medium text-gray-700">Pest Threshold</span>
-                            </label>
-                            <label className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-colors ${enableWeather ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:bg-gray-50'}`}>
-                                <input type="checkbox" checked={enableWeather} onChange={(e) => setEnableWeather(e.target.checked)} className="rounded text-blue-600 focus:ring-blue-500" />
-                                <Cloud className="h-4 w-4 text-blue-600" />
-                                <span className="text-sm font-medium text-gray-700">Weather Threshold</span>
-                            </label>
-                        </div>
-
-                        {!enablePest && !enableWeather && (
-                            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-                                <p className="text-xs text-yellow-800">Please enable at least one threshold type</p>
-                            </div>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-3">
-                            {/* Pest Threshold Card */}
-                            {enablePest && (
-                                <div className="rounded-lg border-2 border-orange-200 bg-orange-50 p-3">
-                                    <h4 className="font-semibold text-orange-900 mb-2 flex items-center gap-2 text-sm">
-                                        <Bug className="h-4 w-4" />Pest Settings
-                                    </h4>
-                                    <div className="space-y-2">
-                                        <div>
-                                            <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Pest Protocol</label>
-                                            <div className="flex gap-1">
-                                                <select {...register('pestProtocolId')} className="flex-1 rounded-md border px-2 py-1 text-xs bg-white">
-                                                    <option value="">Select...</option>
-                                                    {pestProtocols.map((p: any) => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                                                </select>
-                                                <button type="button" onClick={onCreatePestProtocol} className="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-md">
-                                                    <Plus className="h-3 w-3" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-1.5">
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Affect Type *</label>
-                                                <input {...register('pestAffectType', { required: enablePest })} placeholder="Leaf Damage" className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Severity *</label>
-                                                <select {...register('pestSeverityLevel', { required: enablePest })} className="w-full rounded-md border px-2 py-1 text-xs bg-white">
-                                                    <option value="">Select...</option>
-                                                    {SEVERITY_LEVELS.map(level => (<option key={level} value={level}>{level}</option>))}
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Area % *</label>
-                                                <input type="number" step="0.1" {...register('pestAreaThresholdPercent', { required: enablePest, valueAsNumber: true })} className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Damage % *</label>
-                                                <input type="number" step="0.1" {...register('pestDamageThresholdPercent', { required: enablePest, valueAsNumber: true })} className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Population</label>
-                                                <input {...register('pestPopulationThreshold')} placeholder="10/plant" className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Growth Stage</label>
-                                                <input {...register('pestGrowthStage')} placeholder="Tillering" className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Notes</label>
-                                            <textarea {...register('pestThresholdNotes')} rows={2} className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Weather Threshold Card */}
-                            {enableWeather && (
-                                <div className="rounded-lg border-2 border-blue-200 bg-blue-50 p-3">
-                                    <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2 text-sm">
-                                        <Cloud className="h-4 w-4" />Weather Settings
-                                    </h4>
-                                    <div className="space-y-2">
-                                        <div>
-                                            <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Weather Protocol</label>
-                                            <div className="flex gap-1">
-                                                <select {...register('weatherProtocolId')} className="flex-1 rounded-md border px-2 py-1 text-xs bg-white">
-                                                    <option value="">Select...</option>
-                                                    {weatherProtocols.map((w: any) => (<option key={w.id} value={w.id}>{w.name}</option>))}
-                                                </select>
-                                                <button type="button" onClick={onCreateWeatherProtocol} className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
-                                                    <Plus className="h-3 w-3" />
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-1.5">
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Event Type *</label>
-                                                <input {...register('weatherEventType', { required: enableWeather })} placeholder="Heavy Rain" className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Intensity *</label>
-                                                <select {...register('weatherIntensityLevel', { required: enableWeather })} className="w-full rounded-md border px-2 py-1 text-xs bg-white">
-                                                    <option value="">Select...</option>
-                                                    {SEVERITY_LEVELS.map(level => (<option key={level} value={level}>{level}</option>))}
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Threshold *</label>
-                                                <input type="number" step="0.1" {...register('weatherMeasurementThreshold', { required: enableWeather, valueAsNumber: true })} className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Unit *</label>
-                                                <input {...register('weatherMeasurementUnit', { required: enableWeather })} placeholder="mm, °C" className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Operator *</label>
-                                                <select {...register('weatherThresholdOperator', { required: enableWeather })} className="w-full rounded-md border px-2 py-1 text-xs bg-white">
-                                                    <option value="">Select...</option>
-                                                    {THRESHOLD_OPERATORS.map(op => (<option key={op} value={op}>{op}</option>))}
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Duration (days)</label>
-                                                <input type="number" {...register('weatherDurationDaysThreshold', { valueAsNumber: true })} className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Notes</label>
-                                            <textarea {...register('weatherThresholdNotes')} rows={2} className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Common Settings - Full Width */}
-                        <div className="rounded-lg border-2 border-gray-200 bg-gray-50 p-3">
-                            <h4 className="font-semibold text-gray-900 mb-2 text-sm">Common Settings</h4>
-                            <div className="grid grid-cols-3 gap-2">
-                                <div>
-                                    <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Applicable Season *</label>
-                                    <select {...register('applicableSeason', { required: true })} className="w-full rounded-md border px-2 py-1 text-xs bg-white">
-                                        <option value="">Select...</option>
-                                        {SEASONS.map(s => <option key={s} value={s}>{s}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Rice Variety</label>
-                                    <select {...register('riceVarietyId')} className="w-full rounded-md border px-2 py-1 text-xs bg-white">
-                                        <option value="">None (Optional)</option>
-                                        {riceVarieties && riceVarieties.length > 0 ? (
-                                            riceVarieties.map((variety) => (<option key={variety.id} value={variety.id}>{variety.varietyName}</option>))
-                                        ) : (<option value="" disabled>Loading...</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-[10px] font-medium text-gray-600 mb-0.5">Priority (1-5) *</label>
-                                    <select {...register('priority', { required: true, valueAsNumber: true })} className="w-full rounded-md border px-2 py-1 text-xs bg-white">
-                                        <option value="">Select...</option>
-                                        {PRIORITY_LEVELS.map(p => <option key={p} value={p}>{p}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="mt-2">
-                                <label className="block text-[10px] font-medium text-gray-600 mb-0.5">General Notes</label>
-                                <textarea {...register('generalNotes')} rows={2} className="w-full rounded-md border px-2 py-1 text-xs bg-white" />
-                            </div>
-                        </div>
-
-                        <div className="flex justify-end gap-2 pt-3 border-t">
-                            <Button type="button" variant="outline" onClick={onClose} size="sm">Cancel</Button>
-                            <Button type="submit" disabled={!enablePest && !enableWeather} size="sm">
-                                {isEditMode ? 'Update' : 'Add'} Threshold
-                            </Button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const PestProtocolDialog = ({ isOpen, onClose, onCreate, isLoading, newPestProtocol, setNewPestProtocol }: any) => {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 z-[70] overflow-y-auto">
-            <div className="flex min-h-screen items-center justify-center p-4">
-                <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-                <div className="relative z-10 w-full max-w-lg rounded-lg bg-white shadow-xl p-6">
-                    <h3 className="text-lg font-bold mb-4">Create Pest Protocol</h3>
-                    <form onSubmit={(e) => { e.preventDefault(); onCreate(newPestProtocol); }} className="space-y-4">
-                        <div><Label>Name *</Label><Input value={newPestProtocol.name} onChange={(e) => setNewPestProtocol({ ...newPestProtocol, name: e.target.value })} required /></div>
-                        <div><Label>Description *</Label><textarea value={newPestProtocol.description} onChange={(e) => setNewPestProtocol({ ...newPestProtocol, description: e.target.value })} rows={3} className="w-full rounded-md border px-3 py-2 text-sm" required /></div>
-                        <div><Label>Type *</Label><Input value={newPestProtocol.type} onChange={(e) => setNewPestProtocol({ ...newPestProtocol, type: e.target.value })} required /></div>
-                        <div><Label>Image Link</Label><Input value={newPestProtocol.imageLink} onChange={(e) => setNewPestProtocol({ ...newPestProtocol, imageLink: e.target.value })} /></div>
-                        <div><Label>Notes</Label><textarea value={newPestProtocol.notes} onChange={(e) => setNewPestProtocol({ ...newPestProtocol, notes: e.target.value })} rows={2} className="w-full rounded-md border px-3 py-2 text-sm" /></div>
-                        <div className="flex items-center gap-2"><input type="checkbox" checked={newPestProtocol.isActive} onChange={(e) => setNewPestProtocol({ ...newPestProtocol, isActive: e.target.checked })} id="pest-active" /><label htmlFor="pest-active">Active</label></div>
-                        <div className="flex justify-end gap-2">
-                            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
-                            <Button type="submit" disabled={isLoading}>{isLoading ? 'Creating...' : 'Create'}</Button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const WeatherProtocolDialog = ({ isOpen, onClose, onCreate, isLoading, newWeatherProtocol, setNewWeatherProtocol }: any) => {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 z-[70] overflow-y-auto">
-            <div className="flex min-h-screen items-center justify-center p-4">
-                <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-                <div className="relative z-10 w-full max-w-lg rounded-lg bg-white shadow-xl p-6">
-                    <h3 className="text-lg font-bold mb-4">Create Weather Protocol</h3>
-                    <form onSubmit={(e) => { e.preventDefault(); onCreate(newWeatherProtocol); }} className="space-y-4">
-                        <div><Label>Name *</Label><Input value={newWeatherProtocol.name} onChange={(e) => setNewWeatherProtocol({ ...newWeatherProtocol, name: e.target.value })} required /></div>
-                        <div><Label>Description *</Label><textarea value={newWeatherProtocol.description} onChange={(e) => setNewWeatherProtocol({ ...newWeatherProtocol, description: e.target.value })} rows={3} className="w-full rounded-md border px-3 py-2 text-sm" required /></div>
-                        <div><Label>Source *</Label><Input value={newWeatherProtocol.source} onChange={(e) => setNewWeatherProtocol({ ...newWeatherProtocol, source: e.target.value })} required /></div>
-                        <div><Label>Source Link</Label><Input value={newWeatherProtocol.sourceLink} onChange={(e) => setNewWeatherProtocol({ ...newWeatherProtocol, sourceLink: e.target.value })} /></div>
-                        <div><Label>Image Link</Label><Input value={newWeatherProtocol.imageLink} onChange={(e) => setNewWeatherProtocol({ ...newWeatherProtocol, imageLink: e.target.value })} /></div>
-                        <div><Label>Notes</Label><textarea value={newWeatherProtocol.notes} onChange={(e) => setNewWeatherProtocol({ ...newWeatherProtocol, notes: e.target.value })} rows={2} className="w-full rounded-md border px-3 py-2 text-sm" /></div>
-                        <div className="flex items-center gap-2"><input type="checkbox" checked={newWeatherProtocol.isActive} onChange={(e) => setNewWeatherProtocol({ ...newWeatherProtocol, isActive: e.target.checked })} id="weather-active" /><label htmlFor="weather-active">Active</label></div>
-                        <div className="flex justify-end gap-2">
-                            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>Cancel</Button>
-                            <Button type="submit" disabled={isLoading}>{isLoading ? 'Creating...' : 'Create'}</Button>
-                        </div>
-                    </form >
-                </div >
-            </div >
-        </div >
     );
 };

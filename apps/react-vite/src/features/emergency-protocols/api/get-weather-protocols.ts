@@ -8,7 +8,7 @@ export type WeatherProtocol = {
   description: string;
   source: string;
   sourceLink: string;
-  imageLink: string;
+  imageLinks: string[]; // Changed from imageLink to imageLinks
   isActive: boolean;
   notes: string;
   createdAt: string;
@@ -69,7 +69,7 @@ export type CreateWeatherProtocolDTO = {
   description: string;
   source: string;
   sourceLink: string;
-  imageLink: string;
+  imageLinks: string[]; // Changed from imageLink to imageLinks
   isActive: boolean;
   notes: string;
 };

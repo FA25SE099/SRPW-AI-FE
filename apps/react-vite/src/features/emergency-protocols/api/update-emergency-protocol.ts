@@ -64,14 +64,8 @@ export const updateEmergencyProtocolInputSchema = z.object({
 
 export type UpdateEmergencyProtocolInput = z.infer<typeof updateEmergencyProtocolInputSchema>;
 
-export const updateEmergencyProtocol = ({
-  emergencyProtocolId,
-  data,
-}: {
-  emergencyProtocolId: string;
-  data: UpdateEmergencyProtocolInput;
-}): Promise<any> => {
-  return api.put(`/EmergencyProtocol/${emergencyProtocolId}`, data);
+export const updateEmergencyProtocol = (data: UpdateEmergencyProtocolInput): Promise<any> => {
+  return api.put('/EmergencyProtocol', data);
 };
 
 type UseUpdateEmergencyProtocolOptions = {

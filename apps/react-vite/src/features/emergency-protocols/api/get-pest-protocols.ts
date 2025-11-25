@@ -7,7 +7,7 @@ export type PestProtocol = {
   name: string;
   description: string;
   type: string;
-  imageLink: string;
+  imageLinks: string[]; // Changed from imageLink to imageLinks
   isActive: boolean;
   notes: string;
   createdAt: string;
@@ -65,7 +65,7 @@ export type CreatePestProtocolDTO = {
   name: string;
   description: string;
   type: string;
-  imageLink: string;
+  imageLinks: string[]; // Changed from imageLink to imageLinks
   isActive: boolean;
   notes: string;
 };
@@ -94,6 +94,39 @@ export const useCreatePestProtocol = ({
       queryClient.invalidateQueries({ queryKey: ['pest-protocols'] });
       mutationConfig?.onSuccess?.(...args);
     },
+    ...mutationConfig,
+  });
+};
+
+// Upload files
+export type UploadFilesResponse = {
+  success: boolean;
+  count: number;
+  files: Array<{
+    url: string;
+    fileName: string;
+  }>;
+};
+
+export const uploadFiles = async (files: File[]): Promise<UploadFilesResponse> => {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('Files', file);
+  });
+  return api.post('/Test/upload-files', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+export const useUploadFiles = ({
+  mutationConfig,
+}: {
+  mutationConfig?: any;
+} = {}) => {
+  return useMutation({
+    mutationFn: uploadFiles,
     ...mutationConfig,
   });
 };
