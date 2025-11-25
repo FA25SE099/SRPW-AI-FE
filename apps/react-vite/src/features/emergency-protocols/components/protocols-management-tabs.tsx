@@ -697,39 +697,57 @@ export const ProtocolsManagementTabs = () => {
                         ) : weatherProtocols.length === 0 ? (
                             <div className="p-8 text-center text-gray-500">No weather protocols found</div>
                         ) : (
-                            <table className="w-full">
-                                <thead className="bg-gray-50 border-b">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Source</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y">
-                                    {weatherProtocols.map((weather: any) => (
-                                        <tr key={weather.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 text-sm font-medium">{weather.name}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">{weather.source}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600 max-w-md truncate">{weather.description}</td>
-                                            <td className="px-6 py-4">
-                                                <span
-                                                    className={`px-2 py-1 text-xs rounded-full ${weather.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                                                        }`}
-                                                >
-                                                    {weather.isActive ? 'Active' : 'Inactive'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <Button variant="ghost" size="sm" onClick={() => handleViewWeather(weather)}>
-                                                    <Eye className="h-4 w-4" />
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            <div className="grid grid-cols-1 gap-4">
+                                {weatherProtocols.map((weather: any) => (
+                                    <div key={weather.id} className="bg-white rounded-lg border p-6 hover:shadow-lg transition-shadow">
+                                        <div className="flex items-start justify-between mb-4">
+                                            <div className="flex-1">
+                                                <h3 className="font-semibold text-lg text-gray-900 mb-1">
+                                                    {weather.name}
+                                                </h3>
+                                                <p className="text-sm text-gray-600 mb-2">{weather.description}</p>
+                                                {weather.source && (
+                                                    <p className="text-xs text-gray-500">Source: {weather.source}</p>
+                                                )}
+                                            </div>
+                                            <span
+                                                className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${weather.isActive
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : 'bg-gray-100 text-gray-800'
+                                                    }`}
+                                            >
+                                                {weather.isActive ? 'Active' : 'Inactive'}
+                                            </span>
+                                        </div>
+
+                                        {weather.imageLinks && weather.imageLinks.length > 0 && (
+                                            <div className="mb-4">
+                                                <img
+                                                    src={weather.imageLinks[0]}
+                                                    alt={weather.name}
+                                                    className="w-full h-32 object-cover rounded-md"
+                                                />
+                                            </div>
+                                        )}
+
+                                        {weather.notes && (
+                                            <p className="text-sm text-gray-600 mb-4 italic">{weather.notes}</p>
+                                        )}
+
+                                        <div className="flex gap-2 pt-4 border-t">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="flex-1"
+                                                onClick={() => handleViewWeather(weather)}
+                                            >
+                                                <Eye className="h-4 w-4 mr-1" />
+                                                Detail
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
 
