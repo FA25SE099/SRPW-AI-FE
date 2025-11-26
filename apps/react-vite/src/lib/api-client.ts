@@ -132,11 +132,9 @@ api.interceptors.response.use(
       const refreshToken = tokenStorage.getRefreshToken();
 
       if (!refreshToken) {
-        // No refresh token available, redirect to login
         isRefreshing = false;
         tokenStorage.clearTokens();
-        const redirectTo = window.location.pathname;
-        window.location.href = paths.auth.login.getHref(redirectTo);
+        window.location.href = paths.auth.login.getHref();
         return Promise.reject(error);
       }
 
@@ -173,10 +171,7 @@ api.interceptors.response.use(
         processQueue(refreshError as AxiosError, null);
         isRefreshing = false;
         tokenStorage.clearTokens();
-
-        const redirectTo = window.location.pathname;
-        window.location.href = paths.auth.login.getHref(redirectTo);
-
+        window.location.href = paths.auth.login.getHref();
         return Promise.reject(refreshError);
       }
     }

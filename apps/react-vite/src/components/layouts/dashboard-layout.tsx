@@ -91,12 +91,10 @@ export function DashboardLayout({
   const queryClient = useQueryClient();
 
   const logout = useLogout({
-    // onSuccess: () => navigate(paths.auth.login.getHref(location.pathname)),
     onSuccess: () => {
       queryClient.clear();
       navigate(paths.auth.login.getHref());
     },
-
   });
   const { checkAccess } = useAuthorization();
 
