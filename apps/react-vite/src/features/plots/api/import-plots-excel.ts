@@ -10,11 +10,23 @@ export const importPlotsExcelInputSchema = z.object({
 
 export type ImportPlotsExcelInput = z.infer<typeof importPlotsExcelInputSchema>
 
+export type PlotImportData = {
+    plotId: string;
+    soThua: number;
+    soTo: number;
+    area: number;
+    farmerId: string;
+    farmerName: string;
+    soilType?: string;
+    status: string;
+    groupId?: string | null;
+}
+
 export type ImportPlotsExcelResponse = {
-    success: boolean  // ✅ Changed from 'succeeded' to 'success'
-    message: string
-    data?: any[]
-    errors?: string[]
+    succeeded: boolean;
+    message: string;
+    data?: PlotImportData[];
+    errors?: string[];
 }
 
 export const importPlotsExcel = async ({
@@ -23,21 +35,18 @@ export const importPlotsExcel = async ({
 }: ImportPlotsExcelInput): Promise<ImportPlotsExcelResponse> => {
     const formData = new FormData()
     formData.append('excelFile', excelFile)
-
-    const params = new URLSearchParams()
+    
     if (importDate) {
-        params.append('importDate', importDate)
+        formData.append('importDate', importDate)
     }
 
-    const url = `/plot/import-excel${params.toString() ? `?${params.toString()}` : ''}`
-
-    const response = await api.post<ImportPlotsExcelResponse>(url, formData, {
+    const response = await api.post<ImportPlotsExcelResponse>('/plot/import-excel', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
     })
 
-    return response.data
+    return response
 }
 
 type UseImportPlotsExcelOptions = {

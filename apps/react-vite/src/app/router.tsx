@@ -114,6 +114,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
                 import('./routes/app/expert/standard-plans').then(convert(queryClient)),
             },
             {
+              path: 'emergency-protocols',
+              lazy: () =>
+                import('./routes/app/expert/emergency-protocols').then(convert(queryClient)),
+            },
+            {
               path: 'plan-monitoring',
               lazy: () =>
                 import('./routes/app/expert/plan-monitoring').then(convert(queryClient)),

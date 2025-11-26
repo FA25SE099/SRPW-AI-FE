@@ -132,13 +132,13 @@ export const MaterialsList = () => {
               Template
             </Button>
             {/* Import Excel */}
-              <Button
-                variant="outline"
-                onClick={() => setImportDialogOpen(true)}
-                icon={<Upload className="h-4 w-4" />}
-              >
-                Import Excel
-              </Button>
+            <Button
+              variant="outline"
+              onClick={() => setImportDialogOpen(true)}
+              icon={<Upload className="h-4 w-4" />}
+            >
+              Import Excel
+            </Button>
           </div>
         </div>
 
@@ -167,11 +167,10 @@ export const MaterialsList = () => {
                       </div>
                     </div>
                     <span
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        material.isActive
+                      className={`rounded-full px-2 py-1 text-xs font-medium ${material.isActive
                           ? 'bg-green-100 text-green-700'
                           : 'bg-gray-100 text-gray-700'
-                      }`}
+                        }`}
                     >
                       {material.isActive ? 'Active' : 'Inactive'}
                     </span>
@@ -296,11 +295,10 @@ export const MaterialsList = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
-                              material.isActive
+                            className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${material.isActive
                                 ? 'bg-green-100 text-green-700'
                                 : 'bg-gray-100 text-gray-700'
-                            }`}
+                              }`}
                           >
                             {material.isActive ? 'Active' : 'Inactive'}
                           </span>

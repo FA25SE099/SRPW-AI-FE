@@ -1,0 +1,200 @@
+import { Trash2, Plus } from 'lucide-react';
+import { EditableTask } from '../types';
+import { MaterialsEditor } from './MaterialsEditor';
+
+type TaskCardProps = {
+    task: EditableTask;
+    stageIndex: number;
+    taskIndex: number;
+    isLoading: boolean;
+    hasTaskError: boolean;
+    fertilizers: any[];
+    pesticides: any[];
+    isLoadingMaterials: boolean;
+    onUpdateTask: (stageIndex: number, taskIndex: number, updates: Partial<EditableTask>) => void;
+    onRemoveTask: (stageIndex: number, taskIndex: number) => void;
+    onUpdateMaterial: (
+        stageIndex: number,
+        taskIndex: number,
+        materialIndex: number,
+        field: 'materialId' | 'quantityPerHa',
+        value: string | number
+    ) => void;
+    onRemoveMaterial: (stageIndex: number, taskIndex: number, materialIndex: number) => void;
+    onAddMaterial: (stageIndex: number, taskIndex: number) => void;
+    onOpenAddTaskMenu: (stageIndex: number, position: number) => void;
+};
+
+export const TaskCard = ({
+    task,
+    stageIndex,
+    taskIndex,
+    isLoading,
+    hasTaskError,
+    fertilizers,
+    pesticides,
+    isLoadingMaterials,
+    onUpdateTask,
+    onRemoveTask,
+    onUpdateMaterial,
+    onRemoveMaterial,
+    onAddMaterial,
+    onOpenAddTaskMenu,
+}: TaskCardProps) => {
+    return (
+        <div className="relative">
+            {/* Add task before this task - small icon button */}
+            {taskIndex === 0 && (
+                <button
+                    type="button"
+                    onClick={() => onOpenAddTaskMenu(stageIndex, 0)}
+                    disabled={isLoading}
+                    className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
+                    title="Add task before"
+                >
+                    <Plus className="h-3.5 w-3.5" />
+                </button>
+            )}
+
+            <div
+                className={`rounded-md border-2 ${
+                    hasTaskError ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-white'
+                } p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col`}
+            >
+                <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-1">
+                        <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
+                            {taskIndex + 1}
+                        </span>
+                        {task.isFromProtocol && (
+                            <span className="inline-block text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
+                                Protocol
+                            </span>
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => onRemoveTask(stageIndex, taskIndex)}
+                        disabled={isLoading}
+                        className="p-0.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700"
+                    >
+                        <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                </div>
+
+                <div className="space-y-2 flex-1">
+                    <div className="space-y-0.5">
+                        <label className="block text-[10px] font-medium text-gray-600">Task name *</label>
+                        <input
+                            type="text"
+                            value={task.taskName}
+                            onChange={(e) => onUpdateTask(stageIndex, taskIndex, { taskName: e.target.value })}
+                            disabled={isLoading}
+                            placeholder="Task name"
+                            className={`block w-full rounded-md border ${
+                                hasTaskError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                            } px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
+                        />
+                        {hasTaskError && (
+                            <p className="text-[10px] text-red-600 mt-0.5">Task name is required</p>
+                        )}
+                    </div>
+
+                    <div className="space-y-0.5">
+                        <label className="block text-[10px] font-medium text-gray-600">Description</label>
+                        <textarea
+                            value={task.description || ''}
+                            onChange={(e) => onUpdateTask(stageIndex, taskIndex, { description: e.target.value })}
+                            disabled={isLoading}
+                            placeholder="Description"
+                            rows={2}
+                            className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-1.5">
+                        <div className="space-y-0.5">
+                            <label className="block text-[10px] font-medium text-gray-600">Days After</label>
+                            <input
+                                type="number"
+                                value={task.daysAfter}
+                                onChange={(e) => onUpdateTask(stageIndex, taskIndex, { daysAfter: parseInt(e.target.value) || 0 })}
+                                disabled={isLoading}
+                                placeholder="0"
+                                className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className="space-y-0.5">
+                            <label className="block text-[10px] font-medium text-gray-600">Duration</label>
+                            <input
+                                type="number"
+                                value={task.durationDays}
+                                onChange={(e) => onUpdateTask(stageIndex, taskIndex, { durationDays: parseInt(e.target.value) || 1 })}
+                                disabled={isLoading}
+                                min="1"
+                                placeholder="1"
+                                className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="space-y-0.5">
+                        <label className="block text-[10px] font-medium text-gray-600">Task Type</label>
+                        <select
+                            value={task.taskType}
+                            onChange={(e) => onUpdateTask(stageIndex, taskIndex, { taskType: e.target.value })}
+                            disabled={isLoading}
+                            className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                        >
+                            <option value="LandPreparation">Land Preparation</option>
+                            <option value="Fertilization">Fertilization</option>
+                            <option value="PestControl">Pest Control</option>
+                            <option value="Harvesting">Harvesting</option>
+                            <option value="Sowing">Sowing</option>
+                        </select>
+                    </div>
+
+                    <div className="space-y-0.5">
+                        <label className="block text-[10px] font-medium text-gray-600">Priority</label>
+                        <select
+                            value={task.priority}
+                            onChange={(e) => onUpdateTask(stageIndex, taskIndex, { priority: e.target.value })}
+                            disabled={isLoading}
+                            className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                        >
+                            <option value="Low">Low</option>
+                            <option value="Normal">Normal</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+
+                    <MaterialsEditor
+                        materials={task.materials}
+                        stageIndex={stageIndex}
+                        taskIndex={taskIndex}
+                        isLoading={isLoading}
+                        isLoadingMaterials={isLoadingMaterials}
+                        fertilizers={fertilizers}
+                        pesticides={pesticides}
+                        onUpdateMaterial={onUpdateMaterial}
+                        onRemoveMaterial={onRemoveMaterial}
+                        onAddMaterial={onAddMaterial}
+                    />
+                </div>
+            </div>
+
+            {/* Add task after this task - small icon button */}
+            <button
+                type="button"
+                onClick={() => onOpenAddTaskMenu(stageIndex, taskIndex + 1)}
+                disabled={isLoading}
+                className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
+                title="Add task after"
+            >
+                <Plus className="h-3.5 w-3.5" />
+            </button>
+        </div>
+    );
+};
+

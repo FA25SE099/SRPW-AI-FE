@@ -1,15 +1,22 @@
 import { Calendar, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { ContentLayout } from '@/components/layouts';
+import { paths } from '@/config/paths';
 
 const PlansRoute = () => {
+    const navigate = useNavigate();
+    
     return (
         <ContentLayout title="Production Plans">
             <div className="space-y-6">
                 <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <div className="mb-6 flex items-center justify-between">
                         <h2 className="text-lg font-bold text-gray-900">All Production Plans</h2>
-                        <button className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700">
+                        <button 
+                            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+                            onClick={() => navigate(paths.app.supervisor.group.getHref())}
+                        >
                             <Plus className="h-4 w-4" />
                             Create New Plan
                         </button>

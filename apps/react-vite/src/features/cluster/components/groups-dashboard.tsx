@@ -22,7 +22,7 @@ import {
 import { ClusterCurrentSeason } from '../types';
 
 type GroupsDashboardProps = {
-  groups: NonNullable<ClusterCurrentSeason['activeGroups']>;
+  groups: NonNullable<ClusterCurrentSeason['groups']>;
   clusterId: string;
   seasonId: string;
   onCreatePlan?: (groupId: string) => void;
@@ -42,7 +42,7 @@ export const GroupsDashboard = ({
 
   // Get unique rice varieties and supervisors for filters
   const riceVarieties = Array.from(
-    new Set(groups.map((g) => g.riceVariety)),
+    new Set(groups.map((g) => g.riceVarietyName)),
   );
   const supervisors = Array.from(
     new Set(groups.map((g) => g.supervisorName)),
@@ -52,11 +52,12 @@ export const GroupsDashboard = ({
   const filteredGroups = groups.filter((group) => {
     const matchesSearch =
       searchTerm === '' ||
-      group.groupName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      group.supervisorName.toLowerCase().includes(searchTerm.toLowerCase());
+      group.groupId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      group.supervisorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      group.riceVarietyName.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesVariety =
-      filterVariety === 'all' || group.riceVariety === filterVariety;
+      filterVariety === 'all' || group.riceVarietyName === filterVariety;
 
     const matchesSupervisor =
       filterSupervisor === 'all' || group.supervisorName === filterSupervisor;
@@ -66,9 +67,9 @@ export const GroupsDashboard = ({
 
   // Calculate summary stats
   const totalPlots = groups.reduce((sum, g) => sum + g.plotCount, 0);
-  const totalFarmers = groups.reduce((sum, g) => sum + g.farmerCount, 0);
+  const totalFarmers = groups.length; // Backend doesn't provide farmerCount, using group count as fallback
   const totalArea = groups.reduce((sum, g) => sum + g.totalArea, 0);
-  const groupsWithPlans = groups.filter((g) => g.hasProductionPlan).length;
+  const groupsWithPlans = 0; // Backend doesn't provide hasProductionPlan field
 
   return (
     <div className="space-y-6">
@@ -173,7 +174,7 @@ export const GroupsDashboard = ({
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <h4 className="font-semibold">{group.groupName}</h4>
+                            <h4 className="font-semibold">Group {group.riceVarietyName}</h4>
                             <Badge
                               variant={
                                 group.status === 'Active' ? 'default' : 'secondary'
@@ -185,30 +186,25 @@ export const GroupsDashboard = ({
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Sprout className="h-3 w-3" />
-                              {group.riceVariety}
+                              {group.riceVarietyName}
                             </span>
                             <span className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
                               {group.supervisorName}
                             </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(group.plantingDate).toLocaleDateString()}
+                            </span>
                           </div>
                         </div>
-                        {!group.hasProductionPlan && (
-                          <Badge variant="outline" className="bg-orange-50">
-                            No Plan
-                          </Badge>
-                        )}
                       </div>
 
                       {/* Stats */}
-                      <div className="grid grid-cols-3 gap-4 p-3 bg-muted rounded-lg">
+                      <div className="grid grid-cols-2 gap-4 p-3 bg-muted rounded-lg">
                         <div className="text-center">
                           <p className="text-lg font-bold">{group.plotCount}</p>
                           <p className="text-xs text-muted-foreground">Plots</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-lg font-bold">{group.farmerCount}</p>
-                          <p className="text-xs text-muted-foreground">Farmers</p>
                         </div>
                         <div className="text-center">
                           <p className="text-lg font-bold">
@@ -227,24 +223,13 @@ export const GroupsDashboard = ({
                         >
                           View Details
                         </Button>
-                        {!group.hasProductionPlan ? (
-                          <Button
-                            size="sm"
-                            onClick={() => onCreatePlan?.(group.groupId)}
-                          >
-                            <Plus className="mr-1 h-3 w-3" />
-                            Create Plan
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => onViewDetails?.(group.groupId)}
-                          >
-                            <FileText className="mr-1 h-3 w-3" />
-                            View Plan
-                          </Button>
-                        )}
+                        <Button
+                          size="sm"
+                          onClick={() => onCreatePlan?.(group.groupId)}
+                        >
+                          <Plus className="mr-1 h-3 w-3" />
+                          Create Plan
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

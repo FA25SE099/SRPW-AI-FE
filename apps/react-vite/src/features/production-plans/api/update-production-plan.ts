@@ -7,8 +7,7 @@ export const updateProductionPlan = async (
   data: UpdateProductionPlanInput
 ): Promise<{ productionPlanId: string }> => {
   const { planId, ...updateData } = data;
-  const response = await api.put(`/production-plans/${planId}`, updateData);
-  return response.data;
+  return api.put(`/production-plans/${planId}`, updateData);
 };
 
 type UseUpdateProductionPlanOptions = {
