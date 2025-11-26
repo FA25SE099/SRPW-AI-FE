@@ -48,16 +48,16 @@ export type ClusterCurrentSeason = {
   };
 
   // Active Groups (when hasGroups = true)
-  activeGroups?: Array<{
+  groups?: Array<{
     groupId: string;
-    groupName: string;
-    riceVariety: string;
+    supervisorId: string;
     supervisorName: string;
-    plotCount: number;
-    farmerCount: number;
-    totalArea: number;
+    riceVarietyId: string;
+    riceVarietyName: string;
+    plantingDate: string;
     status: string;
-    hasProductionPlan: boolean;
+    plotCount: number;
+    totalArea: number;
   }>;
 };
 
