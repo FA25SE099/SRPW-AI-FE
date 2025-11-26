@@ -1,0 +1,218 @@
+========================================
+BACKEND API REQUIREMENTS FOR REPORTS FEATURE
+========================================
+
+The Reports feature requires the following API endpoints to be implemented on the backend.
+All id in backend will be GUID not string,
+========================================
+1. GET /reports
+========================================
+Description: Get list of reports with pagination and filtering
+Method: GET
+Query Parameters:
+  - currentPage: number (required)
+  - pageSize: number (required)
+  - searchTerm?: string (optional) - search in title, description, plot name
+  - status?: string (optional) - filter by status (Pending, UnderReview, Resolved, Rejected)
+  - severity?: string (optional) - filter by severity (Low, Medium, High, Critical)
+  - reportType?: string (optional) - filter by type (Pest, Weather, Disease, Other)
+
+Response Body:
+{
+  "succeeded": boolean,
+  "data": [
+    {
+      "id": "string",
+      "plotId": "string",
+      "plotName": "string",
+      "plotArea": number,
+      "cultivationPlanId": "string",
+      "cultivationPlanName": "string",
+      "reportType": "Pest" | "Weather" | "Disease" | "Other",
+      "severity": "Low" | "Medium" | "High" | "Critical",
+      "title": "string",
+      "description": "string",
+      "reportedBy": "string",
+      "reportedByRole": "Farmer" | "Supervisor",
+      "reportedAt": "ISO date string",
+      "status": "Pending" | "UnderReview" | "Resolved" | "Rejected",
+      "images": ["string"] (optional),
+      "coordinates": "string" (optional),
+      "resolvedBy": "string" (optional),
+      "resolvedAt": "ISO date string" (optional),
+      "resolutionNotes": "string" (optional),
+      "farmerName": "string" (optional),
+      "clusterName": "string" (optional)
+    }
+  ],
+  "totalCount": number,
+  "totalPages": number,
+  "currentPage": number,
+  "pageSize": number
+}
+
+Note: The response includes a "succeeded" field at the root level.
+
+========================================
+2. GET /reports/{reportId}
+========================================
+Description: Get single report details
+Method: GET
+Path Parameters:
+  - reportId: string (required)
+
+Response Body: Same as single report object from GET /reports
+
+========================================
+3. GET /cultivation-plan/{planId}
+========================================
+Description: Get cultivation plan for a specific plot (newest version)
+Method: GET
+Path Parameters:
+  - planId: string (required) - PlotCultivationId
+
+Response Body:
+{
+  "id": "string",
+  "plotId": "string",
+  "plotName": "string",
+  "planName": "string",
+  "riceVarietyId": "string",
+  "riceVarietyName": "string",
+  "basePlantingDate": "ISO date string",
+  "totalArea": number,
+  "status": "string",
+  "estimatedTotalCost": number,
+  "farmerName": "string",
+  "clusterName": "string",
+  "stages": [
+    {
+      "id": "string",
+      "stageName": "string",
+      "sequenceOrder": number,
+      "expectedDurationDays": number,
+      "tasks": [
+        {
+          "id": "string",
+          "taskName": "string",
+          "description": "string",
+          "taskType": "string",
+          "scheduledDate": "ISO date string",
+          "scheduledEndDate": "ISO date string" (nullable),
+          "priority": "string",
+          "sequenceOrder": number,
+          "materials": [
+            {
+              "materialId": "string",
+              "materialName": "string",
+              "quantityPerHa": number,
+              "unit": "string"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+========================================
+4. POST /reports/{reportId}/resolve
+========================================
+Description: Resolve a report by creating emergency cultivation tasks
+Method: POST
+Path Parameters:
+  - reportId: string (required)
+
+Request Body:
+{
+  "reportId": "string",
+  "cultivationPlanId": "string",
+  "newVersionName": "string",
+  "resolutionReason": "string",
+  "expertId": "string",
+  "cultivationStageId": "string",
+  "baseCultivationTasks": [
+    {
+      "cultivationPlanTaskId": "string" | null, // null for new tasks
+      "taskName": "string",
+      "description": "string",
+      "taskType": "string",
+      "scheduledEndDate": "ISO date string",
+      "status": "Draft",
+      "executionOrder": number,
+      "isContingency": true,
+      "contingencyReason": "string",
+      "defaultAssignedToUserId": null,
+      "defaultAssignedToVendorId": null,
+      "materialsPerHectare": [
+        {
+          "materialId": "string",
+          "quantityPerHa": number,
+          "notes": null
+        }
+      ]
+    }
+  ]
+}
+
+Response Body:
+{
+  "succeeded": boolean,
+  "data": "string", // Created cultivation plan version ID
+  "message": "string" // Success message with details
+}
+
+========================================
+ADDITIONAL NOTES
+========================================
+
+1. CultivationPlan vs ProductionPlan:
+   - CultivationPlan is PLOT-LEVEL (one plot)
+   - ProductionPlan is GROUP-LEVEL (multiple plots)
+   - Same structure, different scope
+
+2. Report Status Flow:
+   Pending → UnderReview → Resolved
+                        → Rejected
+
+3. Task Creation Logic:
+   - If cultivationPlanTaskId is provided: UPDATE existing task (isContingency: false, contingencyReason: null)
+   - If cultivationPlanTaskId is null: CREATE new emergency task (isContingency: true, contingencyReason: set)
+   - Only NEW tasks should be marked as isContingency: true
+
+4. Materials Scaling:
+   - quantityPerHa should be stored per hectare
+   - Backend should scale by plot area when creating actual cultivation tasks
+
+5. Authentication:
+   - All endpoints require authentication
+   - Only AgronomyExpert role can access resolve endpoint
+   - Farmers and Supervisors can create reports (separate endpoint not shown here)
+
+6. Existing Emergency Protocols API:
+   - The resolve dialog reuses existing emergency protocol APIs:
+   - GET /emergency-protocols (search protocols)
+   - GET /emergency-protocols/{id} (get protocol details)
+   - These already exist and work
+
+========================================
+TESTING CHECKLIST
+========================================
+
+[ ] GET /reports returns paginated list
+[ ] GET /reports filters by status work
+[ ] GET /reports filters by severity work
+[ ] GET /reports filters by type work
+[ ] GET /reports search functionality works
+[ ] GET /reports/{reportId} returns single report
+[ ] GET /cultivation-plans/{planId} returns plan structure
+[ ] POST /reports/{reportId}/resolve creates cultivation tasks
+[ ] POST /reports/{reportId}/resolve updates existing tasks when cultivationPlanTaskId provided
+[ ] POST /reports/{reportId}/resolve creates new tasks when cultivationPlanTaskId is null
+[ ] POST /reports/{reportId}/resolve marks report as Resolved
+[ ] POST /reports/{reportId}/resolve scales materials by plot area
+[ ] Authentication enforced on all endpoints
+[ ] Role-based access control works (AgronomyExpert only for resolve)
+
+========================================
+
