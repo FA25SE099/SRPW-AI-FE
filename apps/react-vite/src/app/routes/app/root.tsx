@@ -96,13 +96,19 @@ const AppRoot = () => {
         end: true,
       },
       {
-        name: 'Emergency Center',
-        to: paths.app.expert.emergency.getHref(),
+        name: 'Plot Reports',
+        to: paths.app.expert.reports.getHref(),
         icon: AlertTriangle,
         end: true,
       },
       {
-        name: 'Emergency',
+        name: 'Emergency Plans',
+        to: paths.app.expert.emergency.getHref(),
+        icon: ShieldAlert,
+        end: true,
+      },
+      {
+        name: 'Emergency Protocols',
         to: paths.app.expert.emergencyProtocols.getHref(),
         icon: ShieldAlert,
         end: true,
@@ -129,12 +135,6 @@ const AppRoot = () => {
         name: 'Rice Varieties',
         to: paths.app.expert.riceVarieties.getHref(),
         icon: Sprout,
-        end: true,
-      },
-      {
-        name: 'Reports',
-        to: paths.app.expert.reports.getHref(),
-        icon: TrendingUp,
         end: true,
       },
     ];

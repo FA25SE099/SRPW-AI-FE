@@ -299,7 +299,7 @@ const ClusterDashboard = () => {
           />
         )}
 
-        {/* Create Production Plan Dialog */}
+        {/* Create Production Plan Dialog
         {selectedGroup && (
           <CreateProductionPlanDialog
             isOpen={showCreatePlanDialog}
@@ -311,7 +311,7 @@ const ClusterDashboard = () => {
             groupName={selectedGroup.name}
             seasonId={currentSeason.currentSeason.seasonId}
           />
-        )}
+        )} */}
       </div>
     </ContentLayout>
   );
