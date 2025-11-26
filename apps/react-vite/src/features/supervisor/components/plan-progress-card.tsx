@@ -101,7 +101,10 @@ export const PlanProgressCard = ({ progress }: PlanProgressCardProps) => {
               <Clock className="h-4 w-4" />
               <span>Remaining</span>
             </div>
-            <p className="text-2xl font-bold">{progress.estimatedDaysRemaining}</p>
+            <p className="text-2xl font-bold">
+              {progress.estimatedDaysRemaining || 
+               (progress.estimatedTotalDays ? progress.estimatedTotalDays - progress.daysElapsed : 0)}
+            </p>
           </div>
         </div>
 
