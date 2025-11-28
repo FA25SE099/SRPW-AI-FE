@@ -13,7 +13,7 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Plan Details</DialogTitle>
         </DialogHeader>
@@ -29,7 +29,7 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
         )}
 
         {data && (
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto pr-2">
             <div className="rounded border p-4">
               <div className="text-lg font-semibold">{data.planName}</div>
               <div className="text-sm text-gray-600">Status: {data.status}</div>
@@ -37,7 +37,7 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
               <div className="text-sm text-gray-600">Base Planting Date: {new Date(data.basePlantingDate).toLocaleDateString()}</div>
             </div>
 
-            <div className="rounded border p-4">
+            {/* <div className="rounded border p-4">
               <div className="mb-2 text-base font-semibold">Group Details</div>
               <div className="text-sm">Cluster: {data.groupDetails.clusterName}</div>
               <div className="text-sm">Area: {data.groupDetails.totalArea} ha</div>
@@ -52,7 +52,7 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             <div className="rounded border p-4">
               <div className="mb-2 text-base font-semibold">Stages</div>

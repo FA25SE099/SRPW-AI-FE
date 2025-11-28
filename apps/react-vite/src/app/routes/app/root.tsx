@@ -201,7 +201,7 @@ const AppRoot = () => {
         to: paths.app.supervisor.maps.getHref(),
         icon: Map,
         end: true,
-      }
+      },
     ];
   }
   // Cluster Dashboard specific navigation
@@ -241,7 +241,7 @@ const AppRoot = () => {
         name: 'Map',
         to: paths.app.cluster.maps.getHref(),
         icon: Map,
-        end: true
+        end: true,
       },
     ];
   }
@@ -324,7 +324,6 @@ const AppRoot = () => {
       },
     ].filter(Boolean) as SideNavigationItem[];
   }
-
 
   return (
     <DashboardLayout 
