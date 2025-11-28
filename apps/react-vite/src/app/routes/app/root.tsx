@@ -101,12 +101,12 @@ const AppRoot = () => {
         icon: AlertTriangle,
         end: true,
       },
-      {
-        name: 'Emergency Plans',
-        to: paths.app.expert.emergency.getHref(),
-        icon: ShieldAlert,
-        end: true,
-      },
+      // {
+      //   name: 'Emergency Plans',
+      //   to: paths.app.expert.emergency.getHref(),
+      //   icon: ShieldAlert,
+      //   end: true,
+      // },
       {
         name: 'Emergency Protocols',
         to: paths.app.expert.emergencyProtocols.getHref(),
@@ -171,7 +171,7 @@ const AppRoot = () => {
         to: paths.app.supervisor.maps.getHref(),
         icon: Map,
         end: true,
-      }
+      },
     ];
   }
   // Cluster Dashboard specific navigation
@@ -211,7 +211,7 @@ const AppRoot = () => {
         name: 'Map',
         to: paths.app.cluster.maps.getHref(),
         icon: Map,
-        end: true
+        end: true,
       },
     ];
   }
@@ -294,7 +294,6 @@ const AppRoot = () => {
       },
     ].filter(Boolean) as SideNavigationItem[];
   }
-
 
   return (
     <DashboardLayout navigationItems={navigationItems}>
