@@ -10,4 +10,6 @@ export * from './current-season-card-v0';
 export * from './readiness-panel-v0';
 export * from './history-chart-v0';
 export * from './season-selector-v0';
+export * from './plots-overview-card';
+export * from './supervisor-overview-card';
 

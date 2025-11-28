@@ -4,10 +4,22 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
+import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   base: './',
-  plugins: [react(), viteTsconfigPaths()],
+  plugins: [
+    react(),
+    viteTsconfigPaths(),
+    svgr({
+      svgrOptions: {
+        // Make SVGs accept props like className
+        ref: true,
+        titleProp: true,
+        descProp: true,
+      },
+    }),
+  ],
   server: {
     port: 3000,
   },

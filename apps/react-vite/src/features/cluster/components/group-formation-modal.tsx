@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { GroupFormationParams, GroupPreviewResult } from '../types';
 import { usePreviewGroupFormation, useCreateGroups } from '../api';
-import { ParameterStep } from './group-formation/parameter-step';
-import { PreviewStep } from './group-formation/preview-step';
+import { PreviewStepWithParams } from './group-formation/preview-step-with-params';
 import { SuccessStep } from './group-formation/success-step';
 import { useNotifications } from '@/components/ui/notifications/notifications-store';
 
@@ -30,9 +31,7 @@ export const GroupFormationModal = ({
   availablePlots,
 }: GroupFormationModalProps) => {
   const { addNotification } = useNotifications();
-  const [step, setStep] = useState<'parameters' | 'preview' | 'success'>(
-    'parameters',
-  );
+  const [step, setStep] = useState<'preview' | 'success'>('preview');
   const [params, setParams] = useState<GroupFormationParams>({
     clusterId,
     seasonId,
@@ -54,17 +53,42 @@ export const GroupFormationModal = ({
   const previewMutation = usePreviewGroupFormation();
   const createMutation = useCreateGroups();
 
-  const handlePreview = () => {
+  // Auto-load preview when modal opens (only once)
+  useEffect(() => {
+    if (isOpen && !previewData) {
+      previewMutation.mutate(params, {
+        onSuccess: (data) => {
+          setPreviewData(data);
+        },
+        onError: (error: any) => {
+          addNotification({
+            type: 'error',
+            title: 'Preview Failed',
+            message: error?.message || 'Failed to generate preview',
+          });
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  const handleParamsChange = (newParams: GroupFormationParams) => {
+    // Only update params, don't trigger API call
+    // User must click "Recalculate Groups" button to fetch new preview
+    setParams(newParams);
+  };
+
+  const handleRecalculate = () => {
+    // Trigger recalculation when button is clicked
     previewMutation.mutate(params, {
       onSuccess: (data) => {
         setPreviewData(data);
-        setStep('preview');
       },
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Preview Failed',
-          message: error?.message || 'Failed to generate preview',
+          title: 'Recalculation Failed',
+          message: error?.message || 'Failed to recalculate preview',
         });
       },
     });
@@ -98,17 +122,15 @@ export const GroupFormationModal = ({
   };
 
   const handleClose = () => {
-    setStep('parameters');
+    setStep('preview');
     setPreviewData(null);
     onClose();
   };
 
   const getTitle = () => {
     switch (step) {
-      case 'parameters':
-        return '🎯 Automatic Group Formation';
       case 'preview':
-        return '📋 Group Formation Preview';
+        return '🗺️ Group Formation Preview';
       case 'success':
         return '✅ Groups Created Successfully';
       default:
@@ -118,30 +140,39 @@ export const GroupFormationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-hidden p-6">
         <DialogHeader>
           <DialogTitle>{getTitle()}</DialogTitle>
         </DialogHeader>
 
-        {step === 'parameters' && (
-          <ParameterStep
-            params={params}
-            availablePlots={availablePlots}
-            onChange={setParams}
-            onPreview={handlePreview}
-            onFormNow={handleConfirm}
-            isLoading={previewMutation.isPending || createMutation.isPending}
-          />
-        )}
-
-        {step === 'preview' && previewData && (
-          <PreviewStep
-            preview={previewData}
-            onBack={() => setStep('parameters')}
-            onConfirm={handleConfirm}
-            onAdjust={() => setStep('parameters')}
-            isLoading={createMutation.isPending}
-          />
+        {step === 'preview' && (
+          <div className="flex-1 overflow-hidden">
+            {previewMutation.isPending && !previewData ? (
+              <div className="flex items-center justify-center h-96">
+                <div className="text-center">
+                  <Spinner size="lg" className="mx-auto mb-4" />
+                  <p className="text-muted-foreground">Analyzing plots and generating groups...</p>
+                </div>
+              </div>
+            ) : previewData ? (
+              <PreviewStepWithParams
+                preview={previewData}
+                params={params}
+                availablePlots={availablePlots}
+                onParamsChange={handleParamsChange}
+                onRecalculate={handleRecalculate}
+                onConfirm={handleConfirm}
+                onCancel={handleClose}
+                isLoading={createMutation.isPending}
+                isRecalculating={previewMutation.isPending}
+              />
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">Failed to generate preview</p>
+                <Button onClick={handleClose} className="mt-4">Close</Button>
+              </div>
+            )}
+          </div>
         )}
 
         {step === 'success' && previewData && (
@@ -152,7 +183,6 @@ export const GroupFormationModal = ({
             onViewGroups={handleClose}
             onHandleUngrouped={() => {
               handleClose();
-              // TODO: Navigate to ungrouped plots manager
             }}
           />
         )}

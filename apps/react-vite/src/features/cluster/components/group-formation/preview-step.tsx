@@ -11,8 +11,11 @@ import {
   ChevronDown,
   ChevronUp,
   Loader2,
+  Map as MapIcon,
+  List,
 } from 'lucide-react';
 import { GroupPreviewResult } from '../../types';
+import { GroupMapPreview } from './group-map-preview';
 
 type PreviewStepProps = {
   preview: GroupPreviewResult;
@@ -30,6 +33,8 @@ export const PreviewStep = ({
   isLoading,
 }: PreviewStepProps) => {
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('map');
+  const [hoveredGroupId, setHoveredGroupId] = useState<string | null>(null);
 
   const toggleGroup = (groupId: string) => {
     const newExpanded = new Set(expandedGroups);
@@ -39,6 +44,15 @@ export const PreviewStep = ({
       newExpanded.add(groupId);
     }
     setExpandedGroups(newExpanded);
+  };
+
+  const handleGroupClick = (groupId: string) => {
+    toggleGroup(groupId);
+    // Scroll to group in list if in map view
+    const groupElement = document.getElementById(`group-${groupId}`);
+    if (groupElement) {
+      groupElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   };
 
   const getCompactnessColor = (
@@ -60,6 +74,26 @@ export const PreviewStep = ({
 
   return (
     <div className="space-y-6">
+      {/* View Mode Toggle */}
+      <div className="flex gap-2 p-1 bg-muted rounded-lg w-fit">
+        <button
+          onClick={() => setViewMode('map')}
+          className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${viewMode === 'map' ? 'bg-background shadow' : 'hover:bg-background/50'
+            }`}
+        >
+          <MapIcon className="w-4 h-4" />
+          Map View
+        </button>
+        <button
+          onClick={() => setViewMode('list')}
+          className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${viewMode === 'list' ? 'bg-background shadow' : 'hover:bg-background/50'
+            }`}
+        >
+          <List className="w-4 h-4" />
+          List View
+        </button>
+      </div>
+
       {/* Summary */}
       <div className="grid grid-cols-3 gap-4">
         <div className="p-4 border rounded-lg text-center">
@@ -74,120 +108,137 @@ export const PreviewStep = ({
         </div>
         <div className="p-4 border rounded-lg text-center">
           <AlertTriangle
-            className={`h-6 w-6 mx-auto mb-2 ${
-              preview.ungroupedPlots > 0 ? 'text-orange-600' : 'text-gray-400'
-            }`}
+            className={`h-6 w-6 mx-auto mb-2 ${preview.ungroupedPlots > 0 ? 'text-orange-600' : 'text-gray-400'
+              }`}
           />
           <p className="text-2xl font-bold">{preview.ungroupedPlots}</p>
           <p className="text-xs text-muted-foreground">Ungrouped</p>
         </div>
       </div>
 
-      {/* Proposed Groups */}
-      <div className="space-y-3">
-        <h3 className="text-lg font-semibold">Proposed Groups</h3>
-        <div className="space-y-3 max-h-96 overflow-y-auto">
-          {preview.proposedGroups && preview.proposedGroups.length > 0 ? (
+      {/* Conditional Rendering based on view mode */}
+      {viewMode === 'map' ? (
+        <div className="h-[500px] rounded-lg border-2 overflow-hidden shadow-lg">
+          <GroupMapPreview
+            preview={preview}
+            hoveredGroupId={hoveredGroupId}
+            expandedGroups={expandedGroups}
+            onGroupClick={handleGroupClick}
+          />
+        </div>
+      ) : (
+        /* Proposed Groups List */
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Proposed Groups</h3>
+          <div className="space-y-3 max-h-96 overflow-y-auto">{preview.proposedGroups && preview.proposedGroups.length > 0 ? (
             preview.proposedGroups.map((group, index) => (
-            <Card key={group.tempGroupId}>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  {/* Group Header */}
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h4 className="font-semibold">
-                          Group {index + 1} - {group.riceVariety}
-                        </h4>
-                        {group.isReadyForUAV && (
-                          <Badge variant="default" className="bg-green-600">
-                            UAV Ready
+              <Card key={group.tempGroupId} id={`group-${group.tempGroupId}`}>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    {/* Group Header */}
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-semibold">
+                            Group {index + 1} - {group.riceVariety}
+                          </h4>
+                          {group.isReadyForUAV && (
+                            <Badge variant="default" className="bg-green-600">
+                              UAV Ready
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {group.plotCount} plots, {group.totalArea.toFixed(1)} ha
+                          </span>
+                          {group.compactness && (
+                            <Badge
+                              variant="outline"
+                              className={getCompactnessColor(group.compactness)}
+                            >
+                              {group.compactness} {group.radiusKm ? `(${group.radiusKm.toFixed(1)}km)` : ''}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => group.tempGroupId && toggleGroup(group.tempGroupId)}
+                        onMouseEnter={() => setHoveredGroupId(group.tempGroupId || null)}
+                        onMouseLeave={() => setHoveredGroupId(null)}
+                      >
+                        {group.tempGroupId && expandedGroups.has(group.tempGroupId) ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+
+
+                    {/* Planting Date Range */}
+                    {group.plantingDateRange && (
+                      <div className="flex items-center gap-2 text-sm p-2 bg-muted rounded">
+                        <Calendar className="h-4 w-4" />
+                        <span>
+                          Planting: {group.plantingDateRange.earliest} to{' '}
+                          {group.plantingDateRange.latest}
+                        </span>
+                        {group.plantingDateRange.varianceDays > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            ±{group.plantingDateRange.varianceDays} days
                           </Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {group.plotCount} plots, {group.totalArea.toFixed(1)} ha
+                    )}
+
+                    {/* Suggested Supervisor */}
+                    {group.suggestedSupervisor && (
+                      <div className="flex items-center gap-2 text-sm p-2 bg-blue-50 rounded">
+                        <Users className="h-4 w-4 text-blue-600" />
+                        <span>
+                          Supervisor: {group.suggestedSupervisor.supervisorName}
                         </span>
-                        <Badge
-                          variant="outline"
-                          className={getCompactnessColor(group.compactness)}
-                        >
-                          {group.compactness} ({group.radiusKm.toFixed(1)}km)
+                        <Badge variant="outline" className="text-xs">
+                          {group.suggestedSupervisor.currentPlotCount} current plots
                         </Badge>
                       </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleGroup(group.tempGroupId)}
-                    >
-                      {expandedGroups.has(group.tempGroupId) ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
+                    )}
 
-                  {/* Planting Date Range */}
-                  <div className="flex items-center gap-2 text-sm p-2 bg-muted rounded">
-                    <Calendar className="h-4 w-4" />
-                    <span>
-                      Planting: {group.plantingDateRange.earliest} to{' '}
-                      {group.plantingDateRange.latest}
-                    </span>
-                    {group.plantingDateRange.varianceDays > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        ±{group.plantingDateRange.varianceDays} days
-                      </Badge>
+                    {/* Expanded Details */}
+                    {group.tempGroupId && expandedGroups.has(group.tempGroupId) && (
+                      <div className="pt-2 border-t">
+                        <p className="text-xs font-medium mb-2">Plots in Group:</p>
+                        <div className="space-y-1 max-h-32 overflow-y-auto">
+                          {group.plots?.map((plot) => (
+                            <div
+                              key={plot.plotId}
+                              className="text-xs p-2 bg-muted rounded flex items-center justify-between"
+                            >
+                              <span>{plot.farmerName}</span>
+                              <span className="text-muted-foreground">
+                                {plot.area.toFixed(2)} ha
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
                   </div>
-
-                  {/* Suggested Supervisor */}
-                  {group.suggestedSupervisor && (
-                    <div className="flex items-center gap-2 text-sm p-2 bg-blue-50 rounded">
-                      <Users className="h-4 w-4 text-blue-600" />
-                      <span>
-                        Supervisor: {group.suggestedSupervisor.supervisorName}
-                      </span>
-                      <Badge variant="outline" className="text-xs">
-                        {group.suggestedSupervisor.currentPlotCount} current plots
-                      </Badge>
-                    </div>
-                  )}
-
-                  {/* Expanded Details */}
-                  {expandedGroups.has(group.tempGroupId) && (
-                    <div className="pt-2 border-t">
-                      <p className="text-xs font-medium mb-2">Plots in Group:</p>
-                      <div className="space-y-1 max-h-32 overflow-y-auto">
-                        {group.plots.map((plot) => (
-                          <div
-                            key={plot.plotId}
-                            className="text-xs p-2 bg-muted rounded flex items-center justify-between"
-                          >
-                            <span>{plot.farmerName}</span>
-                            <span className="text-muted-foreground">
-                              {plot.area.toFixed(2)} ha
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
             ))
           ) : (
             <div className="p-8 text-center text-muted-foreground border rounded-lg">
               <p>No groups to display</p>
             </div>
           )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Ungrouped Plots Warning */}
       {preview.ungroupedPlots > 0 && (
@@ -210,16 +261,16 @@ export const PreviewStep = ({
                     {plot.farmerName} - {plot.riceVarietyName}
                   </div>
                   <div className="text-muted-foreground">{plot.reasonDescription}</div>
-                  
+
                   {/* Display suggestions if available */}
                   {plot.suggestions && plot.suggestions.length > 0 && (
                     <div className="text-xs text-blue-600 mt-1">
                       💡 {plot.suggestions.join(', ')}
                     </div>
                   )}
-                  
+
                   {/* Display nearest group if available */}
-                  {plot.nearbyGroups && plot.nearbyGroups.length > 0 && (
+                  {plot.nearbyGroups && plot.nearbyGroups.length > 0 && plot.nearbyGroups[0].groupNumber && plot.nearbyGroups[0].distance && (
                     <div className="text-xs text-gray-500 mt-1">
                       Nearest: Group {plot.nearbyGroups[0].groupNumber} ({plot.nearbyGroups[0].distance.toFixed(0)}m away)
                     </div>
