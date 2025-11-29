@@ -83,13 +83,19 @@ export type GroupPreviewResult = {
   ungroupedPlots: number;
 
   proposedGroups?: Array<{
-    tempGroupId: string;
+    tempGroupId?: string;
+    groupNumber?: number;
     riceVariety: string;
-    plantingDateRange: {
+    riceVarietyId?: string;
+    riceVarietyName?: string;
+    plantingDateRange?: {
       earliest: string;
       latest: string;
       varianceDays: number;
     };
+    plantingWindowStart?: string;
+    plantingWindowEnd?: string;
+    medianPlantingDate?: string;
     suggestedSupervisor?: {
       supervisorId: string;
       supervisorName: string;
@@ -97,13 +103,26 @@ export type GroupPreviewResult = {
     };
     plotCount: number;
     totalArea: number;
-    compactness: 'very-compact' | 'compact' | 'spread' | 'scattered';
-    radiusKm: number;
-    isReadyForUAV: boolean;
+    compactness?: 'very-compact' | 'compact' | 'spread' | 'scattered';
+    radiusKm?: number;
+    isReadyForUAV?: boolean;
+    centroidLat?: number;
+    centroidLng?: number;
+    groupBoundaryWkt?: string;
+    groupBoundaryGeoJson?: string;
+    plotIds?: string[];
     plots: Array<{
       plotId: string;
+      farmerId?: string;
       farmerName: string;
+      farmerPhone?: string;
       area: number;
+      plantingDate?: string;
+      boundaryWkt?: string;
+      boundaryGeoJson?: string;
+      soilType?: string;
+      soThua?: number;
+      soTo?: number;
     }>;
   }>;
 
@@ -116,17 +135,24 @@ export type GroupPreviewResult = {
     riceVarietyName: string;
     plantingDate: string;
     area: number;
-    coordinate: any;
-    boundaryWkt: string;
+    coordinate?: {
+      lat: number;
+      lng: number;
+    };
+    boundaryWkt?: string;
+    boundaryGeoJson?: string;
+    soilType?: string;
+    soThua?: number;
+    soTo?: number;
     ungroupReason: string;
     reasonDescription: string;
     distanceToNearestGroup: number;
     nearestGroupNumber: number | null;
     suggestions: string[];
     nearbyGroups: Array<{
-      groupId: string;
-      groupNumber: number;
-      distance: number;
+      groupId?: string;
+      groupNumber?: number;
+      distance?: number;
     }>;
   }>;
 };
