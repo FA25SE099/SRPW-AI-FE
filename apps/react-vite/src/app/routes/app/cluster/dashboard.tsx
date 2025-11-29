@@ -7,6 +7,8 @@ import {
   SeasonSelectorV0,
   GroupFormationModal,
   GroupsDashboard,
+  PlotsOverviewCard,
+  SupervisorOverviewCard,
 } from '@/features/cluster/components';
 import {
   useClusterCurrentSeason,
@@ -242,6 +244,155 @@ const ClusterDashboard = () => {
           <div className="lg:col-span-2 space-y-6">
             <CurrentSeasonCardV0 data={currentSeason} />
 
+            {/* Show Plots Overview only when in Forming Stage (no groups) */}
+            {!currentSeason.hasGroups && currentSeason.readiness && (
+              <>
+                <PlotsOverviewCard
+                  plots={[
+                    {
+                      plotId: '1',
+                      plotName: 'Plot A-01',
+                      crop: 'Rice',
+                      area: 5.2,
+                      plantingDate: '2025-12-01',
+                      owner: 'Farm Corp A',
+                      status: 'Ready',
+                    },
+                    {
+                      plotId: '2',
+                      plotName: 'Plot A-02',
+                      crop: 'Rice',
+                      area: 4.8,
+                      plantingDate: '2025-12-01',
+                      owner: 'Farm Corp A',
+                      status: 'Ready',
+                    },
+                    {
+                      plotId: '3',
+                      plotName: 'Plot A-03',
+                      crop: 'Wheat',
+                      area: 6.1,
+                      plantingDate: '2025-11-15',
+                      owner: 'Farm Corp A',
+                      status: 'Ready',
+                    },
+                    {
+                      plotId: '4',
+                      plotName: 'Plot B-01',
+                      crop: 'Rice',
+                      area: 5.5,
+                      plantingDate: '2025-12-01',
+                      owner: 'Farm Corp B',
+                      status: 'Ready',
+                    },
+                    {
+                      plotId: '5',
+                      plotName: 'Plot B-02',
+                      crop: 'Maize',
+                      area: 4.2,
+                      plantingDate: '2025-12-10',
+                      owner: 'Farm Corp B',
+                      status: 'Ready',
+                    },
+                    {
+                      plotId: '6',
+                      plotName: 'Plot B-03',
+                      crop: 'Rice',
+                      area: 7.0,
+                      plantingDate: '2025-12-01',
+                      owner: 'Farm Corp B',
+                      status: 'Pending',
+                    },
+                    {
+                      plotId: '7',
+                      plotName: 'Plot C-01',
+                      crop: 'Wheat',
+                      area: 5.8,
+                      plantingDate: '2025-11-15',
+                      owner: 'Farm Corp C',
+                      status: 'Ready',
+                    },
+                    {
+                      plotId: '8',
+                      plotName: 'Plot C-02',
+                      crop: 'Wheat',
+                      area: 6.3,
+                      plantingDate: '2025-11-20',
+                      owner: 'Farm Corp C',
+                      status: 'Ready',
+                    },
+                    {
+                      plotId: '9',
+                      plotName: 'Plot B-15',
+                      crop: 'Rice',
+                      area: 4.5,
+                      plantingDate: '2025-12-01',
+                      owner: 'Farm Corp B',
+                      status: 'Issue',
+                    },
+                    {
+                      plotId: '10',
+                      plotName: 'Plot D-01',
+                      crop: 'Maize',
+                      area: 5.0,
+                      plantingDate: '2025-12-10',
+                      owner: 'Farm Corp D',
+                      status: 'Ready',
+                    },
+                  ]}
+                  totalPlots={currentSeason.readiness.availablePlots}
+                  onViewAll={() => window.location.href = '/app/cluster/plots'}
+                />
+
+                <SupervisorOverviewCard
+                  supervisors={[
+                    {
+                      supervisorId: '1',
+                      name: 'John Smith',
+                      email: 'john.smith@example.com',
+                      phone: '+1 234-567-8901',
+                      assignedGroups: 0,
+                      totalPlots: 0,
+                      totalArea: 0,
+                      status: 'Available',
+                    },
+                    {
+                      supervisorId: '2',
+                      name: 'Sarah Johnson',
+                      email: 'sarah.johnson@example.com',
+                      phone: '+1 234-567-8902',
+                      assignedGroups: 0,
+                      totalPlots: 0,
+                      totalArea: 0,
+                      status: 'Available',
+                    },
+                    {
+                      supervisorId: '3',
+                      name: 'Michael Brown',
+                      email: 'michael.brown@example.com',
+                      phone: '+1 234-567-8903',
+                      assignedGroups: 1,
+                      totalPlots: 15,
+                      totalArea: 45.5,
+                      status: 'Assigned',
+                    },
+                    {
+                      supervisorId: '4',
+                      name: 'Emily Davis',
+                      email: 'emily.davis@example.com',
+                      phone: '+1 234-567-8904',
+                      assignedGroups: 0,
+                      totalPlots: 0,
+                      totalArea: 0,
+                      status: 'Available',
+                    },
+                  ]}
+                  totalSupervisors={currentSeason.readiness.availableSupervisors}
+                  onViewAll={() => console.log('View all supervisors')}
+                />
+              </>
+            )}
+
             {historyData && historyData.seasons && historyData.seasons.length > 0 && (
               <HistoryChartV0 data={historyData} />
             )}
@@ -259,24 +410,24 @@ const ClusterDashboard = () => {
         </div>
 
         {/* Active Groups Section */}
-        {currentSeason.hasGroups && currentSeason.activeGroups && currentSeason.activeGroups.length > 0 && (
+        {currentSeason.hasGroups && currentSeason.groups && currentSeason.groups.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-2xl font-bold text-foreground">Active Groups</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {currentSeason.activeGroups.length} groups managing {currentSeason.activeGroups.reduce((sum, g) => sum + g.plotCount, 0)} plots
+                  {currentSeason.groups.length} groups managing {currentSeason.groups.reduce((sum, g) => sum + g.plotCount, 0)} plots
                 </p>
               </div>
             </div>
             <GroupsDashboard
-              groups={currentSeason.activeGroups}
+              groups={currentSeason.groups}
               clusterId={clusterId}
               seasonId={currentSeason.currentSeason.seasonId}
               onCreatePlan={(groupId) => {
-                const group = currentSeason.activeGroups?.find(g => g.groupId === groupId);
+                const group = currentSeason.groups?.find(g => g.groupId === groupId);
                 if (group) {
-                  setSelectedGroup({ id: groupId, name: group.groupName });
+                  setSelectedGroup({ id: groupId, name: `Group ${group.riceVarietyName}` });
                   setShowCreatePlanDialog(true);
                 }
               }}
@@ -299,7 +450,7 @@ const ClusterDashboard = () => {
           />
         )}
 
-        {/* Create Production Plan Dialog */}
+        {/* Create Production Plan Dialog
         {selectedGroup && (
           <CreateProductionPlanDialog
             isOpen={showCreatePlanDialog}
@@ -311,7 +462,7 @@ const ClusterDashboard = () => {
             groupName={selectedGroup.name}
             seasonId={currentSeason.currentSeason.seasonId}
           />
-        )}
+        )} */}
       </div>
     </ContentLayout>
   );

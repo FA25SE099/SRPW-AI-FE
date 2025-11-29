@@ -86,3 +86,56 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+/* Map marker animations and styles */
+.group-plot-marker {
+  transition: all 0.2s ease;
+}
+
+.group-plot-marker:hover {
+  transform: scale(1.2);
+  z-index: 10;
+}
+
+.ungrouped-plot-marker {
+  transition: all 0.2s ease;
+  animation: pulse-orange 2s infinite;
+}
+
+.ungrouped-plot-marker:hover {
+  transform: scale(1.2);
+  z-index: 10;
+}
+
+@keyframes pulse-orange {
+  0%, 100% {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.6);
+  }
+}
+
+.group-label {
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+/* Mapbox popup customization */
+.mapboxgl-popup-content {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 0;
+  overflow: hidden;
+}
+
+.mapboxgl-popup-close-button {
+  font-size: 20px;
+  padding: 4px 8px;
+  color: #666;
+}
+
+.mapboxgl-popup-close-button:hover {
+  background-color: #f3f4f6;
+  color: #000;
+}

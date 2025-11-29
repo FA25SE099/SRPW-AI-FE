@@ -7,7 +7,24 @@ import { GroupFormationParams, GroupFormationResponse } from '../types';
 export const createGroups = (
   params: GroupFormationParams,
 ): Promise<GroupFormationResponse> => {
-  return api.post('/Group/form', params);
+  // Transform to match backend's nested structure
+  const requestBody = {
+    clusterId: params.clusterId,
+    seasonId: params.seasonId,
+    year: params.year,
+    parameters: {
+      proximityThreshold: params.proximityThresholdMeters,
+      plantingDateTolerance: params.plantingDateToleranceDays,
+      minGroupArea: params.minGroupAreaHa,
+      maxGroupArea: params.maxGroupAreaHa,
+      minPlotsPerGroup: params.minPlots,
+      maxPlotsPerGroup: params.maxPlots,
+    },
+    autoAssignSupervisors: params.autoAssignSupervisors,
+    createGroupsImmediately: true,
+  };
+  
+  return api.post('/Group/form', requestBody);
 };
 
 type UseCreateGroupsOptions = {

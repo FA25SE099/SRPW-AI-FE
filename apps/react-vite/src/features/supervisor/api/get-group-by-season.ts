@@ -11,7 +11,7 @@ export interface GetGroupBySeasonParams {
 
 export const getGroupBySeason = (
   params?: GetGroupBySeasonParams
-): Promise<GroupBySeason> => {
+): Promise<GroupBySeason[]> => {
   const searchParams = new URLSearchParams();
   
   if (params?.seasonId) {

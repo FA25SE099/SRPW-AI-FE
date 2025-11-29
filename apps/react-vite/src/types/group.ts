@@ -7,6 +7,7 @@ export interface SeasonInfo {
   startDate: string;
   endDate: string;
   isActive: boolean;
+  year?: number;
 }
 
 export interface PlotDetail {
@@ -42,9 +43,12 @@ export interface GroupReadinessInfo {
   hasTotalArea: boolean;
   hasPlots: boolean;
   allPlotsHavePolygons: boolean;
+  allPlotsReady?: boolean;
   blockingIssues: string[];
   warnings: string[];
   totalPlots: number;
+  readyPlots?: number;
+  plotsWithIssues?: number;
   plotsWithPolygon: number;
   plotsWithoutPolygon: number;
 }
@@ -54,19 +58,27 @@ export interface PlanProgressOverview {
   planName: string;
   status: string;
   basePlantingDate: string;
+  submittedAt?: string | null;
+  approvedAt?: string | null;
   totalStages: number;
   completedStages: number;
+  inProgressStages?: number;
   totalTasks: number;
   completedTasks: number;
+  inProgressTasks?: number;
   overallProgressPercentage: number;
   daysElapsed: number;
-  estimatedDaysRemaining: number;
+  estimatedTotalDays?: number;
+  estimatedDaysRemaining?: number;
   isOnSchedule: boolean;
-  daysBehindSchedule: number;
+  daysBehindSchedule: number | null;
   estimatedTotalCost: number;
   actualCostToDate: number;
+  costVariancePercentage?: number;
   contingencyTasksCount: number;
-  tasksWithInterruptions: number;
+  tasksWithInterruptions?: number;
+  hasActiveIssues?: boolean;
+  hasDetailedProgress?: boolean;
 }
 
 export interface EconomicsOverview {
