@@ -80,6 +80,10 @@ export const paths = {
         path: 'expert/standard-plans',
         getHref: () => '/app/expert/standard-plans',
       },
+      emergencyProtocols: {
+        path: 'expert/emergency-protocols',
+        getHref: () => '/app/expert/emergency-protocols',
+      },
       planMonitoring: {
         path: 'expert/plan-monitoring',
         getHref: () => '/app/expert/plan-monitoring',

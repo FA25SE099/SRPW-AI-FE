@@ -48,16 +48,16 @@ export type ClusterCurrentSeason = {
   };
 
   // Active Groups (when hasGroups = true)
-  activeGroups?: Array<{
+  groups?: Array<{
     groupId: string;
-    groupName: string;
-    riceVariety: string;
+    supervisorId: string;
     supervisorName: string;
-    plotCount: number;
-    farmerCount: number;
-    totalArea: number;
+    riceVarietyId: string;
+    riceVarietyName: string;
+    plantingDate: string;
     status: string;
-    hasProductionPlan: boolean;
+    plotCount: number;
+    totalArea: number;
   }>;
 };
 
@@ -82,7 +82,7 @@ export type GroupPreviewResult = {
   totalPlotsGrouped: number;
   ungroupedPlots: number;
 
-  proposedGroups: Array<{
+  proposedGroups?: Array<{
     tempGroupId: string;
     riceVariety: string;
     plantingDateRange: {
@@ -107,16 +107,27 @@ export type GroupPreviewResult = {
     }>;
   }>;
 
-  ungroupedPlotsList: Array<{
+  ungroupedPlotsList?: Array<{
     plotId: string;
+    farmerId: string;
     farmerName: string;
-    riceVariety: string;
+    farmerPhone: string;
+    riceVarietyId: string;
+    riceVarietyName: string;
     plantingDate: string;
     area: number;
-    reason: string;
+    coordinate: any;
+    boundaryWkt: string;
+    ungroupReason: string;
+    reasonDescription: string;
+    distanceToNearestGroup: number;
+    nearestGroupNumber: number | null;
     suggestions: string[];
-    nearestGroupId?: string;
-    distanceToNearestKm?: number;
+    nearbyGroups: Array<{
+      groupId: string;
+      groupNumber: number;
+      distance: number;
+    }>;
   }>;
 };
 

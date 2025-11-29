@@ -8,7 +8,7 @@ type CurrentSeasonCardProps = {
 };
 
 export const CurrentSeasonCard = ({ data }: CurrentSeasonCardProps) => {
-  const { currentSeason, hasGroups, activeGroups } = data;
+  const { currentSeason, hasGroups, groups } = data;
 
   return (
     <Card>
@@ -41,13 +41,13 @@ export const CurrentSeasonCard = ({ data }: CurrentSeasonCardProps) => {
           </div>
 
           {/* Stats Grid */}
-          {hasGroups && activeGroups && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {hasGroups && groups && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div className="text-center p-3 border rounded-lg">
                 <div className="flex justify-center mb-1">
                   <Sprout className="h-5 w-5 text-green-600" />
                 </div>
-                <p className="text-2xl font-bold">{activeGroups.length}</p>
+                <p className="text-2xl font-bold">{groups.length}</p>
                 <p className="text-xs text-muted-foreground">Groups</p>
               </div>
 
@@ -56,19 +56,9 @@ export const CurrentSeasonCard = ({ data }: CurrentSeasonCardProps) => {
                   <MapPin className="h-5 w-5 text-blue-600" />
                 </div>
                 <p className="text-2xl font-bold">
-                  {activeGroups.reduce((sum, g) => sum + g.plotCount, 0)}
+                  {groups.reduce((sum, g) => sum + g.plotCount, 0)}
                 </p>
                 <p className="text-xs text-muted-foreground">Plots</p>
-              </div>
-
-              <div className="text-center p-3 border rounded-lg">
-                <div className="flex justify-center mb-1">
-                  <Users className="h-5 w-5 text-purple-600" />
-                </div>
-                <p className="text-2xl font-bold">
-                  {activeGroups.reduce((sum, g) => sum + g.farmerCount, 0)}
-                </p>
-                <p className="text-xs text-muted-foreground">Farmers</p>
               </div>
 
               <div className="text-center p-3 border rounded-lg">
@@ -76,7 +66,7 @@ export const CurrentSeasonCard = ({ data }: CurrentSeasonCardProps) => {
                   <MapPin className="h-5 w-5 text-orange-600" />
                 </div>
                 <p className="text-2xl font-bold">
-                  {activeGroups.reduce((sum, g) => sum + g.totalArea, 0).toFixed(1)}
+                  {groups.reduce((sum, g) => sum + g.totalArea, 0).toFixed(1)}
                 </p>
                 <p className="text-xs text-muted-foreground">Hectares</p>
               </div>

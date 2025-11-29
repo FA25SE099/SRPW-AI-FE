@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { AlertCircle, Calendar, Plus } from 'lucide-react';
+import { AlertCircle, Calendar, Plus, Users } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -19,6 +19,7 @@ import { GroupInfoCard } from '@/features/supervisor/components/group-info-card'
 import { PlotsTable } from '@/features/supervisor/components/plots-table';
 import { PlanProgressCard } from '@/features/supervisor/components/plan-progress-card';
 import { EconomicsCard } from '@/features/supervisor/components/economics-card';
+import { CreateProductionPlanDialog } from '@/features/production-plans/components';
 import { paths } from '@/config/paths';
 import { Head } from '@/components/seo/head';
 
@@ -28,14 +29,26 @@ const SupervisorGroupPage = () => {
     seasonId?: string;
     year?: number;
   }>();
+  const [selectedGroupId, setSelectedGroupId] = useState<string>();
+  const [showCreatePlanDialog, setShowCreatePlanDialog] = useState(false);
 
   // Get available seasons for dropdown
   const { data: availableSeasons, isLoading: isLoadingSeasons } = useAvailableSeasons();
 
-  // Get current or selected season's group
-  const { data: group, isLoading, error } = useGroupBySeason({
+  // Get current or selected season's groups (now returns array)
+  const { data: groups, isLoading, error } = useGroupBySeason({
     params: selectedSeason,
   });
+
+  // Get selected group from array
+  const group = groups?.find(g => g.groupId === selectedGroupId);
+
+  // Auto-select first group when groups are loaded
+  useEffect(() => {
+    if (groups && groups.length > 0 && !selectedGroupId) {
+      setSelectedGroupId(groups[0].groupId);
+    }
+  }, [groups, selectedGroupId]);
 
   const handleSeasonChange = (value: string) => {
     if (value === 'current') {
@@ -48,12 +61,15 @@ const SupervisorGroupPage = () => {
         year: parseInt(yearStr)
       });
     }
+    setSelectedGroupId(undefined); // Reset group selection when season changes
+  };
+
+  const handleGroupChange = (groupId: string) => {
+    setSelectedGroupId(groupId);
   };
 
   const handleCreateProductionPlan = () => {
-    if (group?.groupId) {
-      navigate(`${paths.app.supervisor.plans.getHref()}?groupId=${group.groupId}`);
-    }
+    setShowCreatePlanDialog(true);
   };
 
   const handleFixPolygons = () => {
@@ -86,16 +102,16 @@ const SupervisorGroupPage = () => {
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">My Group Management</h1>
                 <p className="text-muted-foreground">
-                  No group assigned for the selected season
+                  No groups assigned for the selected season
                 </p>
               </div>
             </div>
 
             <Alert>
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>No Group for This Season</AlertTitle>
+              <AlertTitle>No Groups for This Season</AlertTitle>
               <AlertDescription>
-                You don't have a group assigned for this season. Try selecting a different season below.
+                You don't have any groups assigned for this season. Try selecting a different season below.
               </AlertDescription>
             </Alert>
 
@@ -130,10 +146,10 @@ const SupervisorGroupPage = () => {
       <div className="space-y-4">
         <Alert variant={isNotFound ? 'default' : 'destructive'}>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{isNotFound ? 'No Group Assigned' : 'Error Loading Group'}</AlertTitle>
+          <AlertTitle>{isNotFound ? 'No Groups Assigned' : 'Error Loading Groups'}</AlertTitle>
           <AlertDescription>
             {isNotFound
-              ? "You don't have a group assigned yet. Please contact your cluster manager."
+              ? "You don't have any groups assigned yet. Please contact your cluster manager."
               : errorMessage || 'Failed to load your group information. Please try again later.'}
           </AlertDescription>
         </Alert>
@@ -146,16 +162,25 @@ const SupervisorGroupPage = () => {
     );
   }
 
-  if (!group) {
+  if (!groups || groups.length === 0) {
     return (
       <div className="space-y-4">
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Group Data</AlertTitle>
+          <AlertTitle>No Groups Found</AlertTitle>
           <AlertDescription>
-            Unable to load group information.
+            You don't have any groups assigned for this season.
           </AlertDescription>
         </Alert>
+      </div>
+    );
+  }
+
+  if (!group) {
+    // Still loading or auto-selecting first group
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -193,10 +218,11 @@ const SupervisorGroupPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              My Group - {group.season.seasonName} {group.seasonYear}
+              My Groups - {group.season.seasonName} {group.season.year || group.seasonYear}
             </h1>
             <p className="text-muted-foreground">
-              {group.isCurrentSeason ? 'Current Season' : `Past Season (${group.seasonYear})`}
+              {group.isCurrentSeason ? 'Current Season' : `Past Season (${group.season.year || group.seasonYear})`}
+              {groups.length > 1 && ` • Managing ${groups.length} groups`}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -214,31 +240,56 @@ const SupervisorGroupPage = () => {
           </div>
         </div>
 
-        {/* Season Selector */}
-        {availableSeasons && availableSeasons.length > 1 && (
-          <div className="flex items-center gap-4">Production Plan Readiness
+        {/* Season and Group Selectors */}
+        <div className="flex items-center gap-4">
+          {/* Season Selector */}
+          {availableSeasons && availableSeasons.length > 1 && (
+            <>
+              <Calendar className="h-5 w-5 text-muted-foreground" />
+              <Select
+                value={selectedSeason ? `${selectedSeason.seasonId}|${selectedSeason.year}` : 'current'}
+                onValueChange={handleSeasonChange}
+              >
+                <SelectTrigger className="w-[300px]">
+                  <SelectValue placeholder="Select season" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableSeasons.map((season) => (
+                    <SelectItem
+                      key={`${season.seasonId}-${season.year}`}
+                      value={season.isCurrent ? 'current' : `${season.seasonId}|${season.year}`}
+                    >
+                      {season.displayName} {season.isCurrent && '(Current)'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
 
-            <Calendar className="h-5 w-5 text-muted-foreground" />
-            <Select
-              value={selectedSeason ? `${selectedSeason.seasonId}|${selectedSeason.year}` : 'current'}
-              onValueChange={handleSeasonChange}
-            >
-              <SelectTrigger className="w-[300px]">
-                <SelectValue placeholder="Select season" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableSeasons.map((season) => (
-                  <SelectItem
-                    key={`${season.seasonId}-${season.year}`}
-                    value={season.isCurrent ? 'current' : `${season.seasonId}|${season.year}`}
-                  >
-                    {season.displayName} {season.isCurrent && '(Current)'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+          {/* Group Selector */}
+          {groups.length > 1 && (
+            <>
+              <div className="text-muted-foreground">|</div>
+              <Users className="h-5 w-5 text-muted-foreground" />
+              <Select
+                value={selectedGroupId || groups[0].groupId}
+                onValueChange={handleGroupChange}
+              >
+                <SelectTrigger className="w-[350px]">
+                  <SelectValue placeholder="Select group" />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((g) => (
+                    <SelectItem key={g.groupId} value={g.groupId}>
+                      {g.groupName} - {g.clusterName} ({g.currentState})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
+        </div>
 
         {/* State-based Content */}
         <div className="space-y-6">
@@ -291,6 +342,18 @@ const SupervisorGroupPage = () => {
           )}
         </div>
       </div>
+
+      {/* Create Production Plan Dialog */}
+      {group && (
+        <CreateProductionPlanDialog
+          isOpen={showCreatePlanDialog}
+          onClose={() => setShowCreatePlanDialog(false)}
+          groupId={group.groupId}
+          groupName={group.groupName}
+          totalArea={group.totalArea || 1}
+          seasonId={group.season.seasonId}
+        />
+      )}
     </>
   );
 };

@@ -259,24 +259,24 @@ const ClusterDashboard = () => {
         </div>
 
         {/* Active Groups Section */}
-        {currentSeason.hasGroups && currentSeason.activeGroups && currentSeason.activeGroups.length > 0 && (
+        {currentSeason.hasGroups && currentSeason.groups && currentSeason.groups.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-2xl font-bold text-foreground">Active Groups</h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                  {currentSeason.activeGroups.length} groups managing {currentSeason.activeGroups.reduce((sum, g) => sum + g.plotCount, 0)} plots
+                  {currentSeason.groups.length} groups managing {currentSeason.groups.reduce((sum, g) => sum + g.plotCount, 0)} plots
                 </p>
               </div>
             </div>
             <GroupsDashboard
-              groups={currentSeason.activeGroups}
+              groups={currentSeason.groups}
               clusterId={clusterId}
               seasonId={currentSeason.currentSeason.seasonId}
               onCreatePlan={(groupId) => {
-                const group = currentSeason.activeGroups?.find(g => g.groupId === groupId);
+                const group = currentSeason.groups?.find(g => g.groupId === groupId);
                 if (group) {
-                  setSelectedGroup({ id: groupId, name: group.groupName });
+                  setSelectedGroup({ id: groupId, name: `Group ${group.riceVarietyName}` });
                   setShowCreatePlanDialog(true);
                 }
               }}
@@ -299,7 +299,7 @@ const ClusterDashboard = () => {
           />
         )}
 
-        {/* Create Production Plan Dialog */}
+        {/* Create Production Plan Dialog
         {selectedGroup && (
           <CreateProductionPlanDialog
             isOpen={showCreatePlanDialog}
@@ -311,7 +311,7 @@ const ClusterDashboard = () => {
             groupName={selectedGroup.name}
             seasonId={currentSeason.currentSeason.seasonId}
           />
-        )}
+        )} */}
       </div>
     </ContentLayout>
   );

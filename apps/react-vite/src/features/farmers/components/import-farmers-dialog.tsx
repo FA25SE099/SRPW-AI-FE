@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Upload, X, AlertCircle, CheckCircle, FileSpreadsheet, Loader2 } from 'lucide-react';
+import { Upload, X, AlertCircle, CheckCircle, FileSpreadsheet, Loader2, Download } from 'lucide-react';
 import { useImportFarmers } from '../api/import-farmers';
+import { useFarmerImportTemplate } from '../api/download-farmer-import-template';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -18,6 +19,9 @@ type ImportFarmersDialogProps = {
 export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [dragActive, setDragActive] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const farmerTemplate = useFarmerImportTemplate();
 
     const importMutation = useImportFarmers({
         mutationConfig: {
@@ -33,6 +37,17 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
             },
         },
     });
+
+    const handleDownloadTemplate = async () => {
+        try {
+            setIsDownloading(true);
+            await farmerTemplate.download();
+        } catch (error: any) {
+            alert(`Failed to download template: ${error.message || 'Unknown error'}`);
+        } finally {
+            setIsDownloading(false);
+        }
+    };
 
     const handleDrag = (e: React.DragEvent) => {
         e.preventDefault();
@@ -107,10 +122,44 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                 </DialogHeader>
 
                 <div className="space-y-4">
+                    {/* Download Template Button */}
+                    <div className="border rounded-lg p-4 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                                <h4 className="font-medium text-sm mb-1 flex items-center gap-2">
+                                    <FileSpreadsheet className="h-4 w-4 text-blue-600" />
+                                    Download Import Template
+                                </h4>
+                                <p className="text-xs text-muted-foreground">
+                                    Get the Excel template with the correct format for importing farmers. 
+                                    Fill in farmer details including NumberOfPlots for each farmer.
+                                </p>
+                            </div>
+                            <Button
+                                onClick={handleDownloadTemplate}
+                                disabled={isDownloading || importMutation.isPending}
+                                variant="outline"
+                                size="sm"
+                                className="shrink-0"
+                            >
+                                {isDownloading ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Downloading...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Download className="h-4 w-4 mr-2" />
+                                        Download Template
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
                     {/* File Upload Area */}
                     {!selectedFile && !importMutation.data && (
                         <div
-                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${dragActive
+                            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${dragActive
                                 ? 'border-primary bg-primary/5'
                                 : 'border-gray-300 hover:border-gray-400'
                                 }`}
@@ -118,6 +167,7 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                             onDragLeave={handleDrag}
                             onDragOver={handleDrag}
                             onDrop={handleDrop}
+                            onClick={() => document.getElementById('file-upload')?.click()}
                         >
                             <FileSpreadsheet className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                             <p className="text-sm text-muted-foreground mb-2">
@@ -130,12 +180,10 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                 className="hidden"
                                 id="file-upload"
                             />
-                            <label htmlFor="file-upload">
-                                <Button variant="outline" type="button" className="cursor-pointer inline-flex items-center">
-                                    <Upload className="h-4 w-4 mr-2" />
-                                    Select File
-                                </Button>
-                            </label>
+                            <div className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors">
+                                <Upload className="h-4 w-4" />
+                                <span className="text-sm font-medium">Select File</span>
+                            </div>
                             <p className="text-xs text-muted-foreground mt-4">
                                 Supported formats: .xls, .xlsx (Max 10MB)
                             </p>
@@ -180,6 +228,7 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                             <th className="px-2 py-1 text-left">PhoneNumber</th>
                                             <th className="px-2 py-1 text-left">Address</th>
                                             <th className="px-2 py-1 text-left">FarmCode</th>
+                                            <th className="px-2 py-1 text-left">NumberOfPlots</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -189,10 +238,15 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                             <td className="px-2 py-1">+1234567890</td>
                                             <td className="px-2 py-1">123 St</td>
                                             <td className="px-2 py-1">FARM001</td>
+                                            <td className="px-2 py-1">3</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
+                            <p className="text-xs text-muted-foreground mt-2">
+                                <strong>NumberOfPlots:</strong> Specify how many plots each farmer owns (default: 1). 
+                                This will generate the correct number of rows in the plot import template.
+                            </p>
                         </div>
                     )}
 

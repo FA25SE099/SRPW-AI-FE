@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, FileDown, Eye, Edit, Calendar, Clock, ListChecks } from 'lucide-react';
+import { Download, FileDown, Eye, Edit, Calendar, Clock, ListChecks, Plus, CheckCircle } from 'lucide-react';
 
 import { useStandardPlans } from '../api/get-standard-plans';
 import { useDownloadStandardPlans } from '../api/download-standard-plans';
@@ -8,6 +8,7 @@ import { useCategories } from '@/features/rice-varieties/api/get-categories';
 import { StandardPlanDetailDialog } from './standard-plan-detail-dialog';
 import { StandardPlanReviewDialog } from './standard-plan-review-dialog';
 import { UpdateStandardPlanDialog } from './update-standard-plan-dialog';
+import { CreateStandardPlanDialog } from './create-standard-plan-dialog';
 import { StandardPlan } from '@/types/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ export const StandardPlansList = () => {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<StandardPlan | null>(null);
 
   const categoriesQuery = useCategories();
@@ -76,6 +78,14 @@ export const StandardPlansList = () => {
       <div className="space-y-4">
         {/* Filters and Actions */}
         <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => setCreateDialogOpen(true)}
+              icon={<Plus className="h-4 w-4" />}
+            >
+              Create Standard Plan
+            </Button>
+          </div>
           <div className="flex flex-wrap gap-2">
             <Button
               variant={selectedCategory === '' ? 'default' : 'outline'}
@@ -248,6 +258,12 @@ export const StandardPlansList = () => {
         isOpen={updateDialogOpen}
         onClose={() => setUpdateDialogOpen(false)}
         plan={selectedPlan}
+      />
+
+      {/* Create Standard Plan Dialog */}
+      <CreateStandardPlanDialog
+        isOpen={createDialogOpen}
+        onClose={() => setCreateDialogOpen(false)}
       />
     </>
   );

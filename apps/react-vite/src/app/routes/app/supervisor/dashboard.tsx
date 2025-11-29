@@ -8,11 +8,13 @@ import {
     MapPin,
     Activity,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 import { ContentLayout } from '@/components/layouts';
 import { Tabs } from '@/components/ui/tabs';
 import { Tab } from '@/components/ui/tabs/tabs';
 import { useUser } from '@/lib/auth';
+import { paths } from '@/config/paths';
 
 type StatCardProps = {
     title: string;
@@ -46,6 +48,7 @@ const StatCard = ({
 // Overview Tab Content
 const OverviewTab = () => {
     const user = useUser();
+    const navigate = useNavigate();
 
     return (
         <div className="space-y-6">
@@ -100,7 +103,10 @@ const OverviewTab = () => {
                     Quick Actions
                 </h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <button className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50">
+                    <button 
+                        className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50"
+                        onClick={() => navigate(paths.app.supervisor.group.getHref())}
+                    >
                         <div className="rounded-lg bg-blue-100 p-2">
                             <Calendar className="h-5 w-5 text-blue-600" />
                         </div>
@@ -109,7 +115,10 @@ const OverviewTab = () => {
                             <p className="text-xs text-gray-500">New production plan</p>
                         </div>
                     </button>
-                    <button className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50">
+                    <button 
+                        className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50"
+                        onClick={() => navigate(paths.app.supervisor.group.getHref())}
+                    >
                         <div className="rounded-lg bg-green-100 p-2">
                             <Activity className="h-5 w-5 text-green-600" />
                         </div>
@@ -118,7 +127,10 @@ const OverviewTab = () => {
                             <p className="text-xs text-gray-500">Farmers & plots info</p>
                         </div>
                     </button>
-                    <button className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50">
+                    <button 
+                        className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50"
+                        onClick={() => navigate(paths.app.supervisor.reports.getHref())}
+                    >
                         <div className="rounded-lg bg-purple-100 p-2">
                             <TrendingUp className="h-5 w-5 text-purple-600" />
                         </div>
@@ -402,12 +414,17 @@ const GroupTab = () => {
 
 // Plans Tab Content
 const PlansTab = () => {
+    const navigate = useNavigate();
+    
     return (
         <div className="space-y-6">
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">Production Plans</h2>
-                    <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700">
+                    <button 
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
+                        onClick={() => navigate(paths.app.supervisor.group.getHref())}
+                    >
                         Create New Plan
                     </button>
                 </div>
