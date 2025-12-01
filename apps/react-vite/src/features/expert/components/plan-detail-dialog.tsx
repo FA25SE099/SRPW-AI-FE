@@ -50,12 +50,12 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                 Individual Plots
               </div>
               <div className="space-y-4">
-                {plotMaterialsData?.data?.plots.map((plot) => {
+                {plotMaterialsData?.data?.plots?.map((plot) => {
                   const plotMaterials = plot.materials || [];
                   const plotTotalCost = plot.totalEstimatedCost || 0;
 
                   return (
-                    <div key={plot.id} className="rounded border-2 p-5 bg-gradient-to-br from-gray-50 to-white shadow-sm">
+                    <div key={plot.plotId} className="rounded border-2 p-5 bg-gradient-to-br from-gray-50 to-white shadow-sm">
                       <div className="mb-4 grid grid-cols-2 gap-6">
                         <div className="bg-white rounded-lg border p-4 shadow-sm">
                           <div className="flex items-center gap-2 text-base font-semibold text-gray-800 mb-3">
