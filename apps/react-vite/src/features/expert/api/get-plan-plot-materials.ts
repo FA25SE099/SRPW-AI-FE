@@ -3,39 +3,39 @@ import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
 
 export type PlotMaterial = {
-  materialId: string;
-  materialName: string;
-  materialUnit: string;
-  imgUrl: string | null;
-  quantityPerHa: number;
-  totalQuantity: number;
-  pricePerUnit: number;
-  priceValidFrom: string;
-  priceValidTo: string | null;
-  isOutdated: boolean;
-  totalCost: number;
+  MaterialId: string;
+  MaterialName: string;
+  MaterialUnit: string;
+  ImgUrl: string | null;
+  QuantityPerHa: number;
+  TotalQuantity: number;
+  PricePerUnit: number;
+  PriceValidFrom: string;
+  PriceValidTo: string | null;
+  IsOutdated: boolean;
+  TotalCost: number;
 };
 
 export type PlotWithMaterials = {
-  plotId: string;
-  plotArea: number;
-  soThua: number | null;
-  soTo: number | null;
-  farmerName: string;
-  materials: PlotMaterial[];
-  totalEstimatedCost: number;
+  PlotId: string;
+  PlotArea: number;
+  SoThua: number | null;
+  SoTo: number | null;
+  FarmerName: string;
+  Materials: PlotMaterial[];
+  TotalEstimatedCost: number;
 };
 
 export type PlanPlotMaterialsResponse = {
-  planId: string;
-  planName: string;
-  plots: PlotWithMaterials[];
+  PlanId: string;
+  PlanName: string;
+  Plots: PlotWithMaterials[];
 };
 
 export type PlanPlotMaterialsResult = {
-  succeeded: boolean;
-  message: string;
-  data: PlanPlotMaterialsResponse;
+  Succeeded: boolean;
+  Message: string;
+  Data: PlanPlotMaterialsResponse;
 };
 
 export const getPlanPlotMaterials = (planId: string): Promise<PlanPlotMaterialsResult> => {
