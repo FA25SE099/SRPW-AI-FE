@@ -6,6 +6,7 @@ import type { PlotDTO } from './get-all-plots';
 export type GetPlotsOutSeasonParams = {
   currentDate?: string; // Format: YYYY-MM-DD or ISO 8601
   searchTerm?: string;
+  clusterManagerId?: string;
 };
 
 export type GetPlotsOutSeasonResponse = {

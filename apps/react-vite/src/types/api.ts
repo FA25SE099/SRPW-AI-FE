@@ -140,6 +140,13 @@ export type PlanDetailMaterial = {
   materialUnit: string;
   quantityPerHa: number;
   estimatedAmount: number;
+  pricePerUnit?: number;
+  priceValidFrom?: string;
+  priceValidTo?: string | null;
+  isOutdated?: boolean;
+  totalQuantity?: number;
+  totalCost?: number;
+  imgUrl?: string | null;
 };
 
 export type PlanDetailTask = {
@@ -172,6 +179,9 @@ export type PlanDetailPlot = {
   soilType: string | null;
   status: string;
   farmerId: string;
+  farmerName?: string;
+  materials?: PlanDetailMaterial[];
+  totalEstimatedCost?: number;
 };
 
 export type PlanDetailGroup = {
