@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, Pencil, XCircle } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { z } from 'zod';
@@ -21,7 +21,11 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Spinner } from '@/components/ui/spinner';
+import { UpdateProductionPlanDialog } from '@/features/production-plans/components/update-production-plan-dialog';
+
 import { useApproveRejectPlan } from '../api/approve-reject-plan';
+import { usePlanDetail } from '../api/get-plan-detail';
 
 type ApproveRejectDialogProps = {
   open: boolean;
@@ -49,6 +53,16 @@ export const ApproveRejectDialog = ({
   onSuccess,
 }: ApproveRejectDialogProps) => {
   const [action, setAction] = useState<'approve' | 'reject' | null>(null);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+
+  const {
+    data: planDetail,
+    isLoading: isLoadingPlan,
+    refetch: refetchPlanDetail,
+  } = usePlanDetail({
+    planId: planId,
+    queryConfig: { enabled: open && !!planId },
+  });
 
   const form = useForm<ApproveRejectFormInput>({
     resolver: zodResolver(approveRejectFormSchema),
@@ -94,7 +108,6 @@ export const ApproveRejectDialog = ({
 
   const handleReject = () => {
     const currentNotes = form.getValues('notes');
-    // If submitting without opening reject mode, validate notes
     if (!currentNotes) {
       setAction('reject');
       return;
@@ -103,161 +116,315 @@ export const ApproveRejectDialog = ({
     form.handleSubmit(handleSubmit)();
   };
 
+  const handleEditComplete = () => {
+    setIsUpdateDialogOpen(false);
+    // Refetch the plan details after edit
+    refetchPlanDetail();
+  };
+
   const isRejectMode = action === 'reject';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            {action === 'approve' ? (
-              <>
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                Approve Plan
-              </>
-            ) : action === 'reject' ? (
-              <>
-                <XCircle className="h-5 w-5 text-red-600" />
-                Reject Plan
-              </>
-            ) : (
-              'Review Plan'
-            )}
-          </DialogTitle>
-          <DialogDescription>
-            {action === null
-              ? 'Select an action for this plan'
-              : action === 'approve'
-                ? 'Are you sure you want to approve this plan?'
-                : 'Please provide a reason for rejection (required)'}
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog
+        open={open && !isUpdateDialogOpen}
+        onOpenChange={(newOpen) => {
+          // Only allow closing if not in edit mode
+          if (!isUpdateDialogOpen) {
+            onOpenChange(newOpen);
+          }
+        }}
+      >
+        <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-4xl">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="flex items-center gap-2">
+                {action === 'approve' ? (
+                  <>
+                    <CheckCircle className="size-5 text-green-600" />
+                    Approve Plan
+                  </>
+                ) : action === 'reject' ? (
+                  <>
+                    <XCircle className="size-5 text-red-600" />
+                    Reject Plan
+                  </>
+                ) : (
+                  'Review Plan'
+                )}
+              </DialogTitle>
+              {action === null && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setIsUpdateDialogOpen(true)}
+                >
+                  <Pencil className="size-4" />
+                  Edit
+                </Button>
+              )}
+            </div>
+            <DialogDescription>
+              {action === null
+                ? 'Review the plan details and select an action'
+                : action === 'approve'
+                  ? 'Are you sure you want to approve this plan?'
+                  : 'Please provide a reason for rejection (required)'}
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="rounded-lg border bg-gray-50 p-4">
-            <div className="space-y-2">
-              <div>
-                <span className="text-sm font-medium text-gray-600">Farmer:</span>{' '}
-                <span className="text-sm">{farmerName}</span>
+          <div className="flex-1 overflow-y-auto pr-2">
+            <div className="space-y-4">
+              <div className="rounded-lg border bg-gray-50 p-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">
+                        Farmer:
+                      </span>{' '}
+                      <span className="text-sm">{farmerName}</span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">
+                        Crop:
+                      </span>{' '}
+                      <span className="text-sm">{cropType}</span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-600">
+                        Issue:
+                      </span>{' '}
+                      <span className="text-sm">{issue}</span>
+                    </div>
+                  </div>
+                  {planDetail && (
+                    <div className="space-y-2">
+                      <div>
+                        <span className="text-sm font-medium text-gray-600">
+                          Plan Name:
+                        </span>{' '}
+                        <span className="text-sm">{planDetail.planName}</span>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-600">
+                          Status:
+                        </span>{' '}
+                        <span className="text-sm">{planDetail.status}</span>
+                      </div>
+                      <div>
+                        <span className="text-sm font-medium text-gray-600">
+                          Total Area:
+                        </span>{' '}
+                        <span className="text-sm">
+                          {planDetail.totalArea} ha
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
-                <span className="text-sm font-medium text-gray-600">Crop:</span>{' '}
-                <span className="text-sm">{cropType}</span>
-              </div>
-              <div>
-                <span className="text-sm font-medium text-gray-600">Issue:</span>{' '}
-                <span className="text-sm">{issue}</span>
-              </div>
+
+              {action === null && (
+                <>
+                  {isLoadingPlan && (
+                    <div className="flex items-center justify-center p-8">
+                      <Spinner size="lg" />
+                    </div>
+                  )}
+
+                  {planDetail && (
+                    <div className="rounded border p-4">
+                      <div className="mb-2 text-base font-semibold">Stages</div>
+                      <div className="space-y-3">
+                        {planDetail.stages.map((stage) => (
+                          <div key={stage.id} className="rounded border p-3">
+                            <div className="font-medium">
+                              {stage.sequenceOrder}. {stage.stageName}
+                            </div>
+                            <div className="mt-2 space-y-2">
+                              {stage.tasks.map((task) => (
+                                <div
+                                  key={task.id}
+                                  className="rounded border p-2"
+                                >
+                                  <div className="text-sm font-medium">
+                                    {task.sequenceOrder}. {task.taskName} (
+                                    {task.taskType})
+                                  </div>
+                                  {task.description && (
+                                    <div className="mt-1 whitespace-pre-wrap text-xs text-gray-600">
+                                      {task.description}
+                                    </div>
+                                  )}
+                                  <div className="mt-1 text-xs text-gray-600">
+                                    Priority: {task.priority}
+                                  </div>
+                                  <div className="mt-1 text-xs text-gray-600">
+                                    Scheduled:{' '}
+                                    {task.scheduledDate
+                                      ? new Date(
+                                        task.scheduledDate,
+                                      ).toLocaleDateString()
+                                      : 'N/A'}
+                                  </div>
+                                  {task.materials.length > 0 && (
+                                    <div className="mt-2">
+                                      <div className="text-xs font-medium">
+                                        Materials
+                                      </div>
+                                      <div className="mt-1 divide-y rounded border">
+                                        {task.materials.map((m) => (
+                                          <div
+                                            key={m.materialId}
+                                            className="grid grid-cols-4 gap-2 p-1 text-xs"
+                                          >
+                                            <div>{m.materialName}</div>
+                                            <div>Unit: {m.materialUnit}</div>
+                                            <div>Qty/ha: {m.quantityPerHa}</div>
+                                            <div>
+                                              Est:{' '}
+                                              {m.estimatedAmount.toLocaleString()}
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {action !== null && (
+                <FormProvider {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(handleSubmit)}
+                    className="space-y-4"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="notes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {action === 'reject'
+                              ? 'Rejection Notes *'
+                              : 'Notes (Optional)'}
+                          </FormLabel>
+                          <FormControl>
+                            <textarea
+                              {...field}
+                              placeholder={
+                                action === 'reject'
+                                  ? 'Please explain why this plan is being rejected...'
+                                  : 'Add any comments or notes...'
+                              }
+                              rows={4}
+                              required={action === 'reject'}
+                              disabled={action === null || isPending}
+                              className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                          </FormControl>
+                          {action !== null && (
+                            <FormDescription>
+                              {action === 'reject'
+                                ? 'Rejection notes are required'
+                                : 'Optional notes about this approval'}
+                            </FormDescription>
+                          )}
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </FormProvider>
+              )}
             </div>
           </div>
 
-          <FormProvider {...form}>
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="notes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      {action === 'reject' ? 'Rejection Notes' : 'Notes (Optional)'}
-                    </FormLabel>
-                    <FormControl>
-                      <textarea
-                        {...field}
-                        placeholder={
-                          action === 'reject'
-                            ? 'Please explain why this plan is being rejected...'
-                            : 'Add any comments or notes...'
-                        }
-                        rows={4}
-                        required={action === 'reject'}
-                        disabled={action === null || isPending}
-                        className="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      />
-                    </FormControl>
-                    {action !== null && (
-                      <FormDescription>
-                        {action === 'reject'
-                          ? 'Rejection notes are required'
-                          : 'Optional notes about this approval'}
-                      </FormDescription>
-                    )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </form>
-          </FormProvider>
-        </div>
+          <DialogFooter className="flex-row gap-2 sm:flex-row">
+            {action === null ? (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setAction('reject')}
+                  disabled={isPending}
+                  className="border-red-300 text-red-600 hover:bg-red-50"
+                >
+                  Reject
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => setAction('approve')}
+                  disabled={isPending}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Approve
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setAction(null)}
+                  disabled={isPending}
+                >
+                  Back
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="button"
+                  onClick={isRejectMode ? handleReject : handleApprove}
+                  disabled={
+                    isPending || (isRejectMode && !form.getValues('notes'))
+                  }
+                  className={
+                    isRejectMode
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : 'bg-green-600 hover:bg-green-700'
+                  }
+                >
+                  {isPending
+                    ? 'Processing...'
+                    : isRejectMode
+                      ? 'Confirm Rejection'
+                      : 'Confirm Approval'}
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        <DialogFooter className="flex-row gap-2 sm:flex-row">
-          {action === null ? (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setAction('reject')}
-                disabled={isPending}
-                className="border-red-300 text-red-600 hover:bg-red-50"
-              >
-                Reject
-              </Button>
-              <Button
-                type="button"
-                onClick={() => setAction('approve')}
-                disabled={isPending}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                Approve
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setAction(null)}
-                disabled={isPending}
-              >
-                Back
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                onClick={isRejectMode ? handleReject : handleApprove}
-                disabled={isPending || (isRejectMode && !form.getValues('notes'))}
-                className={
-                  isRejectMode
-                    ? 'bg-red-600 hover:bg-red-700'
-                    : 'bg-green-600 hover:bg-green-700'
-                }
-              >
-                {isPending
-                  ? 'Processing...'
-                  : isRejectMode
-                    ? 'Confirm Rejection'
-                    : 'Confirm Approval'}
-              </Button>
-            </>
-          )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      <UpdateProductionPlanDialog
+        isOpen={isUpdateDialogOpen}
+        onClose={handleEditComplete}
+        planId={planId}
+      />
+    </>
   );
 };
-

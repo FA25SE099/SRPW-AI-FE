@@ -1,6 +1,10 @@
 // Production Plan Types
 
-export type ProductionPlanStatus = 'Draft' | 'Pending' | 'Approved' | 'Rejected';
+export type ProductionPlanStatus =
+  | 'Draft'
+  | 'Pending'
+  | 'Approved'
+  | 'Rejected';
 
 export interface MaterialInPlan {
   materialId: string;
@@ -73,11 +77,41 @@ export interface CreateProductionPlanInput {
   stages?: StageInPlan[];
 }
 
+export interface UpdateMaterialInPlan {
+  materialId: string;
+  quantityPerHa: number;
+}
+
+export interface UpdateTaskInPlan {
+  taskId?: string;
+  taskName: string;
+  description: string;
+  daysAfter: number;
+  durationDays: number;
+  taskType: string;
+  priority: string;
+  sequenceOrder: number;
+  scheduledDate?: string;
+  scheduledEndDate?: string;
+  materials: UpdateMaterialInPlan[];
+}
+
+export interface UpdateStageInPlan {
+  stageId?: string;
+  stageName: string;
+  sequenceOrder: number;
+  expectedDurationDays: number;
+  isMandatory: boolean;
+  notes?: string;
+  tasks: UpdateTaskInPlan[];
+}
+
 export interface UpdateProductionPlanInput {
   planId: string;
   planName?: string;
   basePlantingDate?: string;
-  stages?: StageInPlan[];
+  stages?: UpdateStageInPlan[];
+  expertId?: string;
 }
 
 export interface SubmitPlanInput {
@@ -119,7 +153,12 @@ export interface ExecutionSummary {
   plotSummaries: PlotSummary[];
 }
 
-export type CultivationTaskStatus = 'Draft' | 'PendingApproval' | 'InProgress' | 'Completed' | 'Cancelled';
+export type CultivationTaskStatus =
+  | 'Draft'
+  | 'PendingApproval'
+  | 'InProgress'
+  | 'Completed'
+  | 'Cancelled';
 
 export interface CultivationTask {
   taskId: string;
@@ -198,4 +237,3 @@ export interface ApprovedPlan {
   plotCount: number;
   completionPercentage: number;
 }
-

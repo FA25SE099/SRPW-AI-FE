@@ -653,6 +653,7 @@ export const ThresholdDialog = ({
         onSubmit={(data) => {
           onCreatePestProtocol();
           setIsPestDialogOpen(false);
+          refetchPest?.();
         }}
         isLoading={false}
         isEditMode={false}
@@ -679,6 +680,7 @@ export const ThresholdDialog = ({
         onSubmit={(data) => {
           onCreateWeatherProtocol();
           setIsWeatherDialogOpen(false);
+          refetchWeather?.();
         }}
         isLoading={false}
         isEditMode={false}
