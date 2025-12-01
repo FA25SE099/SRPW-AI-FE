@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, GripVertical } from 'lucide-react';
+import { Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { SimpleDialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -346,6 +346,45 @@ export const CreateStandardPlanDialog = ({
     setStages(newStages);
   };
 
+  const handleMoveTaskLeft = (stageIndex: number, taskIndex: number) => {
+    if (taskIndex === 0) return; // Can't move first task left
+
+    const newStages = [...stages];
+    const stage = newStages[stageIndex];
+    const tasks = [...stage.tasks];
+
+    // Swap with previous task
+    [tasks[taskIndex - 1], tasks[taskIndex]] = [tasks[taskIndex], tasks[taskIndex - 1]];
+
+    // Update sequence orders
+    tasks.forEach((task, i) => {
+      task.sequenceOrder = i;
+    });
+
+    stage.tasks = tasks;
+    setStages(newStages);
+  };
+
+  const handleMoveTaskRight = (stageIndex: number, taskIndex: number) => {
+    const newStages = [...stages];
+    const stage = newStages[stageIndex];
+
+    if (taskIndex === stage.tasks.length - 1) return; // Can't move last task right
+
+    const tasks = [...stage.tasks];
+
+    // Swap with next task
+    [tasks[taskIndex], tasks[taskIndex + 1]] = [tasks[taskIndex + 1], tasks[taskIndex]];
+
+    // Update sequence orders
+    tasks.forEach((task, i) => {
+      task.sequenceOrder = i;
+    });
+
+    stage.tasks = tasks;
+    setStages(newStages);
+  };
+
   return (
     <div className={isOpen ? 'fixed inset-0 z-50 overflow-y-auto' : 'hidden'}>
       <div className="flex min-h-screen items-center justify-center p-4">
@@ -569,7 +608,7 @@ export const CreateStandardPlanDialog = ({
                                   type="button"
                                   onClick={() => handleInsertTask(stageIndex, 0)}
                                   disabled={isLoading}
-                                  className="absolute -top-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full bg-blue-400 hover:bg-blue-500 text-white flex items-center justify-center shadow-sm transition-colors"
+                                  className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
                                   title="Add task before"
                                 >
                                   <Plus className="h-3 w-3" />
@@ -578,9 +617,31 @@ export const CreateStandardPlanDialog = ({
 
                               <div className="rounded-md border-2 border-blue-200 bg-white p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col">
                                 <div className="flex items-start justify-between mb-2">
-                                  <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
-                                    {taskIndex + 1}
-                                  </span>
+                                  <div className="flex items-center gap-1">
+                                    <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
+                                      {taskIndex + 1}
+                                    </span>
+                                    <div className="flex gap-0.5">
+                                      <button
+                                        type="button"
+                                        onClick={() => handleMoveTaskLeft(stageIndex, taskIndex)}
+                                        disabled={isLoading || taskIndex === 0}
+                                        className="rounded p-0.5 text-blue-600 hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                                        title="Move task left"
+                                      >
+                                        <ChevronLeft className="h-3 w-3" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleMoveTaskRight(stageIndex, taskIndex)}
+                                        disabled={isLoading || taskIndex === stage.tasks.length - 1}
+                                        className="rounded p-0.5 text-blue-600 hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed"
+                                        title="Move task right"
+                                      >
+                                        <ChevronRight className="h-3 w-3" />
+                                      </button>
+                                    </div>
+                                  </div>
                                   <button
                                     type="button"
                                     onClick={() => handleRemoveTask(stageIndex, taskIndex)}
@@ -802,7 +863,7 @@ export const CreateStandardPlanDialog = ({
                                 type="button"
                                 onClick={() => handleInsertTask(stageIndex, taskIndex + 1)}
                                 disabled={isLoading}
-                                className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-10 w-5 h-5 rounded-full bg-blue-400 hover:bg-blue-500 text-white flex items-center justify-center shadow-sm transition-colors"
+                                className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
                                 title="Add task after"
                               >
                                 <Plus className="h-3 w-3" />
