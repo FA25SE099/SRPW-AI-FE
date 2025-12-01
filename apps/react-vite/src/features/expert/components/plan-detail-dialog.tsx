@@ -12,10 +12,14 @@ type PlanDetailDialogProps = {
 
 export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialogProps) => {
   const { data, isLoading, error } = usePlanDetail({ planId: planId || '', queryConfig: { enabled: open && !!planId } });
-  const { data: plotMaterialsData, isLoading: isLoadingMaterials } = usePlanPlotMaterials({
+  const { data: plotMaterialsData, isLoading: isLoadingMaterials, error: materialsError } = usePlanPlotMaterials({
     planId: planId || '',
     queryConfig: { enabled: open && !!planId }
   });
+
+  console.log('Plot Materials Data:', plotMaterialsData);
+  console.log('Materials Error:', materialsError);
+  console.log('Is Loading Materials:', isLoadingMaterials);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -32,6 +36,10 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
 
         {error && (
           <div className="p-4 text-center text-red-600">Failed to load plan details.</div>
+        )}
+
+        {materialsError && (
+          <div className="p-4 text-center text-red-600">Failed to load plot materials.</div>
         )}
 
         {data && (
