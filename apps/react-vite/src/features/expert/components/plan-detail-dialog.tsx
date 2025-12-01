@@ -44,20 +44,20 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
               <div className="text-sm text-gray-600">Estimated Total Cost: {data.estimatedTotalPlanCost.toLocaleString('vi-VN')} VND</div>
             </div>
 
-            {plotMaterialsData?.Data && (
+            {plotMaterialsData && (
               <div className="rounded border p-4 bg-white">
                 <div className="mb-3 flex items-center gap-2 text-base font-semibold">
                   <Package className="h-5 w-5" />
-                  Individual Plots ({plotMaterialsData.Data.Plots?.length || 0})
+                  Individual Plots ({plotMaterialsData.plots?.length || 0})
                 </div>
-                {plotMaterialsData.Data.Plots && plotMaterialsData.Data.Plots.length > 0 ? (
+                {plotMaterialsData.plots && plotMaterialsData.plots.length > 0 ? (
                   <div className="space-y-4">
-                    {plotMaterialsData.Data.Plots.map((plot) => {
-                      const plotMaterials = plot.Materials || [];
-                      const plotTotalCost = plot.TotalEstimatedCost || 0;
+                    {plotMaterialsData.plots.map((plot) => {
+                      const plotMaterials = plot.materials || [];
+                      const plotTotalCost = plot.totalEstimatedCost || 0;
 
                       return (
-                        <div key={plot.PlotId} className="rounded border-2 p-5 bg-gradient-to-br from-gray-50 to-white shadow-sm">
+                        <div key={plot.plotId} className="rounded border-2 p-5 bg-gradient-to-br from-gray-50 to-white shadow-sm">
                           <div className="mb-4 grid grid-cols-2 gap-6">
                             <div className="bg-white rounded-lg border p-4 shadow-sm">
                               <div className="flex items-center gap-2 text-base font-semibold text-gray-800 mb-3">
@@ -67,22 +67,22 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                               <div className="space-y-2 text-sm">
                                 <div className="flex justify-between">
                                   <span className="text-gray-600">Owner:</span>
-                                  <span className="font-semibold text-gray-900">{plot.FarmerName}</span>
+                                  <span className="font-semibold text-gray-900">{plot.farmerName}</span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span className="text-gray-600">Area:</span>
-                                  <span className="font-semibold text-gray-900">{plot.PlotArea} ha</span>
+                                  <span className="font-semibold text-gray-900">{plot.plotArea} ha</span>
                                 </div>
-                                {plot.SoThua && (
+                                {plot.soThua && (
                                   <div className="flex justify-between">
                                     <span className="text-gray-600">Số thửa:</span>
-                                    <span className="font-semibold text-gray-900">{plot.SoThua}</span>
+                                    <span className="font-semibold text-gray-900">{plot.soThua}</span>
                                   </div>
                                 )}
-                                {plot.SoTo && (
+                                {plot.soTo && (
                                   <div className="flex justify-between">
                                     <span className="text-gray-600">Số tờ:</span>
-                                    <span className="font-semibold text-gray-900">{plot.SoTo}</span>
+                                    <span className="font-semibold text-gray-900">{plot.soTo}</span>
                                   </div>
                                 )}
                               </div>
@@ -99,7 +99,7 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                                 </div>
                                 <div className="flex justify-between">
                                   <span className="text-gray-600">Cost per Hectare:</span>
-                                  <span className="font-semibold text-green-600">{(plotTotalCost / plot.PlotArea).toLocaleString('vi-VN')} VND/ha</span>
+                                  <span className="font-semibold text-green-600">{(plotTotalCost / plot.plotArea).toLocaleString('vi-VN')} VND/ha</span>
                                 </div>
                               </div>
                             </div>
@@ -126,15 +126,15 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                                   <tbody>
                                     {plotMaterials.map((material) => (
                                       <tr
-                                        key={material.MaterialId}
-                                        className={`border-b hover:bg-gray-50 transition-colors ${material.IsOutdated ? 'bg-yellow-50' : ''}`}
+                                        key={material.materialId}
+                                        className={`border-b hover:bg-gray-50 transition-colors ${material.isOutdated ? 'bg-yellow-50' : ''}`}
                                       >
-                                        <td className="p-3 font-medium">{material.MaterialName}</td>
+                                        <td className="p-3 font-medium">{material.materialName}</td>
                                         <td className="p-3 text-center">
-                                          {material.ImgUrl ? (
+                                          {material.imgUrl ? (
                                             <img
-                                              src={material.ImgUrl}
-                                              alt={material.MaterialName}
+                                              src={material.imgUrl}
+                                              alt={material.materialName}
                                               className="w-12 h-12 object-cover rounded mx-auto"
                                             />
                                           ) : (
@@ -143,37 +143,37 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                                             </div>
                                           )}
                                         </td>
-                                        <td className="p-3 text-right">{material.QuantityPerHa.toFixed(2)}</td>
-                                        <td className="p-3 text-right font-medium">{material.TotalQuantity.toFixed(2)}</td>
+                                        <td className="p-3 text-right">{material.quantityPerHa.toFixed(2)}</td>
+                                        <td className="p-3 text-right font-medium">{material.totalQuantity.toFixed(2)}</td>
                                         <td className="p-3 text-center">
                                           <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
-                                            {material.MaterialUnit}
+                                            {material.materialUnit}
                                           </span>
                                         </td>
                                         <td className="p-3 text-right">
-                                          {material.PricePerUnit.toLocaleString('vi-VN')}
+                                          {material.pricePerUnit.toLocaleString('vi-VN')}
                                         </td>
                                         <td className="p-3 text-right font-semibold text-green-700">
-                                          {material.TotalCost.toLocaleString('vi-VN')}
+                                          {material.totalCost.toLocaleString('vi-VN')}
                                         </td>
                                         <td className="p-3">
                                           <div className="flex flex-col gap-1 text-xs">
                                             <div className="flex items-center justify-center gap-1">
                                               <Calendar className="h-3 w-3 text-green-600" />
                                               <span className="font-medium">From:</span>
-                                              <span>{new Date(material.PriceValidFrom).toLocaleDateString()}</span>
+                                              <span>{new Date(material.priceValidFrom).toLocaleDateString()}</span>
                                             </div>
-                                            {material.PriceValidTo && (
+                                            {material.priceValidTo && (
                                               <div className="flex items-center justify-center gap-1 text-orange-600">
                                                 <Calendar className="h-3 w-3" />
                                                 <span className="font-medium">To:</span>
-                                                <span>{new Date(material.PriceValidTo).toLocaleDateString()}</span>
+                                                <span>{new Date(material.priceValidTo).toLocaleDateString()}</span>
                                               </div>
                                             )}
                                           </div>
                                         </td>
                                         <td className="p-3 text-center">
-                                          {material.IsOutdated ? (
+                                          {material.isOutdated ? (
                                             <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
                                               <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
                                               Outdated

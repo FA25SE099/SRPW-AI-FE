@@ -23,8 +23,10 @@ type UsePlanDetailOptions = {
 
 export const usePlanDetail = ({ planId, queryConfig }: UsePlanDetailOptions) => {
   return useQuery({
-    ...getPlanDetailQueryOptions(planId),
     ...queryConfig,
+    queryKey: ['plan-detail', planId],
+    queryFn: () => getPlanDetail(planId),
+    enabled: !!planId && (queryConfig?.enabled !== false),
   });
 };
 

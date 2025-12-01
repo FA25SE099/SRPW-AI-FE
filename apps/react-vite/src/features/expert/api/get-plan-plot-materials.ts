@@ -3,43 +3,44 @@ import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
 
 export type PlotMaterial = {
-  MaterialId: string;
-  MaterialName: string;
-  MaterialUnit: string;
-  ImgUrl: string | null;
-  QuantityPerHa: number;
-  TotalQuantity: number;
-  PricePerUnit: number;
-  PriceValidFrom: string;
-  PriceValidTo: string | null;
-  IsOutdated: boolean;
-  TotalCost: number;
+  materialId: string;
+  materialName: string;
+  materialUnit: string;
+  imgUrl: string | null;
+  quantityPerHa: number;
+  totalQuantity: number;
+  pricePerUnit: number;
+  priceValidFrom: string;
+  priceValidTo: string | null;
+  isOutdated: boolean;
+  totalCost: number;
 };
 
 export type PlotWithMaterials = {
-  PlotId: string;
-  PlotArea: number;
-  SoThua: number | null;
-  SoTo: number | null;
-  FarmerName: string;
-  Materials: PlotMaterial[];
-  TotalEstimatedCost: number;
+  plotId: string;
+  plotArea: number;
+  soThua: number | null;
+  soTo: number | null;
+  farmerName: string;
+  materials: PlotMaterial[];
+  totalEstimatedCost: number;
 };
 
 export type PlanPlotMaterialsResponse = {
-  PlanId: string;
-  PlanName: string;
-  Plots: PlotWithMaterials[];
+  planId: string;
+  planName: string;
+  plots: PlotWithMaterials[];
 };
 
 export type PlanPlotMaterialsResult = {
-  Succeeded: boolean;
-  Message: string;
-  Data: PlanPlotMaterialsResponse;
+  succeeded: boolean;
+  message: string;
+  data: PlanPlotMaterialsResponse;
+  errors: string[];
 };
 
-export const getPlanPlotMaterials = (planId: string): Promise<PlanPlotMaterialsResult> => {
-  return api.get(`/expert/plans/${planId}/plot-materials`);
+export const getPlanPlotMaterials = (planId: string): Promise<PlanPlotMaterialsResponse> => {
+  return api.get(`/expert/plans/${planId}/plot-materials`).then(result => result.data);
 };
 
 export const getPlanPlotMaterialsQueryOptions = (planId: string) => {
