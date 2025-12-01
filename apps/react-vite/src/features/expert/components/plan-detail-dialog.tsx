@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { usePlanDetail } from '../api/get-plan-detail';
+import { usePlanPlotMaterials } from '../api/get-plan-plot-materials';
 import { Package, User, DollarSign, Calendar } from 'lucide-react';
 
 type PlanDetailDialogProps = {
@@ -11,6 +12,10 @@ type PlanDetailDialogProps = {
 
 export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialogProps) => {
   const { data, isLoading, error } = usePlanDetail({ planId: planId || '', queryConfig: { enabled: open && !!planId } });
+  const { data: plotMaterialsData, isLoading: isLoadingMaterials } = usePlanPlotMaterials({ 
+    planId: planId || '', 
+    queryConfig: { enabled: open && !!planId } 
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -19,7 +24,7 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
           <DialogTitle>Plan Details</DialogTitle>
         </DialogHeader>
 
-        {isLoading && (
+        {(isLoading || isLoadingMaterials) && (
           <div className="flex items-center justify-center p-8">
             <Spinner size="lg" />
           </div>
@@ -45,7 +50,7 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                 Individual Plots
               </div>
               <div className="space-y-4">
-                {data.groupDetails.plots.map((plot) => {
+                {plotMaterialsData?.data?.plots.map((plot) => {
                   const plotMaterials = plot.materials || [];
                   const plotTotalCost = plot.totalEstimatedCost || 0;
 
@@ -60,11 +65,11 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-gray-600">Owner:</span>
-                              <span className="font-semibold text-gray-900">{plot.farmerName || `Farmer ID: ${plot.farmerId}`}</span>
+                              <span className="font-semibold text-gray-900">{plot.farmerName}</span>
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Area:</span>
-                              <span className="font-semibold text-gray-900">{plot.area} ha</span>
+                              <span className="font-semibold text-gray-900">{plot.plotArea} ha</span>
                             </div>
                             {plot.soThua && (
                               <div className="flex justify-between">
@@ -76,12 +81,6 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                               <div className="flex justify-between">
                                 <span className="text-gray-600">Số tờ:</span>
                                 <span className="font-semibold text-gray-900">{plot.soTo}</span>
-                              </div>
-                            )}
-                            {plot.soilType && (
-                              <div className="flex justify-between">
-                                <span className="text-gray-600">Soil Type:</span>
-                                <span className="font-semibold text-gray-900">{plot.soilType}</span>
                               </div>
                             )}
                           </div>
@@ -98,7 +97,7 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                             </div>
                             <div className="flex justify-between">
                               <span className="text-gray-600">Cost per Hectare:</span>
-                              <span className="font-semibold text-green-600">{(plotTotalCost / plot.area).toLocaleString('vi-VN')} VND/ha</span>
+                              <span className="font-semibold text-green-600">{(plotTotalCost / plot.plotArea).toLocaleString('vi-VN')} VND/ha</span>
                             </div>
                           </div>
                         </div>
@@ -124,15 +123,15 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                               </thead>
                               <tbody>
                                 {plotMaterials.map((material) => (
-                                  <tr
-                                    key={material.materialId}
+                                  <tr 
+                                    key={material.materialId} 
                                     className={`border-b hover:bg-gray-50 transition-colors ${material.isOutdated ? 'bg-yellow-50' : ''}`}
                                   >
                                     <td className="p-3 font-medium">{material.materialName}</td>
                                     <td className="p-3 text-center">
                                       {material.imgUrl ? (
-                                        <img
-                                          src={material.imgUrl}
+                                        <img 
+                                          src={material.imgUrl} 
                                           alt={material.materialName}
                                           className="w-12 h-12 object-cover rounded mx-auto"
                                         />
@@ -143,43 +142,33 @@ export const PlanDetailDialog = ({ open, onOpenChange, planId }: PlanDetailDialo
                                       )}
                                     </td>
                                     <td className="p-3 text-right">{material.quantityPerHa.toFixed(2)}</td>
-                                    <td className="p-3 text-right font-medium">{material.totalQuantity?.toFixed(2) || 'N/A'}</td>
+                                    <td className="p-3 text-right font-medium">{material.totalQuantity.toFixed(2)}</td>
                                     <td className="p-3 text-center">
                                       <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
                                         {material.materialUnit}
                                       </span>
                                     </td>
                                     <td className="p-3 text-right">
-                                      {material.pricePerUnit
-                                        ? material.pricePerUnit.toLocaleString('vi-VN')
-                                        : <span className="text-gray-400">N/A</span>}
+                                      {material.pricePerUnit.toLocaleString('vi-VN')}
                                     </td>
                                     <td className="p-3 text-right font-semibold text-green-700">
-                                      {material.totalCost
-                                        ? material.totalCost.toLocaleString('vi-VN')
-                                        : (material.totalQuantity && material.pricePerUnit
-                                          ? (material.totalQuantity * material.pricePerUnit).toLocaleString('vi-VN')
-                                          : <span className="text-gray-400">N/A</span>)}
+                                      {material.totalCost.toLocaleString('vi-VN')}
                                     </td>
                                     <td className="p-3">
-                                      {material.priceValidFrom ? (
-                                        <div className="flex flex-col gap-1 text-xs">
-                                          <div className="flex items-center justify-center gap-1">
-                                            <Calendar className="h-3 w-3 text-green-600" />
-                                            <span className="font-medium">From:</span>
-                                            <span>{new Date(material.priceValidFrom).toLocaleDateString()}</span>
-                                          </div>
-                                          {material.priceValidTo && (
-                                            <div className="flex items-center justify-center gap-1 text-orange-600">
-                                              <Calendar className="h-3 w-3" />
-                                              <span className="font-medium">To:</span>
-                                              <span>{new Date(material.priceValidTo).toLocaleDateString()}</span>
-                                            </div>
-                                          )}
+                                      <div className="flex flex-col gap-1 text-xs">
+                                        <div className="flex items-center justify-center gap-1">
+                                          <Calendar className="h-3 w-3 text-green-600" />
+                                          <span className="font-medium">From:</span>
+                                          <span>{new Date(material.priceValidFrom).toLocaleDateString()}</span>
                                         </div>
-                                      ) : (
-                                        <span className="text-gray-400">N/A</span>
-                                      )}
+                                        {material.priceValidTo && (
+                                          <div className="flex items-center justify-center gap-1 text-orange-600">
+                                            <Calendar className="h-3 w-3" />
+                                            <span className="font-medium">To:</span>
+                                            <span>{new Date(material.priceValidTo).toLocaleDateString()}</span>
+                                          </div>
+                                        )}
+                                      </div>
                                     </td>
                                     <td className="p-3 text-center">
                                       {material.isOutdated ? (
