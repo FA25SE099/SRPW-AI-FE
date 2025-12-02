@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { ContentLayout } from '@/components/layouts';
 import {
@@ -6,7 +8,6 @@ import {
   HistoryChartV0,
   SeasonSelectorV0,
   GroupFormationModal,
-  GroupsDashboard,
   PlotsOverviewCard,
   SupervisorOverviewCard,
 } from '@/features/cluster/components';
@@ -17,7 +18,9 @@ import {
   useCurrentSeason,
   useClusterId,
 } from '@/features/cluster/api';
-import { CreateProductionPlanDialog } from '@/features/production-plans/components';
+// Sửa import này từ production-plans sang cluster
+import { ProductionPlanDetailDialog } from '@/features/cluster/components/production-plan-detail-dialog';
+import { useGroupDetail } from '@/features/groups/api/get-groups-detail';
 import { useUser } from '@/lib/auth';
 import {
   Loader2,
@@ -26,23 +29,226 @@ import {
   MapPin,
   Sprout,
   TrendingUp,
-  Calendar
+  Calendar,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { PlanStatusBadge } from '@/components/ui/plan-status-badge';
+import { usePlots } from '@/features/plots/api/get-all-plots';
+
+type UIPlanStatus = 'awaiting-plan' | 'in-progress' | 'completed';
+
+// TaskStatus enum from backend
+enum TaskStatus {
+  Draft = 'Draft',
+  PendingApproval = 'PendingApproval',
+  Approved = 'Approved',
+  InProgress = 'InProgress',
+  OnHold = 'OnHold',
+  Completed = 'Completed',
+  Cancelled = 'Cancelled',
+  Emergency = 'Emergency',
+  EmergencyApproval = 'EmergencyApproval',
+}
+
+// Tách GroupCard thành component riêng để fetch group detail
+const GroupCard = ({
+  group,
+  index,
+  groupColors,
+  onSelectGroup
+}: {
+  group: any;
+  index: number;
+  groupColors: string[];
+  onSelectGroup: (groupInfo: any) => void;
+}) => {
+  // Fetch group detail để kiểm tra production plan
+  const { data: groupDetail, isLoading: isLoadingDetail } = useGroupDetail({
+    groupId: group.groupId,
+    queryConfig: { enabled: !!group.groupId }
+  });
+
+  const getUIPlanStatus = (group: any, groupDetail: any): UIPlanStatus => {
+    // If group status is completed, show completed regardless of plan
+    if (group.status === 'Completed') return 'completed';
+
+    // Check if production plan exists with proper TaskStatus
+    const hasPlan = groupDetail?.productionPlans &&
+      groupDetail.productionPlans.length > 0;
+
+    if (!hasPlan) return 'awaiting-plan';
+
+    // Check TaskStatus of production plans
+    const approvedOrActivePlan = groupDetail.productionPlans.some((plan: any) =>
+      plan.status === TaskStatus.Approved ||
+      plan.status === TaskStatus.InProgress ||
+      plan.status === TaskStatus.Completed
+    );
+
+    if (!approvedOrActivePlan) return 'awaiting-plan';
+
+    // If has approved/active plan but group not completed, show in progress
+    return 'in-progress';
+  };
+
+  const getButtonConfig = (status: UIPlanStatus) => {
+    switch (status) {
+      case 'awaiting-plan':
+        return {
+          label: 'Awaiting Plan',
+          disabled: true,
+          className: 'w-full bg-gray-100 text-gray-500 cursor-not-allowed hover:bg-gray-100 disabled:opacity-100',
+        };
+      case 'in-progress':
+        return {
+          label: 'View Plan Details',
+          disabled: false,
+          className: 'w-full bg-blue-600 hover:bg-blue-700 text-white',
+        };
+      case 'completed':
+        return {
+          label: 'View Completed Plan',
+          disabled: false,
+          className: 'w-full bg-green-600 hover:bg-green-700 text-white',
+        };
+      default:
+        return {
+          label: 'Awaiting Plan',
+          disabled: true,
+          className: 'w-full bg-gray-100 text-gray-500 cursor-not-allowed hover:bg-gray-100 disabled:opacity-100',
+        };
+    }
+  };
+
+  const uiStatus = getUIPlanStatus(group, groupDetail);
+  const buttonConfig = getButtonConfig(uiStatus);
+  const color = group.color || groupColors[index % groupColors.length];
+  const supervisorName = group.supervisorName || groupDetail?.supervisorName || 'Unassigned Supervisor';
+  const supervisorEmail = group.supervisorEmail || 'N/A';
+
+  const handleButtonClick = () => {
+    if (buttonConfig.disabled) return;
+
+    onSelectGroup({
+      id: group.groupId,
+      name: `Group ${group.riceVarietyName || groupDetail?.riceVarietyName || ''}`.trim(),
+      totalArea: group.totalArea ?? groupDetail?.totalArea ?? 0,
+    });
+  };
+
+  // Debug log để kiểm tra TaskStatus
+  console.log('Production Plan Status for group:', group.groupId, {
+    plans: groupDetail?.productionPlans?.map((p: any) => ({ id: p.id, status: p.status })),
+    uiStatus,
+  });
+
+  return (
+    <Card className="hover:shadow-lg transition-shadow overflow-hidden">
+      <div className="p-6">
+        {/* Header */}
+        <div className="flex items-start gap-3 mb-4">
+          <div
+            className="w-4 h-4 rounded-full flex-shrink-0 mt-1"
+            style={{ backgroundColor: color }}
+          />
+          <div className="flex-1">
+            <h3 className="font-bold text-foreground text-lg">
+              {group.riceVarietyName || groupDetail?.riceVarietyName
+                ? `Group ${group.riceVarietyName || groupDetail?.riceVarietyName}`
+                : 'Group'}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Group ID: #{group.groupId?.slice(0, 8)}...
+            </p>
+          </div>
+        </div>
+
+        {/* Group Metrics */}
+        <div className="space-y-2 mb-4 pb-4 border-b border-muted">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">
+              Plots Assigned
+            </span>
+            <span className="font-semibold text-foreground">
+              {group.plotCount ?? groupDetail?.plots?.length ?? 0}
+            </span>
+          </div>
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-muted-foreground">
+              Total Area
+            </span>
+            <span className="font-semibold text-foreground">
+              {(group.totalArea ?? groupDetail?.totalArea ?? 0)} ha
+            </span>
+          </div>
+        </div>
+
+        {/* Supervisor Info */}
+        <div className="mb-4">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Supervisor
+          </p>
+          <p className="font-medium text-foreground mt-1">
+            {supervisorName}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {supervisorEmail}
+          </p>
+        </div>
+
+        {/* Plan Status */}
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            Plan Status
+          </p>
+          {isLoadingDetail ? (
+            <div className="h-5 w-16 bg-gray-200 animate-pulse rounded"></div>
+          ) : (
+            <PlanStatusBadge status={uiStatus} />
+          )}
+        </div>
+
+        {/* Action button */}
+        <Button
+          className={buttonConfig.className}
+          disabled={buttonConfig.disabled || isLoadingDetail}
+          onClick={handleButtonClick}
+        >
+          {isLoadingDetail ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading...
+            </div>
+          ) : (
+            buttonConfig.label
+          )}
+        </Button>
+      </div>
+    </Card>
+  );
+};
 
 const ClusterDashboard = () => {
   const user = useUser();
   const [showFormationModal, setShowFormationModal] = useState(false);
-  const [showCreatePlanDialog, setShowCreatePlanDialog] = useState(false);
-  const [selectedGroup, setSelectedGroup] = useState<{ id: string; name: string } | null>(null);
+
+  const [selectedGroupForView, setSelectedGroupForView] = useState<{
+    id: string;
+    name: string;
+    totalArea: number;
+  } | null>(null);
 
   // Get ClusterManagerId from logged-in user
   const clusterManagerId = user.data?.id || '';
 
   // Fetch the actual clusterId using ClusterManagerId
-  const { data: clusterIdData, isLoading: isLoadingClusterId, error: clusterIdError } = useClusterId({
+  const {
+    data: clusterIdData,
+    isLoading: isLoadingClusterId,
+    error: clusterIdError,
+  } = useClusterId({
     clusterManagerId,
     queryConfig: {
       enabled: !!clusterManagerId,
@@ -52,7 +258,11 @@ const ClusterDashboard = () => {
   const clusterId = clusterIdData?.clusterId || '';
 
   // Fetch cluster data from API
-  const { data: currentSeason, isLoading: isLoadingSeason, error } = useClusterCurrentSeason({
+  const {
+    data: currentSeason,
+    isLoading: isLoadingSeason,
+    error,
+  } = useClusterCurrentSeason({
     clusterId,
     queryConfig: {
       enabled: !!clusterId,
@@ -75,7 +285,39 @@ const ClusterDashboard = () => {
 
   const { data: globalSeason } = useCurrentSeason();
 
+  // ================== PLOTS DATA (for PlotsOverviewCard) ==================
+  const { data: plotsData } = usePlots({
+    params: {
+      pageNumber: 1,
+      pageSize: 10,
+    },
+    queryConfig: {
+      enabled: !!clusterId,
+    },
+  });
+
+  const overviewPlots =
+    plotsData?.data?.map((plot) => {
+      const plantingDate = plot.seasons?.[0]?.startDate;
+      return {
+        plotId: plot.plotId,
+        plotName: `Plot ${plot.soThua}/${plot.soTo}`,
+        crop: plot.varietyName || 'Unknown',
+        area: plot.area,
+        plantingDate: plantingDate ? plantingDate.slice(0, 10) : 'N/A',
+        owner: plot.farmerName,
+        status: plot.status as any,
+      };
+    }) ?? [];
+
+  const totalPlotsFromApi = plotsData?.totalCount;
+
   const isLoading = isLoadingClusterId || isLoadingSeason;
+
+  // màu dot cho group
+  const groupColors = ['#22c55e', '#3b82f6', '#a855f7', '#f97316', '#0ea5e9'];
+
+  // ================== LOADING / ERROR STATES ==================
 
   if (isLoading) {
     return (
@@ -97,13 +339,14 @@ const ClusterDashboard = () => {
           <CardContent className="p-8 text-center space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
             <div>
-              <h3 className="font-semibold text-lg mb-2">Failed to Load Cluster ID</h3>
+              <h3 className="font-semibold text-lg mb-2">
+                Failed to Load Cluster ID
+              </h3>
               <p className="text-muted-foreground mb-4">
-                {clusterIdError.message || 'Could not fetch cluster information for your account.'}
+                {clusterIdError.message ||
+                  'Could not fetch cluster information for your account.'}
               </p>
-              <Button onClick={() => window.location.reload()}>
-                Retry
-              </Button>
+              <Button onClick={() => window.location.reload()}>Retry</Button>
             </div>
           </CardContent>
         </Card>
@@ -118,13 +361,14 @@ const ClusterDashboard = () => {
           <CardContent className="p-8 text-center space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
             <div>
-              <h3 className="font-semibold text-lg mb-2">Failed to Load Cluster Data</h3>
+              <h3 className="font-semibold text-lg mb-2">
+                Failed to Load Cluster Data
+              </h3>
               <p className="text-muted-foreground mb-4">
-                {error.message || 'An error occurred while fetching cluster information.'}
+                {error.message ||
+                  'An error occurred while fetching cluster information.'}
               </p>
-              <Button onClick={() => window.location.reload()}>
-                Retry
-              </Button>
+              <Button onClick={() => window.location.reload()}>Retry</Button>
             </div>
           </CardContent>
         </Card>
@@ -141,7 +385,8 @@ const ClusterDashboard = () => {
             <div>
               <h3 className="font-semibold text-lg mb-2">No Cluster Assigned</h3>
               <p className="text-muted-foreground">
-                You don't have a cluster assigned yet. Please contact your administrator.
+                You don&apos;t have a cluster assigned yet. Please contact your
+                administrator.
               </p>
             </div>
           </CardContent>
@@ -150,7 +395,8 @@ const ClusterDashboard = () => {
     );
   }
 
-  // Calculate quick stats
+  // ================== QUICK STATS ==================
+
   const stats = [
     {
       label: 'Farmers',
@@ -175,12 +421,16 @@ const ClusterDashboard = () => {
     },
     {
       label: 'Selection Rate',
-      value: `${currentSeason.riceVarietySelection?.selectionCompletionRate?.toFixed(0) || 0}%`,
+      value: `${currentSeason.riceVarietySelection?.selectionCompletionRate?.toFixed(0) ||
+        0
+        }%`,
       icon: TrendingUp,
       color: 'text-orange-600',
       bgColor: 'bg-orange-50 dark:bg-orange-950',
     },
   ];
+
+  // ================== MAIN RENDER ==================
 
   return (
     <ContentLayout title="Cluster Manager Dashboard">
@@ -193,155 +443,82 @@ const ClusterDashboard = () => {
                 <h1 className="text-3xl font-bold text-foreground">
                   {currentSeason.clusterName}
                 </h1>
-                <Badge variant={currentSeason.hasGroups ? 'default' : 'secondary'} className="text-xs">
+                <Badge
+                  variant={currentSeason.hasGroups ? 'default' : 'secondary'}
+                  className="text-xs"
+                >
                   {currentSeason.hasGroups ? 'Groups Active' : 'Forming Stage'}
                 </Badge>
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
                 <span className="font-medium">
-                  {globalSeason?.displayName || `${currentSeason.currentSeason.seasonName} ${currentSeason.currentSeason.year}`}
+                  {globalSeason?.displayName ||
+                    `${currentSeason.currentSeason.seasonName} ${currentSeason.currentSeason.year}`}
                 </span>
                 {globalSeason && (
                   <>
                     <span>•</span>
                     <span>Day {globalSeason.daysIntoSeason}</span>
                     <span>•</span>
-                    <span>{globalSeason.startDate} - {globalSeason.endDate}</span>
+                    <span>
+                      {globalSeason.startDate} - {globalSeason.endDate}
+                    </span>
                   </>
                 )}
               </div>
             </div>
-            <SeasonSelectorV0 seasons={seasonsData || null} currentClusterId={clusterId} />
+            <SeasonSelectorV0
+              seasons={seasonsData || null}
+              currentClusterId={clusterId}
+            />
           </div>
         </div>
 
         {/* Quick Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index}>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                      <p className="text-2xl font-bold mt-1">{stat.value}</p>
+        {!currentSeason.hasGroups && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <Card key={index}>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          {stat.label}
+                        </p>
+                        <p className="text-2xl font-bold mt-1">{stat.value}</p>
+                      </div>
+                      <div className={`p-3 rounded-lg ${stat.bgColor}`}>
+                        <Icon className={`h-6 w-6 ${stat.color}`} />
+                      </div>
                     </div>
-                    <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                      <Icon className={`h-6 w-6 ${stat.color}`} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Main Content (2/3) */}
           <div className="lg:col-span-2 space-y-6">
-            <CurrentSeasonCardV0 data={currentSeason} />
+            {!currentSeason.hasGroups && (
+              <CurrentSeasonCardV0 data={currentSeason} />
+            )}
 
-            {/* Show Plots Overview only when in Forming Stage (no groups) */}
             {!currentSeason.hasGroups && currentSeason.readiness && (
               <>
                 <PlotsOverviewCard
-                  plots={[
-                    {
-                      plotId: '1',
-                      plotName: 'Plot A-01',
-                      crop: 'Rice',
-                      area: 5.2,
-                      plantingDate: '2025-12-01',
-                      owner: 'Farm Corp A',
-                      status: 'Ready',
-                    },
-                    {
-                      plotId: '2',
-                      plotName: 'Plot A-02',
-                      crop: 'Rice',
-                      area: 4.8,
-                      plantingDate: '2025-12-01',
-                      owner: 'Farm Corp A',
-                      status: 'Ready',
-                    },
-                    {
-                      plotId: '3',
-                      plotName: 'Plot A-03',
-                      crop: 'Wheat',
-                      area: 6.1,
-                      plantingDate: '2025-11-15',
-                      owner: 'Farm Corp A',
-                      status: 'Ready',
-                    },
-                    {
-                      plotId: '4',
-                      plotName: 'Plot B-01',
-                      crop: 'Rice',
-                      area: 5.5,
-                      plantingDate: '2025-12-01',
-                      owner: 'Farm Corp B',
-                      status: 'Ready',
-                    },
-                    {
-                      plotId: '5',
-                      plotName: 'Plot B-02',
-                      crop: 'Maize',
-                      area: 4.2,
-                      plantingDate: '2025-12-10',
-                      owner: 'Farm Corp B',
-                      status: 'Ready',
-                    },
-                    {
-                      plotId: '6',
-                      plotName: 'Plot B-03',
-                      crop: 'Rice',
-                      area: 7.0,
-                      plantingDate: '2025-12-01',
-                      owner: 'Farm Corp B',
-                      status: 'Pending',
-                    },
-                    {
-                      plotId: '7',
-                      plotName: 'Plot C-01',
-                      crop: 'Wheat',
-                      area: 5.8,
-                      plantingDate: '2025-11-15',
-                      owner: 'Farm Corp C',
-                      status: 'Ready',
-                    },
-                    {
-                      plotId: '8',
-                      plotName: 'Plot C-02',
-                      crop: 'Wheat',
-                      area: 6.3,
-                      plantingDate: '2025-11-20',
-                      owner: 'Farm Corp C',
-                      status: 'Ready',
-                    },
-                    {
-                      plotId: '9',
-                      plotName: 'Plot B-15',
-                      crop: 'Rice',
-                      area: 4.5,
-                      plantingDate: '2025-12-01',
-                      owner: 'Farm Corp B',
-                      status: 'Issue',
-                    },
-                    {
-                      plotId: '10',
-                      plotName: 'Plot D-01',
-                      crop: 'Maize',
-                      area: 5.0,
-                      plantingDate: '2025-12-10',
-                      owner: 'Farm Corp D',
-                      status: 'Ready',
-                    },
-                  ]}
-                  totalPlots={currentSeason.readiness.availablePlots}
-                  onViewAll={() => window.location.href = '/app/cluster/plots'}
+                  plots={overviewPlots as any}
+                  totalPlots={
+                    totalPlotsFromApi ?? currentSeason.readiness.availablePlots
+                  }
+                  onViewAll={() => {
+                    window.location.href = '/app/cluster/plots';
+                  }}
                 />
 
                 <SupervisorOverviewCard
@@ -388,55 +565,70 @@ const ClusterDashboard = () => {
                     },
                   ]}
                   totalSupervisors={currentSeason.readiness.availableSupervisors}
-                  onViewAll={() => console.log('View all supervisors')}
+                  onViewAll={() => {
+                    console.log('View all supervisors');
+                  }}
                 />
               </>
             )}
 
-            {historyData && historyData.seasons && historyData.seasons.length > 0 && (
-              <HistoryChartV0 data={historyData} />
-            )}
+            {historyData &&
+              historyData.seasons &&
+              historyData.seasons.length > 0 && (
+                <HistoryChartV0 data={historyData} />
+              )}
           </div>
 
-          {/* Right: Readiness Panel (1/3) */}
-          <div className="lg:col-span-1">
-            <ReadinessPanelV0
-              readiness={currentSeason.readiness}
-              hasGroups={currentSeason.hasGroups}
-              onViewDetails={() => console.log('View readiness details')}
-              onFormGroups={() => setShowFormationModal(true)}
-            />
-          </div>
+          {/* Right: Readiness Panel (1/3) – chỉ hiện khi CHƯA form groups */}
+          {!currentSeason.hasGroups && (
+            <div className="lg:col-span-1">
+              <ReadinessPanelV0
+                readiness={currentSeason.readiness}
+                hasGroups={currentSeason.hasGroups}
+                onViewDetails={() => {
+                  console.log('View readiness details');
+                }}
+                onFormGroups={() => setShowFormationModal(true)}
+              />
+            </div>
+          )}
         </div>
 
-        {/* Active Groups Section */}
-        {currentSeason.hasGroups && currentSeason.groups && currentSeason.groups.length > 0 && (
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground">Active Groups</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {currentSeason.groups.length} groups managing {currentSeason.groups.reduce((sum, g) => sum + g.plotCount, 0)} plots
-                </p>
+        {/* ================== ACTIVE GROUPS SECTION (UPDATED) ================== */}
+        {currentSeason.hasGroups &&
+          currentSeason.groups &&
+          currentSeason.groups.length > 0 && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground">
+                    Active Groups
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {currentSeason.groups.length} groups managing{' '}
+                    {currentSeason.groups.reduce(
+                      (sum: number, g: any) => sum + (g.plotCount || 0),
+                      0,
+                    )}{' '}
+                    plots
+                  </p>
+                </div>
+              </div>
+
+              {/* Grid nhóm theo design GroupCard */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {currentSeason.groups.map((g: any, index: number) => (
+                  <GroupCard
+                    key={g.groupId}
+                    group={g}
+                    index={index}
+                    groupColors={groupColors}
+                    onSelectGroup={setSelectedGroupForView}
+                  />
+                ))}
               </div>
             </div>
-            <GroupsDashboard
-              groups={currentSeason.groups}
-              clusterId={clusterId}
-              seasonId={currentSeason.currentSeason.seasonId}
-              onCreatePlan={(groupId) => {
-                const group = currentSeason.groups?.find(g => g.groupId === groupId);
-                if (group) {
-                  setSelectedGroup({ id: groupId, name: `Group ${group.riceVarietyName}` });
-                  setShowCreatePlanDialog(true);
-                }
-              }}
-              onViewDetails={(groupId) => {
-                console.log('View details for group:', groupId);
-              }}
-            />
-          </div>
-        )}
+          )}
 
         {/* Group Formation Modal */}
         {currentSeason.readiness && (
@@ -450,19 +642,14 @@ const ClusterDashboard = () => {
           />
         )}
 
-        {/* Create Production Plan Dialog
-        {selectedGroup && (
-          <CreateProductionPlanDialog
-            isOpen={showCreatePlanDialog}
-            onClose={() => {
-              setShowCreatePlanDialog(false);
-              setSelectedGroup(null);
-            }}
-            groupId={selectedGroup.id}
-            groupName={selectedGroup.name}
-            seasonId={currentSeason.currentSeason.seasonId}
+        {/* Production Plan Detail Dialog (View Only) */}
+        {selectedGroupForView && (
+          <ProductionPlanDetailDialog
+            isOpen={!!selectedGroupForView}
+            onClose={() => setSelectedGroupForView(null)}
+            groupId={selectedGroupForView.id}
           />
-        )} */}
+        )}
       </div>
     </ContentLayout>
   );
