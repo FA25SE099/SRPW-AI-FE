@@ -11,7 +11,6 @@ import { DeleteRiceVarietyDialog } from './delete-rice-variety-dialog';
 import { RiceVarietyWithSeasons, RiceVarietyCategory } from '@/types/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/form';
 
 export const RiceVarietiesList = () => {
   const [search, setSearch] = useState('');
@@ -24,7 +23,7 @@ export const RiceVarietiesList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedVariety, setSelectedVariety] = useState<RiceVarietyWithSeasons | null>(null);
 
-  const riceVarietiesQuery = useRiceVarieties({
+  const { data: riceVarieties = [], isLoading } = useRiceVarieties({
     params: {
       search: debouncedSearch || undefined,
       isActive: isActiveFilter,
@@ -63,31 +62,29 @@ export const RiceVarietiesList = () => {
   };
 
   const handleDownloadTemplate = () => {
-    downloadTemplateMutation.mutate();
+    downloadTemplateMutation.mutate(undefined);
   };
 
-  if (riceVarietiesQuery.isLoading) {
+  if (isLoading) {
     return (
       <div className="flex h-48 items-center justify-center">
         <Spinner size="lg" />
       </div>
     );
   }
-
-  const riceVarieties = riceVarietiesQuery.data || [];
   
   // Group by category
-  const groupedVarieties = riceVarieties.reduce((acc, variety) => {
+  const groupedVarieties = riceVarieties.reduce((acc: Record<string, RiceVarietyWithSeasons[]>, variety: RiceVarietyWithSeasons) => {
     if (!acc[variety.categoryName]) {
       acc[variety.categoryName] = [];
     }
     acc[variety.categoryName].push(variety);
     return acc;
-  }, {} as Record<string, typeof riceVarieties>);
+  }, {} as Record<string, RiceVarietyWithSeasons[]>);
 
   // Extract unique categories for export dialog
-  const categories: RiceVarietyCategory[] = riceVarieties.reduce((acc, variety) => {
-    const existing = acc.find(cat => cat.id === variety.categoryId);
+  const categories: RiceVarietyCategory[] = riceVarieties.reduce((acc: RiceVarietyCategory[], variety: RiceVarietyWithSeasons) => {
+    const existing = acc.find((cat: RiceVarietyCategory) => cat.id === variety.categoryId);
     if (!existing) {
       acc.push({
         id: variety.categoryId,
@@ -102,12 +99,12 @@ export const RiceVarietiesList = () => {
       {/* Search and Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-1 gap-2 max-w-md">
-          <Input
+          <input
             type="text"
             placeholder="Search rice varieties..."
             value={search}
             onChange={handleSearchChange}
-            className="flex-1"
+            className="flex-1 h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
           <div className="flex gap-2">
             <Button
@@ -160,7 +157,7 @@ export const RiceVarietiesList = () => {
       {/* Rice Varieties by Category */}
       {riceVarieties.length > 0 ? (
         <div className="space-y-6">
-          {Object.entries(groupedVarieties).map(([categoryName, varieties]) => (
+          {Object.entries(groupedVarieties).map(([categoryName, varieties]: [string, RiceVarietyWithSeasons[]]) => (
             <div key={categoryName} className="space-y-4">
               <div className="border-b pb-2">
                 <h2 className="text-lg font-semibold text-gray-900">{categoryName}</h2>
@@ -168,7 +165,7 @@ export const RiceVarietiesList = () => {
               </div>
               
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
-                {varieties.map((variety) => (
+                {varieties.map((variety: RiceVarietyWithSeasons) => (
                   <div
                     key={variety.id}
                     className="rounded-lg border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"

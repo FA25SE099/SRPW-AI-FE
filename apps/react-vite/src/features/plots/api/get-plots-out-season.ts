@@ -33,7 +33,7 @@ export const getPlotsOutSeasonQueryOptions = (params?: GetPlotsOutSeasonParams) 
 
 type UsePlotsOutSeasonOptions = {
   params?: GetPlotsOutSeasonParams;
-  queryConfig?: QueryConfig<typeof getPlotsOutSeasonQueryOptions>;
+  queryConfig?: QueryConfig<typeof getPlotsOutSeason>;
 };
 
 export const usePlotsOutSeason = ({
@@ -41,7 +41,8 @@ export const usePlotsOutSeason = ({
   queryConfig
 }: UsePlotsOutSeasonOptions = {}) => {
   return useQuery({
-    ...getPlotsOutSeasonQueryOptions(params),
     ...queryConfig,
-  }) as ReturnType<typeof useQuery<GetPlotsOutSeasonResponse, Error>>;
+    queryKey: ['plots-out-season', params],
+    queryFn: () => getPlotsOutSeason({ params }),
+  });
 };

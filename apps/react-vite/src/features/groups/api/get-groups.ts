@@ -31,12 +31,13 @@ export const getGroupsQueryOptions = () => {
 };
 
 type UseGroupsOptions = {
-    queryConfig?: QueryConfig<typeof getGroupsQueryOptions>;
+    queryConfig?: QueryConfig<typeof getGroups>;
 };
 
 export const useGroups = ({ queryConfig }: UseGroupsOptions = {}) => {
     return useQuery({
-        ...getGroupsQueryOptions(),
         ...queryConfig,
-    }) as ReturnType<typeof useQuery<GroupsResponse, Error>>;
+        queryKey: ['groups'],
+        queryFn: getGroups,
+    });
 };

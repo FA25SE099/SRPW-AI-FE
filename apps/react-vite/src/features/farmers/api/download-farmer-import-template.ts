@@ -1,11 +1,9 @@
 import { api } from '@/lib/api-client';
 
 export const downloadFarmerImportTemplate = async (): Promise<Blob> => {
-  const response = await api.get('/farmer/download-import-template', {
+  return api.get('/farmer/download-import-template', {
     responseType: 'blob',
   });
-  
-  return response;
 };
 
 export const useFarmerImportTemplate = () => {

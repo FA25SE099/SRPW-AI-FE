@@ -31,12 +31,13 @@ export const getRiceVarietySeasonsQueryOptions = (params: GetRiceVarietySeasonsP
 
 type UseRiceVarietySeasonsOptions = {
   params?: GetRiceVarietySeasonsParams;
-  queryConfig?: QueryConfig<typeof getRiceVarietySeasonsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getRiceVarietySeasons>;
 };
 
 export const useRiceVarietySeasons = ({ params = {}, queryConfig }: UseRiceVarietySeasonsOptions = {}) => {
   return useQuery({
-    ...getRiceVarietySeasonsQueryOptions(params),
     ...queryConfig,
+    queryKey: ['rice-variety-seasons', params],
+    queryFn: () => getRiceVarietySeasons(params),
   });
 };

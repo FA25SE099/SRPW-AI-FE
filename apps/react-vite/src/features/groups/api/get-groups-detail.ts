@@ -74,12 +74,14 @@ export const getGroupDetailQueryOptions = (groupId: string) => {
 
 type UseGroupDetailOptions = {
     groupId: string;
-    queryConfig?: QueryConfig<typeof getGroupDetailQueryOptions>;
+    queryConfig?: QueryConfig<typeof getGroupDetail>;
 };
 
 export const useGroupDetail = ({ groupId, queryConfig }: UseGroupDetailOptions) => {
     return useQuery({
-        ...getGroupDetailQueryOptions(groupId),
         ...queryConfig,
+        queryKey: ['group', groupId],
+        queryFn: () => getGroupDetail(groupId),
+        enabled: !!groupId,
     });
 };

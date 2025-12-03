@@ -211,7 +211,6 @@ export type Material = {
   isActive: boolean;
 };
 
-// // PagedResult<T> from backend - extends Result<T> with pagination
 // PagedResult<T> from backend - extends Result<T> with pagination
 export type PagedResult<T> = {
   succeeded: boolean;
@@ -224,17 +223,6 @@ export type PagedResult<T> = {
   hasNext: boolean;
   message?: string;
   errors?: string[];
-};
-
-// Alias for PagedResult (for backward compatibility)
-export type PaginatedResponse<T> = {
-  data: T[];
-  currentPage: number;
-  totalPages: number;
-  totalCount: number;
-  pageSize: number;
-  hasPrevious: boolean;
-  hasNext: boolean;
 };
 
 // Rice Variety Management Types

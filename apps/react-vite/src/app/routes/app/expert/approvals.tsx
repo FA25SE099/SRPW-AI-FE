@@ -119,94 +119,94 @@ const ApprovalsRoute = () => {
             </div>
           )}
 
-{!isLoading && !error && data && (
-    <>
-      {data.data && data.data.length === 0 ? (
-        <div className="p-8 text-center text-gray-500">
-          No pending approvals at this time.
-        </div>
-      ) : (
-        <>
-          <div className="divide-y">
-            {data.data?.map((approval) => (
-              <div key={approval.id} className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium">{approval.planName}</h3>
-                    </div>
-                    <p className="mt-1 text-sm text-gray-600">
-                      Area: {approval.groupArea} | Group ID: {approval.groupId}
-                    </p>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {approval.submitterName} - Submitted {approval.submittedAt ? formatDate(approval.submittedAt) : 'N/A'}
-                    </p>
-                    <p className="mt-1 text-xs text-gray-400">
-                      Base Planting Date: {formatDate(approval.basePlantingDate)}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
+          {!isLoading && !error && data && (
+            <>
+              {data.data && data.data.length === 0 ? (
+                <div className="p-8 text-center text-gray-500">
+                  No pending approvals at this time.
+                </div>
+              ) : (
+                <>
+                  <div className="divide-y">
+                    {data.data?.map((approval) => (
+                      <div key={approval.id} className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-medium">{approval.planName}</h3>
+                            </div>
+                            <p className="mt-1 text-sm text-gray-600">
+                              Area: {approval.groupArea} | Group ID: {approval.groupId}
+                            </p>
+                            <p className="mt-1 text-sm text-gray-500">
+                              {approval.submitterName} - Submitted {approval.submittedAt ? formatDate(approval.submittedAt) : 'N/A'}
+                            </p>
+                            <p className="mt-1 text-xs text-gray-400">
+                              Base Planting Date: {formatDate(approval.basePlantingDate)}
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            {/* <Button
                       onClick={() => handleDetailsClick(approval)}
                       variant="outline"
                       size="sm"
                     >
                       Details
-                    </Button>
-                    <Button
-                      onClick={() => handleApproveClick(approval)}
-                      className="bg-green-500 hover:bg-green-600"
-                      size="sm"
-                    >
-                      Review
-                    </Button>
+                    </Button> */}
+                            <Button
+                              onClick={() => handleApproveClick(approval)}
+                              className="bg-green-500 hover:bg-green-600"
+                              size="sm"
+                            >
+                              Review
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
 
-          {data.totalPages > 1 && (
-            <div className="border-t p-4">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                  Showing page {data.currentPage} of {data.totalPages} ({data.totalCount} total)
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => setPage(page - 1)}
-                    disabled={!data.hasPrevious}
-                    size="sm"
-                    variant="outline"
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    onClick={() => setPage(page + 1)}
-                    disabled={!data.hasNext}
-                    size="sm"
-                    variant="outline"
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            </div>
+                  {data.totalPages > 1 && (
+                    <div className="border-t p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-gray-600">
+                          Showing page {data.currentPage} of {data.totalPages} ({data.totalCount} total)
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => setPage(page - 1)}
+                            disabled={!data.hasPrevious}
+                            size="sm"
+                            variant="outline"
+                          >
+                            Previous
+                          </Button>
+                          <Button
+                            onClick={() => setPage(page + 1)}
+                            disabled={!data.hasNext}
+                            size="sm"
+                            variant="outline"
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
           )}
-        </>
-      )}
-    </>
-  )}
-</div>
-</div>
+        </div>
+      </div>
       {selectedApproval && (
         <ApproveRejectDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-    planId={selectedApproval.id}
-    farmerName={selectedApproval.submitterName}
-    cropType={selectedApproval.planName}
-    issue={selectedApproval.planName}
+          planId={selectedApproval.id}
+          farmerName={selectedApproval.submitterName}
+          cropType={selectedApproval.planName}
+          issue={selectedApproval.planName}
           onSuccess={handleSuccess}
         />
       )}

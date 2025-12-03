@@ -56,12 +56,13 @@ export const getFarmersQueryOptions = (params: GetFarmersParams) => {
 
 type UseFarmersOptions = {
     params?: GetFarmersParams;
-    queryConfig?: QueryConfig<typeof getFarmersQueryOptions>;
+    queryConfig?: QueryConfig<typeof getFarmers>;
 };
 
 export const useFarmers = ({ params = {}, queryConfig }: UseFarmersOptions = {}) => {
     return useQuery({
-        ...getFarmersQueryOptions(params),
         ...queryConfig,
-    }) as ReturnType<typeof useQuery<GetFarmersResponse, Error>>;
+        queryKey: ['farmer', params],
+        queryFn: () => getFarmers(params),
+    });
 };

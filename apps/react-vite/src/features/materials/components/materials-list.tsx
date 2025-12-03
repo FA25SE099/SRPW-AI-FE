@@ -25,7 +25,7 @@ export const MaterialsList = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
 
-  const materialsQuery = useMaterials({
+  const { data: materials, isLoading } = useMaterials({
     params: { currentPage, pageSize, type: selectedType },
   });
 
@@ -38,7 +38,7 @@ export const MaterialsList = () => {
   };
 
   const handleDownloadTemplate = () => {
-    downloadTemplateMutation.mutate();
+    downloadTemplateMutation.mutate(undefined);
   };
 
 
@@ -52,15 +52,13 @@ export const MaterialsList = () => {
     setDeleteDialogOpen(true);
   };
 
-  if (materialsQuery.isLoading) {
+  if (isLoading) {
     return (
       <div className="flex h-48 items-center justify-center">
         <Spinner size="lg" />
       </div>
     );
   }
-
-  const materials = materialsQuery.data;
 
   return (
     <>

@@ -27,7 +27,7 @@ export const getRiceVarietiesQueryOptions = (params?: GetRiceVarietiesParams) =>
 
 type UseRiceVarietiesOptions = {
   params?: GetRiceVarietiesParams;
-  queryConfig?: QueryConfig<typeof getRiceVarietiesQueryOptions>;
+  queryConfig?: QueryConfig<typeof getRiceVarieties>;
 };
 
 export const useRiceVarieties = ({
@@ -35,8 +35,9 @@ export const useRiceVarieties = ({
   queryConfig,
 }: UseRiceVarietiesOptions = {}) => {
   return useQuery({
-    ...getRiceVarietiesQueryOptions(params),
     ...queryConfig,
+    queryKey: params ? ['rice-varieties', params] : ['rice-varieties'],
+    queryFn: () => getRiceVarieties(params),
   });
 };
 

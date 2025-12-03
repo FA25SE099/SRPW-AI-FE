@@ -37,13 +37,14 @@ export const getMaterialsQueryOptions = (params: GetMaterialsParams) => {
 
 type UseMaterialsOptions = {
   params: GetMaterialsParams;
-  queryConfig?: QueryConfig<typeof getMaterialsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getMaterials>;
 };
 
 export const useMaterials = ({ params, queryConfig }: UseMaterialsOptions) => {
   return useQuery({
-    ...getMaterialsQueryOptions(params),
     ...queryConfig,
-  }) as ReturnType<typeof useQuery<PagedResult<Material[]>, Error>>;
+    queryKey: ['materials', params],
+    queryFn: () => getMaterials(params),
+  });
 };
 
