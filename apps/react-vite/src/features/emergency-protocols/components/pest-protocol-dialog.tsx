@@ -83,8 +83,8 @@ export const PestProtocolDialog = (props: PestProtocolDialogProps) => {
     if (files.length === 0) return;
 
     try {
-      const result = await uploadFilesMutation.mutateAsync(files);
-      const newLinks = result.files.map((f) => f.url);
+      const result: any = await uploadFilesMutation.mutateAsync(files as any);
+      const newLinks = result.files.map((f: any) => f.url);
       setProtocol({
         ...protocol,
         imageLinks: [...(protocol?.imageLinks || []), ...newLinks],

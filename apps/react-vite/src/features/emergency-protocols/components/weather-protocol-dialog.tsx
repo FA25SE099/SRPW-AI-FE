@@ -70,8 +70,8 @@ export const WeatherProtocolDialog = ({
     if (files.length === 0) return;
 
     try {
-      const result = await uploadFilesMutation.mutateAsync(files);
-      const newLinks = result.files.map((f) => f.url);
+      const result: any = await uploadFilesMutation.mutateAsync(files as any);
+      const newLinks = result.files.map((f: any) => f.url);
       setProtocol({
         ...protocol,
         imageLinks: [...(protocol?.imageLinks || []), ...newLinks],
@@ -165,8 +165,8 @@ export const WeatherProtocolDialog = ({
                 {/* Drag and Drop Upload Area - Always visible */}
                 <div
                   className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-gray-300 hover:border-gray-400'
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-300 hover:border-gray-400'
                     }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}

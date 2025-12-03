@@ -208,14 +208,14 @@ export const ThresholdDialog = ({
   useEffect(() => {
     if (isEditMode && initialData && isOpen) {
       Object.keys(initialData).forEach((key) => {
-        setValue(key as any, initialData[key]);
+        setValue(key as any, (initialData as any)[key]);
       });
-      setEnablePest(!!initialData.pestProtocolId);
-      setEnableWeather(!!initialData.weatherProtocolId);
+      setEnablePest(!!initialData.pestProtocolId as any);
+      setEnableWeather(!!initialData.weatherProtocolId as any);
     } else if (!isOpen) {
       reset();
-      setEnablePest(true);
-      setEnableWeather(false);
+      setEnablePest(true as any);
+      setEnableWeather(false as any);
     }
   }, [isEditMode, initialData, isOpen, setValue, reset]);
 
@@ -320,7 +320,7 @@ export const ThresholdDialog = ({
                 <input
                   type="checkbox"
                   checked={enablePest}
-                  onChange={(e) => setEnablePest(e.target.checked)}
+                  onChange={(e) => setEnablePest(e.target.checked as any)}
                   className="rounded text-orange-600 focus:ring-orange-500"
                 />
                 <Bug className="size-4 text-orange-600" />
