@@ -8,6 +8,7 @@ import { useNotifications } from '@/components/ui/notifications';
 import { useCreateStandardPlan, CreateStandardPlanStage, CreateStandardPlanStageTask } from '../api/create-standard-plan';
 import { useCategories } from '@/features/rice-varieties/api/get-categories';
 import { useMaterials } from '@/features/materials/api/get-materials';
+import { Material } from '@/types/api';
 
 type CreateStandardPlanDialogProps = {
   isOpen: boolean;
@@ -191,7 +192,11 @@ export const CreateStandardPlanDialog = ({
   ) => {
     const newStages = [...stages];
     const material = newStages[stageIndex].tasks[taskIndex].materials[materialIndex];
-    material[field] = value as any;
+    if (field === 'materialId') {
+      material.materialId = value as string;
+    } else {
+      material.quantityPerHa = value as number;
+    }
     setStages(newStages);
   };
 
@@ -442,7 +447,7 @@ export const CreateStandardPlanDialog = ({
                       <option value="">Select category...</option>
                       {categories.map((category) => (
                         <option key={category.id} value={category.id}>
-                          {category.categoryName}
+                          {category.name}
                         </option>
                       ))}
                     </select>
@@ -794,7 +799,7 @@ export const CreateStandardPlanDialog = ({
                                             <>
                                               {fertilizers.length > 0 && (
                                                 <optgroup label="Fertilizers">
-                                                  {fertilizers.map((mat) => (
+                                                  {fertilizers.map((mat: Material) => (
                                                     <option key={mat.materialId} value={mat.materialId}>
                                                       {mat.name} ({mat.unit})
                                                     </option>
@@ -803,7 +808,7 @@ export const CreateStandardPlanDialog = ({
                                               )}
                                               {pesticides.length > 0 && (
                                                 <optgroup label="Pesticides">
-                                                  {pesticides.map((mat) => (
+                                                  {pesticides.map((mat: Material) => (
                                                     <option key={mat.materialId} value={mat.materialId}>
                                                       {mat.name} ({mat.unit})
                                                     </option>

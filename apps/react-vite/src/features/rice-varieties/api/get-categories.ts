@@ -16,12 +16,13 @@ export const getCategoriesQueryOptions = () => {
 };
 
 type UseCategoriesOptions = {
-  queryConfig?: QueryConfig<typeof getCategoriesQueryOptions>;
+  queryConfig?: QueryConfig<typeof getCategories>;
 };
 
 export const useCategories = ({ queryConfig }: UseCategoriesOptions = {}) => {
   return useQuery({
-    ...getCategoriesQueryOptions(),
     ...queryConfig,
+    queryKey: ['rice-variety-categories'],
+    queryFn: getCategories,
   });
 };

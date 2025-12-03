@@ -18,13 +18,15 @@ export const getStandardPlanDetailQueryOptions = (id: string) => {
 
 type UseStandardPlanDetailOptions = {
   id: string;
-  queryConfig?: QueryConfig<typeof getStandardPlanDetailQueryOptions>;
+  queryConfig?: QueryConfig<typeof getStandardPlanDetail>;
 };
 
 export const useStandardPlanDetail = ({ id, queryConfig }: UseStandardPlanDetailOptions) => {
   return useQuery({
-    ...getStandardPlanDetailQueryOptions(id),
     ...queryConfig,
+    queryKey: ['standard-plan', id],
+    queryFn: () => getStandardPlanDetail(id),
+    enabled: !!id && (queryConfig?.enabled !== false),
   });
 };
 

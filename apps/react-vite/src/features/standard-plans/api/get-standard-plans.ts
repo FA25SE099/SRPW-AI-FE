@@ -32,13 +32,14 @@ export const getStandardPlansQueryOptions = (params?: GetStandardPlansParams) =>
 
 type UseStandardPlansOptions = {
   params?: GetStandardPlansParams;
-  queryConfig?: QueryConfig<typeof getStandardPlansQueryOptions>;
+  queryConfig?: QueryConfig<typeof getStandardPlans>;
 };
 
 export const useStandardPlans = ({ params, queryConfig }: UseStandardPlansOptions = {}) => {
   return useQuery({
-    ...getStandardPlansQueryOptions(params),
     ...queryConfig,
+    queryKey: ['standard-plans', params],
+    queryFn: () => getStandardPlans(params),
   });
 };
 
@@ -57,13 +58,15 @@ export const getStandardPlanQueryOptions = (standardPlanId: string) => {
 
 type UseStandardPlanOptions = {
   standardPlanId: string;
-  queryConfig?: QueryConfig<typeof getStandardPlanQueryOptions>;
+  queryConfig?: QueryConfig<typeof getStandardPlan>;
 };
 
 export const useStandardPlan = ({ standardPlanId, queryConfig }: UseStandardPlanOptions) => {
   return useQuery({
-    ...getStandardPlanQueryOptions(standardPlanId),
     ...queryConfig,
+    queryKey: ['standard-plan', standardPlanId],
+    queryFn: () => getStandardPlan(standardPlanId),
+    enabled: !!standardPlanId && (queryConfig?.enabled !== false),
   });
 };
 

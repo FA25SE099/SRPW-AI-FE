@@ -87,12 +87,14 @@ export const getPlotsQueryOptions = (params: GetPlotsParams = {}) => {
 
 type UsePlotsOptions = {
     params?: GetPlotsParams;
-    queryConfig?: QueryConfig<typeof getPlotsQueryOptions>;
+    queryConfig?: QueryConfig<typeof getPlots>;
 };
 
 export const usePlots = ({ params = {}, queryConfig }: UsePlotsOptions = {}) => {
     return useQuery({
-        ...getPlotsQueryOptions(params),
         ...queryConfig,
+        queryKey: ['plots', params],
+        queryFn: () => getPlots(params),
+        staleTime: 5000,
     });
 };

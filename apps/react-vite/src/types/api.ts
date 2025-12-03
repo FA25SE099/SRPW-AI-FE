@@ -224,19 +224,19 @@ export type Material = {
   isActive: boolean;
 };
 
-// // PagedResult<T> from backend - extends Result<T> with pagination
-// export type PagedResult<T> = {
-//   succeeded: boolean;
-//   data: T;
-//   currentPage: number;
-//   totalPages: number;
-//   totalCount: number;
-//   pageSize: number;
-//   hasPrevious: boolean;
-//   hasNext: boolean;
-//   message?: string;
-//   errors?: string[];
-// };
+// PagedResult<T> from backend - extends Result<T> with pagination
+export type PagedResult<T> = {
+  succeeded: boolean;
+  data: T;
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  pageSize: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  message?: string;
+  errors?: string[];
+};
 
 // Rice Variety Management Types
 export type RiceVarietyCategory = {

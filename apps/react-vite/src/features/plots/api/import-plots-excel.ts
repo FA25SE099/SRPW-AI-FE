@@ -40,13 +40,11 @@ export const importPlotsExcel = async ({
         formData.append('importDate', importDate)
     }
 
-    const response = await api.post<ImportPlotsExcelResponse>('/plot/import-excel', formData, {
+    return api.post('/plot/import-excel', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
-    })
-
-    return response
+    }) as Promise<ImportPlotsExcelResponse>
 }
 
 type UseImportPlotsExcelOptions = {

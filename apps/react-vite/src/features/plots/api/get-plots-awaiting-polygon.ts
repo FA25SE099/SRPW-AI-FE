@@ -81,7 +81,7 @@ export const getPlotsAwaitingPolygonQueryOptions = (params: GetPlotsAwaitingPoly
 
 type UsePlotsAwaitingPolygonOptions = {
   params?: GetPlotsAwaitingPolygonParams;
-  queryConfig?: QueryConfig<typeof getPlotsAwaitingPolygonQueryOptions>;
+  queryConfig?: QueryConfig<typeof getPlotsAwaitingPolygon>;
 };
 
 export const usePlotsAwaitingPolygon = ({
@@ -89,8 +89,9 @@ export const usePlotsAwaitingPolygon = ({
   queryConfig,
 }: UsePlotsAwaitingPolygonOptions = {}) => {
   return useQuery({
-    ...getPlotsAwaitingPolygonQueryOptions(params),
     ...queryConfig,
+    queryKey: ['plots-awaiting-polygon', params],
+    queryFn: () => getPlotsAwaitingPolygon(params),
   });
 };
 
