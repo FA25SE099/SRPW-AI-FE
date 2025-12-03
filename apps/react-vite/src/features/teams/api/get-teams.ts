@@ -16,12 +16,13 @@ export const getTeamsQueryOptions = () => {
 };
 
 type UseTeamsOptions = {
-  queryConfig?: QueryConfig<typeof getTeamsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getTeams>;
 };
 
 export const useTeams = ({ queryConfig }: UseTeamsOptions = {}) => {
   return useQuery({
-    ...getTeamsQueryOptions(),
     ...queryConfig,
-  } as any);
+    queryKey: ['teams'],
+    queryFn: getTeams,
+  });
 };

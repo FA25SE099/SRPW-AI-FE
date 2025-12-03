@@ -144,7 +144,7 @@ export const UpdateProductionPlanDialog = ({
         sequenceOrder: stage.sequenceOrder,
         description: stage.notes || '',
         expectedDurationDays: stage.expectedDurationDays || 7,
-        isMandatory: stage.isMandatory,
+        isMandatory: false,
         tasks: stage.tasks.map((task) => ({
           taskId: task.taskId,
           taskName: task.taskName,
@@ -512,7 +512,10 @@ export const UpdateProductionPlanDialog = ({
     // Clear errors for removed task
     const newErrors = { ...errors };
     if (newErrors.stages?.[stageIndex]?.tasks?.[taskIndex]) {
-      delete newErrors.stages[stageIndex].tasks[taskIndex];
+      const stageErrors = newErrors.stages[stageIndex];
+      if (stageErrors?.tasks?.[taskIndex]) {
+        delete stageErrors.tasks[taskIndex];
+      }
     }
     setErrors(newErrors);
   };
@@ -531,8 +534,9 @@ export const UpdateProductionPlanDialog = ({
 
     // Clear related errors when field is updated
     const newErrors = { ...errors };
-    if (newErrors.stages?.[stageIndex]?.tasks?.[taskIndex]) {
-      const taskErrors = newErrors.stages[stageIndex].tasks[taskIndex];
+    const stageErrors = newErrors.stages?.[stageIndex];
+    if (stageErrors?.tasks?.[taskIndex]) {
+      const taskErrors = stageErrors.tasks[taskIndex];
       if (updates.taskName !== undefined) {
         delete taskErrors.taskName;
       }
