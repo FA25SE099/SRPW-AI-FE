@@ -62,7 +62,7 @@ export const PlanSummary = ({
           <dt className="font-medium text-yellow-700">Total Tasks:</dt>
           <dd className="text-gray-900">
             {planDetails.stages.reduce(
-              (sum, stage) => sum + stage.tasks.length,
+              (sum: number, stage: any) => sum + stage.tasks.length,
               0,
             )}{' '}
             tasks

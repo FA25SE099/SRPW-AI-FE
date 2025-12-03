@@ -6,21 +6,26 @@ export const convertPlanToEditableStages = (planDetails: ProductionPlan): Editab
     return planDetails.stages.map(stage => ({
         stageName: stage.stageName,
         sequenceOrder: stage.sequenceOrder,
-        tasks: stage.tasks.map(task => ({
-            taskName: task.taskName,
-            description: task.description || '',
-            taskType: task.taskType,
-            daysAfter: calculateDaysAfter(planDetails.basePlantingDate, task.scheduledDate),
-            durationDays: calculateDuration(task.scheduledDate, task.scheduledEndDate),
-            priority: task.priority,
-            sequenceOrder: task.sequenceOrder,
-            isFromProtocol: false,
-            originalTaskId: task.id,
-            materials: task.materials.map(m => ({
-                materialId: m.materialId,
-                quantityPerHa: m.quantityPerHa,
-            })),
-        })),
+        tasks: stage.tasks.map(task => {
+            const scheduledStartDate = new Date(planDetails.basePlantingDate);
+            scheduledStartDate.setDate(scheduledStartDate.getDate() + task.daysAfter);
+
+            return {
+                taskName: task.taskName,
+                description: task.description || '',
+                taskType: task.taskType,
+                daysAfter: task.daysAfter,
+                durationDays: task.durationDays,
+                priority: task.priority,
+                sequenceOrder: task.sequenceOrder,
+                isFromProtocol: false,
+                originalTaskId: task.taskId,
+                materials: task.materials.map(m => ({
+                    materialId: m.materialId,
+                    quantityPerHa: m.quantityPerHa,
+                })),
+            };
+        }),
     }));
 };
 
@@ -41,7 +46,7 @@ export const convertEditableTasksToPayload = (
 
             // Only mark NEW tasks as contingency (when productionPlanTaskId is null)
             const isNewTask = !task.originalTaskId;
-            
+
             baseCultivationTasks.push({
                 productionPlanTaskId: task.originalTaskId || null,
                 taskName: task.taskName,
