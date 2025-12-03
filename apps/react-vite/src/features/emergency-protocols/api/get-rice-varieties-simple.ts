@@ -48,7 +48,12 @@ type UseRiceVarietiesSimpleOptions = {
 
 export const useRiceVarietiesSimple = ({
   queryConfig,
-}: UseRiceVarietiesSimpleOptions = {}) => {
+}: UseRiceVarietiesSimpleOptions = {}): ReturnType<typeof useQuery<{
+  succeeded: boolean;
+  data: RiceVarietySimple[];
+  message: string;
+  errors: string[];
+}>> => {
   return useQuery({
     ...queryConfig,
     queryKey: ['rice-varieties-simple'],

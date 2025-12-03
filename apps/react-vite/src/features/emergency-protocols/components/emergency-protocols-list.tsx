@@ -22,7 +22,7 @@ export const EmergencyProtocolsList = () => {
     const pageSize = 10;
 
     const protocolsQuery = useEmergencyProtocols({
-        params: { currentPage, pageSize, searchName: searchTerm },
+        params: { currentPage, pageSize, searchTerm: searchTerm },
     });
 
     const protocols = protocolsQuery.data?.data || [];

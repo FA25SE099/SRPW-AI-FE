@@ -237,7 +237,7 @@ export const CreateEmergencyProtocolDialog = ({
 
   const createPestProtocolMutation = useCreatePestProtocol({
     mutationConfig: {
-      onSuccess: (response) => {
+      onSuccess: (response: any) => {
         addNotification({
           type: 'success',
           title: 'Success',
@@ -280,7 +280,7 @@ export const CreateEmergencyProtocolDialog = ({
 
   const createWeatherProtocolMutation = useCreateWeatherProtocol({
     mutationConfig: {
-      onSuccess: (response) => {
+      onSuccess: () => {
         addNotification({
           type: 'success',
           title: 'Success',
@@ -336,7 +336,7 @@ export const CreateEmergencyProtocolDialog = ({
   console.log('📦 Protocol Details:', {
     raw: protocolDetailsResponse,
     extracted: protocolDetails,
-    planName: protocolDetails?.planName,
+    planName: protocolDetails?.data?.planName,
   });
 
   const updateProtocolMutation = useUpdateEmergencyProtocol({
@@ -361,16 +361,16 @@ export const CreateEmergencyProtocolDialog = ({
 
   // Load existing data when editing
   useEffect(() => {
-    if (isEditMode && protocolDetails && isOpen && !isLoadingDetails) {
+    if (isEditMode && protocolDetails?.data && isOpen && !isLoadingDetails) {
       console.log('📝 Populating form with protocol data:', protocolDetails);
 
       // Set basic form data
       const basicData: FormData = {
-        categoryId: protocolDetails.categoryId,
-        planName: protocolDetails.planName,
-        description: protocolDetails.description,
-        totalDurationDays: protocolDetails.totalDurationDays,
-        isActive: protocolDetails.isActive,
+        categoryId: protocolDetails.data.categoryId,
+        planName: protocolDetails.data.planName,
+        description: protocolDetails.data.description,
+        totalDurationDays: protocolDetails.data.totalDurationDays,
+        isActive: protocolDetails.data.isActive,
       };
 
       setFormData(basicData);
@@ -398,14 +398,14 @@ export const CreateEmergencyProtocolDialog = ({
       });
 
       // Convert stages to editable format
-      const convertedStages: EditableStage[] = protocolDetails.stages.map(
-        (stage) => ({
+      const convertedStages: EditableStage[] = protocolDetails.data.stages.map(
+        (stage: any) => ({
           stageName: stage.stageName,
           sequenceOrder: stage.sequenceOrder,
           expectedDurationDays: stage.expectedDurationDays,
           isMandatory: stage.isMandatory,
           notes: stage.notes || undefined,
-          tasks: stage.tasks.map((task) => ({
+          tasks: stage.tasks.map((task: any) => ({
             taskName: task.taskName,
             description: task.description || '',
             daysAfter: task.daysAfter,
@@ -413,7 +413,7 @@ export const CreateEmergencyProtocolDialog = ({
             taskType: task.taskType,
             priority: task.priority,
             sequenceOrder: task.sequenceOrder,
-            materials: task.materials.map((m) => ({
+            materials: task.materials.map((m: any) => ({
               materialId: m.materialId,
               quantityPerHa: m.quantityPerHa,
             })),
@@ -426,7 +426,7 @@ export const CreateEmergencyProtocolDialog = ({
 
       // Convert thresholds to editable format
       const convertedThresholds: EditableThreshold[] =
-        protocolDetails.thresholds.map((t) => ({
+        protocolDetails.data.thresholds.map((t: any) => ({
           pestProtocolId: t.pestProtocolId || undefined,
           weatherProtocolId: t.weatherProtocolId || undefined,
           pestAffectType: t.pestAffectType || undefined,
@@ -533,7 +533,7 @@ export const CreateEmergencyProtocolDialog = ({
           notes: 'Xử lý khẩn cấp',
           tasks: stage.tasks.map((task) => ({
             taskName: task.taskName,
-            description: task.description,
+            description: task.description || '',
             daysAfter: task.daysAfter,
             durationDays: task.durationDays,
             taskType: task.taskType,
@@ -542,7 +542,7 @@ export const CreateEmergencyProtocolDialog = ({
             materials: task.materials.filter(
               (m) => m.materialId && m.quantityPerHa > 0,
             ),
-          })),
+          })) as any,
         },
       ],
       thresholds: editableThresholds.map((threshold) => ({
@@ -573,7 +573,7 @@ export const CreateEmergencyProtocolDialog = ({
       updateProtocolMutation.mutate({
         emergencyProtocolId: protocol.id,
         ...createData,
-      });
+      } as any);
     } else {
       createProtocolMutation.mutate(createData);
     }
@@ -801,7 +801,7 @@ export const CreateEmergencyProtocolDialog = ({
     value: string | number,
   ) => {
     const newStages = [...editableStages];
-    const material =
+    const material: any =
       newStages[stageIndex].tasks[taskIndex].materials[materialIndex];
     material[field] = value as any;
     setEditableStages(newStages);
@@ -816,7 +816,7 @@ export const CreateEmergencyProtocolDialog = ({
     setEditableThresholds(editableThresholds.filter((_, i) => i !== index));
   };
 
-  const categories = categoriesQuery.data || [];
+  const categories = (categoriesQuery.data as any) || [];
   const pestProtocols = pestProtocolsData?.data || [];
   const weatherProtocols = weatherProtocolsData?.data || [];
   const riceVarieties = riceVarietiesResponse?.data || [];
@@ -875,7 +875,7 @@ export const CreateEmergencyProtocolDialog = ({
               {formData?.categoryId && (
                 <p className="text-xs text-gray-600">
                   Category:{' '}
-                  {categories.find((c) => c.id === formData.categoryId)
+                  {categories.find((c: any) => c.id === formData.categoryId)
                     ?.categoryName || 'Loading...'}
                 </p>
               )}
@@ -1006,7 +1006,7 @@ export const CreateEmergencyProtocolDialog = ({
                           disabled={categoriesQuery.isLoading}
                         >
                           <option value="">Select category</option>
-                          {categories.map((category) => (
+                          {categories.map((category: any) => (
                             <option key={category.id} value={category.id}>
                               {category.categoryName}
                             </option>
@@ -1317,7 +1317,7 @@ export const CreateEmergencyProtocolDialog = ({
                                         </option>
                                         {fertilizers.length > 0 && (
                                           <optgroup label="Fertilizers">
-                                            {fertilizers.map((mat) => (
+                                            {fertilizers.map((mat: any) => (
                                               <option
                                                 key={mat.materialId}
                                                 value={mat.materialId}
@@ -1329,7 +1329,7 @@ export const CreateEmergencyProtocolDialog = ({
                                         )}
                                         {pesticides.length > 0 && (
                                           <optgroup label="Pesticides">
-                                            {pesticides.map((mat) => (
+                                            {pesticides.map((mat: any) => (
                                               <option
                                                 key={mat.materialId}
                                                 value={mat.materialId}
@@ -1590,7 +1590,7 @@ export const CreateEmergencyProtocolDialog = ({
                   <div className="flex justify-between gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setStep('stages')}
+                      onClick={() => setStep('tasks')}
                       disabled={isLoading}
                     >
                       <ArrowLeft className="mr-1 size-4" />
@@ -1888,7 +1888,7 @@ export const CreateEmergencyProtocolDialog = ({
                                   Rice Variety:{' '}
                                   <span className="font-medium text-gray-900">
                                     {riceVarieties.find(
-                                      (v) => v.id === threshold.riceVarietyId,
+                                      (v: any) => v.id === threshold.riceVarietyId,
                                     )?.varietyName || 'Unknown'}
                                   </span>
                                 </span>
@@ -1949,7 +1949,6 @@ export const CreateEmergencyProtocolDialog = ({
         onAdd={handleAddThreshold}
         pestProtocols={pestProtocols}
         weatherProtocols={weatherProtocols}
-        riceVarieties={riceVarieties}
         onCreatePestProtocol={() => setIsPestProtocolDialogOpen(true)}
         onCreateWeatherProtocol={() => setIsWeatherProtocolDialogOpen(true)}
         initialData={
@@ -1970,10 +1969,14 @@ export const CreateEmergencyProtocolDialog = ({
         <PestProtocolDialog
           isOpen={isPestProtocolDialogOpen}
           onClose={() => setIsPestProtocolDialogOpen(false)}
-          onCreate={createPestProtocolMutation.mutate}
+          onSubmit={(data) => {
+            const { id, ...createData } = data;
+            createPestProtocolMutation.mutate(createData);
+          }}
           isLoading={createPestProtocolMutation.isPending}
-          newPestProtocol={newPestProtocol}
-          setNewPestProtocol={setNewPestProtocol}
+          protocol={newPestProtocol}
+          setProtocol={setNewPestProtocol}
+          isEditMode={false}
         />
       )}
 
@@ -1981,10 +1984,14 @@ export const CreateEmergencyProtocolDialog = ({
         <WeatherProtocolDialog
           isOpen={isWeatherProtocolDialogOpen}
           onClose={() => setIsWeatherProtocolDialogOpen(false)}
-          onCreate={createWeatherProtocolMutation.mutate}
+          onSubmit={(data) => {
+            const { id, ...createData } = data;
+            createWeatherProtocolMutation.mutate(createData);
+          }}
           isLoading={createWeatherProtocolMutation.isPending}
-          newWeatherProtocol={newWeatherProtocol}
-          setNewWeatherProtocol={setNewWeatherProtocol}
+          protocol={newWeatherProtocol}
+          setProtocol={setNewWeatherProtocol}
+          isEditMode={false}
         />
       )}
     </div>

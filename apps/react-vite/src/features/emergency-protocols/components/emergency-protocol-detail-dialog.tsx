@@ -37,8 +37,8 @@ export const EmergencyProtocolDetailDialog = ({
     enabled: isOpen && !!protocolId,
   });
 
-  // The API returns the data directly, not wrapped in a 'data' property
-  const protocol = response;
+  // Extract the data from the response
+  const protocol = response?.data;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -75,11 +75,10 @@ export const EmergencyProtocolDetailDialog = ({
                   </p>
                 </div>
                 <span
-                  className={`rounded-full px-3 py-1 text-sm ${
-                    protocol.isActive
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                  className={`rounded-full px-3 py-1 text-sm ${protocol.isActive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                    }`}
                 >
                   {protocol.isActive ? 'Active' : 'Inactive'}
                 </span>
@@ -136,7 +135,7 @@ export const EmergencyProtocolDetailDialog = ({
                   Trigger Thresholds
                 </h4>
                 <div className="space-y-3">
-                  {protocol.thresholds.map((threshold, index) => (
+                  {protocol.thresholds.map((threshold: any, index: number) => (
                     <div
                       key={threshold.id}
                       className="rounded-lg border bg-gray-50 p-4"
@@ -225,11 +224,11 @@ export const EmergencyProtocolDetailDialog = ({
                   Implementation Tasks
                 </h4>
                 <div className="space-y-4">
-                  {protocol.stages.map((stage, index) => (
+                  {protocol.stages.map((stage: any, index: number) => (
                     <div key={stage.id} className="rounded-lg border p-4">
                       {stage.tasks && stage.tasks.length > 0 && (
                         <div className="ml-4 space-y-3 border-l-2 border-gray-200 pl-4">
-                          {stage.tasks.map((task) => (
+                          {stage.tasks.map((task: any) => (
                             <div key={task.id} className="space-y-2">
                               <div className="flex items-start gap-2">
                                 <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-green-600" />
@@ -258,7 +257,7 @@ export const EmergencyProtocolDetailDialog = ({
                                     Required Materials:
                                   </p>
                                   <div className="space-y-1">
-                                    {task.materials.map((material) => (
+                                    {task.materials.map((material: any) => (
                                       <div
                                         key={material.id}
                                         className="flex items-center justify-between text-xs"
