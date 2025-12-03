@@ -74,7 +74,7 @@ export const WeatherProtocolDialog = ({
       const newLinks = result.files.map((f) => f.url);
       setProtocol({
         ...protocol,
-        imageLinks: [...protocol.imageLinks, ...newLinks],
+        imageLinks: [...(protocol?.imageLinks || []), ...newLinks],
       });
     } catch (error) {
       console.error('Upload failed:', error);
@@ -83,11 +83,11 @@ export const WeatherProtocolDialog = ({
   };
 
   const removeImageLink = (index: number) => {
-    const updatedLinks = protocol.imageLinks.filter((_, i) => i !== index);
+    const updatedLinks = (protocol?.imageLinks || []).filter((_, i) => i !== index);
     setProtocol({ ...protocol, imageLinks: updatedLinks });
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !protocol) return null;
 
   return (
     <div className="fixed inset-0 z-[80] overflow-y-auto">
@@ -107,7 +107,7 @@ export const WeatherProtocolDialog = ({
             <div>
               <Label>Name *</Label>
               <Input
-                value={protocol.name}
+                value={protocol.name || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -120,7 +120,7 @@ export const WeatherProtocolDialog = ({
             <div>
               <Label>Source *</Label>
               <Input
-                value={protocol.source}
+                value={protocol.source || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -133,7 +133,7 @@ export const WeatherProtocolDialog = ({
             <div>
               <Label>Source Link</Label>
               <Input
-                value={protocol.sourceLink}
+                value={protocol.sourceLink || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -145,7 +145,7 @@ export const WeatherProtocolDialog = ({
             <div>
               <Label>Description *</Label>
               <textarea
-                value={protocol.description}
+                value={protocol.description || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -164,11 +164,10 @@ export const WeatherProtocolDialog = ({
               <div className="space-y-4">
                 {/* Drag and Drop Upload Area - Always visible */}
                 <div
-                  className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
-                    dragActive
+                  className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${dragActive
                       ? 'border-primary bg-primary/5'
                       : 'border-gray-300 hover:border-gray-400'
-                  }`}
+                    }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -200,7 +199,7 @@ export const WeatherProtocolDialog = ({
                 </div>
 
                 {/* Display uploaded images in table format */}
-                {protocol.imageLinks.length > 0 && (
+                {(protocol.imageLinks?.length || 0) > 0 && (
                   <div className="overflow-hidden rounded-lg border border-gray-200">
                     <table className="w-full">
                       <thead className="border-b border-gray-200 bg-gray-50">
@@ -217,7 +216,7 @@ export const WeatherProtocolDialog = ({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 bg-white">
-                        {protocol.imageLinks.map((link, index) => (
+                        {(protocol.imageLinks || []).map((link, index) => (
                           <tr key={index} className="hover:bg-gray-50">
                             <td className="px-4 py-3">
                               <img
@@ -256,7 +255,7 @@ export const WeatherProtocolDialog = ({
             <div>
               <Label>Notes</Label>
               <textarea
-                value={protocol.notes}
+                value={protocol.notes || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -291,13 +290,7 @@ export const WeatherProtocolDialog = ({
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading
-                  ? isEditMode
-                    ? 'Saving...'
-                    : 'Creating...'
-                  : isEditMode
-                    ? 'Save'
-                    : 'Create'}
+                {isLoading ? 'Saving...' : isEditMode ? 'Save' : 'Create'}
               </Button>
             </div>
           </form>
