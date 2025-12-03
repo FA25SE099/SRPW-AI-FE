@@ -18,6 +18,10 @@
 //     description: 'High quality NPK fertilizer for rice cultivation',
 //     manufacturer: 'Phân bón Phú Mỹ',
 //     isActive: true,
+<<<<<<< HEAD
+=======
+//     priceValidFrom: '2024-01-15T00:00:00Z',
+>>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 //   },
 //   {
 //     materialId: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
@@ -30,6 +34,10 @@
 //     description: 'Nitrogen fertilizer for rapid growth',
 //     manufacturer: 'Phân bón Cà Mau',
 //     isActive: true,
+<<<<<<< HEAD
+=======
+//     priceValidFrom: '2024-01-15T00:00:00Z',
+>>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 //   },
 //   {
 //     materialId: '8d8c6d89-8f52-4a3e-9e12-3b7c4e8f9a1b',
@@ -42,6 +50,10 @@
 //     description: 'Phosphorus fertilizer for root development',
 //     manufacturer: 'Phân bón Lâm Thao',
 //     isActive: true,
+<<<<<<< HEAD
+=======
+//     priceValidFrom: '2024-01-15T00:00:00Z',
+>>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 //   },
 //   {
 //     materialId: '9a8b7c6d-5e4f-3a2b-1c0d-9e8f7a6b5c4d',
@@ -54,6 +66,10 @@
 //     description: 'Broad spectrum insecticide',
 //     manufacturer: 'Bayer CropScience',
 //     isActive: true,
+<<<<<<< HEAD
+=======
+//     priceValidFrom: '2024-01-15T00:00:00Z',
+>>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 //   },
 //   {
 //     materialId: 'a1b2c3d4-e5f6-7g8h-9i0j-k1l2m3n4o5p6',
@@ -66,6 +82,10 @@
 //     description: 'Fungicide for blast disease control',
 //     manufacturer: 'Syngenta',
 //     isActive: true,
+<<<<<<< HEAD
+=======
+//     priceValidFrom: '2024-01-15T00:00:00Z',
+>>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 //   },
 // ];
 
@@ -124,6 +144,10 @@
 //       description: data.description,
 //       manufacturer: data.manufacturer,
 //       isActive: data.isActive,
+<<<<<<< HEAD
+=======
+//       priceValidFrom: data.priceValidFrom,
+>>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 //     };
 
 //     materials.push(newMaterial);
@@ -167,6 +191,10 @@
 //       description: data.description,
 //       manufacturer: data.manufacturer,
 //       isActive: data.isActive,
+<<<<<<< HEAD
+=======
+//       priceValidFrom: data.priceValidFrom,
+>>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 //     };
 
 //     return HttpResponse.json({
@@ -276,6 +304,10 @@
 //         description: 'Imported from Excel',
 //         manufacturer: 'Test Manufacturer',
 //         isActive: true,
+<<<<<<< HEAD
+=======
+//         priceValidFrom: new Date().toISOString(),
+>>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 //       },
 //     ];
 

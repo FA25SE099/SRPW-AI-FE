@@ -102,8 +102,8 @@ export const PlanProgressCard = ({ progress }: PlanProgressCardProps) => {
               <span>Remaining</span>
             </div>
             <p className="text-2xl font-bold">
-              {progress.estimatedDaysRemaining || 
-               (progress.estimatedTotalDays ? progress.estimatedTotalDays - progress.daysElapsed : 0)}
+              {progress.estimatedDaysRemaining ||
+                (progress.estimatedTotalDays ? progress.estimatedTotalDays - progress.daysElapsed : 0)}
             </p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export const PlanProgressCard = ({ progress }: PlanProgressCardProps) => {
         </div>
 
         {/* Additional Info */}
-        {(progress.contingencyTasksCount > 0 || progress.tasksWithInterruptions > 0) && (
+        {(progress.contingencyTasksCount > 0 || (progress.tasksWithInterruptions || 0) > 0) && (
           <div className="flex items-center gap-4 text-sm">
             {progress.contingencyTasksCount > 0 && (
               <div className="flex items-center gap-2">
@@ -155,10 +155,10 @@ export const PlanProgressCard = ({ progress }: PlanProgressCardProps) => {
                 <span>{progress.contingencyTasksCount} contingency tasks</span>
               </div>
             )}
-            {progress.tasksWithInterruptions > 0 && (
+            {(progress.tasksWithInterruptions || 0) > 0 && (
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-red-600" />
-                <span>{progress.tasksWithInterruptions} interrupted tasks</span>
+                <span>{progress.tasksWithInterruptions || 0} interrupted tasks</span>
               </div>
             )}
           </div>

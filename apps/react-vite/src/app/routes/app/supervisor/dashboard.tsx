@@ -8,6 +8,7 @@ import {
     MapPin,
     Activity,
 } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { ContentLayout } from '@/components/layouts';
@@ -103,7 +104,7 @@ const OverviewTab = () => {
                     Quick Actions
                 </h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    <button 
+                    <button
                         className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50"
                         onClick={() => navigate(paths.app.supervisor.group.getHref())}
                     >
@@ -115,7 +116,7 @@ const OverviewTab = () => {
                             <p className="text-xs text-gray-500">New production plan</p>
                         </div>
                     </button>
-                    <button 
+                    <button
                         className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50"
                         onClick={() => navigate(paths.app.supervisor.group.getHref())}
                     >
@@ -127,7 +128,7 @@ const OverviewTab = () => {
                             <p className="text-xs text-gray-500">Farmers & plots info</p>
                         </div>
                     </button>
-                    <button 
+                    <button
                         className="flex items-center gap-3 rounded-lg border border-gray-300 p-4 text-left transition-colors hover:bg-gray-50"
                         onClick={() => navigate(paths.app.supervisor.reports.getHref())}
                     >
@@ -415,13 +416,13 @@ const GroupTab = () => {
 // Plans Tab Content
 const PlansTab = () => {
     const navigate = useNavigate();
-    
+
     return (
         <div className="space-y-6">
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-lg font-bold text-gray-900">Production Plans</h2>
-                    <button 
+                    <button
                         className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
                         onClick={() => navigate(paths.app.supervisor.group.getHref())}
                     >
@@ -561,34 +562,62 @@ const ReportsTab = () => {
 };
 
 const SupervisorDashboardRoute = () => {
-    const tabs: Tab[] = [
+    const [activeTab, setActiveTab] = useState('overview');
+
+    const tabs = [
         { id: 'overview', label: 'Overview', icon: TrendingUp },
         { id: 'group', label: 'Group Management', icon: Users },
         { id: 'plans', label: 'Production Plans', icon: Calendar },
         { id: 'reports', label: 'Reports', icon: CheckCircle },
     ];
 
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'overview':
+                return <OverviewTab />;
+            case 'group':
+                return <GroupTab />;
+            case 'plans':
+                return <PlansTab />;
+            case 'reports':
+                return <ReportsTab />;
+            default:
+                return <OverviewTab />;
+        }
+    };
+
     return (
         <ContentLayout title="Supervisor Dashboard">
-            <Tabs tabs={tabs} defaultTab="overview">
-                {(activeTab) => {
-                    switch (activeTab) {
-                        case 'overview':
-                            return <OverviewTab />;
-                        case 'group':
-                            return <GroupTab />;
-                        case 'plans':
-                            return <PlansTab />;
-                        case 'reports':
-                            return <ReportsTab />;
-                        default:
-                            return <OverviewTab />;
-                    }
-                }}
-            </Tabs>
+            <div className="space-y-6">
+                {/* Custom Tab Navigation */}
+                <div className="border-b border-gray-200">
+                    <nav className="flex space-x-8">
+                        {tabs.map((tab) => {
+                            const Icon = tab.icon;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-2 border-b-2 py-2 px-1 text-sm font-medium ${activeTab === tab.id
+                                        ? 'border-blue-500 text-blue-600'
+                                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                                        }`}
+                                >
+                                    <Icon className="h-5 w-5" />
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </nav>
+                </div>
+
+                {/* Tab Content */}
+                <div className="mt-6">
+                    {renderTabContent()}
+                </div>
+            </div>
         </ContentLayout>
     );
 };
 
 export default SupervisorDashboardRoute;
-
