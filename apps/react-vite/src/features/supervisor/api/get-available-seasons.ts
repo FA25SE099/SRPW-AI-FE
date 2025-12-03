@@ -17,15 +17,17 @@ export const getAvailableSeasonsQueryOptions = () => {
 };
 
 type UseAvailableSeasonsOptions = {
-  queryConfig?: QueryConfig<typeof getAvailableSeasonsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getAvailableSeasons>;
 };
 
 export const useAvailableSeasons = (
   { queryConfig }: UseAvailableSeasonsOptions = {}
 ) => {
   return useQuery({
-    ...getAvailableSeasonsQueryOptions(),
     ...queryConfig,
+    queryKey: ['supervisor-available-seasons'],
+    queryFn: () => getAvailableSeasons(),
+    staleTime: queryConfig?.staleTime ?? 1000 * 60 * 5, // Cache for 5 minutes - seasons rarely change
   });
 };
 

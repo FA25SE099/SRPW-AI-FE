@@ -8,19 +8,13 @@ export const getProductionPlanDraft = async (params: {
   groupId: string;
   basePlantingDate: string;
 }): Promise<ProductionPlanDraft> => {
-  const result = await api.get('/production-plans/draft', {
-    params: {
-      standardPlanId: params.standardPlanId,
-      groupId: params.groupId,
-      basePlantingDate: params.basePlantingDate,
-    },
+  const queryParams = new URLSearchParams({
+    standardPlanId: params.standardPlanId,
+    groupId: params.groupId,
+    basePlantingDate: params.basePlantingDate,
   });
-  
-  if (!result) {
-    throw new Error('No data returned from draft endpoint');
-  }
-  
-  return result;
+
+  return api.get(`/production-plans/draft?${queryParams.toString()}`);
 };
 
 type UseProductionPlanDraftOptions = {

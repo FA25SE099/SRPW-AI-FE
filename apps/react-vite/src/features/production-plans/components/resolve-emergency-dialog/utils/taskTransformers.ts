@@ -1,25 +1,25 @@
 import { EditableStage } from '../types';
-import { ProductionPlan } from '@/features/production-plans/types';
+import { ProductionPlanDetail } from '@/features/production-plans/types';
 import { calculateDaysAfter, calculateDuration } from './taskCalculations';
 
-export const convertPlanToEditableStages = (planDetails: ProductionPlan): EditableStage[] => {
+export const convertPlanToEditableStages = (planDetails: ProductionPlanDetail): EditableStage[] => {
     return planDetails.stages.map(stage => ({
         stageName: stage.stageName,
         sequenceOrder: stage.sequenceOrder,
         tasks: stage.tasks.map(task => {
-            const scheduledStartDate = new Date(planDetails.basePlantingDate);
-            scheduledStartDate.setDate(scheduledStartDate.getDate() + task.daysAfter);
+            const daysAfter = calculateDaysAfter(planDetails.basePlantingDate, task.scheduledDate);
+            const durationDays = calculateDuration(task.scheduledDate, task.scheduledEndDate);
 
             return {
                 taskName: task.taskName,
                 description: task.description || '',
                 taskType: task.taskType,
-                daysAfter: task.daysAfter,
-                durationDays: task.durationDays,
+                daysAfter,
+                durationDays,
                 priority: task.priority,
                 sequenceOrder: task.sequenceOrder,
                 isFromProtocol: false,
-                originalTaskId: task.taskId,
+                originalTaskId: task.id,
                 materials: task.materials.map(m => ({
                     materialId: m.materialId,
                     quantityPerHa: m.quantityPerHa,
@@ -31,7 +31,7 @@ export const convertPlanToEditableStages = (planDetails: ProductionPlan): Editab
 
 export const convertEditableTasksToPayload = (
     editableStages: EditableStage[],
-    planDetails: ProductionPlan,
+    planDetails: ProductionPlanDetail,
     resolutionReason: string
 ) => {
     const baseCultivationTasks: any[] = [];

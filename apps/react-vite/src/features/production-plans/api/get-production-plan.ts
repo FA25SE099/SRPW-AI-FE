@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { ProductionPlan } from '../types';
+import { ProductionPlanDetail } from '../types';
 
-export const getProductionPlan = async (planId: string): Promise<ProductionPlan> => {
+export const getProductionPlan = async (planId: string): Promise<ProductionPlanDetail> => {
   return api.get(`/production-plans/${planId}`);
 };
 

@@ -27,7 +27,7 @@ export const getClusterIdQueryOptions = (clusterManagerId: string) =>
 
 type UseClusterIdOptions = {
   clusterManagerId: string;
-  queryConfig?: QueryConfig<typeof getClusterIdQueryOptions>;
+  queryConfig?: QueryConfig<typeof getClusterId>;
 };
 
 export const useClusterId = ({
@@ -35,8 +35,10 @@ export const useClusterId = ({
   queryConfig,
 }: UseClusterIdOptions) => {
   return useQuery({
-    ...getClusterIdQueryOptions(clusterManagerId),
     ...queryConfig,
-  }) as ReturnType<typeof useQuery<GetClusterIdResponse, Error>>;
+    queryKey: ['cluster-manager-id', clusterManagerId],
+    queryFn: () => getClusterId(clusterManagerId),
+    enabled: !!clusterManagerId,
+  });
 };
 

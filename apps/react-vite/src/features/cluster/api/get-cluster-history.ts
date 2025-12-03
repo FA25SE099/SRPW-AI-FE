@@ -36,7 +36,7 @@ export const getClusterHistoryQueryOptions = (params: GetClusterHistoryParams) =
 
 type UseClusterHistoryOptions = {
   params: GetClusterHistoryParams;
-  queryConfig?: QueryConfig<typeof getClusterHistoryQueryOptions>;
+  queryConfig?: QueryConfig<typeof getClusterHistory>;
 };
 
 export const useClusterHistory = ({
@@ -44,8 +44,9 @@ export const useClusterHistory = ({
   queryConfig,
 }: UseClusterHistoryOptions) => {
   return useQuery({
-    ...getClusterHistoryQueryOptions(params),
     ...queryConfig,
-  }) as ReturnType<typeof useQuery<ClusterHistory, Error>>;
+    queryKey: ['cluster-history', params],
+    queryFn: () => getClusterHistory(params),
+  });
 };
 
