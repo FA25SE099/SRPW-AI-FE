@@ -104,22 +104,6 @@ export const ProductionPlanDetailDialog = ({
                                     <FileText className="w-4 h-4" />
                                     <span className="text-sm font-medium">Plan Overview</span>
                                 </div>
-                                <div className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors">
-                                    <Activity className="w-4 h-4" />
-                                    <span className="text-sm">Progress Tracking</span>
-                                </div>
-                                <div className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors">
-                                    <MapPin className="w-4 h-4" />
-                                    <span className="text-sm">Plot Management</span>
-                                </div>
-                                <div className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors">
-                                    <BarChart3 className="w-4 h-4" />
-                                    <span className="text-sm">Analytics</span>
-                                </div>
-                                <div className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 text-slate-300 transition-colors">
-                                    <Target className="w-4 h-4" />
-                                    <span className="text-sm">Tasks & Timeline</span>
-                                </div>
                             </nav>
                         </div>
 
