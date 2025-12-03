@@ -57,7 +57,6 @@ export const ResolveEmergencyDialog = ({
         queryConfig: {
             enabled: !!selectedProtocolId,
             staleTime: 0,
-            cacheTime: 0,
         },
     });
 
@@ -126,14 +125,14 @@ export const ResolveEmergencyDialog = ({
 
     const handleAddTaskFromProtocol = () => {
         if (addingToStageIndex === null || addingToTaskPosition === null) return;
-        
+
         taskManagement.handleAddTaskFromProtocol(
             protocolDetails,
             selectedProtocolTasks,
             addingToStageIndex,
             addingToTaskPosition
         );
-        
+
         setIsAddingTask(false);
         setAddingToStageIndex(null);
         setAddingToTaskPosition(null);
@@ -144,7 +143,7 @@ export const ResolveEmergencyDialog = ({
     const handleResolve = (formData: FormData) => {
         if (!user?.id || !planDetails || selectedPlotIds.size === 0) return;
 
-        const firstStageId = planDetails.stages[0]?.id;
+        const firstStageId = planDetails.stages[0]?.stageId;
         if (!firstStageId) {
             addNotification({
                 type: 'error',

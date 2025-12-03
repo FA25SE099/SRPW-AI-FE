@@ -13,19 +13,19 @@ export const getGroupBySeason = (
   params?: GetGroupBySeasonParams
 ): Promise<GroupBySeason[]> => {
   const searchParams = new URLSearchParams();
-  
+
   if (params?.seasonId) {
     searchParams.append('seasonId', params.seasonId);
   }
   if (params?.year) {
     searchParams.append('year', params.year.toString());
   }
-  
+
   const queryString = searchParams.toString();
-  const url = queryString 
+  const url = queryString
     ? `/supervisor/group-by-season?${queryString}`
     : '/supervisor/group-by-season';
-  
+
   return api.get(url);
 };
 
@@ -38,16 +38,17 @@ export const getGroupBySeasonQueryOptions = (params?: GetGroupBySeasonParams) =>
 
 type UseGroupBySeasonOptions = {
   params?: GetGroupBySeasonParams;
-  queryConfig?: QueryConfig<typeof getGroupBySeasonQueryOptions>;
+  queryConfig?: QueryConfig<typeof getGroupBySeason>;
 };
 
-export const useGroupBySeason = ({ 
-  params, 
-  queryConfig 
+export const useGroupBySeason = ({
+  params,
+  queryConfig
 }: UseGroupBySeasonOptions = {}) => {
   return useQuery({
-    ...getGroupBySeasonQueryOptions(params),
     ...queryConfig,
+    queryKey: ['supervisor-group-by-season', params],
+    queryFn: () => getGroupBySeason(params),
   });
 };
 

@@ -4,7 +4,7 @@ import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
 import { ClusterSeasonsList } from '../types';
 
-type GetClusterSeasonsParams = {
+export type GetClusterSeasonsParams = {
   clusterId: string;
   includeEmpty?: boolean;
   limit?: number;
@@ -33,7 +33,7 @@ export const getClusterSeasonsQueryOptions = (params: GetClusterSeasonsParams) =
 
 type UseClusterSeasonsOptions = {
   params: GetClusterSeasonsParams;
-  queryConfig?: QueryConfig<typeof getClusterSeasonsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getClusterSeasons>;
 };
 
 export const useClusterSeasons = ({
@@ -41,8 +41,9 @@ export const useClusterSeasons = ({
   queryConfig,
 }: UseClusterSeasonsOptions) => {
   return useQuery({
-    ...getClusterSeasonsQueryOptions(params),
     ...queryConfig,
+    queryKey: ['cluster-seasons', params],
+    queryFn: () => getClusterSeasons(params),
   });
 };
 

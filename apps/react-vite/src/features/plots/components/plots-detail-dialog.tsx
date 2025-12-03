@@ -297,7 +297,7 @@ export const PlotsDetailDialog = ({
                     </div>
                     <PlotMapSnapshot
                       boundaryGeoJson={plot.boundaryGeoJson}
-                      coordinateGeoJson={plot.coordinateGeoJson}
+                      coordinateGeoJson={plot.coordinateGeoJson ?? undefined}
                       plotName={`Plot ${plot.soThua ?? 'N/A'} / ${plot.soTo ?? 'N/A'}`}
                     />
                   </div>

@@ -47,5 +47,5 @@ export const usePolygonTasks = ({
     return useQuery({
         ...getPolygonTasksQueryOptions(filters),
         ...queryConfig,
-    });
+    } as any);
 };

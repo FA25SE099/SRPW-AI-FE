@@ -35,8 +35,8 @@ type EditableStage = {
   stageName: string;
   sequenceOrder: number;
   description: string;
-  typicalDurationDays: number;
-  colorCode: string;
+  expectedDurationDays: number;
+  isMandatory: boolean;
   tasks: EditableTask[];
 };
 
@@ -46,7 +46,7 @@ type ValidationErrors = {
   stages?: {
     [stageIndex: number]: {
       stageName?: string;
-      typicalDurationDays?: string;
+      expectedDurationDays?: string;
       tasks?: {
         [taskIndex: number]: {
           taskName?: string;
@@ -143,15 +143,15 @@ export const UpdateProductionPlanDialog = ({
         stageName: stage.stageName,
         sequenceOrder: stage.sequenceOrder,
         description: stage.notes || '',
-        typicalDurationDays: stage.expectedDurationDays || 7,
-        colorCode: stage.colorCode || '#3B82F6',
+        expectedDurationDays: stage.expectedDurationDays || 7,
+        isMandatory: false,
         tasks: stage.tasks.map((task) => ({
           taskId: task.taskId,
           taskName: task.taskName,
           description: task.description,
           taskType: task.taskType,
-          scheduledDate: task.scheduledDate
-            ? new Date(task.scheduledDate).toISOString().slice(0, 16)
+          scheduledDate: task.scheduledEndDate
+            ? new Date(task.scheduledEndDate).toISOString().slice(0, 16)
             : '',
           scheduledEndDate: task.scheduledEndDate
             ? new Date(task.scheduledEndDate).toISOString().slice(0, 16)
@@ -205,8 +205,8 @@ export const UpdateProductionPlanDialog = ({
       }
 
       // Validate typical duration
-      if (!stage.typicalDurationDays || stage.typicalDurationDays <= 0) {
-        stageErrors.typicalDurationDays = 'Duration must be greater than 0';
+      if (!stage.expectedDurationDays || stage.expectedDurationDays <= 0) {
+        stageErrors.expectedDurationDays = 'Duration must be greater than 0';
       }
 
       // Validate tasks
@@ -267,7 +267,7 @@ export const UpdateProductionPlanDialog = ({
       stageIndex => {
         const stageError = newErrors.stages![parseInt(stageIndex)];
         return stageError.stageName ||
-          stageError.typicalDurationDays ||
+          stageError.expectedDurationDays ||
           (stageError.tasks && Object.keys(stageError.tasks).length > 0);
       }
     );
@@ -309,21 +309,23 @@ export const UpdateProductionPlanDialog = ({
       stageId: stage.stageId,
       stageName: stage.stageName.trim(),
       sequenceOrder: stage.sequenceOrder,
-      description:
+      expectedDurationDays: stage.expectedDurationDays,
+      isMandatory: stage.isMandatory,
+      notes:
         stage.description && stage.description.trim()
           ? stage.description.trim()
           : undefined,
-      typicalDurationDays: stage.typicalDurationDays,
-      colorCode: stage.colorCode,
       tasks: stage.tasks.map((task) => ({
         taskId: task.taskId,
         taskName: task.taskName.trim(),
         description: task.description.trim(),
+        daysAfter: 0,
+        durationDays: 1,
         taskType: task.taskType,
-        scheduledDate: new Date(task.scheduledDate).toISOString(),
+        scheduledDate: task.scheduledDate ? new Date(task.scheduledDate).toISOString() : undefined,
         scheduledEndDate: task.scheduledEndDate
           ? new Date(task.scheduledEndDate).toISOString()
-          : null,
+          : undefined,
         priority: task.priority,
         sequenceOrder: task.sequenceOrder,
         materials: task.materials.filter(
@@ -352,8 +354,8 @@ export const UpdateProductionPlanDialog = ({
         stageName: '',
         sequenceOrder: stages.length,
         description: '',
-        typicalDurationDays: 7,
-        colorCode: '#3B82F6',
+        expectedDurationDays: 7,
+        isMandatory: true,
         tasks: [],
       },
     ]);
@@ -364,8 +366,8 @@ export const UpdateProductionPlanDialog = ({
       stageName: '',
       sequenceOrder: position,
       description: '',
-      typicalDurationDays: 7,
-      colorCode: '#3B82F6',
+      expectedDurationDays: 7,
+      isMandatory: true,
       tasks: [],
     };
 
@@ -407,8 +409,8 @@ export const UpdateProductionPlanDialog = ({
       if (updates.stageName !== undefined) {
         delete newErrors.stages[index].stageName;
       }
-      if (updates.typicalDurationDays !== undefined) {
-        delete newErrors.stages[index].typicalDurationDays;
+      if (updates.expectedDurationDays !== undefined) {
+        delete newErrors.stages[index].expectedDurationDays;
       }
     }
     setErrors(newErrors);
@@ -510,7 +512,10 @@ export const UpdateProductionPlanDialog = ({
     // Clear errors for removed task
     const newErrors = { ...errors };
     if (newErrors.stages?.[stageIndex]?.tasks?.[taskIndex]) {
-      delete newErrors.stages[stageIndex].tasks[taskIndex];
+      const stageErrors = newErrors.stages[stageIndex];
+      if (stageErrors?.tasks?.[taskIndex]) {
+        delete stageErrors.tasks[taskIndex];
+      }
     }
     setErrors(newErrors);
   };
@@ -529,8 +534,9 @@ export const UpdateProductionPlanDialog = ({
 
     // Clear related errors when field is updated
     const newErrors = { ...errors };
-    if (newErrors.stages?.[stageIndex]?.tasks?.[taskIndex]) {
-      const taskErrors = newErrors.stages[stageIndex].tasks[taskIndex];
+    const stageErrors = newErrors.stages?.[stageIndex];
+    if (stageErrors?.tasks?.[taskIndex]) {
+      const taskErrors = stageErrors.tasks[taskIndex];
       if (updates.taskName !== undefined) {
         delete taskErrors.taskName;
       }
@@ -578,7 +584,11 @@ export const UpdateProductionPlanDialog = ({
     const newStages = [...stages];
     const material =
       newStages[stageIndex].tasks[taskIndex].materials[materialIndex];
-    material[field] = value as any;
+    if (field === 'materialId') {
+      material.materialId = value as string;
+    } else {
+      material.quantityPerHa = value as number;
+    }
     setStages(newStages);
   };
 
@@ -751,42 +761,30 @@ export const UpdateProductionPlanDialog = ({
                                         <div className="relative">
                                           <input
                                             type="number"
-                                            value={stage.typicalDurationDays}
+                                            value={stage.expectedDurationDays}
                                             onChange={(e) =>
                                               handleUpdateStage(stageIndex, {
-                                                typicalDurationDays: parseInt(e.target.value) || 0,
+                                                expectedDurationDays: parseInt(e.target.value) || 0,
                                               })
                                             }
                                             disabled={isLoading}
                                             min="1"
                                             placeholder="0"
-                                            className={`block w-full rounded-md border bg-white pl-2.5 pr-12 py-1 text-sm focus:outline-none focus:ring-1 ${stageErrors?.typicalDurationDays
+                                            className={`block w-full rounded-md border bg-white pl-2.5 pr-12 py-1 text-sm focus:outline-none focus:ring-1 ${stageErrors?.expectedDurationDays
                                               ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
                                               : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
                                               }`}
                                           />
                                           <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                             <span className="text-gray-500 sm:text-sm">
-                                              {stage.typicalDurationDays === 1 ? 'day' : 'days'}
+                                              {stage.expectedDurationDays === 1 ? 'day' : 'days'}
                                             </span>
                                           </div>
                                         </div>
-                                        {stageErrors?.typicalDurationDays && (
-                                          <p className="text-xs text-red-600">{stageErrors.typicalDurationDays}</p>
+                                        {stageErrors?.expectedDurationDays && (
+                                          <p className="text-xs text-red-600">{stageErrors.expectedDurationDays}</p>
                                         )}
                                       </div>
-                                      <input
-                                        type="color"
-                                        value={stage.colorCode}
-                                        onChange={(e) =>
-                                          handleUpdateStage(stageIndex, {
-                                            colorCode: e.target.value,
-                                          })
-                                        }
-                                        disabled={isLoading}
-                                        className="col-span-2 block h-8 w-full rounded-md border border-gray-300"
-                                        title="Stage color"
-                                      />
                                     </div>
                                     <input
                                       type="text"
@@ -1249,14 +1247,9 @@ export const UpdateProductionPlanDialog = ({
                                   {stageIndex + 1}. {stage.stageName}
                                 </span>
                                 <span className="ml-2 text-xs text-gray-600">
-                                  ({stage.typicalDurationDays} days)
+                                  ({stage.expectedDurationDays} days)
                                 </span>
                               </div>
-                              <div
-                                className="size-4 rounded"
-                                style={{ backgroundColor: stage.colorCode }}
-                                title={stage.colorCode}
-                              />
                             </div>
 
                             {stage.description && (

@@ -11,17 +11,18 @@ export const getTeams = (): Promise<{ data: Team[] }> => {
 export const getTeamsQueryOptions = () => {
   return queryOptions({
     queryKey: ['teams'],
-    queryFn: () => getTeams(),
+    queryFn: getTeams,
   });
 };
 
 type UseTeamsOptions = {
-  queryConfig?: QueryConfig<typeof getTeamsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getTeams>;
 };
 
-export const useTeams = ({ queryConfig = {} }: UseTeamsOptions = {}) => {
+export const useTeams = ({ queryConfig }: UseTeamsOptions = {}) => {
   return useQuery({
-    ...getTeamsQueryOptions(),
     ...queryConfig,
+    queryKey: ['teams'],
+    queryFn: getTeams,
   });
 };

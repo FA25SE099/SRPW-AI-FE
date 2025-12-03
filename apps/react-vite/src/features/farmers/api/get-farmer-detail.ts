@@ -110,13 +110,15 @@ export const getFarmerDetailQueryOptions = (farmerId: string) => {
 // Custom Hook Options - SỬA LẠI TYPE
 type UseFarmerDetailOptions = {
     farmerId: string;
-    queryConfig?: QueryConfig<typeof getFarmerDetailQueryOptions>;
+    queryConfig?: QueryConfig<typeof getFarmerDetail>;
 };
 
 // Custom Hook
 export const useFarmerDetail = ({ farmerId, queryConfig }: UseFarmerDetailOptions) => {
     return useQuery({
-        ...getFarmerDetailQueryOptions(farmerId),
         ...queryConfig,
+        queryKey: ['farmer', farmerId],
+        queryFn: () => getFarmerDetail(farmerId),
+        enabled: !!farmerId,
     });
 };

@@ -47,17 +47,23 @@ export const getPestProtocolsQueryOptions = (params?: GetPestProtocolsParams) =>
 
 type UsePestProtocolsOptions = {
   params?: GetPestProtocolsParams;
-  queryConfig?: QueryConfig<typeof getPestProtocolsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getPestProtocols>;
 };
 
 export const usePestProtocols = ({
   params,
   queryConfig,
-}: UsePestProtocolsOptions = {}) => {
+}: UsePestProtocolsOptions = {}): ReturnType<typeof useQuery<{
+  data: PestProtocol[];
+  totalCount: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}>> => {
   return useQuery({
     ...getPestProtocolsQueryOptions(params),
     ...queryConfig,
-  });
+  } as any) as any;
 };
 
 // Create Pest Protocol

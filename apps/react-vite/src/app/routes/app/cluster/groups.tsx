@@ -10,7 +10,10 @@ const ClusterGroups = () => {
     const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
     const [detailDialogOpen, setDetailDialogOpen] = useState(false)
 
-    const { data: response, isLoading, isError } = useGroups()
+    const groupsQuery = useGroups()
+    const response = groupsQuery.data;
+    const isLoading = groupsQuery.isLoading;
+    const isError = groupsQuery.isError;
 
     const groups = Array.isArray(response) ? response : response?.data || []
 
@@ -99,7 +102,7 @@ const ClusterGroups = () => {
                                 <div>
                                     <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Active</p>
                                     <p className="text-2xl font-bold text-gray-900 leading-snug mt-1">
-                                        {groups.filter((g) => g.status === "Active").length}
+                                        {groups.filter((g: any) => g.status === "Active").length}
                                     </p>
                                 </div>
                             </div>
@@ -115,7 +118,7 @@ const ClusterGroups = () => {
                                 <div>
                                     <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Draft</p>
                                     <p className="text-2xl font-bold text-gray-900 leading-snug mt-1">
-                                        {groups.filter((g) => g.status === "Draft").length}
+                                        {groups.filter((g: any) => g.status === "Draft").length}
                                     </p>
                                 </div>
                             </div>
@@ -131,7 +134,7 @@ const ClusterGroups = () => {
                                 <div>
                                     <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">Total Area</p>
                                     <p className="text-2xl font-bold text-gray-900 leading-snug mt-1">
-                                        {groups.reduce((sum, g) => sum + g.totalArea, 0).toFixed(1)} <span className="text-base font-normal text-gray-600">ha</span>
+                                        {groups.reduce((sum: number, g: any) => sum + g.totalArea, 0).toFixed(1)} <span className="text-base font-normal text-gray-600">ha</span>
                                     </p>
                                 </div>
                             </div>
@@ -156,7 +159,7 @@ const ClusterGroups = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                        {groups.map((group) => (
+                        {groups.map((group: any) => (
                             <div
                                 key={group.groupId}
                                 className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md hover:border-green-200 transition-all duration-150 flex flex-col"

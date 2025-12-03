@@ -1,12 +1,12 @@
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { PaginatedResponse } from '@/types/api';
+import { PagedResult } from '@/types/api';
 import { useQuery } from '@tanstack/react-query';
 import { EmergencyPlanListItem, GetEmergencyPlansDTO } from '../types';
 
 export const getEmergencyPlans = (
   params: GetEmergencyPlansDTO,
-): Promise<PaginatedResponse<EmergencyPlanListItem>> => {
+): Promise<PagedResult<EmergencyPlanListItem>> => {
   return api.post('/production-plans/emergency', params);
 };
 
@@ -20,5 +20,5 @@ export const useEmergencyPlans = ({ params, queryConfig }: UseEmergencyPlansOpti
     ...queryConfig,
     queryKey: ['emergency-plans', params],
     queryFn: () => getEmergencyPlans(params),
-  });
+  }) as ReturnType<typeof useQuery<PagedResult<EmergencyPlanListItem>, Error>>;
 };

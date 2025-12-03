@@ -18,13 +18,15 @@ export const getPlanDetailsQueryOptions = (planId: string) => {
 
 type UsePlanDetailsOptions = {
   planId: string;
-  queryConfig?: QueryConfig<typeof getPlanDetailsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getPlanDetails>;
 };
 
 export const usePlanDetails = ({ planId, queryConfig }: UsePlanDetailsOptions) => {
   return useQuery({
-    ...getPlanDetailsQueryOptions(planId),
     ...queryConfig,
+    queryKey: ['supervisor-plan-details', planId],
+    queryFn: () => getPlanDetails(planId),
+    enabled: queryConfig?.enabled ?? !!planId,
   });
 };
 

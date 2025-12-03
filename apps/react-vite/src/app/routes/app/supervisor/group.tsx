@@ -33,15 +33,21 @@ const SupervisorGroupPage = () => {
   const [showCreatePlanDialog, setShowCreatePlanDialog] = useState(false);
 
   // Get available seasons for dropdown
-  const { data: availableSeasons, isLoading: isLoadingSeasons } = useAvailableSeasons();
+  const { data: availableSeasonsData, isLoading: isLoadingSeasons } = useAvailableSeasons();
+
+  // Ensure availableSeasons is always an array
+  const availableSeasons = Array.isArray(availableSeasonsData) ? availableSeasonsData : [];
 
   // Get current or selected season's groups (now returns array)
-  const { data: groups, isLoading, error } = useGroupBySeason({
+  const { data: groupsData, isLoading, error } = useGroupBySeason({
     params: selectedSeason,
   });
 
+  // Ensure groups is always an array
+  const groups = Array.isArray(groupsData) ? groupsData : [];
+
   // Get selected group from array
-  const group = groups?.find(g => g.groupId === selectedGroupId);
+  const group = groups.find((g: any) => g.groupId === selectedGroupId);
 
   // Auto-select first group when groups are loaded
   useEffect(() => {
@@ -125,7 +131,7 @@ const SupervisorGroupPage = () => {
                   <SelectValue placeholder="Select a season" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableSeasons.map((season) => (
+                  {availableSeasons.map((season: any) => (
                     <SelectItem
                       key={`${season.seasonId}-${season.year}`}
                       value={season.isCurrent ? 'current' : `${season.seasonId}|${season.year}`}
@@ -218,10 +224,10 @@ const SupervisorGroupPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
-              My Groups - {group.season.seasonName} {group.season.year || group.seasonYear}
+              My Groups - {group.season?.seasonName} {group.season?.year || (group as any).seasonYear}
             </h1>
             <p className="text-muted-foreground">
-              {group.isCurrentSeason ? 'Current Season' : `Past Season (${group.season.year || group.seasonYear})`}
+              {(group as any).isCurrentSeason ? 'Current Season' : `Past Season (${group.season?.year || (group as any).seasonYear})`}
               {groups.length > 1 && ` • Managing ${groups.length} groups`}
             </p>
           </div>
@@ -254,7 +260,7 @@ const SupervisorGroupPage = () => {
                   <SelectValue placeholder="Select season" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableSeasons.map((season) => (
+                  {availableSeasons.map((season: any) => (
                     <SelectItem
                       key={`${season.seasonId}-${season.year}`}
                       value={season.isCurrent ? 'current' : `${season.seasonId}|${season.year}`}

@@ -49,7 +49,10 @@ const SupervisorPlanDetailsPage = () => {
   const [searchParams] = useSearchParams();
   const planId = searchParams.get('planId') || '';
 
-  const { data: plan, isLoading, error } = usePlanDetails({ planId });
+  const { data: planData, isLoading, error } = usePlanDetails({ planId });
+
+  // Ensure plan is always an object with expected properties
+  const plan = planData || {};
 
   if (!planId) {
     return (
@@ -117,7 +120,7 @@ const SupervisorPlanDetailsPage = () => {
 
   return (
     <>
-      <Head title={`Plan Details - ${plan.planName}`} />
+      <Head title={`Plan Details - ${(plan as any)?.planName || 'Loading...'}`} />
 
       <div className="space-y-6">
         {/* Header */}
@@ -127,14 +130,14 @@ const SupervisorPlanDetailsPage = () => {
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">{plan.planName}</h1>
+              <h1 className="text-3xl font-bold tracking-tight">{(plan as any)?.planName || 'Loading...'}</h1>
               <p className="text-muted-foreground">
-                {plan.seasonName} {plan.seasonYear} • {plan.groupName}
+                {(plan as any)?.seasonName} {(plan as any)?.seasonYear} • {(plan as any)?.groupName}
               </p>
             </div>
           </div>
-          <Badge variant={plan.status === 'Completed' ? 'default' : 'secondary'}>
-            {plan.status}
+          <Badge variant={(plan as any)?.status === 'Completed' ? 'default' : 'secondary'}>
+            {(plan as any)?.status || 'Unknown'}
           </Badge>
         </div>
 
@@ -145,9 +148,9 @@ const SupervisorPlanDetailsPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Overall Progress</p>
-                  <p className="text-2xl font-bold">{plan.overallProgressPercentage.toFixed(1)}%</p>
+                  <p className="text-2xl font-bold">{((plan as any)?.overallProgressPercentage || 0).toFixed(1)}%</p>
                 </div>
-                <Progress value={plan.overallProgressPercentage} className="h-2 w-16" />
+                <Progress value={(plan as any)?.overallProgressPercentage || 0} className="h-2 w-16" />
               </div>
             </CardContent>
           </Card>
@@ -157,7 +160,7 @@ const SupervisorPlanDetailsPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Tasks</p>
-                  <p className="text-2xl font-bold">{plan.completedTasks}/{plan.totalTasks}</p>
+                  <p className="text-2xl font-bold">{(plan as any)?.completedTasks || 0}/{(plan as any)?.totalTasks || 0}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-green-600" />
               </div>
@@ -169,7 +172,7 @@ const SupervisorPlanDetailsPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Days Elapsed</p>
-                  <p className="text-2xl font-bold">{plan.daysElapsed}</p>
+                  <p className="text-2xl font-bold">{(plan as any)?.daysElapsed || 0}</p>
                 </div>
                 <Clock className="h-8 w-8 text-blue-600" />
               </div>
@@ -181,7 +184,7 @@ const SupervisorPlanDetailsPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Actual Cost</p>
-                  <p className="text-lg font-bold">{formatCurrency(plan.actualCostToDate)}</p>
+                  <p className="text-lg font-bold">{formatCurrency((plan as any)?.actualCostToDate || 0)}</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-600" />
               </div>
@@ -194,14 +197,14 @@ const SupervisorPlanDetailsPage = () => {
           <RadixTabsList>
             <RadixTabsTrigger value="stages">Stages & Tasks</RadixTabsTrigger>
             <RadixTabsTrigger value="plots">Plot Progress</RadixTabsTrigger>
-            {plan.economicsDetail && (
+            {(plan as any)?.economicsDetail && (
               <RadixTabsTrigger value="economics">Economics</RadixTabsTrigger>
             )}
           </RadixTabsList>
 
           {/* Stages Tab */}
           <RadixTabsContent value="stages" className="space-y-4">
-            {plan.stages.map((stage) => (
+            {((plan as any)?.stages || []).map((stage: any) => (
               <Card key={stage.stageId}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -238,7 +241,7 @@ const SupervisorPlanDetailsPage = () => {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {stage.tasks.map((task) => (
+                        {(stage?.tasks || []).map((task: any) => (
                           <TableRow key={task.taskId}>
                             <TableCell className="font-medium">{task.taskName}</TableCell>
                             <TableCell>{task.taskType}</TableCell>
@@ -289,7 +292,7 @@ const SupervisorPlanDetailsPage = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {plan.plotProgress.map((plot) => (
+                      {((plan as any)?.plotProgress || []).map((plot: any) => (
                         <TableRow key={plot.plotId}>
                           <TableCell className="font-medium">{plot.plotIdentifier}</TableCell>
                           <TableCell>{plot.farmerName}</TableCell>
@@ -321,7 +324,7 @@ const SupervisorPlanDetailsPage = () => {
           </RadixTabsContent>
 
           {/* Economics Tab */}
-          {plan.economicsDetail && (
+          {(plan as any)?.economicsDetail && (
             <RadixTabsContent value="economics">
               <div className="grid gap-6">
                 <Card>
@@ -333,25 +336,25 @@ const SupervisorPlanDetailsPage = () => {
                       <div>
                         <p className="text-sm text-muted-foreground">Total Revenue</p>
                         <p className="text-xl font-bold text-green-600">
-                          {formatCurrency(plan.economicsDetail.totalRevenue)}
+                          {formatCurrency((plan as any)?.economicsDetail?.totalRevenue || 0)}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Gross Profit</p>
                         <p className="text-xl font-bold">
-                          {formatCurrency(plan.economicsDetail.grossProfit)}
+                          {formatCurrency((plan as any)?.economicsDetail?.grossProfit || 0)}
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Profit Margin</p>
                         <p className="text-xl font-bold">
-                          {plan.economicsDetail.profitMargin.toFixed(2)}%
+                          {((plan as any)?.economicsDetail?.profitMargin || 0).toFixed(2)}%
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">ROI</p>
                         <p className="text-xl font-bold text-blue-600">
-                          {plan.economicsDetail.returnOnInvestment.toFixed(2)}%
+                          {((plan as any)?.economicsDetail?.returnOnInvestment || 0).toFixed(2)}%
                         </p>
                       </div>
                     </div>
@@ -366,18 +369,18 @@ const SupervisorPlanDetailsPage = () => {
                     <div className="grid grid-cols-3 gap-6">
                       <div>
                         <p className="text-sm text-muted-foreground">Expected</p>
-                        <p className="text-2xl font-bold">{plan.economicsDetail.expectedYield} tons</p>
+                        <p className="text-2xl font-bold">{(plan as any)?.economicsDetail?.expectedYield || 0} tons</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Actual</p>
                         <p className="text-2xl font-bold text-green-600">
-                          {plan.economicsDetail.actualYield} tons
+                          {(plan as any)?.economicsDetail?.actualYield || 0} tons
                         </p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Per Hectare</p>
                         <p className="text-2xl font-bold">
-                          {plan.economicsDetail.yieldPerHectare.toFixed(2)} t/ha
+                          {((plan as any)?.economicsDetail?.yieldPerHectare || 0).toFixed(2)} t/ha
                         </p>
                       </div>
                     </div>

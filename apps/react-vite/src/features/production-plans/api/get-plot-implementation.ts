@@ -31,6 +31,8 @@ export type PlotImplementation = {
     actualStartDate?: string;
     actualEndDate?: string;
     actualMaterialCost: number;
+    actualServiceCost?: number;
+    totalActualCost?: number;
     materials: Array<{
       materialId: string;
       materialName: string;
@@ -72,5 +74,5 @@ export const usePlotImplementation = ({
     queryKey: ['production-plan', 'plot-implementation', params],
     queryFn: () => getPlotImplementation(params),
     enabled: !!params.plotId && !!params.productionPlanId && (queryConfig?.enabled !== false),
-  });
+  }) as ReturnType<typeof useQuery<PlotImplementation, Error>>;
 };

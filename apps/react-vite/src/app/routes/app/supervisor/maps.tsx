@@ -180,13 +180,13 @@ const SupervisorMap = () => {
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
     const [activeTab, setActiveTab] = useState<"tasks" | "completed">("tasks");
 
-    const { data: plotsData, isLoading: plotsLoading, refetch: refetchPlots } = usePlots({
+    const { data: plotsResponse, isLoading: plotsLoading, refetch: refetchPlots } = usePlots({
         params: { pageNumber: 1, pageSize: 500 },
-    });
+    }) as any;
 
     const { data: tasksData, isLoading: tasksLoading, refetch: refetchTasks } = usePolygonTasks({
         filters: { status: 'Pending' }
-    });
+    }) as any;
 
     const completeTaskMutation = useCompletePolygonTask({
         mutationConfig: {
@@ -225,8 +225,8 @@ const SupervisorMap = () => {
         }
     });
 
-    const plots: PlotDTO[] = plotsData?.data || [];
-    const tasks: PolygonTask[] = tasksData || [];
+    const plots: PlotDTO[] = Array.isArray(plotsResponse?.data) ? plotsResponse.data : Array.isArray(plotsResponse) ? plotsResponse : [];
+    const tasks: PolygonTask[] = Array.isArray(tasksData) ? tasksData : [];
 
     useEffect(() => {
         setIsClient(true);

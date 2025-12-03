@@ -8,7 +8,6 @@ import { authHandlers } from './auth';
 import { categoriesHandlers } from './categories';
 import { commentsHandlers } from './comments';
 import { discussionsHandlers } from './discussions';
-import { materialsHandlers } from './materials';
 import { riceVarietiesHandlers } from './rice-varieties';
 import { riceVarietySeasonsHandlers } from './rice-variety-seasons';
 import { seasonsHandlers } from './seasons';
@@ -20,7 +19,6 @@ export const handlers = [
   ...categoriesHandlers,
   ...commentsHandlers,
   ...discussionsHandlers,
-  ...materialsHandlers,
   ...riceVarietiesHandlers,
   ...riceVarietySeasonsHandlers,
   ...seasonsHandlers,

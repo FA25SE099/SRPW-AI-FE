@@ -15,13 +15,14 @@ export const getCurrentSeasonQueryOptions = () =>
   });
 
 type UseCurrentSeasonOptions = {
-  queryConfig?: QueryConfig<typeof getCurrentSeasonQueryOptions>;
+  queryConfig?: QueryConfig<typeof getCurrentSeason>;
 };
 
 export const useCurrentSeason = ({ queryConfig }: UseCurrentSeasonOptions = {}) => {
   return useQuery({
-    ...getCurrentSeasonQueryOptions(),
     ...queryConfig,
+    queryKey: ['current-season'],
+    queryFn: () => getCurrentSeason(),
   });
 };
 

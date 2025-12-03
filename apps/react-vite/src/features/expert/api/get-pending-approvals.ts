@@ -32,7 +32,7 @@ export const getPendingApprovalsQueryOptions = (
 
 type UsePendingApprovalsOptions = {
   params?: GetPendingApprovalsParams;
-  queryConfig?: QueryConfig<typeof getPendingApprovalsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getPendingApprovals>;
 };
 
 export const usePendingApprovals = ({
@@ -40,8 +40,9 @@ export const usePendingApprovals = ({
   params,
 }: UsePendingApprovalsOptions = {}) => {
   return useQuery({
-    ...getPendingApprovalsQueryOptions(params),
     ...queryConfig,
+    queryKey: ['pending-approvals', params],
+    queryFn: () => getPendingApprovals(params),
   });
 };
 
