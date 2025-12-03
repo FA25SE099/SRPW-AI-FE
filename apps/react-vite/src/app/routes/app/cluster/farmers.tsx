@@ -6,10 +6,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/components/ui/notifications';
 import { Spinner } from '@/components/ui/spinner';
-import { useExportFarmers } from '@/features/farmers/api/export-farmers';
 import { useFarmers } from '@/features/farmers/api/get-farmers';
+import { useExportFarmers } from '@/features/farmers/api/export-farmers';
 import { FarmerDetailDialog } from '@/features/farmers/components/farmer-detail-dialog';
 import { ImportFarmersDialog } from '@/features/farmers/components/import-farmers-dialog';
+import { useUser } from '@/lib/auth';
 
 const ClusterFarmers = () => {
   const [pageNumber, setPageNumber] = useState(1);
@@ -20,12 +21,14 @@ const ClusterFarmers = () => {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   const { addNotification } = useNotifications();
+  const user = useUser();
 
   const { data, isLoading, isError } = useFarmers({
     params: {
       pageNumber,
       pageSize,
       searchTerm: searchTerm || undefined,
+      clusterManagerId: user.data?.id,
     },
   });
 
@@ -64,7 +67,10 @@ const ClusterFarmers = () => {
 
   const handleExport = () => {
     const today = new Date().toISOString();
-    exportMutation.mutate(today);
+    exportMutation.mutate({
+      date: today,
+      clusterManagerId: user.data?.id,
+    });
   };
 
   const handleViewDetails = (farmerId: string) => {

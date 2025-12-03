@@ -35,11 +35,36 @@ export type SideNavigationGroup = {
 };
 
 const Logo = () => {
+  const user = useUser();
+  const { checkAccess } = useAuthorization();
+
+  // Determine default href based on user role
+  const getDefaultHref = () => {
+    if (!user.data?.role) return paths.home.getHref();
+
+    switch (user.data.role) {
+      case ROLES.Admin:
+        return paths.app.admin.dashboard.getHref();
+      case ROLES.AgronomyExpert:
+        return paths.app.expert.reports.getHref();
+      case ROLES.Supervisor:
+        return paths.app.supervisor.dashboard.getHref();
+      case ROLES.ClusterManager:
+        return paths.app.cluster.dashboard.getHref();
+      default:
+        return paths.app.dashboard.getHref();
+    }
+  };
+
   return (
-    <Link className="flex items-center text-white" to={paths.home.getHref()}>
-      <img className="h-8 w-auto" src={logo} alt="Workflow" />
-      <span className="text-sm font-semibold text-white">
-        Bulletproof React
+    <Link className="flex items-center text-white" to={getDefaultHref()}>
+      <img
+        className="h-8 w-auto"
+        src="https://ducthanhco.vn/wp-content/uploads/2023/06/logo-dt.webp"
+        alt="Duc Thanh Logo"
+      />
+      <span className="text-sm font-semibold text-white ml-2">
+        Duc Thanh Company
       </span>
     </Link>
   );

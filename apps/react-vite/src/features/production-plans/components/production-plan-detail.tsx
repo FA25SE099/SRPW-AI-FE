@@ -72,7 +72,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
   const handleSubmit = () => {
     if (!plan || !user.data?.id) return;
     submitMutation.mutate({
-      planId: plan.planId,
+      planId: plan.productionPlanId,
       supervisorId: user.data.id,
     });
   };
@@ -80,7 +80,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
   const handleApproveReject = (isApproved: boolean) => {
     if (!plan) return;
     approveRejectMutation.mutate({
-      planId: plan.planId,
+      planId: plan.productionPlanId,
       isApproved,
       comments: comments || undefined,
     });
@@ -158,15 +158,14 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
       {/* Status Badge */}
       <div className="flex items-center gap-3">
         <span
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${
-            plan.status === 'Draft'
-              ? 'bg-gray-100 text-gray-700'
-              : plan.status === 'Pending'
+          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${plan.status === 'Draft'
+            ? 'bg-gray-100 text-gray-700'
+            : plan.status === 'Pending'
               ? 'bg-yellow-100 text-yellow-700'
               : plan.status === 'Approved'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
-          }`}
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}
         >
           {plan.status === 'Draft' && <Clock className="h-4 w-4" />}
           {plan.status === 'Pending' && <Send className="h-4 w-4" />}

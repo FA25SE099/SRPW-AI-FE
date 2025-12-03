@@ -44,6 +44,8 @@ type ThresholdDialogProps = {
   initialData?: EditableThreshold | null;
   isEditMode?: boolean;
   onEditComplete?: (threshold: EditableThreshold) => void;
+  refetchPestProtocols?: () => void;
+  refetchWeatherProtocols?: () => void;
 };
 
 const SEVERITY_LEVELS = ['Low', 'Medium', 'High', 'Critical'];
@@ -66,7 +68,9 @@ export const ThresholdDialog = ({
   initialData,
   isEditMode,
   onEditComplete,
-}: Omit<ThresholdDialogProps, 'riceVarieties' | 'seasons'>) => {
+  refetchPestProtocols,
+  refetchWeatherProtocols,
+}: ThresholdDialogProps) => {
   const { register, handleSubmit, reset, setValue } =
     useForm<EditableThreshold>();
   const [enablePest, setEnablePest] = useState(
@@ -109,6 +113,7 @@ export const ThresholdDialog = ({
     notes: '',
     isActive: true,
   });
+
   // Debug logs
   useEffect(() => {
     if (isOpen) {
@@ -183,6 +188,43 @@ export const ThresholdDialog = ({
     }
     reset();
     onClose();
+  };
+
+  const handlePestProtocolCreated = () => {
+    setIsPestDialogOpen(false);
+    setPestForm({
+      id: '',
+      name: '',
+      description: '',
+      type: '',
+      imageLinks: [],
+      notes: '',
+      isActive: true,
+    });
+    // Trigger refetch of pest protocols
+    if (refetchPestProtocols) {
+      refetchPestProtocols();
+    }
+    onCreatePestProtocol();
+  };
+
+  const handleWeatherProtocolCreated = () => {
+    setIsWeatherDialogOpen(false);
+    setWeatherForm({
+      id: '',
+      name: '',
+      description: '',
+      source: '',
+      sourceLink: '',
+      imageLinks: [],
+      notes: '',
+      isActive: true,
+    });
+    // Trigger refetch of weather protocols
+    if (refetchWeatherProtocols) {
+      refetchWeatherProtocols();
+    }
+    onCreateWeatherProtocol();
   };
 
   if (!isOpen) return null;
@@ -635,6 +677,7 @@ export const ThresholdDialog = ({
           </form>
         </div>
       </div>
+
       {/* Pest Protocol Dialog */}
       <PestProtocolDialog
         isOpen={isPestDialogOpen}
@@ -650,10 +693,7 @@ export const ThresholdDialog = ({
             isActive: true,
           });
         }}
-        onSubmit={(data) => {
-          onCreatePestProtocol();
-          setIsPestDialogOpen(false);
-        }}
+        onSubmit={handlePestProtocolCreated}
         isLoading={false}
         isEditMode={false}
         protocol={pestForm}
@@ -676,10 +716,7 @@ export const ThresholdDialog = ({
             isActive: true,
           });
         }}
-        onSubmit={(data) => {
-          onCreateWeatherProtocol();
-          setIsWeatherDialogOpen(false);
-        }}
+        onSubmit={handleWeatherProtocolCreated}
         isLoading={false}
         isEditMode={false}
         protocol={weatherForm}

@@ -17,6 +17,7 @@ export type GetFarmersParams = {
     pageNumber?: number;
     pageSize?: number;
     searchTerm?: string;
+    clusterManagerId?: string;
 };
 
 export type GetFarmersResponse = {
@@ -34,12 +35,14 @@ export const getFarmers = ({
     pageNumber = 1,
     pageSize = 10,
     searchTerm,
+    clusterManagerId,
 }: GetFarmersParams): Promise<GetFarmersResponse> => {
     return api.get('/farmer', {
         params: {
             pageNumber,
             pageSize,
             searchTerm,
+            clusterManagerId,
         },
     });
 };
