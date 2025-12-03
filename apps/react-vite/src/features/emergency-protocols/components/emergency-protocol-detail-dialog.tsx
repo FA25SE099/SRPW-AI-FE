@@ -1,9 +1,11 @@
+import React from 'react';
 import {
   Calendar,
   Activity,
   Target,
   CheckCircle2,
   Package,
+  DollarSign,
 } from 'lucide-react';
 
 import {
@@ -14,6 +16,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
+import { useCalculateMaterialsCost } from '@/features/materials/api/calculate-materials-cost';
 
 import { useEmergencyProtocolDetails } from '../api/get-emergency-protocol-details';
 
@@ -37,8 +40,78 @@ export const EmergencyProtocolDetailDialog = ({
     enabled: isOpen && !!protocolId,
   });
 
-  // Extract the data from the response
-  const protocol = response?.data;
+  console.log('🔍 Detail Dialog - Full Response:', response);
+  console.log('🔍 Detail Dialog - Protocol ID:', protocolId);
+  console.log('🔍 Detail Dialog - Is Loading:', isLoading);
+  console.log('🔍 Detail Dialog - Error:', error);
+
+  // Extract the data from the response - handle both wrapped and unwrapped responses
+  const protocol = response?.data || (response as any)?.id ? (response as any) : null;
+
+  const calculateCostMutation = useCalculateMaterialsCost();
+  const [materialCosts, setMaterialCosts] = React.useState<any[]>([]);
+  const [totalCostPerHa, setTotalCostPerHa] = React.useState<number>(0);
+  const [isCalculatingCost, setIsCalculatingCost] = React.useState(false);
+
+  // Calculate costs when protocol is loaded
+  React.useEffect(() => {
+    console.log('💰 Cost Effect Triggered:', { hasProtocol: !!protocol, hasStages: !!protocol?.stages, isOpen });
+    if (protocol?.stages && isOpen && protocol.id) {
+      const allMaterials = protocol.stages.flatMap((stage: any) =>
+        stage.tasks.flatMap((task: any) =>
+          task.materials.map((m: any) => ({
+            materialId: m.materialId,
+            quantityPerHa: m.quantityPerHa,
+          }))
+        )
+      ).filter((m: any) => m.materialId && m.quantityPerHa > 0);
+
+      console.log('💰 Materials to calculate:', allMaterials);
+
+      if (allMaterials.length > 0) {
+        setIsCalculatingCost(true);
+        calculateCostMutation.mutate(
+          {
+            area: 1,
+            materials: allMaterials,
+          },
+          {
+            onSuccess: (response) => {
+              console.log('✅ Cost calculation success:', response);
+              // API returns data directly, not wrapped
+              if (response?.materialCostItems) {
+                setMaterialCosts(response.materialCostItems);
+                setTotalCostPerHa(response.totalCostPerHa);
+                console.log('✅ Detail Cost Set:', {
+                  items: response.materialCostItems.length,
+                  total: response.totalCostPerHa,
+                });
+              } else {
+                console.warn('⚠️ Unexpected response structure:', response);
+              }
+              setIsCalculatingCost(false);
+            },
+            onError: (error) => {
+              console.error('❌ Cost calculation error:', error);
+              setIsCalculatingCost(false);
+            },
+          }
+        );
+      } else {
+        setMaterialCosts([]);
+        setTotalCostPerHa(0);
+      }
+    }
+  }, [protocol?.id, isOpen]);
+
+  // Debug cost state
+  React.useEffect(() => {
+    console.log('💰 Detail Dialog Cost State:', {
+      materialCostsCount: materialCosts.length,
+      totalCostPerHa,
+      materialCosts,
+    });
+  }, [materialCosts, totalCostPerHa]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -51,8 +124,9 @@ export const EmergencyProtocolDetailDialog = ({
         </DialogHeader>
 
         {isLoading ? (
-          <div className="flex justify-center py-8">
+          <div className="flex items-center justify-center py-8">
             <Spinner size="lg" />
+            <p className="ml-3 text-gray-600">Loading protocol details...</p>
           </div>
         ) : !protocol ? (
           <div className="py-8 text-center">
@@ -60,6 +134,15 @@ export const EmergencyProtocolDetailDialog = ({
             {error && (
               <p className="mt-2 text-sm text-red-500">{String(error)}</p>
             )}
+            <details className="mt-4 text-left">
+              <summary className="cursor-pointer text-xs text-gray-400">Debug Info</summary>
+              <div className="mt-2 rounded bg-gray-100 p-2 text-xs">
+                <p><strong>Protocol ID:</strong> {protocolId}</p>
+                <p><strong>Has Response:</strong> {response ? 'Yes' : 'No'}</p>
+                <p><strong>Response Keys:</strong> {response ? Object.keys(response).join(', ') : 'N/A'}</p>
+                <pre className="mt-2 max-h-40 overflow-auto">{JSON.stringify(response, null, 2)}</pre>
+              </div>
+            </details>
           </div>
         ) : (
           <div className="space-y-6">
@@ -213,6 +296,47 @@ export const EmergencyProtocolDetailDialog = ({
                       )}
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Cost Summary */}
+            {(materialCosts.length > 0 || isCalculatingCost) && (
+              <div className="rounded-lg border bg-gradient-to-r from-green-50 to-emerald-50 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <DollarSign className="size-5 text-green-600" />
+                  <h4 className="font-semibold text-gray-900">Cost Estimate (per hectare)</h4>
+                  {isCalculatingCost && <Spinner size="sm" />}
+                </div>
+                <div className="space-y-2">
+                  {materialCosts.map((item: any) => (
+                    <div
+                      key={item.materialId}
+                      className="flex items-center justify-between rounded-md bg-white p-3 text-sm"
+                    >
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{item.materialName}</p>
+                        <p className="text-xs text-gray-500">
+                          {item.quantityPerHa} {item.unit}/ha • {item.packagesNeeded} package(s) needed
+                          ({item.amountPerMaterial} {item.unit}/package)
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-green-700">
+                          ${item.costPerHa.toFixed(2)}/ha
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          ${item.pricePerMaterial}/package
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="mt-3 flex items-center justify-between border-t pt-3">
+                    <p className="text-lg font-bold text-gray-900">Total Cost</p>
+                    <p className="text-2xl font-bold text-green-700">
+                      ${totalCostPerHa.toFixed(2)}/ha
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
