@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 // import { createUser, renderApp, screen } from '@/testing/test-utils';
 
 // import { Authorization, ROLES } from '../authorization';
@@ -83,4 +81,3 @@
 
 //   expect(screen.getByText(forbiddenMessage)).toBeInTheDocument();
 // });
->>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6

@@ -17,13 +17,7 @@ export const UsersList = () => {
     );
   }
 
-<<<<<<< HEAD
-  const users = usersQuery.data ? usersQuery.data.data : undefined;
-
-  if (!users) return null;
-=======
   const users = usersQuery.data?.data || [];
->>>>>>> 937606a95cec71c628df749ce93c5ab608b86bd6
 
   return (
     <Table
