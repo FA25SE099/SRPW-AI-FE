@@ -23,5 +23,5 @@ export const useTeams = ({ queryConfig = {} }: UseTeamsOptions = {}) => {
   return useQuery({
     ...getTeamsQueryOptions(),
     ...queryConfig,
-  });
+  } as any);
 };
