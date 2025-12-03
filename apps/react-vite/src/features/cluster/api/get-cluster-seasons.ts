@@ -4,7 +4,7 @@ import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
 import { ClusterSeasonsList } from '../types';
 
-type GetClusterSeasonsParams = {
+export type GetClusterSeasonsParams = {
   clusterId: string;
   includeEmpty?: boolean;
   limit?: number;
@@ -43,6 +43,6 @@ export const useClusterSeasons = ({
   return useQuery({
     ...getClusterSeasonsQueryOptions(params),
     ...queryConfig,
-  });
+  }) as ReturnType<typeof useQuery<ClusterSeasonsList, Error>>;
 };
 

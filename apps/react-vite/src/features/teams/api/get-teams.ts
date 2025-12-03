@@ -11,7 +11,7 @@ export const getTeams = (): Promise<{ data: Team[] }> => {
 export const getTeamsQueryOptions = () => {
   return queryOptions({
     queryKey: ['teams'],
-    queryFn: () => getTeams(),
+    queryFn: getTeams,
   });
 };
 
@@ -19,9 +19,9 @@ type UseTeamsOptions = {
   queryConfig?: QueryConfig<typeof getTeamsQueryOptions>;
 };
 
-export const useTeams = ({ queryConfig = {} }: UseTeamsOptions = {}) => {
+export const useTeams = ({ queryConfig }: UseTeamsOptions = {}) => {
   return useQuery({
     ...getTeamsQueryOptions(),
     ...queryConfig,
-  });
+  } as any);
 };

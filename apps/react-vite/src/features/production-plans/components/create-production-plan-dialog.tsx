@@ -81,17 +81,21 @@ export const CreateProductionPlanDialog = ({
   const planName = watch('planName'); // Add this line to watch planName
 
   // Fetch standard plans list
-  const { data: standardPlansData, isLoading: isLoadingPlans } = useStandardPlans({
+  const standardPlansQuery = useStandardPlans({
     params: { isActive: true },
   });
+  const standardPlansData = standardPlansQuery.data;
+  const isLoadingPlans = standardPlansQuery.isLoading;
 
   // Fetch selected standard plan details
-  const { data: standardPlanDetails, isLoading: isLoadingDetails } = useStandardPlan({
+  const standardPlanQuery = useStandardPlan({
     standardPlanId: formData?.standardPlanId || '',
     queryConfig: {
       enabled: step === 'edit' && !!formData?.standardPlanId,
     },
   });
+  const standardPlanDetails = standardPlanQuery.data;
+  const isLoadingDetails = standardPlanQuery.isLoading;
 
   // Fetch materials
   const fertilizersQuery = useMaterials({
@@ -138,13 +142,13 @@ export const CreateProductionPlanDialog = ({
   // Convert standard plan to editable format when loaded
   useEffect(() => {
     if (standardPlanDetails && step === 'edit' && editableStages.length === 0) {
-      const stages: EditableStage[] = standardPlanDetails.stages.map(stage => ({
+      const stages: EditableStage[] = standardPlanDetails.stages.map((stage: any) => ({
         stageName: stage.stageName,
         sequenceOrder: stage.sequenceOrder,
         description: stage.description,
         typicalDurationDays: stage.expectedDurationDays || 0,
         colorCode: '#3B82F6',
-        tasks: stage.tasks.map(task => ({
+        tasks: stage.tasks.map((task: any) => ({
           taskName: task.taskName,
           description: task.description,
           taskType: task.taskType,
@@ -152,7 +156,7 @@ export const CreateProductionPlanDialog = ({
           durationDays: task.durationDays || 1,
           priority: task.priority,
           sequenceOrder: task.sequenceOrder,
-          materials: task.materials.map(m => ({
+          materials: task.materials.map((m: any) => ({
             materialId: m.materialId,
             quantityPerHa: m.quantityPerHa,
           })),
@@ -400,7 +404,11 @@ export const CreateProductionPlanDialog = ({
   ) => {
     const newStages = [...editableStages];
     const material = newStages[stageIndex].tasks[taskIndex].materials[materialIndex];
-    material[field] = value as any;
+    if (field === 'materialId') {
+      material.materialId = value as string;
+    } else {
+      material.quantityPerHa = value as number;
+    }
     setEditableStages(newStages);
   };
 
@@ -474,9 +482,9 @@ export const CreateProductionPlanDialog = ({
                         className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                       >
                         <option value="">Select a standard plan...</option>
-                        {standardPlans.map((plan) => (
+                        {standardPlans.map((plan: any) => (
                           <option key={plan.id} value={plan.id}>
-                            {plan.name} - {plan.estimatedDurationDays} days ({plan.stages?.length || 0} stages)
+                            {plan.name} - {plan.totalDuration} days ({plan.totalStages || 0} stages)
                           </option>
                         ))}
                       </select>
@@ -855,7 +863,7 @@ export const CreateProductionPlanDialog = ({
                                                       <option value="">Select material...</option>
                                                       {fertilizers.length > 0 && (
                                                         <optgroup label="Fertilizers">
-                                                          {fertilizers.map((mat) => (
+                                                          {fertilizers.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
                                                             </option>
@@ -864,7 +872,7 @@ export const CreateProductionPlanDialog = ({
                                                       )}
                                                       {pesticides.length > 0 && (
                                                         <optgroup label="Pesticides">
-                                                          {pesticides.map((mat) => (
+                                                          {pesticides.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
                                                             </option>

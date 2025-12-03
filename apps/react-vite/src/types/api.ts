@@ -114,19 +114,6 @@ export type GetPendingApprovalsParams = {
   priority?: TaskPriority;
 };
 
-// export type PagedResult<T> = {
-//   currentPage: number;
-//   pageSize: number;
-//   totalCount: number;
-//   totalPages: number;
-//   hasPrevious: boolean;
-//   hasNext: boolean;
-//   succeeded: boolean;
-//   data: T;
-//   message?: string;
-//   errors?: string[];
-// };
-
 export type ApproveRejectPlanInput = {
   planId: string;
   approved: boolean;
@@ -225,18 +212,30 @@ export type Material = {
 };
 
 // // PagedResult<T> from backend - extends Result<T> with pagination
-// export type PagedResult<T> = {
-//   succeeded: boolean;
-//   data: T;
-//   currentPage: number;
-//   totalPages: number;
-//   totalCount: number;
-//   pageSize: number;
-//   hasPrevious: boolean;
-//   hasNext: boolean;
-//   message?: string;
-//   errors?: string[];
-// };
+// PagedResult<T> from backend - extends Result<T> with pagination
+export type PagedResult<T> = {
+  succeeded: boolean;
+  data: T;
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  pageSize: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  message?: string;
+  errors?: string[];
+};
+
+// Alias for PagedResult (for backward compatibility)
+export type PaginatedResponse<T> = {
+  data: T[];
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  pageSize: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+};
 
 // Rice Variety Management Types
 export type RiceVarietyCategory = {

@@ -35,8 +35,8 @@ type EditableStage = {
   stageName: string;
   sequenceOrder: number;
   description: string;
-  typicalDurationDays: number;
-  colorCode: string;
+  expectedDurationDays: number;
+  isMandatory: boolean;
   tasks: EditableTask[];
 };
 
@@ -123,15 +123,15 @@ export const UpdateProductionPlanDialog = ({
         stageName: stage.stageName,
         sequenceOrder: stage.sequenceOrder,
         description: stage.notes || '',
-        typicalDurationDays: stage.expectedDurationDays || 7,
-        colorCode: stage.colorCode || '#3B82F6',
+        expectedDurationDays: stage.expectedDurationDays || 7,
+        isMandatory: stage.isMandatory,
         tasks: stage.tasks.map((task) => ({
           taskId: task.taskId,
           taskName: task.taskName,
           description: task.description,
           taskType: task.taskType,
-          scheduledDate: task.scheduledDate
-            ? new Date(task.scheduledDate).toISOString().slice(0, 16)
+          scheduledDate: task.scheduledEndDate
+            ? new Date(task.scheduledEndDate).toISOString().slice(0, 16)
             : '',
           scheduledEndDate: task.scheduledEndDate
             ? new Date(task.scheduledEndDate).toISOString().slice(0, 16)
@@ -234,21 +234,23 @@ export const UpdateProductionPlanDialog = ({
       stageId: stage.stageId,
       stageName: stage.stageName.trim(),
       sequenceOrder: stage.sequenceOrder,
-      description:
+      expectedDurationDays: stage.expectedDurationDays,
+      isMandatory: stage.isMandatory,
+      notes:
         stage.description && stage.description.trim()
           ? stage.description.trim()
           : undefined,
-      typicalDurationDays: stage.typicalDurationDays,
-      colorCode: stage.colorCode,
       tasks: stage.tasks.map((task) => ({
         taskId: task.taskId,
         taskName: task.taskName.trim(),
         description: task.description.trim(),
+        daysAfter: 0,
+        durationDays: 1,
         taskType: task.taskType,
-        scheduledDate: new Date(task.scheduledDate).toISOString(),
+        scheduledDate: task.scheduledDate ? new Date(task.scheduledDate).toISOString() : undefined,
         scheduledEndDate: task.scheduledEndDate
           ? new Date(task.scheduledEndDate).toISOString()
-          : null,
+          : undefined,
         priority: task.priority,
         sequenceOrder: task.sequenceOrder,
         materials: task.materials.filter(
@@ -277,8 +279,8 @@ export const UpdateProductionPlanDialog = ({
         stageName: '',
         sequenceOrder: stages.length,
         description: '',
-        typicalDurationDays: 7,
-        colorCode: '#3B82F6',
+        expectedDurationDays: 7,
+        isMandatory: true,
         tasks: [],
       },
     ]);
@@ -289,8 +291,8 @@ export const UpdateProductionPlanDialog = ({
       stageName: '',
       sequenceOrder: position,
       description: '',
-      typicalDurationDays: 7,
-      colorCode: '#3B82F6',
+      expectedDurationDays: 7,
+      isMandatory: true,
       tasks: [],
     };
 
@@ -466,7 +468,11 @@ export const UpdateProductionPlanDialog = ({
     const newStages = [...stages];
     const material =
       newStages[stageIndex].tasks[taskIndex].materials[materialIndex];
-    material[field] = value as any;
+    if (field === 'materialId') {
+      material.materialId = value as string;
+    } else {
+      material.quantityPerHa = value as number;
+    }
     setStages(newStages);
   };
 
@@ -601,10 +607,10 @@ export const UpdateProductionPlanDialog = ({
                                     <div className="col-span-2 relative">
                                       <input
                                         type="number"
-                                        value={stage.typicalDurationDays}
+                                        value={stage.expectedDurationDays}
                                         onChange={(e) =>
                                           handleUpdateStage(stageIndex, {
-                                            typicalDurationDays: parseInt(e.target.value) || 0,
+                                            expectedDurationDays: parseInt(e.target.value) || 0,
                                           })
                                         }
                                         disabled={isLoading}
@@ -617,22 +623,10 @@ export const UpdateProductionPlanDialog = ({
                                       {/* The Suffix Text */}
                                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                                         <span className="text-gray-500 sm:text-sm">
-                                          {stage.typicalDurationDays === 1 ? 'day' : 'days'}
+                                          {stage.expectedDurationDays === 1 ? 'day' : 'days'}
                                         </span>
                                       </div>
                                     </div>
-                                    <input
-                                      type="color"
-                                      value={stage.colorCode}
-                                      onChange={(e) =>
-                                        handleUpdateStage(stageIndex, {
-                                          colorCode: e.target.value,
-                                        })
-                                      }
-                                      disabled={isLoading}
-                                      className="col-span-2 block h-8 w-full rounded-md border border-gray-300"
-                                      title="Stage color"
-                                    />
                                   </div>
                                   <input
                                     type="text"
@@ -1057,14 +1051,9 @@ export const UpdateProductionPlanDialog = ({
                                   {stageIndex + 1}. {stage.stageName}
                                 </span>
                                 <span className="ml-2 text-xs text-gray-600">
-                                  ({stage.typicalDurationDays} days)
+                                  ({stage.expectedDurationDays} days)
                                 </span>
                               </div>
-                              <div
-                                className="size-4 rounded"
-                                style={{ backgroundColor: stage.colorCode }}
-                                title={stage.colorCode}
-                              />
                             </div>
 
                             {stage.description && (

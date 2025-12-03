@@ -67,7 +67,7 @@ export const getPlotsAwaitingPolygon = async (
 
   const queryString = searchParams.toString();
   const url = queryString ? `/plot/awaiting-polygon?${queryString}` : '/plot/awaiting-polygon';
-  
+
   return api.get(url);
 };
 
@@ -91,6 +91,6 @@ export const usePlotsAwaitingPolygon = ({
   return useQuery({
     ...getPlotsAwaitingPolygonQueryOptions(params),
     ...queryConfig,
-  });
+  }) as ReturnType<typeof useQuery<PaginatedPlotsAwaitingPolygonResponse, Error>>;
 };
 

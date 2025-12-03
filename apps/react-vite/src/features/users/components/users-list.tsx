@@ -17,7 +17,7 @@ export const UsersList = () => {
     );
   }
 
-  const users = usersQuery.data?.data;
+  const users = usersQuery.data ? usersQuery.data.data : undefined;
 
   if (!users) return null;
 

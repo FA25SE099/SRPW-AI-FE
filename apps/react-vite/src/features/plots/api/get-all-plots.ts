@@ -94,5 +94,5 @@ export const usePlots = ({ params = {}, queryConfig }: UsePlotsOptions = {}) => 
     return useQuery({
         ...getPlotsQueryOptions(params),
         ...queryConfig,
-    });
+    }) as ReturnType<typeof useQuery<PaginatedPlotsResponse, Error>>;
 };

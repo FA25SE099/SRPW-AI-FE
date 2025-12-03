@@ -4,6 +4,7 @@ import { useEmergencyPlans } from '../api/get-emergency-plans';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { formatDate } from '@/utils/format';
+import { EmergencyPlanListItem } from '../types';
 
 type EmergencyPlansListProps = {
     onViewPlan: (planId: string) => void;
@@ -15,7 +16,7 @@ export const EmergencyPlansList = ({ onViewPlan, onSolveEmergency }: EmergencyPl
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
 
-    const { data, isLoading } = useEmergencyPlans({
+    const emergencyPlansQuery = useEmergencyPlans({
         params: {
             currentPage,
             pageSize,
@@ -23,10 +24,10 @@ export const EmergencyPlansList = ({ onViewPlan, onSolveEmergency }: EmergencyPl
         },
     });
 
-    const plans = data?.data || [];
-    const totalPages = data?.totalPages || 1;
+    const plans = (emergencyPlansQuery.data?.data || []) as EmergencyPlanListItem[];
+    const totalPages = emergencyPlansQuery.data?.totalPages || 1;
 
-    if (isLoading) {
+    if (emergencyPlansQuery.isLoading) {
         return (
             <div className="flex h-48 items-center justify-center">
                 <Spinner size="lg" />
@@ -42,7 +43,7 @@ export const EmergencyPlansList = ({ onViewPlan, onSolveEmergency }: EmergencyPl
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-600">Emergency Plans</p>
-                            <p className="text-2xl font-bold text-red-600">{data?.totalCount || 0}</p>
+                            <p className="text-2xl font-bold text-red-600">{emergencyPlansQuery.data?.totalCount || 0}</p>
                         </div>
                         <AlertTriangle className="h-8 w-8 text-red-500" />
                     </div>
@@ -52,7 +53,7 @@ export const EmergencyPlansList = ({ onViewPlan, onSolveEmergency }: EmergencyPl
                         <div>
                             <p className="text-sm font-medium text-gray-600">Total Area Affected</p>
                             <p className="text-2xl font-bold text-orange-600">
-                                {plans.reduce((sum, plan) => {
+                                {plans.reduce((sum: number, plan) => {
                                     const area = parseFloat(plan.groupArea.replace(' ha', '')) || 0;
                                     return sum + area;
                                 }, 0).toFixed(2)} ha

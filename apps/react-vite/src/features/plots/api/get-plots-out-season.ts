@@ -43,5 +43,5 @@ export const usePlotsOutSeason = ({
   return useQuery({
     ...getPlotsOutSeasonQueryOptions(params),
     ...queryConfig,
-  });
+  }) as ReturnType<typeof useQuery<GetPlotsOutSeasonResponse, Error>>;
 };

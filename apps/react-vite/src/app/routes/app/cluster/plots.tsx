@@ -33,24 +33,16 @@ const Plots = () => {
 
   const user = useUser();
 
-  const {
-    data: plotsResponse,
-    isLoading: isLoadingPlots,
-    isError: isErrorPlots,
-  } = usePlots({
-    params: { 
-      pageNumber, 
-      pageSize, 
+  const plotsQuery = usePlots({
+    params: {
+      pageNumber,
+      pageSize,
       searchTerm: searchTerm || undefined,
       clusterManagerId: user.data?.id,
     },
   });
 
-  const {
-    data: outSeasonResponse,
-    isLoading: isLoadingOutSeason,
-    isError: isErrorOutSeason,
-  } = usePlotsOutSeason({
+  const outSeasonQuery = usePlotsOutSeason({
     params: {
       currentDate: selectedDate,
       searchTerm: searchTerm || undefined,
@@ -61,11 +53,7 @@ const Plots = () => {
     },
   });
 
-  const {
-    data: awaitingPolygonResponse,
-    isLoading: isLoadingAwaitingPolygon,
-    isError: isErrorAwaitingPolygon,
-  } = usePlotsAwaitingPolygon({
+  const awaitingPolygonQuery = usePlotsAwaitingPolygon({
     params: {
       pageNumber,
       pageSize,
@@ -79,10 +67,22 @@ const Plots = () => {
     },
   });
 
+  const plotsResponse = plotsQuery.data;
+  const isLoadingPlots = plotsQuery.isLoading;
+  const isErrorPlots = plotsQuery.isError;
+
+  const outSeasonResponse = outSeasonQuery.data;
+  const isLoadingOutSeason = outSeasonQuery.isLoading;
+  const isErrorOutSeason = outSeasonQuery.isError;
+
+  const awaitingPolygonResponse = awaitingPolygonQuery.data;
+  const isLoadingAwaitingPolygon = awaitingPolygonQuery.isLoading;
+  const isErrorAwaitingPolygon = awaitingPolygonQuery.isError;
+
   const plots = plotsResponse?.data || [];
-  const outSeasonPlots = outSeasonResponse || [];
+  const outSeasonPlots = outSeasonResponse?.data || [];
   const awaitingPolygonPlots = awaitingPolygonResponse?.data || [];
-  const totalPages = activeTab === 'awaiting-polygon' 
+  const totalPages = activeTab === 'awaiting-polygon'
     ? (awaitingPolygonResponse?.totalPages || 0)
     : (plotsResponse?.totalPages || 0);
   const totalCount = activeTab === 'awaiting-polygon'
@@ -180,7 +180,7 @@ const Plots = () => {
                 Active
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
-                {plots.filter((p) => p.status === 'Active').length}
+                {plots.filter((p: any) => p.status === 'Active').length}
               </p>
             </div>
           </div>
@@ -228,7 +228,7 @@ const Plots = () => {
                 Total Area
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
-                {plots.reduce((sum, p) => sum + p.area, 0).toFixed(1)}{' '}
+                {plots.reduce((sum: number, p: any) => sum + p.area, 0).toFixed(1)}{' '}
                 <span className="text-base font-normal text-gray-600">ha</span>
               </p>
             </div>
@@ -357,7 +357,7 @@ const Plots = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {plots.map((plot) => (
+                    {plots.map((plot: any) => (
                       <tr key={plot.plotId} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -402,11 +402,11 @@ const Plots = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-wrap gap-1">
-                            {(plot.seasons?.filter((s) => s.isActive) || [])
+                            {(plot.seasons?.filter((s: any) => s.isActive) || [])
                               .length > 0 ? (
                               (
-                                plot.seasons?.filter((s) => s.isActive) || []
-                              ).map((season) => (
+                                plot.seasons?.filter((s: any) => s.isActive) || []
+                              ).map((season: any) => (
                                 <Badge
                                   key={season.seasonId}
                                   variant="outline"
@@ -518,7 +518,7 @@ const Plots = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {outSeasonPlots.map((plot) => (
+                    {outSeasonPlots.map((plot: any) => (
                       <tr key={plot.plotId} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -654,11 +654,10 @@ const Plots = () => {
                         </td>
                         <td className="whitespace-nowrap px-6 py-4">
                           <Badge
-                            className={`border ${
-                              plot.status === 'PendingPolygon'
+                            className={`border ${plot.status === 'PendingPolygon'
                                 ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
                                 : 'bg-green-100 text-green-800 border-green-200'
-                            }`}
+                              }`}
                           >
                             {plot.status}
                           </Badge>
@@ -666,13 +665,12 @@ const Plots = () => {
                         <td className="whitespace-nowrap px-6 py-4">
                           <div className="flex items-center gap-2">
                             <Calendar className="size-4 text-gray-400" />
-                            <span className={`text-sm font-medium ${
-                              plot.daysAwaitingPolygon > 7
+                            <span className={`text-sm font-medium ${plot.daysAwaitingPolygon > 7
                                 ? 'text-red-600'
                                 : plot.daysAwaitingPolygon > 3
-                                ? 'text-yellow-600'
-                                : 'text-gray-900'
-                            }`}>
+                                  ? 'text-yellow-600'
+                                  : 'text-gray-900'
+                              }`}>
                               {plot.daysAwaitingPolygon} days
                             </span>
                           </div>
@@ -686,13 +684,12 @@ const Plots = () => {
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge
                                   variant="outline"
-                                  className={`text-xs ${
-                                    plot.taskStatus === 'InProgress'
+                                  className={`text-xs ${plot.taskStatus === 'InProgress'
                                       ? 'border-blue-200 bg-blue-50 text-blue-700'
                                       : plot.taskStatus === 'Completed'
-                                      ? 'border-green-200 bg-green-50 text-green-700'
-                                      : 'border-gray-200 bg-gray-50 text-gray-700'
-                                  }`}
+                                        ? 'border-green-200 bg-green-50 text-green-700'
+                                        : 'border-gray-200 bg-gray-50 text-gray-700'
+                                    }`}
                                 >
                                   {plot.taskStatus}
                                 </Badge>

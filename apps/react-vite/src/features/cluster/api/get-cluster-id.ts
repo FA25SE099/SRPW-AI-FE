@@ -37,6 +37,6 @@ export const useClusterId = ({
   return useQuery({
     ...getClusterIdQueryOptions(clusterManagerId),
     ...queryConfig,
-  });
+  }) as ReturnType<typeof useQuery<GetClusterIdResponse, Error>>;
 };
 

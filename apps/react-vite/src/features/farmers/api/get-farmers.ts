@@ -63,5 +63,5 @@ export const useFarmers = ({ params = {}, queryConfig }: UseFarmersOptions = {})
     return useQuery({
         ...getFarmersQueryOptions(params),
         ...queryConfig,
-    });
+    }) as ReturnType<typeof useQuery<GetFarmersResponse, Error>>;
 };

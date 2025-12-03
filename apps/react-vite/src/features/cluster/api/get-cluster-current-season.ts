@@ -28,6 +28,6 @@ export const useClusterCurrentSeason = ({
   return useQuery({
     ...getClusterCurrentSeasonQueryOptions(clusterId),
     ...queryConfig,
-  });
+  }) as ReturnType<typeof useQuery<ClusterCurrentSeason, Error>>;
 };
 

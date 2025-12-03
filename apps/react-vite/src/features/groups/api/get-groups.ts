@@ -38,5 +38,5 @@ export const useGroups = ({ queryConfig }: UseGroupsOptions = {}) => {
     return useQuery({
         ...getGroupsQueryOptions(),
         ...queryConfig,
-    });
+    }) as ReturnType<typeof useQuery<GroupsResponse, Error>>;
 };

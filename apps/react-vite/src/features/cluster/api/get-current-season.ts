@@ -22,6 +22,6 @@ export const useCurrentSeason = ({ queryConfig }: UseCurrentSeasonOptions = {}) 
   return useQuery({
     ...getCurrentSeasonQueryOptions(),
     ...queryConfig,
-  });
+  }) as ReturnType<typeof useQuery<CurrentSeason, Error>>;
 };
 

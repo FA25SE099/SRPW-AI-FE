@@ -44,6 +44,6 @@ export const useMaterials = ({ params, queryConfig }: UseMaterialsOptions) => {
   return useQuery({
     ...getMaterialsQueryOptions(params),
     ...queryConfig,
-  });
+  }) as ReturnType<typeof useQuery<PagedResult<Material[]>, Error>>;
 };
 

@@ -23,7 +23,7 @@ const ClusterFarmers = () => {
   const { addNotification } = useNotifications();
   const user = useUser();
 
-  const { data, isLoading, isError } = useFarmers({
+  const farmersQuery = useFarmers({
     params: {
       pageNumber,
       pageSize,
@@ -32,10 +32,12 @@ const ClusterFarmers = () => {
     },
   });
 
-  const farmers = data?.data || [];
-  const totalPages = data?.totalPages || 0;
-  const totalCount = data?.totalCount || 0;
-  const currentPage = data?.currentPage || 1;
+  const farmers = farmersQuery.data?.data || [];
+  const totalPages = farmersQuery.data?.totalPages || 0;
+  const totalCount = farmersQuery.data?.totalCount || 0;
+  const currentPage = farmersQuery.data?.currentPage || 1;
+  const isLoading = farmersQuery.isLoading;
+  const isError = farmersQuery.isError;
 
   const exportMutation = useExportFarmers({
     mutationConfig: {
@@ -165,7 +167,7 @@ const ClusterFarmers = () => {
                   Active Farmers
                 </p>
                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
-                  {farmers.filter((f) => f.isActive).length}
+                  {farmers.filter((f: any) => f.isActive).length}
                 </p>
               </div>
             </div>
@@ -197,7 +199,7 @@ const ClusterFarmers = () => {
                   Total Plots
                 </p>
                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
-                  {farmers.reduce((sum, f) => sum + f.plotCount, 0)}
+                  {farmers.reduce((sum: number, f: any) => sum + f.plotCount, 0)}
                 </p>
               </div>
             </div>
@@ -264,7 +266,7 @@ const ClusterFarmers = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {farmers.map((farmer) => (
+                  {farmers.map((farmer: any) => (
                     <tr key={farmer.farmerId} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">

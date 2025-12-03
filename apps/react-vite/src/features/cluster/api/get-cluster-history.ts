@@ -4,7 +4,7 @@ import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
 import { ClusterHistory } from '../types';
 
-type GetClusterHistoryParams = {
+export type GetClusterHistoryParams = {
   clusterId: string;
   seasonId?: string;
   year?: number;
@@ -46,6 +46,6 @@ export const useClusterHistory = ({
   return useQuery({
     ...getClusterHistoryQueryOptions(params),
     ...queryConfig,
-  });
+  }) as ReturnType<typeof useQuery<ClusterHistory, Error>>;
 };
 

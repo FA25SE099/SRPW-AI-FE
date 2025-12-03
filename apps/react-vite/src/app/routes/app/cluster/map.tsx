@@ -65,12 +65,13 @@ const MapPage = () => {
     const [isClient, setIsClient] = useState(false);
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
-    const { data, isLoading } = usePlots({
+    const plotsQuery = usePlots({
         params: { pageNumber: 1, pageSize: 500 },
     });
 
-    const plots: PlotDTO[] = data?.data || [];
-    const totalPlots = data?.totalCount || 0;
+    const plots: PlotDTO[] = plotsQuery.data?.data || [];
+    const totalPlots = plotsQuery.data?.totalCount || 0;
+    const isLoading = plotsQuery.isLoading;
 
     // Get user's current location
     useEffect(() => {
