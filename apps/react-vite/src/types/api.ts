@@ -209,6 +209,7 @@ export type Material = {
   description: string;
   manufacturer: string;
   isActive: boolean;
+  imgUrls?: string[];
 };
 
 // PagedResult<T> from backend - extends Result<T> with pagination
@@ -310,7 +311,7 @@ export type UpdateMaterialRequest = {
   description?: string;
   manufacturer?: string;
   isActive: boolean;
-  priceValidFrom: string;
+  imgUrls?: string[];
 };
 
 // Rice Variety CRUD Types

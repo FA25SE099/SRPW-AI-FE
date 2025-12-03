@@ -8,6 +8,7 @@ type GetMaterialsParams = {
   currentPage: number;
   pageSize: number;
   type?: MaterialType;
+  dateTime?: string; // ISO datetime string for price retrieval
 };
 
 export const getMaterials = async (
@@ -18,6 +19,9 @@ export const getMaterials = async (
   formData.append('pageSize', params.pageSize.toString());
   if (params.type !== undefined) {
     formData.append('type', params.type.toString());
+  }
+  if (params.dateTime) {
+    formData.append('dateTime', params.dateTime);
   }
 
   // The api-client interceptor now detects PagedResult and keeps it intact
