@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
+import { Save, Upload, X, Image as ImageIcon } from 'lucide-react';
 
-import { useUpdateMaterial } from '../api/update-material';
-import { Material, MaterialType } from '@/types/api';
+import { useUpdateMaterial, useUploadMaterialImages } from '../api/update-material';
+import { Material } from '@/types/api';
 import { Button } from '@/components/ui/button';
 import { SimpleDialog } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 type EditMaterialDialogProps = {
   isOpen: boolean;
@@ -18,24 +20,19 @@ export const EditMaterialDialog = ({
   material,
 }: EditMaterialDialogProps) => {
   const [name, setName] = useState('');
-  const [type, setType] = useState<MaterialType>(MaterialType.Fertilizer);
-  const [ammountPerMaterial, setAmmountPerMaterial] = useState<number>(0);
-  const [unit, setUnit] = useState('');
-  const [pricePerMaterial, setPricePerMaterial] = useState<number>(0);
   const [description, setDescription] = useState('');
   const [manufacturer, setManufacturer] = useState('');
-  const [isActive, setIsActive] = useState(true);
+  const [imgUrls, setImgUrls] = useState<string[]>([]);
+  const [dragActive, setDragActive] = useState(false);
+
+  const uploadImagesMutation = useUploadMaterialImages();
 
   useEffect(() => {
     if (material) {
       setName(material.name);
-      setType(material.type);
-      setAmmountPerMaterial(material.ammountPerMaterial);
-      setUnit(material.unit);
-      setPricePerMaterial(material.pricePerMaterial);
       setDescription(material.description || '');
       setManufacturer(material.manufacturer || '');
-      setIsActive(material.isActive);
+      setImgUrls(material.imgUrls || []);
     }
   }, [material]);
 
@@ -47,20 +44,65 @@ export const EditMaterialDialog = ({
     },
   });
 
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files);
+      await handleUpload(files);
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      await handleUpload(files);
+    }
+  };
+
+  const handleUpload = async (files: File[]) => {
+    if (files.length === 0) return;
+
+    try {
+      const result = await uploadImagesMutation.mutateAsync(files);
+      const newUrls = result.files.map((f) => f.url);
+      setImgUrls([...imgUrls, ...newUrls]);
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload images. Please try again.');
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImgUrls(imgUrls.filter((_, i) => i !== index));
+  };
+
   const handleUpdate = () => {
-    if (!material || !name || !unit) return;
+    if (!material || !name) return;
 
     updateMutation.mutate({
       materialId: material.materialId,
       name,
-      type,
-      ammountPerMaterial,
-      unit,
-      pricePerMaterial,
+      type: material.type,
+      ammountPerMaterial: material.ammountPerMaterial,
+      unit: material.unit,
+      pricePerMaterial: material.pricePerMaterial,
       description: description || undefined,
       manufacturer: manufacturer || undefined,
-      isActive,
-      priceValidFrom: new Date().toISOString(),
+      isActive: material.isActive,
+      imgUrls,
     });
   };
 
@@ -70,124 +112,133 @@ export const EditMaterialDialog = ({
     <SimpleDialog isOpen={isOpen} onClose={onClose} title="Edit Material" maxWidth="2xl">
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          Update material information and pricing.
+          Update material name, manufacturer, description, and images.
         </p>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Material Name *
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              disabled={isLoading}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., NPK Fertilizer 16-16-8"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Type *
-            </label>
-            <select
-              value={type}
-              onChange={(e) => setType(Number(e.target.value) as MaterialType)}
-              disabled={isLoading}
-              className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            >
-              <option value={MaterialType.Fertilizer}>Fertilizer</option>
-              <option value={MaterialType.Pesticide}>Pesticide</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Amount *
-            </label>
-            <input
-              type="number"
-              value={ammountPerMaterial}
-              onChange={(e) => setAmmountPerMaterial(Number(e.target.value))}
-              disabled={isLoading}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 50"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Unit *
-            </label>
-            <input
-              type="text"
-              value={unit}
-              onChange={(e) => setUnit(e.target.value)}
-              disabled={isLoading}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., kg"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Price (VND) *
-            </label>
-            <input
-              type="number"
-              value={pricePerMaterial}
-              onChange={(e) => setPricePerMaterial(Number(e.target.value))}
-              disabled={isLoading}
-              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 450000"
-            />
-          </div>
+        <div className="space-y-2">
+          <Label>Material Name *</Label>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            disabled={isLoading}
+            placeholder="e.g., NPK Fertilizer 16-16-8"
+          />
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Manufacturer
-          </label>
-          <input
-            type="text"
+          <Label>Manufacturer</Label>
+          <Input
             value={manufacturer}
             onChange={(e) => setManufacturer(e.target.value)}
             disabled={isLoading}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
             placeholder="e.g., Phân bón Phú Mỹ"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Description
-          </label>
+          <Label>Description</Label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             disabled={isLoading}
             rows={3}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
             placeholder="Description and notes..."
           />
         </div>
 
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="isActive"
-            checked={isActive}
-            onChange={(e) => setIsActive(e.target.checked)}
-            disabled={isLoading}
-            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-          />
-          <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-            Active
-          </label>
+        {/* Image Upload Section */}
+        <div>
+          <Label>Images</Label>
+          <div className="space-y-4">
+            {/* Drag and Drop Upload Area */}
+            <div
+              className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${dragActive
+                  ? 'border-primary bg-primary/5'
+                  : 'border-gray-300 hover:border-gray-400'
+                }`}
+              onDragEnter={handleDrag}
+              onDragLeave={handleDrag}
+              onDragOver={handleDrag}
+              onDrop={handleDrop}
+              onClick={() =>
+                document.getElementById('material-image-upload')?.click()
+              }
+            >
+              <ImageIcon className="mx-auto mb-3 size-10 text-muted-foreground" />
+              <p className="mb-2 text-sm text-muted-foreground">
+                Drag and drop your images here, or click to browse
+              </p>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+                id="material-image-upload"
+                disabled={uploadImagesMutation.isPending}
+              />
+              <div className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 transition-colors hover:bg-gray-50">
+                <Upload className="size-4" />
+                <span className="text-sm font-medium">Select Images</span>
+              </div>
+              {uploadImagesMutation.isPending && (
+                <p className="mt-2 text-xs text-primary">Uploading...</p>
+              )}
+            </div>
+
+            {/* Display uploaded images in table format */}
+            {imgUrls.length > 0 && (
+              <div className="overflow-hidden rounded-lg border border-gray-200">
+                <table className="w-full">
+                  <thead className="border-b border-gray-200 bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Preview
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        File
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {imgUrls.map((url, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">
+                          <img
+                            src={url}
+                            alt={`Preview ${index + 1}`}
+                            className="size-12 rounded border object-cover"
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="text-sm font-medium text-gray-900">
+                            Image {index + 1}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {url.split('/').pop()?.substring(0, 30)}...
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="inline-flex items-center gap-1 rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
+                          >
+                            <X className="size-3" />
+                            Remove
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
@@ -196,7 +247,7 @@ export const EditMaterialDialog = ({
           </Button>
           <Button
             onClick={handleUpdate}
-            disabled={!name || !unit || isLoading}
+            disabled={!name || isLoading}
             isLoading={isLoading}
             icon={<Save className="h-4 w-4" />}
           >

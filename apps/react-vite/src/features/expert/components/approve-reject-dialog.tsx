@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/form';
 import { Spinner } from '@/components/ui/spinner';
 import { UpdateProductionPlanDialog } from '@/features/production-plans/components/update-production-plan-dialog';
+import { useCalculateMaterialsCostByPlot, MaterialCostItem } from '@/features/materials/api/calculate-materials-cost';
 
 import { useApproveRejectPlan } from '../api/approve-reject-plan';
 import { usePlanDetail } from '../api/get-plan-detail';
@@ -55,6 +56,8 @@ export const ApproveRejectDialog = ({
 }: ApproveRejectDialogProps) => {
   const [action, setAction] = useState<'approve' | 'reject' | null>(null);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [emergencyMaterialCosts, setEmergencyMaterialCosts] = useState<Record<string, MaterialCostItem[]>>({});
+  const [loadingCosts, setLoadingCosts] = useState<Record<string, boolean>>({});
 
   const {
     data: planDetail,
@@ -69,6 +72,8 @@ export const ApproveRejectDialog = ({
     planId: planId || '',
     queryConfig: { enabled: open && !!planId }
   });
+
+  const calculateCostMutation = useCalculateMaterialsCostByPlot();
 
   const form = useForm<ApproveRejectFormInput>({
     resolver: zodResolver(approveRejectFormSchema),
@@ -94,6 +99,49 @@ export const ApproveRejectDialog = ({
       setAction(null);
     }
   }, [open, form]);
+
+  // Calculate costs for emergency-related materials
+  useEffect(() => {
+    if (!plotMaterialsData?.plots || !open) return;
+
+    plotMaterialsData.plots.forEach((plot) => {
+      // Filter materials that are from emergency protocols or have emergency status
+      // Look for materials in tasks that might be from emergency protocols
+      const emergencyMaterials = plot.materials?.filter(m =>
+        // You can add more conditions here based on your emergency criteria
+        // For now, we'll check if material has isOutdated flag or other emergency indicators
+        m.isOutdated || m.materialName?.toLowerCase().includes('emergency')
+      ) || [];
+
+      if (emergencyMaterials.length > 0) {
+        setLoadingCosts(prev => ({ ...prev, [plot.plotId]: true }));
+
+        calculateCostMutation.mutate(
+          {
+            plotId: plot.plotId,
+            materials: emergencyMaterials.map(m => ({
+              materialId: m.materialId,
+              quantityPerHa: m.quantityPerHa
+            }))
+          },
+          {
+            onSuccess: (response) => {
+              if (response?.materialCostItems) {
+                setEmergencyMaterialCosts(prev => ({
+                  ...prev,
+                  [plot.plotId]: response.materialCostItems
+                }));
+              }
+              setLoadingCosts(prev => ({ ...prev, [plot.plotId]: false }));
+            },
+            onError: () => {
+              setLoadingCosts(prev => ({ ...prev, [plot.plotId]: false }));
+            }
+          }
+        );
+      }
+    });
+  }, [plotMaterialsData, open]);
 
   const handleSubmit = (data: ApproveRejectFormInput) => {
     if (!action) return;
@@ -357,6 +405,56 @@ export const ApproveRejectDialog = ({
                                             </tfoot>
                                           </table>
                                         </div>
+                                      </div>
+                                    )}
+
+                                    {/* Emergency Materials Cost Calculation */}
+                                    {emergencyMaterialCosts[plot.plotId] && emergencyMaterialCosts[plot.plotId].length > 0 && (
+                                      <div className="mt-4 rounded-lg border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-white p-4">
+                                        <div className="mb-3 flex items-center gap-2 text-base font-semibold text-orange-900">
+                                          <DollarSign className="h-5 w-5 text-orange-600" />
+                                          Emergency Materials Cost Estimate
+                                        </div>
+                                        <div className="space-y-2">
+                                          {emergencyMaterialCosts[plot.plotId].map((item) => (
+                                            <div
+                                              key={item.materialId}
+                                              className="flex items-center justify-between rounded-md bg-white border border-orange-200 p-3 text-sm"
+                                            >
+                                              <div className="flex-1">
+                                                <p className="font-medium text-gray-900">{item.materialName}</p>
+                                                <p className="text-xs text-gray-500">
+                                                  {item.quantityPerHa} {item.unit}/ha • {item.packagesNeeded} package(s) needed
+                                                  ({item.amountPerMaterial} {item.unit}/package)
+                                                </p>
+                                              </div>
+                                              <div className="text-right">
+                                                <p className="font-semibold text-orange-700">
+                                                  {item.costPerHa.toLocaleString('vi-VN')} VND/ha
+                                                </p>
+                                                <p className="text-xs text-gray-500">
+                                                  {item.pricePerMaterial.toLocaleString('vi-VN')} VND/package
+                                                </p>
+                                              </div>
+                                            </div>
+                                          ))}
+                                          <div className="mt-3 flex items-center justify-between border-t-2 border-orange-300 pt-3">
+                                            <p className="text-base font-bold text-gray-900">Emergency Materials Total</p>
+                                            <p className="text-xl font-bold text-orange-700">
+                                              {emergencyMaterialCosts[plot.plotId]
+                                                .reduce((sum, item) => sum + item.costPerHa, 0)
+                                                .toLocaleString('vi-VN')}{' '}
+                                              VND/ha
+                                            </p>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {loadingCosts[plot.plotId] && (
+                                      <div className="mt-4 flex items-center justify-center rounded-lg border-2 border-orange-200 bg-orange-50 p-4">
+                                        <Spinner size="sm" className="mr-2" />
+                                        <span className="text-sm text-orange-700">Calculating emergency materials cost...</span>
                                       </div>
                                     )}
                                   </div>

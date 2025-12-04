@@ -11,6 +11,7 @@ import {
   Edit,
   ChevronLeft,
   ChevronRight,
+  DollarSign,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -21,6 +22,7 @@ import { Label } from '@/components/ui/label';
 import { useNotifications } from '@/components/ui/notifications';
 import { Spinner } from '@/components/ui/spinner';
 import { useMaterials } from '@/features/materials/api/get-materials';
+import { useCalculateMaterialsCost, MaterialCostItem } from '@/features/materials/api/calculate-materials-cost';
 import { useCategories } from '@/features/rice-varieties/api/get-categories';
 
 import {
@@ -130,6 +132,8 @@ export const CreateEmergencyProtocolDialog = ({
   // Move this FIRST, before any hooks that use it
   const isEditMode = !!protocol;
 
+  console.log('🎬 Dialog Render:', { isOpen, hasProtocol: !!protocol, protocolId: protocol?.id, isEditMode });
+
   const [step, setStep] = useState<
     'basic' | 'tasks' | 'thresholds' | 'preview'
   >('basic');
@@ -159,6 +163,8 @@ export const CreateEmergencyProtocolDialog = ({
   const [editingThresholdIndex, setEditingThresholdIndex] = useState<
     number | null
   >(null);
+  const [materialCosts, setMaterialCosts] = useState<MaterialCostItem[]>([]);
+  const [totalCostPerHa, setTotalCostPerHa] = useState<number>(0);
 
   const [newPestProtocol, setNewPestProtocol] = useState({
     name: '',
@@ -214,6 +220,8 @@ export const CreateEmergencyProtocolDialog = ({
   const pesticidesQuery = useMaterials({
     params: { currentPage: 1, pageSize: 1000, type: 1 },
   });
+
+  const calculateCostMutation = useCalculateMaterialsCost();
 
   const createProtocolMutation = useCreateEmergencyProtocol({
     mutationConfig: {
@@ -322,21 +330,31 @@ export const CreateEmergencyProtocolDialog = ({
     },
   });
 
-  console.log('Query state:', {
+  console.log('🔍 Edit Mode Query State:', {
     protocolId: protocol?.id,
     isEditMode,
     isOpen,
     isLoadingDetails,
     hasResponse: !!protocolDetailsResponse,
+    responseSucceeded: protocolDetailsResponse?.succeeded,
+    hasDirectData: !!(protocolDetailsResponse as any)?.id,
     error,
+    fullResponse: protocolDetailsResponse,
   });
 
-  const protocolDetails = protocolDetailsResponse;
+  // Handle both wrapped and unwrapped responses
+  const protocolDetails = protocolDetailsResponse?.data
+    ? protocolDetailsResponse
+    : (protocolDetailsResponse as any)?.id
+      ? { succeeded: true, data: protocolDetailsResponse as any }
+      : protocolDetailsResponse;
 
-  console.log('📦 Protocol Details:', {
-    raw: protocolDetailsResponse,
-    extracted: protocolDetails,
-    planName: protocolDetails?.data?.planName,
+  console.log('🔄 Protocol Details Transform:', {
+    hasResponse: !!protocolDetailsResponse,
+    hasDataProp: !!protocolDetailsResponse?.data,
+    hasIdDirectly: !!(protocolDetailsResponse as any)?.id,
+    transformed: protocolDetails,
+    hasTransformedData: !!protocolDetails?.data,
   });
 
   const updateProtocolMutation = useUpdateEmergencyProtocol({
@@ -361,6 +379,15 @@ export const CreateEmergencyProtocolDialog = ({
 
   // Load existing data when editing
   useEffect(() => {
+    console.log('📝 Edit Effect Check:', {
+      isEditMode,
+      hasProtocolDetails: !!protocolDetails,
+      hasData: !!protocolDetails?.data,
+      isOpen,
+      isLoadingDetails,
+      protocolId: protocol?.id,
+    });
+
     if (isEditMode && protocolDetails?.data && isOpen && !isLoadingDetails) {
       console.log('📝 Populating form with protocol data:', protocolDetails);
 
@@ -452,16 +479,18 @@ export const CreateEmergencyProtocolDialog = ({
       setEditableThresholds(convertedThresholds);
       console.log('🎯 Loaded thresholds:', convertedThresholds);
 
-      // Force re-render by triggering form validation
-      setTimeout(() => {
-        console.log('✅ Form populated. Current values:', {
-          planName: watch('planName'),
-          categoryId: watch('categoryId'),
-          description: watch('description'),
-        });
-      }, 100);
+      console.log('✅ Form populated successfully');
     }
-  }, [isEditMode, protocolDetails, isLoadingDetails, isOpen, setValue, watch]);
+  }, [isEditMode, protocolDetails?.data, isLoadingDetails, isOpen, setValue, protocol?.id]);
+
+  // Debug material costs changes
+  useEffect(() => {
+    console.log('💰 Material Costs State Changed:', {
+      count: materialCosts.length,
+      total: totalCostPerHa,
+      costs: materialCosts,
+    });
+  }, [materialCosts, totalCostPerHa]);
 
   const handleBasicInfo = (data: FormData) => {
     setFormData(data);
@@ -506,6 +535,51 @@ export const CreateEmergencyProtocolDialog = ({
 
   const handleToPreview = () => {
     setStep('preview');
+
+    // Calculate material costs for all tasks
+    const allMaterials = editableStages.flatMap(stage =>
+      stage.tasks.flatMap(task => task.materials)
+    ).filter(m => m.materialId && m.quantityPerHa > 0);
+
+    console.log('💰 Preview - Materials to calculate:', allMaterials);
+
+    if (allMaterials.length > 0) {
+      calculateCostMutation.mutate(
+        {
+          area: 1, // Calculate per hectare
+          materials: allMaterials,
+        },
+        {
+          onSuccess: (response) => {
+            console.log('✅ Cost calculation response:', response);
+            // API returns data directly, not wrapped in succeeded/data
+            if (response?.materialCostItems) {
+              setMaterialCosts(response.materialCostItems || []);
+              setTotalCostPerHa(response.totalCostPerHa || 0);
+              console.log('✅ Cost data set successfully:', {
+                itemCount: response.materialCostItems.length,
+                total: response.totalCostPerHa,
+                items: response.materialCostItems,
+              });
+            } else {
+              console.warn('⚠️ Cost calculation returned unexpected structure:', response);
+            }
+          },
+          onError: (error: any) => {
+            console.error('❌ Failed to calculate costs:', error);
+            addNotification({
+              type: 'error',
+              title: 'Cost Calculation Failed',
+              message: error?.message || 'Unable to calculate material costs',
+            });
+          },
+        }
+      );
+    } else {
+      console.log('💰 No materials to calculate costs for');
+      setMaterialCosts([]);
+      setTotalCostPerHa(0);
+    }
   };
 
   const handleCreateOrUpdateProtocol = () => {
@@ -580,24 +654,28 @@ export const CreateEmergencyProtocolDialog = ({
   };
 
   const handleClose = () => {
-    if (!isEditMode) {
-      reset({
-        isActive: true,
-        totalDurationDays: 30,
-      });
-      setFormData(null);
-      setEditableStages([
-        {
-          stageName: 'Xử lý',
-          sequenceOrder: 1,
-          expectedDurationDays: 0,
-          isMandatory: true,
-          notes: 'Xử lý khẩn cấp',
-          tasks: [],
-        },
-      ]);
-      setEditableThresholds([]);
-    }
+    // Always reset form state when closing
+    reset({
+      isActive: true,
+      totalDurationDays: 30,
+      categoryId: '',
+      planName: '',
+      description: '',
+    });
+    setFormData(null);
+    setEditableStages([
+      {
+        stageName: 'Xử lý',
+        sequenceOrder: 1,
+        expectedDurationDays: 0,
+        isMandatory: true,
+        notes: 'Xử lý khẩn cấp',
+        tasks: [],
+      },
+    ]);
+    setEditableThresholds([]);
+    setMaterialCosts([]);
+    setTotalCostPerHa(0);
     setStep('basic');
     setValidationErrors({});
     setEditingThresholdIndex(null);
@@ -1683,23 +1761,28 @@ export const CreateEmergencyProtocolDialog = ({
                                   Priority: {task.priority}
                                 </div>
                                 {task.materials.length > 0 && (
-                                  <div className="mt-1 text-xs text-gray-600">
-                                    Materials:{' '}
-                                    {task.materials
-                                      .map((m) => {
-                                        const mat = [
-                                          ...fertilizers,
-                                          ...pesticides,
-                                        ].find(
-                                          (mat) =>
-                                            mat.materialId === m.materialId,
-                                        );
-                                        return mat
-                                          ? `${mat.name} (${m.quantityPerHa} ${mat.unit}/ha)`
-                                          : '';
-                                      })
-                                      .filter(Boolean)
-                                      .join(', ')}
+                                  <div className="mt-1 space-y-1">
+                                    <div className="text-xs text-gray-600">
+                                      Materials:{' '}
+                                      {task.materials
+                                        .map((m) => {
+                                          const mat = [
+                                            ...fertilizers,
+                                            ...pesticides,
+                                          ].find(
+                                            (mat) =>
+                                              mat.materialId === m.materialId,
+                                          );
+                                          const costItem = materialCosts.find(
+                                            (c) => c.materialId === m.materialId
+                                          );
+                                          return mat
+                                            ? `${mat.name} (${m.quantityPerHa} ${mat.unit}/ha${costItem ? ` - $${costItem.costPerHa.toFixed(2)}/ha` : ''})`
+                                            : '';
+                                        })
+                                        .filter(Boolean)
+                                        .join(', ')}
+                                    </div>
                                   </div>
                                 )}
                               </div>
@@ -1710,6 +1793,53 @@ export const CreateEmergencyProtocolDialog = ({
                     ))}
                   </div>
                 </div>
+
+                {/* Cost Summary */}
+                {editableStages.some(s => s.tasks.some(t => t.materials.length > 0)) && (
+                  <div className="rounded-lg border bg-gradient-to-r from-green-50 to-emerald-50 p-4">
+                    <div className="mb-3 flex items-center gap-2">
+                      <DollarSign className="size-5 text-green-600" />
+                      <h4 className="font-semibold text-gray-900">Cost Estimate (per hectare)</h4>
+                      {calculateCostMutation.isPending && <Spinner size="sm" />}
+                    </div>
+                    {calculateCostMutation.isPending ? (
+                      <div className="text-center py-4 text-gray-500">Calculating costs...</div>
+                    ) : materialCosts.length === 0 ? (
+                      <div className="text-center py-4 text-gray-500">Unable to load cost information</div>
+                    ) : (
+                      <div className="space-y-2">
+                        {materialCosts.map((item) => (
+                          <div
+                            key={item.materialId}
+                            className="flex items-center justify-between rounded-md bg-white p-3 text-sm"
+                          >
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-900">{item.materialName}</p>
+                              <p className="text-xs text-gray-500">
+                                {item.quantityPerHa} {item.unit}/ha • {item.packagesNeeded} package(s) needed
+                                ({item.amountPerMaterial} {item.unit}/package)
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold text-green-700">
+                                ${item.costPerHa.toFixed(2)}/ha
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                ${item.pricePerMaterial}/package
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="mt-3 flex items-center justify-between border-t pt-3">
+                          <p className="text-lg font-bold text-gray-900">Total Cost</p>
+                          <p className="text-2xl font-bold text-green-700">
+                            ${totalCostPerHa.toFixed(2)}/ha
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Thresholds Overview */}
                 {editableThresholds.length > 0 && (

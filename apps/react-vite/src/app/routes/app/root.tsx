@@ -225,12 +225,12 @@ const AppRoot = () => {
         icon: UserCheck,
         end: true,
       },
-      {
-        name: 'Plans',
-        to: paths.app.cluster.plans.getHref(),
-        icon: ClipboardList,
-        end: true,
-      },
+      // {
+      //   name: 'Plans',
+      //   to: paths.app.cluster.plans.getHref(),
+      //   icon: ClipboardList,
+      //   end: true,
+      // },
       {
         name: 'Groups',
         to: paths.app.cluster.groups.getHref(),
