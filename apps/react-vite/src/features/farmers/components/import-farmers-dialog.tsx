@@ -10,6 +10,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import { useNotifications } from '@/components/ui/notifications';
 
 type ImportFarmersDialogProps = {
     open: boolean;
@@ -20,6 +21,7 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [dragActive, setDragActive] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const { addNotification } = useNotifications();
 
     const farmerTemplate = useFarmerImportTemplate();
 
@@ -27,13 +29,21 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
         mutationConfig: {
             onSuccess: (data) => {
                 if (data.failureCount === 0) {
-                    alert(`Successfully imported ${data.successCount} farmers!`);
+                    addNotification({
+                        type: 'success',
+                        title: 'Import Successful',
+                        message: `Successfully imported ${data.successCount} farmers!`,
+                    });
                     onOpenChange(false);
                     setSelectedFile(null);
                 }
             },
             onError: (error: any) => {
-                alert(`Import failed: ${error.message || 'Unknown error'}`);
+                addNotification({
+                    type: 'error',
+                    title: 'Import Failed',
+                    message: error.message || 'Unknown error occurred',
+                });
             },
         },
     });
@@ -43,7 +53,11 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
             setIsDownloading(true);
             await farmerTemplate.download();
         } catch (error: any) {
-            alert(`Failed to download template: ${error.message || 'Unknown error'}`);
+            addNotification({
+                type: 'error',
+                title: 'Download Failed',
+                message: error.message || 'Failed to download template',
+            });
         } finally {
             setIsDownloading(false);
         }
@@ -87,11 +101,19 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ];
         if (!validTypes.includes(file.type)) {
-            alert('Please upload an Excel file (.xls or .xlsx)');
+            addNotification({
+                type: 'error',
+                title: 'Invalid File Type',
+                message: 'Please upload an Excel file (.xls or .xlsx)',
+            });
             return false;
         }
         if (file.size > 10 * 1024 * 1024) {
-            alert('File size must be less than 10MB');
+            addNotification({
+                type: 'error',
+                title: 'File Too Large',
+                message: 'File size must be less than 10MB',
+            });
             return false;
         }
         return true;

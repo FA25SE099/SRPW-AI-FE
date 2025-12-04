@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { toast } from 'sonner'
+import { useNotifications } from '@/components/ui/notifications'
 
 type ImportPlotsDialogProps = {
     open: boolean
@@ -26,6 +26,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
     const [isDownloading, setIsDownloading] = useState(false)
     const [dragActive, setDragActive] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const { addNotification } = useNotifications()
     
     const plotTemplate = usePlotImportTemplate()
 
@@ -39,7 +40,11 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     // Backend returned array directly (old format)
                     setSuccessMessage(`Successfully imported ${data.length} plots!`)
                     setErrors([])
-                    toast.success(`Successfully imported ${data.length} plots!`)
+                    addNotification({
+                        type: 'success',
+                        title: 'Import Successful',
+                        message: `Successfully imported ${data.length} plots!`,
+                    })
 
                     setTimeout(() => {
                     onOpenChange(false)
@@ -49,7 +54,11 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                 // Backend returned wrapped response
                 setSuccessMessage(data.message || 'Plots imported successfully!')
                 setErrors([])
-                toast.success(data.message || 'Plots imported successfully!')
+                addNotification({
+                    type: 'success',
+                    title: 'Import Successful',
+                    message: data.message || 'Plots imported successfully!',
+                })
 
                 setTimeout(() => {
                     onOpenChange(false)
@@ -63,12 +72,20 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
 
                 setErrors(errorMessages)
                     setSuccessMessage('')
-                    toast.error(data.message || 'Import failed')
+                    addNotification({
+                        type: 'error',
+                        title: 'Import Failed',
+                        message: data.message || 'Import failed',
+                    })
                 } else {
                     // Unknown format
                     console.error('Unknown response format:', data)
                     setErrors(['Unexpected response format'])
-                    toast.error('Import failed - unexpected response')
+                    addNotification({
+                        type: 'error',
+                        title: 'Import Failed',
+                        message: 'Import failed - unexpected response',
+                    })
                 }
             },
             onError: (error: any) => {
@@ -84,11 +101,19 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                         : [responseData.message || 'Import failed']
 
                     setErrors(errorMessages)
-                    toast.error(responseData.message || 'Import failed')
+                    addNotification({
+                        type: 'error',
+                        title: 'Import Failed',
+                        message: responseData.message || 'Import failed',
+                    })
                 } else {
                     // Network or unknown error
                     setErrors(['Failed to import plots. Please try again.'])
-                    toast.error('Failed to import plots')
+                    addNotification({
+                        type: 'error',
+                        title: 'Import Failed',
+                        message: 'Failed to import plots',
+                    })
                 }
 
                 setSuccessMessage('')
@@ -112,11 +137,19 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
             'application/vnd.ms-excel',
         ]
         if (!validTypes.includes(file.type)) {
-            toast.error('Please select a valid Excel file (.xlsx or .xls)')
+            addNotification({
+                type: 'error',
+                title: 'Invalid File Type',
+                message: 'Please select a valid Excel file (.xlsx or .xls)',
+            })
             return false
         }
         if (file.size > 10 * 1024 * 1024) {
-            toast.error('File size must be less than 10MB')
+            addNotification({
+                type: 'error',
+                title: 'File Too Large',
+                message: 'File size must be less than 10MB',
+            })
             return false
         }
         return true
@@ -158,7 +191,11 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
 
     const handleImport = () => {
         if (!selectedFile) {
-            toast.error('Please select a file to import')
+            addNotification({
+                type: 'error',
+                title: 'No File Selected',
+                message: 'Please select a file to import',
+            })
             return
         }
 
@@ -175,10 +212,18 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
         try {
             setIsDownloading(true)
             await plotTemplate.download()
-            toast.success('Plot template downloaded successfully!')
+            addNotification({
+                type: 'success',
+                title: 'Download Successful',
+                message: 'Plot template downloaded successfully!',
+            })
         } catch (error: any) {
             console.error('Template download error:', error)
-            toast.error(error.message || 'Failed to download template. Please ensure farmers have been imported first.')
+            addNotification({
+                type: 'error',
+                title: 'Download Failed',
+                message: error.message || 'Failed to download template. Please ensure farmers have been imported first.',
+            })
         } finally {
             setIsDownloading(false)
         }

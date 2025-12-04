@@ -39,13 +39,13 @@ const ClusterDashboard = () => {
   const [selectedGroup, setSelectedGroup] = useState<{ id: string; name: string } | null>(null);
 
   // Get ClusterManagerId from logged-in user
-  const clusterManagerId = user.data?.id || '';
+  const clusterManagerId = user?.data?.id || '';
 
   // Fetch the actual clusterId using ClusterManagerId
   const clusterIdQuery = useClusterId({
     clusterManagerId,
     queryConfig: {
-      enabled: !!clusterManagerId,
+      enabled: !!clusterManagerId && !!user,
     },
   });
 
@@ -84,7 +84,7 @@ const ClusterDashboard = () => {
   const globalSeasonQuery = useCurrentSeason();
   const globalSeason = globalSeasonQuery.data;
 
-  const isLoading = isLoadingClusterId || isLoadingSeason;
+  const isLoading = isLoadingClusterId || isLoadingSeason || !user;
 
   if (isLoading) {
     return (
@@ -95,6 +95,27 @@ const ClusterDashboard = () => {
             <p className="text-muted-foreground">Loading cluster data...</p>
           </div>
         </div>
+      </ContentLayout>
+    );
+  }
+
+  if (!user?.data) {
+    return (
+      <ContentLayout title="Cluster Manager Dashboard">
+        <Card className="border-destructive/50">
+          <CardContent className="p-8 text-center space-y-4">
+            <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Authentication Required</h3>
+              <p className="text-muted-foreground mb-4">
+                Unable to load user information. Please try logging in again.
+              </p>
+              <Button onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </ContentLayout>
     );
   }

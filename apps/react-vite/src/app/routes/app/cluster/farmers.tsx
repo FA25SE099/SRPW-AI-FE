@@ -1,4 +1,4 @@
-import { Users, MapPin, Phone, Mail, Download, Search } from 'lucide-react';
+import { Users, MapPin, Phone, Mail, Download, Search, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
 import { ContentLayout } from '@/components/layouts';
@@ -10,6 +10,7 @@ import { useFarmers } from '@/features/farmers/api/get-farmers';
 import { useExportFarmers } from '@/features/farmers/api/export-farmers';
 import { FarmerDetailDialog } from '@/features/farmers/components/farmer-detail-dialog';
 import { ImportFarmersDialog } from '@/features/farmers/components/import-farmers-dialog';
+import { CreateFarmerDialog } from '@/features/farmers/components/create-farmer-dialog';
 import { useUser } from '@/lib/auth';
 
 const ClusterFarmers = () => {
@@ -17,6 +18,7 @@ const ClusterFarmers = () => {
   const [pageSize] = useState(12);
   const [searchTerm, setSearchTerm] = useState('');
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedFarmerId, setSelectedFarmerId] = useState<string | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
@@ -119,6 +121,13 @@ const ClusterFarmers = () => {
             </p>
           </div>
           <div className="flex gap-3">
+            <Button
+              onClick={() => setCreateDialogOpen(true)}
+              className="gap-2 bg-green-600 text-white hover:bg-green-700"
+              icon={<UserPlus className="size-4" />}
+            >
+              Create Farmer
+            </Button>
             <Button
               onClick={() => setImportDialogOpen(true)}
               variant="outline"
@@ -380,6 +389,10 @@ const ClusterFarmers = () => {
         farmerId={selectedFarmerId}
         open={detailDialogOpen}
         onOpenChange={setDetailDialogOpen}
+      />
+      <CreateFarmerDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
       />
       <ImportFarmersDialog
         open={importDialogOpen}

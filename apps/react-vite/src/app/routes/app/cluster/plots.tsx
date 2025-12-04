@@ -20,6 +20,7 @@ import { usePlotsOutSeason } from '@/features/plots/api/get-plots-out-season';
 import { usePlotsAwaitingPolygon } from '@/features/plots/api/get-plots-awaiting-polygon';
 import { ImportPlotsDialog } from '@/features/plots/components/import-plots-dialog';
 import { PlotsDetailDialog } from '@/features/plots/components/plots-detail-dialog';
+import { BulkCreatePlotsDialog } from '@/features/plots/components/bulk-create-plots-dialog';
 import { useUser } from '@/lib/auth';
 
 const Plots = () => {
@@ -29,6 +30,7 @@ const Plots = () => {
   const [selectedDate, setSelectedDate] = useState<string>();
   const [selectedPlotId, setSelectedPlotId] = useState<string>();
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showBulkCreateDialog, setShowBulkCreateDialog] = useState(false);
   const pageSize = 12;
 
   const user = useUser();
@@ -138,16 +140,19 @@ const Plots = () => {
         </div>
         <div className="flex gap-3">
           <Button
+            onClick={() => setShowBulkCreateDialog(true)}
+            className="items-center gap-2 bg-green-600 text-white hover:bg-green-700"
+          >
+            <Plus className="size-4" />
+            Add Plots
+          </Button>
+          <Button
             onClick={() => setShowImportDialog(true)}
             variant="outline"
             className="items-center gap-2 border-green-600 text-green-600 hover:bg-green-50"
           >
             <Upload className="size-4" />
             Import Excel
-          </Button>
-          <Button className="items-center gap-2 bg-green-600 text-white hover:bg-green-700">
-            <Plus className="size-4" />
-            Add Plot
           </Button>
         </div>
       </div>
@@ -321,7 +326,10 @@ const Plots = () => {
                   : 'Start by creating your first plot'}
               </p>
               {!searchTerm && (
-                <Button className="mt-6 gap-2 bg-green-600 font-semibold text-white hover:bg-green-700">
+                <Button
+                  onClick={() => setShowBulkCreateDialog(true)}
+                  className="mt-6 gap-2 bg-green-600 font-semibold text-white hover:bg-green-700"
+                >
                   <Plus className="size-4" />
                   Create your first plot
                 </Button>
@@ -744,6 +752,11 @@ const Plots = () => {
         plotId={selectedPlotId!}
         open={!!selectedPlotId}
         onOpenChange={(open) => !open && setSelectedPlotId(undefined)}
+      />
+
+      <BulkCreatePlotsDialog
+        open={showBulkCreateDialog}
+        onOpenChange={setShowBulkCreateDialog}
       />
 
       <ImportPlotsDialog
