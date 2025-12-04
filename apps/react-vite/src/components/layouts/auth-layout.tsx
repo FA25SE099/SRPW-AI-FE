@@ -38,7 +38,8 @@ export const AuthLayout = ({ children, title }: LayoutProps) => {
               className="flex items-center text-white"
               to={paths.home.getHref()}
             >
-              <img className="h-24 w-auto" src={logo} alt="Workflow" />
+              <img className="h-24 w-auto" src="https://ducthanhco.vn/wp-content/uploads/2021/10/logo-tab.png" alt="Workflow" />
+              {/* <img className="h-24 w-auto" src={logo} alt="Workflow" /> */}
             </Link>
           </div>
 

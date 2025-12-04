@@ -60,6 +60,7 @@ const Logo = () => {
     <Link className="flex items-center text-white" to={getDefaultHref()}>
       <img
         className="h-8 w-auto"
+        // src="https://ducthanhco.vn/wp-content/uploads/2021/10/logo-tab.png"
         src="https://ducthanhco.vn/wp-content/uploads/2023/06/logo-dt.webp"
         alt="Duc Thanh Logo"
       />
