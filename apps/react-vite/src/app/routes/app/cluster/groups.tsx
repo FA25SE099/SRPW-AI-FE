@@ -192,7 +192,7 @@ const ClusterGroups = () => {
                                     <div className="min-h-[20px]">
                                         {group.area && (
                                             <p className="text-xs text-gray-500">
-                                                📍 Coordinates available
+                                                Coordinates available
                                             </p>
                                         )}
                                     </div>

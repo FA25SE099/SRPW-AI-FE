@@ -77,19 +77,17 @@ export const ParameterStep = ({
           <button
             type="button"
             onClick={() => handleStrategyChange('quick')}
-            className={`p-4 border-2 rounded-lg text-left transition-all hover:border-primary ${
-              params.strategy === 'quick'
+            className={`p-4 border-2 rounded-lg text-left transition-all hover:border-primary ${params.strategy === 'quick'
                 ? 'border-primary bg-primary/5'
                 : 'border-border'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2 mb-2">
               <div
-                className={`w-4 h-4 rounded-full border-2 ${
-                  params.strategy === 'quick'
+                className={`w-4 h-4 rounded-full border-2 ${params.strategy === 'quick'
                     ? 'border-primary bg-primary'
                     : 'border-border'
-                }`}
+                  }`}
               />
               <span className="font-semibold">Quick</span>
             </div>
@@ -101,19 +99,17 @@ export const ParameterStep = ({
           <button
             type="button"
             onClick={() => handleStrategyChange('balanced')}
-            className={`p-4 border-2 rounded-lg text-left transition-all hover:border-primary ${
-              params.strategy === 'balanced'
+            className={`p-4 border-2 rounded-lg text-left transition-all hover:border-primary ${params.strategy === 'balanced'
                 ? 'border-primary bg-primary/5'
                 : 'border-border'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2 mb-2">
               <div
-                className={`w-4 h-4 rounded-full border-2 ${
-                  params.strategy === 'balanced'
+                className={`w-4 h-4 rounded-full border-2 ${params.strategy === 'balanced'
                     ? 'border-primary bg-primary'
                     : 'border-border'
-                }`}
+                  }`}
               />
               <span className="font-semibold">Balanced</span>
               <Badge variant="secondary" className="text-xs">
@@ -128,19 +124,17 @@ export const ParameterStep = ({
           <button
             type="button"
             onClick={() => handleStrategyChange('precise')}
-            className={`p-4 border-2 rounded-lg text-left transition-all hover:border-primary ${
-              params.strategy === 'precise'
+            className={`p-4 border-2 rounded-lg text-left transition-all hover:border-primary ${params.strategy === 'precise'
                 ? 'border-primary bg-primary/5'
                 : 'border-border'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-2 mb-2">
               <div
-                className={`w-4 h-4 rounded-full border-2 ${
-                  params.strategy === 'precise'
+                className={`w-4 h-4 rounded-full border-2 ${params.strategy === 'precise'
                     ? 'border-primary bg-primary'
                     : 'border-border'
-                }`}
+                  }`}
               />
               <span className="font-semibold">Precise</span>
             </div>
