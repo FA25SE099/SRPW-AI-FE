@@ -172,12 +172,12 @@ const AppRoot = () => {
   // Supervisor Dashboard specific navigation
   else if (location.pathname.startsWith('/app/supervisor')) {
     navigationItems = [
-      {
-        name: 'Overview',
-        to: paths.app.supervisor.dashboard.getHref(),
-        icon: Home,
-        end: true,
-      },
+      // {
+      //   name: 'Overview',
+      //   to: paths.app.supervisor.dashboard.getHref(),
+      //   icon: Home,
+      //   end: true,
+      // },
       {
         name: 'Group Management',
         to: paths.app.supervisor.group.getHref(),
@@ -190,12 +190,12 @@ const AppRoot = () => {
         icon: Folder,
         end: true,
       },
-      {
-        name: 'Reports',
-        to: paths.app.supervisor.reports.getHref(),
-        icon: TrendingUp,
-        end: true,
-      },
+      // {
+      //   name: 'Reports',
+      //   to: paths.app.supervisor.reports.getHref(),
+      //   icon: TrendingUp,
+      //   end: true,
+      // },
       {
         name: 'Maps',
         to: paths.app.supervisor.maps.getHref(),
@@ -251,12 +251,12 @@ const AppRoot = () => {
     checkAccess({ allowedRoles: [ROLES.Admin] })
   ) {
     navigationItems = [
-      {
-        name: 'Overview',
-        to: paths.app.admin.dashboard.getHref(),
-        icon: Home,
-        end: true,
-      },
+      // {
+      //   name: 'Overview',
+      //   to: paths.app.admin.dashboard.getHref(),
+      //   icon: Home,
+      //   end: true,
+      // },
       {
         name: 'Clusters',
         to: paths.app.admin.clusters.getHref(),

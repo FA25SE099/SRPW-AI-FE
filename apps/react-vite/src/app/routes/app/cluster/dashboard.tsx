@@ -275,7 +275,7 @@ const ClusterDashboard = () => {
             <CurrentSeasonCardV0 data={currentSeason} />
 
             {/* Show Plots Overview only when in Forming Stage (no groups) */}
-            {!currentSeason?.hasGroups && currentSeason?.readiness && (
+            {/* {!currentSeason?.hasGroups && currentSeason?.readiness && (
               <>
                 <PlotsOverviewCard
                   plots={[
@@ -421,7 +421,7 @@ const ClusterDashboard = () => {
                   onViewAll={() => console.log('View all supervisors')}
                 />
               </>
-            )}
+            )} */}
 
             {historyData && historyData.seasons && historyData.seasons.length > 0 && (
               <HistoryChartV0 data={historyData} />
