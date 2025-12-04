@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { useNotifications } from '@/components/ui/notifications';
 import { api } from '@/lib/api-client';
+import { PagedResult } from '@/types/api';
 
 type Supervisor = {
   supervisorId: string;
@@ -150,7 +151,7 @@ const RolesManager = () => {
     data: supervisorsResp,
     isLoading: loadingSupervisors,
     error: supervisorsError,
-  } = useQuery({
+  } = useQuery<PagedResult<Supervisor[]>>({
     queryKey: [
       'supervisors',
       supervisorPage,
@@ -174,7 +175,7 @@ const RolesManager = () => {
     data: managersResp,
     isLoading: loadingManagers,
     error: managersError,
-  } = useQuery({
+  } = useQuery<PagedResult<ClusterManager[]>>({
     queryKey: [
       'cluster-managers',
       managerPage,
@@ -198,7 +199,7 @@ const RolesManager = () => {
     data: expertsResp,
     isLoading: loadingExperts,
     error: expertsError,
-  } = useQuery({
+  } = useQuery<PagedResult<AgronomyExpert[]>>({
     queryKey: [
       'agronomy-experts',
       expertPage,
@@ -222,7 +223,7 @@ const RolesManager = () => {
     data: vendorsResp,
     isLoading: loadingVendors,
     error: vendorsError,
-  } = useQuery({
+  } = useQuery<PagedResult<UavVendor[]>>({
     queryKey: [
       'uav-vendors',
       vendorPage,
@@ -1501,9 +1502,9 @@ const RolesManager = () => {
                     <div className="flex justify-end">
                       <Button
                         type="submit"
-                        disabled={createVendorMutation.isLoading}
+                        disabled={createVendorMutation.isPending}
                       >
-                        {createVendorMutation.isLoading
+                        {createVendorMutation.isPending
                           ? 'Creating...'
                           : 'Create'}
                       </Button>

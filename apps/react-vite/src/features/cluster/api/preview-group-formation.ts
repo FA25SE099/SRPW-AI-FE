@@ -19,8 +19,8 @@ export const previewGroupFormation = async (
     maxPlotsPerGroup: params.maxPlots.toString(),
   });
 
-  const response = await api.get(`/Group/preview?${queryParams.toString()}`);
-  
+  const response: any = await api.get(`/Group/preview?${queryParams.toString()}`);
+
   // Transform backend response to frontend format
   return {
     totalGroupsFormed: response.summary?.groupsToBeFormed || 0,
@@ -28,21 +28,44 @@ export const previewGroupFormation = async (
     ungroupedPlots: response.summary?.ungroupedPlots || 0,
     proposedGroups: response.previewGroups?.map((group: any) => ({
       tempGroupId: `group-${group.groupNumber}`,
+      groupNumber: group.groupNumber,
       riceVariety: group.riceVarietyName,
+      riceVarietyId: group.riceVarietyId,
+      riceVarietyName: group.riceVarietyName,
       plantingDateRange: {
         earliest: group.plantingWindowStart,
         latest: group.plantingWindowEnd,
-        varianceDays: 0, // Calculate if needed
+        varianceDays: Math.ceil(
+          (new Date(group.plantingWindowEnd).getTime() -
+            new Date(group.plantingWindowStart).getTime()) /
+          (1000 * 60 * 60 * 24)
+        ),
       },
+      plantingWindowStart: group.plantingWindowStart,
+      plantingWindowEnd: group.plantingWindowEnd,
+      medianPlantingDate: group.medianPlantingDate,
       plotCount: group.plotCount,
       totalArea: group.totalArea,
-      compactness: 'compact' as const, // Determine based on data if available
-      radiusKm: 0, // Calculate if needed
-      isReadyForUAV: group.plotCount >= 5, // Example logic
+      compactness: 'compact' as const,
+      radiusKm: 0,
+      isReadyForUAV: group.plotCount >= 5,
+      centroidLat: group.centroidLat,
+      centroidLng: group.centroidLng,
+      groupBoundaryWkt: group.groupBoundaryWkt,
+      groupBoundaryGeoJson: group.groupBoundaryGeoJson,
+      plotIds: group.plotIds,
       plots: group.plots?.map((plot: any) => ({
         plotId: plot.plotId,
+        farmerId: plot.farmerId,
         farmerName: plot.farmerName,
+        farmerPhone: plot.farmerPhone,
         area: plot.area,
+        plantingDate: plot.plantingDate,
+        boundaryWkt: plot.boundaryWkt,
+        boundaryGeoJson: plot.boundaryGeoJson,
+        soilType: plot.soilType,
+        soThua: plot.soThua,
+        soTo: plot.soTo,
       })) || [],
     })) || [],
     ungroupedPlotsList: response.ungroupedPlots || [],

@@ -72,7 +72,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
   const handleSubmit = () => {
     if (!plan || !user.data?.id) return;
     submitMutation.mutate({
-      planId: plan.planId,
+      planId: plan.id,
       supervisorId: user.data.id,
     });
   };
@@ -80,7 +80,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
   const handleApproveReject = (isApproved: boolean) => {
     if (!plan) return;
     approveRejectMutation.mutate({
-      planId: plan.planId,
+      planId: plan.id,
       isApproved,
       comments: comments || undefined,
     });
@@ -114,7 +114,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{plan.planName}</h1>
-          <p className="mt-1 text-sm text-gray-600">{plan.groupName}</p>
+          {/* <p className="mt-1 text-sm text-gray-600">{plan.groupName}</p> */}
         </div>
         <div className="flex items-center gap-2">
           {onBack && (
@@ -158,15 +158,14 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
       {/* Status Badge */}
       <div className="flex items-center gap-3">
         <span
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${
-            plan.status === 'Draft'
-              ? 'bg-gray-100 text-gray-700'
-              : plan.status === 'Pending'
+          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${plan.status === 'Draft'
+            ? 'bg-gray-100 text-gray-700'
+            : plan.status === 'Pending'
               ? 'bg-yellow-100 text-yellow-700'
               : plan.status === 'Approved'
-              ? 'bg-green-100 text-green-700'
-              : 'bg-red-100 text-red-700'
-          }`}
+                ? 'bg-green-100 text-green-700'
+                : 'bg-red-100 text-red-700'
+            }`}
         >
           {plan.status === 'Draft' && <Clock className="h-4 w-4" />}
           {plan.status === 'Pending' && <Send className="h-4 w-4" />}
@@ -184,7 +183,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
             <span>Estimated Cost</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-gray-900">
-            {plan.estimatedTotalCost.toLocaleString('vi-VN')}
+            {plan.estimatedTotalCost?.toLocaleString('vi-VN')}
           </p>
           <p className="text-xs text-gray-500">VND</p>
         </div>
@@ -216,7 +215,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
             <span>Duration</span>
           </div>
           <p className="mt-2 text-2xl font-bold text-gray-900">
-            {plan.stages.reduce((sum, s) => sum + s.expectedDurationDays, 0)}
+            {plan.stages.reduce((sum, s) => sum + (s.expectedDurationDays ?? 0), 0)}
           </p>
           <p className="text-xs text-gray-500">days</p>
         </div>
@@ -328,9 +327,9 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
                 </h3>
                 <p className="text-sm text-gray-600">
                   Duration: {stage.expectedDurationDays} days
-                  {stage.isMandatory && (
+                  {/* {stage.isMandatory && (
                     <span className="ml-2 text-xs text-red-600">(Mandatory)</span>
-                  )}
+                  )} */}
                 </p>
                 {stage.notes && (
                   <p className="mt-1 text-sm text-gray-500">{stage.notes}</p>
@@ -349,7 +348,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
                         <p className="mt-1 text-sm text-gray-600">{task.description}</p>
                         <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
                           <span className="rounded bg-blue-100 px-2 py-1 text-blue-700">
-                            Day {task.daysAfter}
+                            Day {Math.ceil((new Date(task.scheduledDate).getTime() - new Date(plan.basePlantingDate).getTime()) / (1000 * 60 * 60 * 24))}
                           </span>
                           <span className="rounded bg-purple-100 px-2 py-1 text-purple-700">
                             {task.taskType}
@@ -365,7 +364,7 @@ export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailPro
                             <ul className="mt-1 space-y-1">
                               {task.materials.map((material, matIdx) => (
                                 <li key={matIdx} className="text-xs text-gray-600">
-                                  • {material.materialName}: {material.quantityPerHa} {material.unit}/ha
+                                  • {material.materialName}: {material.quantityPerHa} {material.materialUnit || 'units'}/ha
                                   {material.estimatedAmount && (
                                     <span className="ml-2 text-gray-500">
                                       (Total: {material.estimatedAmount.toLocaleString('vi-VN')} VND)

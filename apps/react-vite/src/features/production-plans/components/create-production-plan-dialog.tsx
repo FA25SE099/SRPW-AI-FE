@@ -8,6 +8,7 @@ import { useProductionPlanDraft } from '../api/get-production-plan-draft';
 import { useCreateProductionPlan, CreateProductionPlanDTO } from '../api/create-production-plan';
 import { useStandardPlans, useStandardPlan } from '@/features/standard-plans/api/get-standard-plans';
 import { useMaterials } from '@/features/materials/api/get-materials';
+import { useCalculateGroupMaterialCost, GroupMaterialCostResponse } from '@/features/materials/api/calculate-group-material-cost';
 import {
   Calendar,
   DollarSign,
@@ -73,6 +74,7 @@ export const CreateProductionPlanDialog = ({
   const [formData, setFormData] = useState<FormData | null>(null);
   const [editableStages, setEditableStages] = useState<EditableStage[]>([]);
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: boolean }>({}); // Add this
+  const [groupCostData, setGroupCostData] = useState<GroupMaterialCostResponse | null>(null);
   const { addNotification } = useNotifications();
 
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<FormData>();
@@ -81,17 +83,21 @@ export const CreateProductionPlanDialog = ({
   const planName = watch('planName'); // Add this line to watch planName
 
   // Fetch standard plans list
-  const { data: standardPlansData, isLoading: isLoadingPlans } = useStandardPlans({
+  const standardPlansQuery = useStandardPlans({
     params: { isActive: true },
   });
+  const standardPlansData = standardPlansQuery.data;
+  const isLoadingPlans = standardPlansQuery.isLoading;
 
   // Fetch selected standard plan details
-  const { data: standardPlanDetails, isLoading: isLoadingDetails } = useStandardPlan({
+  const standardPlanQuery = useStandardPlan({
     standardPlanId: formData?.standardPlanId || '',
     queryConfig: {
       enabled: step === 'edit' && !!formData?.standardPlanId,
     },
   });
+  const standardPlanDetails = standardPlanQuery.data;
+  const isLoadingDetails = standardPlanQuery.isLoading;
 
   // Fetch materials
   const fertilizersQuery = useMaterials({
@@ -108,6 +114,8 @@ export const CreateProductionPlanDialog = ({
       type: 1
     }
   });
+
+  const calculateGroupCostMutation = useCalculateGroupMaterialCost();
 
   const createPlanMutation = useCreateProductionPlan({
     mutationConfig:
@@ -138,13 +146,13 @@ export const CreateProductionPlanDialog = ({
   // Convert standard plan to editable format when loaded
   useEffect(() => {
     if (standardPlanDetails && step === 'edit' && editableStages.length === 0) {
-      const stages: EditableStage[] = standardPlanDetails.stages.map(stage => ({
+      const stages: EditableStage[] = standardPlanDetails.stages.map((stage: any) => ({
         stageName: stage.stageName,
         sequenceOrder: stage.sequenceOrder,
         description: stage.description,
         typicalDurationDays: stage.expectedDurationDays || 0,
         colorCode: '#3B82F6',
-        tasks: stage.tasks.map(task => ({
+        tasks: stage.tasks.map((task: any) => ({
           taskName: task.taskName,
           description: task.description,
           taskType: task.taskType,
@@ -152,7 +160,7 @@ export const CreateProductionPlanDialog = ({
           durationDays: task.durationDays || 1,
           priority: task.priority,
           sequenceOrder: task.sequenceOrder,
-          materials: task.materials.map(m => ({
+          materials: task.materials.map((m: any) => ({
             materialId: m.materialId,
             quantityPerHa: m.quantityPerHa,
           })),
@@ -194,7 +202,49 @@ export const CreateProductionPlanDialog = ({
       return;
     }
 
-    setStep('preview');
+    // Calculate group material costs
+    const allMaterials: { [key: string]: number } = {};
+    editableStages.forEach(stage => {
+      stage.tasks.forEach(task => {
+        task.materials.forEach(material => {
+          if (material.materialId && material.quantityPerHa > 0) {
+            if (allMaterials[material.materialId]) {
+              allMaterials[material.materialId] += material.quantityPerHa;
+            } else {
+              allMaterials[material.materialId] = material.quantityPerHa;
+            }
+          }
+        });
+      });
+    });
+
+    const materialsArray = Object.entries(allMaterials).map(([materialId, quantity]) => ({
+      materialId,
+      quantity,
+    }));
+
+    if (materialsArray.length > 0) {
+      calculateGroupCostMutation.mutate(
+        { groupId, materials: materialsArray },
+        {
+          onSuccess: (data) => {
+            setGroupCostData(data);
+            setStep('preview');
+          },
+          onError: (error: any) => {
+            addNotification({
+              type: 'error',
+              title: 'Cost Calculation Error',
+              message: error.message || 'Failed to calculate material costs',
+            });
+            // Still navigate to preview even if cost calculation fails
+            setStep('preview');
+          },
+        }
+      );
+    } else {
+      setStep('preview');
+    }
   };
 
   const handleCreatePlan = () => {
@@ -400,7 +450,11 @@ export const CreateProductionPlanDialog = ({
   ) => {
     const newStages = [...editableStages];
     const material = newStages[stageIndex].tasks[taskIndex].materials[materialIndex];
-    material[field] = value as any;
+    if (field === 'materialId') {
+      material.materialId = value as string;
+    } else {
+      material.quantityPerHa = value as number;
+    }
     setEditableStages(newStages);
   };
 
@@ -474,9 +528,9 @@ export const CreateProductionPlanDialog = ({
                         className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                       >
                         <option value="">Select a standard plan...</option>
-                        {standardPlans.map((plan) => (
+                        {standardPlans.map((plan: any) => (
                           <option key={plan.id} value={plan.id}>
-                            {plan.name} - {plan.estimatedDurationDays} days ({plan.stages?.length || 0} stages)
+                            {plan.name} - {plan.totalDuration} days ({plan.totalStages || 0} stages)
                           </option>
                         ))}
                       </select>
@@ -855,7 +909,7 @@ export const CreateProductionPlanDialog = ({
                                                       <option value="">Select material...</option>
                                                       {fertilizers.length > 0 && (
                                                         <optgroup label="Fertilizers">
-                                                          {fertilizers.map((mat) => (
+                                                          {fertilizers.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
                                                             </option>
@@ -864,7 +918,7 @@ export const CreateProductionPlanDialog = ({
                                                       )}
                                                       {pesticides.length > 0 && (
                                                         <optgroup label="Pesticides">
-                                                          {pesticides.map((mat) => (
+                                                          {pesticides.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
                                                             </option>
@@ -1012,15 +1066,13 @@ export const CreateProductionPlanDialog = ({
                   <div className="rounded-lg border bg-green-50 p-4">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium text-green-900">Estimated Cost</span>
+                      <span className="text-sm font-medium text-green-900">Total Cost</span>
                     </div>
                     <p className="mt-2 text-2xl font-bold text-green-900">
-                      Calculating...
+                      {groupCostData ? groupCostData.totalGroupCost.toLocaleString('vi-VN') : 'N/A'}
                     </p>
                     <p className="text-xs text-green-700">VND</p>
-                  </div>
-
-                  <div className="rounded-lg border bg-blue-50 p-4">
+                  </div>                  <div className="rounded-lg border bg-blue-50 p-4">
                     <div className="flex items-center gap-2">
                       <Package className="h-5 w-5 text-blue-600" />
                       <span className="text-sm font-medium text-blue-900">Total Area</span>
@@ -1067,6 +1119,141 @@ export const CreateProductionPlanDialog = ({
                     </div>
                   </div>
                 </div>
+
+                {/* Material Cost Details */}
+                {groupCostData && groupCostData.materialCostDetails.length > 0 && (
+                  <div className="rounded-lg border bg-white">
+                    <div className="bg-green-50 px-4 py-3 border-b">
+                      <h4 className="font-semibold text-green-900">Material Cost Breakdown</h4>
+                      <p className="text-xs text-green-700 mt-1">
+                        Total materials required for {groupCostData.totalGroupArea.toFixed(2)} ha
+                      </p>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Material</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Qty/ha</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Total Qty</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Packages</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Price/Package</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Total Cost</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {groupCostData.materialCostDetails.map((material, idx) => {
+                            const qtyPerHa = material.requiredQuantity / groupCostData.totalGroupArea;
+                            return (
+                              <tr key={idx} className="hover:bg-gray-50">
+                                <td className="px-4 py-3">
+                                  <div className="font-medium text-gray-900">{material.materialName}</div>
+                                  <div className="text-xs text-gray-500">
+                                    Price valid from: {new Date(material.priceValidFrom).toLocaleDateString()}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-3 text-right text-gray-700">
+                                  {qtyPerHa.toFixed(2)} {material.unit}
+                                </td>
+                                <td className="px-4 py-3 text-right font-medium text-gray-900">
+                                  {material.requiredQuantity.toFixed(2)} {material.unit}
+                                </td>
+                                <td className="px-4 py-3 text-right text-gray-700">
+                                  {material.packagesNeeded}
+                                </td>
+                                <td className="px-4 py-3 text-right text-gray-700">
+                                  {material.effectivePricePerPackage.toLocaleString('vi-VN')} VND
+                                </td>
+                                <td className="px-4 py-3 text-right font-semibold text-green-700">
+                                  {material.materialTotalCost.toLocaleString('vi-VN')} VND
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot className="bg-gray-50 border-t-2">
+                          <tr>
+                            <td colSpan={5} className="px-4 py-3 text-right font-bold text-gray-900">
+                              Total Material Cost:
+                            </td>
+                            <td className="px-4 py-3 text-right font-bold text-green-700 text-lg">
+                              {groupCostData.totalGroupCost.toLocaleString('vi-VN')} VND
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Plot Cost Allocation */}
+                {groupCostData && groupCostData.plotCostDetails.length > 0 && (
+                  <div className="rounded-lg border bg-white">
+                    <div className="bg-blue-50 px-4 py-3 border-b">
+                      <h4 className="font-semibold text-blue-900">Cost Allocation by Plot</h4>
+                      <p className="text-xs text-blue-700 mt-1">
+                        Material costs distributed across {groupCostData.plotCostDetails.length} plots
+                      </p>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Plot Name</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Area (ha)</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Area Ratio</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Allocated Cost</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {groupCostData.plotCostDetails.map((plot, idx) => (
+                            <tr key={idx} className="hover:bg-gray-50">
+                              <td className="px-4 py-3 font-medium text-gray-900">{plot.plotName}</td>
+                              <td className="px-4 py-3 text-right text-gray-700">
+                                {plot.plotArea.toFixed(2)}
+                              </td>
+                              <td className="px-4 py-3 text-right text-gray-700">
+                                {(plot.areaRatio * 100).toFixed(2)}%
+                              </td>
+                              <td className="px-4 py-3 text-right font-semibold text-blue-700">
+                                {plot.allocatedCost.toLocaleString('vi-VN')} VND
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot className="bg-gray-50 border-t-2">
+                          <tr>
+                            <td className="px-4 py-3 font-bold text-gray-900">Total</td>
+                            <td className="px-4 py-3 text-right font-bold text-gray-900">
+                              {groupCostData.totalGroupArea.toFixed(2)}
+                            </td>
+                            <td className="px-4 py-3 text-right font-bold text-gray-900">100%</td>
+                            <td className="px-4 py-3 text-right font-bold text-blue-700 text-lg">
+                              {groupCostData.totalGroupCost.toLocaleString('vi-VN')} VND
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Price Warnings */}
+                {groupCostData && groupCostData.priceWarnings.length > 0 && (
+                  <div className="rounded-lg border border-orange-300 bg-orange-50 p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h4 className="font-semibold text-orange-900">Price Warnings</h4>
+                        <ul className="mt-2 space-y-1 text-sm text-orange-800">
+                          {groupCostData.priceWarnings.map((warning, idx) => (
+                            <li key={idx}>• {warning}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Stages Overview */}
                 <div className="max-h-[400px] overflow-y-auto rounded-lg border">

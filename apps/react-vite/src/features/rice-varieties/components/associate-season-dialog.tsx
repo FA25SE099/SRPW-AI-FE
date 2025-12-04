@@ -45,7 +45,7 @@ export const AssociateSeasonDialog = ({
     },
   });
 
-  const seasonsQuery = useSeasons();
+  const { data: seasons = [], isLoading: seasonsLoading } = useSeasons();
 
   const handleAssociate = () => {
     if (!riceVariety || !selectedSeasonId) return;
@@ -66,8 +66,7 @@ export const AssociateSeasonDialog = ({
   };
 
   const isLoading = createAssociationMutation.isPending;
-  const seasons = seasonsQuery.data || [];
-  const selectedSeason = seasons.find(s => s.id === selectedSeasonId);
+  const selectedSeason = seasons.find((s: Season) => s.id === selectedSeasonId);
 
   return (
     <SimpleDialog
@@ -102,7 +101,7 @@ export const AssociateSeasonDialog = ({
             <label className="block text-sm font-medium text-gray-700">
               Select Season *
             </label>
-            {seasonsQuery.isLoading ? (
+            {seasonsLoading ? (
               <div className="flex items-center justify-center py-4">
                 <Spinner size="sm" />
               </div>
@@ -114,7 +113,7 @@ export const AssociateSeasonDialog = ({
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
               >
                 <option value="">Choose a season...</option>
-                {seasons.map((season) => (
+                {seasons.map((season: Season) => (
                   <option key={season.id} value={season.id}>
                     {season.seasonName} ({season.startDate} - {season.endDate})
                   </option>
@@ -241,7 +240,7 @@ export const AssociateSeasonDialog = ({
           </label>
         </div>
 
-        {seasons.length === 0 && !seasonsQuery.isLoading && (
+        {seasons.length === 0 && !seasonsLoading && (
           <div className="rounded-md bg-yellow-50 p-3">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-yellow-600" />

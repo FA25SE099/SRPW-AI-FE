@@ -63,9 +63,9 @@ type UseEmergencyProtocolsOptions = {
 export const useEmergencyProtocols = ({
   params,
   queryConfig,
-}: UseEmergencyProtocolsOptions) => {
+}: UseEmergencyProtocolsOptions): ReturnType<typeof useQuery<EmergencyProtocolsResponse>> => {
   return useQuery({
     ...getEmergencyProtocolsQueryOptions(params),
     ...queryConfig,
-  });
+  } as any) as any;
 };

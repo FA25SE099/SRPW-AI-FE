@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Download, Upload, FileDown, Package, Grid3x3, Table, Plus, Edit, Trash2 } from 'lucide-react';
+import { Download, Upload, FileDown, Package, Grid3x3, Table, Plus, Edit, Trash2, Eye } from 'lucide-react';
 
 import { useMaterials } from '../api/get-materials';
 import { useDownloadMaterialPriceList } from '../api/download-material-price-list';
@@ -8,6 +8,7 @@ import { ImportMaterialsDialog } from './import-materials-dialog';
 import { CreateMaterialDialog } from './create-material-dialog';
 import { EditMaterialDialog } from './edit-material-dialog';
 import { DeleteMaterialDialog } from './delete-material-dialog';
+import { MaterialDetailDialog } from './material-detail-dialog';
 import { Material, MaterialType } from '@/types/api';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -23,10 +24,14 @@ export const MaterialsList = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [selectedMaterial, setSelectedMaterial] = useState<Material | null>(null);
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+  const [priceDateTime, setPriceDateTime] = useState<string>(new Date().toISOString().slice(0, 16));
+  const [tempDateTime, setTempDateTime] = useState<string>(new Date().toISOString().slice(0, 16));
 
-  const materialsQuery = useMaterials({
-    params: { currentPage, pageSize, type: selectedType },
+  const { data: materials, isLoading } = useMaterials({
+    params: { currentPage, pageSize, type: selectedType, dateTime: priceDateTime },
   });
 
   const downloadPriceListMutation = useDownloadMaterialPriceList();
@@ -38,11 +43,21 @@ export const MaterialsList = () => {
   };
 
   const handleDownloadTemplate = () => {
-    downloadTemplateMutation.mutate();
+    downloadTemplateMutation.mutate(undefined);
   };
 
 
+  const handleView = (material: Material) => {
+    setSelectedMaterialId(material.materialId);
+    setDetailDialogOpen(true);
+  };
+
   const handleEdit = (material: Material) => {
+    setSelectedMaterial(material);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditFromDetail = (material: Material) => {
     setSelectedMaterial(material);
     setEditDialogOpen(true);
   };
@@ -52,7 +67,12 @@ export const MaterialsList = () => {
     setDeleteDialogOpen(true);
   };
 
-  if (materialsQuery.isLoading) {
+  const handleApplyDateTime = () => {
+    setPriceDateTime(tempDateTime);
+    setCurrentPage(1);
+  };
+
+  if (isLoading) {
     return (
       <div className="flex h-48 items-center justify-center">
         <Spinner size="lg" />
@@ -60,86 +80,97 @@ export const MaterialsList = () => {
     );
   }
 
-  const materials = materialsQuery.data;
-
   return (
     <>
       <div className="space-y-4">
         {/* Filters and Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant={selectedType === MaterialType.Fertilizer ? 'default' : 'outline'}
+            onClick={() => {
+              setCurrentPage(1);
+              setSelectedType(MaterialType.Fertilizer);
+            }}
+          >
+            Fertilizers
+          </Button>
+          <Button
+            variant={selectedType === MaterialType.Pesticide ? 'default' : 'outline'}
+            onClick={() => {
+              setCurrentPage(1);
+              setSelectedType(MaterialType.Pesticide);
+            }}
+          >
+            Pesticides
+          </Button>
+
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Price at:</label>
+            <input
+              type="datetime-local"
+              value={tempDateTime}
+              onChange={(e) => setTempDateTime(e.target.value)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
             <Button
-              variant={selectedType === MaterialType.Fertilizer ? 'default' : 'outline'}
-              onClick={() => {
-                setCurrentPage(1);
-                setSelectedType(MaterialType.Fertilizer);
-              }}
+              size="sm"
+              variant="outline"
+              onClick={handleApplyDateTime}
             >
-              Fertilizers
+              Apply
+            </Button>
+          </div>          <Button
+            variant="default"
+            onClick={() => setCreateDialogOpen(true)}
+            icon={<Plus className="h-4 w-4" />}
+          >
+            Create Material
+          </Button>
+
+          {/* View Toggle */}
+          <div className="flex gap-1 rounded-md border p-1">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+              icon={<Grid3x3 className="h-4 w-4" />}
+            >
+              Grid
             </Button>
             <Button
-              variant={selectedType === MaterialType.Pesticide ? 'default' : 'outline'}
-              onClick={() => {
-                setCurrentPage(1);
-                setSelectedType(MaterialType.Pesticide);
-              }}
+              variant={viewMode === 'table' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setViewMode('table')}
+              icon={<Table className="h-4 w-4" />}
             >
-              Pesticides
+              Table
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="default"
-              onClick={() => setCreateDialogOpen(true)}
-              icon={<Plus className="h-4 w-4" />}
-            >
-              Create Material
-            </Button>
-            {/* View Toggle */}
-            <div className="flex gap-1 rounded-md border p-1">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-                icon={<Grid3x3 className="h-4 w-4" />}
-              >
-                Grid
-              </Button>
-              <Button
-                variant={viewMode === 'table' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('table')}
-                icon={<Table className="h-4 w-4" />}
-              >
-                Table
-              </Button>
-            </div>
-            <Button
-              variant="outline"
-              onClick={handleDownloadPriceList}
-              isLoading={downloadPriceListMutation.isPending}
-              icon={<Download className="h-4 w-4" />}
-            >
-              Price List
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleDownloadTemplate}
-              isLoading={downloadTemplateMutation.isPending}
-              icon={<FileDown className="h-4 w-4" />}
-            >
-              Template
-            </Button>
-            {/* Import Excel */}
-            <Button
-              variant="outline"
-              onClick={() => setImportDialogOpen(true)}
-              icon={<Upload className="h-4 w-4" />}
-            >
-              Import Excel
-            </Button>
-          </div>
+          <Button
+            variant="outline"
+            onClick={handleDownloadPriceList}
+            isLoading={downloadPriceListMutation.isPending}
+            icon={<Download className="h-4 w-4" />}
+          >
+            Price List
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleDownloadTemplate}
+            isLoading={downloadTemplateMutation.isPending}
+            icon={<FileDown className="h-4 w-4" />}
+          >
+            Template
+          </Button>
+          {/* Import Excel */}
+          <Button
+            variant="outline"
+            onClick={() => setImportDialogOpen(true)}
+            icon={<Upload className="h-4 w-4" />}
+          >
+            Import Excel
+          </Button>
         </div>
 
         {/* Materials Display - Grid or Table */}
@@ -154,9 +185,17 @@ export const MaterialsList = () => {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="rounded-lg bg-blue-100 p-2">
-                        <Package className="h-5 w-5 text-blue-600" />
-                      </div>
+                      {material.imgUrls && material.imgUrls.length > 0 ? (
+                        <img
+                          src={material.imgUrls[0]}
+                          alt={material.name}
+                          className="h-12 w-12 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="rounded-lg bg-blue-100 p-2">
+                          <Package className="h-5 w-5 text-blue-600" />
+                        </div>
+                      )}
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-900">{material.name}</h3>
                         <p className="text-sm text-gray-500">
@@ -168,8 +207,8 @@ export const MaterialsList = () => {
                     </div>
                     <span
                       className={`rounded-full px-2 py-1 text-xs font-medium ${material.isActive
-                          ? 'bg-green-100 text-green-700'
-                          : 'bg-gray-100 text-gray-700'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-gray-100 text-gray-700'
                         }`}
                     >
                       {material.isActive ? 'Active' : 'Inactive'}
@@ -205,6 +244,15 @@ export const MaterialsList = () => {
 
                   {/* Action Buttons */}
                   <div className="mt-4 flex gap-2 border-t pt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleView(material)}
+                      icon={<Eye className="h-3 w-3" />}
+                      className="flex-1"
+                    >
+                      View
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -262,9 +310,17 @@ export const MaterialsList = () => {
                       <tr key={material.materialId} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-blue-100 p-2">
-                              <Package className="h-4 w-4 text-blue-600" />
-                            </div>
+                            {material.imgUrls && material.imgUrls.length > 0 ? (
+                              <img
+                                src={material.imgUrls[0]}
+                                alt={material.name}
+                                className="h-10 w-10 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div className="rounded-lg bg-blue-100 p-2">
+                                <Package className="h-4 w-4 text-blue-600" />
+                              </div>
+                            )}
                             <div>
                               <div className="text-sm font-medium text-gray-900">
                                 {material.name}
@@ -296,8 +352,8 @@ export const MaterialsList = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
                             className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${material.isActive
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-gray-100 text-gray-700'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-700'
                               }`}
                           >
                             {material.isActive ? 'Active' : 'Inactive'}
@@ -305,6 +361,13 @@ export const MaterialsList = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                           <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleView(material)}
+                              className="text-gray-600 hover:text-gray-900"
+                              title="View Details"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
                             <button
                               onClick={() => handleEdit(material)}
                               className="text-blue-600 hover:text-blue-900"
@@ -382,6 +445,13 @@ export const MaterialsList = () => {
         isOpen={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         material={selectedMaterial}
+      />
+
+      <MaterialDetailDialog
+        isOpen={detailDialogOpen}
+        onClose={() => setDetailDialogOpen(false)}
+        materialId={selectedMaterialId}
+        onEdit={handleEditFromDetail}
       />
     </>
   );

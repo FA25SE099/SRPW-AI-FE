@@ -57,7 +57,11 @@ export const useTaskManagement = (
     ) => {
         const newStages = [...editableStages];
         const material = newStages[stageIndex].tasks[taskIndex].materials[materialIndex];
-        material[field] = value as any;
+        if (field === 'materialId') {
+            material.materialId = value as string;
+        } else {
+            material.quantityPerHa = value as number;
+        }
         setEditableStages(newStages);
     }, [editableStages, setEditableStages]);
 

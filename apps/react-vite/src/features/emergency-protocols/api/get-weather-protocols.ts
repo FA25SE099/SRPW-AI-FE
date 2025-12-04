@@ -50,17 +50,23 @@ export const getWeatherProtocolsQueryOptions = (
 
 type UseWeatherProtocolsOptions = {
   params?: GetWeatherProtocolsParams;
-  queryConfig?: QueryConfig<typeof getWeatherProtocolsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getWeatherProtocols>;
 };
 
 export const useWeatherProtocols = ({
   params,
   queryConfig,
-}: UseWeatherProtocolsOptions = {}) => {
+}: UseWeatherProtocolsOptions = {}): ReturnType<typeof useQuery<{
+  data: WeatherProtocol[];
+  totalCount: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}>> => {
   return useQuery({
     ...getWeatherProtocolsQueryOptions(params),
     ...queryConfig,
-  });
+  } as any) as any;
 };
 
 // Create Weather Protocol

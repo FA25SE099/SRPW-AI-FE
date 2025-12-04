@@ -1,192 +1,302 @@
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { useState } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
 import { useUploadFiles } from '../api/get-pest-protocols';
-import { Upload, X } from 'lucide-react';
 
 type PestProtocolDialogProps = {
-    isOpen: boolean;
-    onClose: () => void;
-    onCreate: (data: any) => void;
-    isLoading: boolean;
-    newPestProtocol: {
+  isOpen: boolean;
+  onClose: () => void;
+  isLoading: boolean;
+  isEditMode?: boolean;
+} & (
+    | {
+      onSubmit: (data: any) => void;
+      protocol: {
+        id?: string;
         name: string;
         description: string;
         type: string;
         imageLinks: string[];
         notes: string;
         isActive: boolean;
-    };
-    setNewPestProtocol: (data: any) => void;
-};
+      };
+      setProtocol: (data: any) => void;
+    }
+    | {
+      onCreate: (data: any) => void;
+      newPestProtocol: {
+        name: string;
+        description: string;
+        type: string;
+        imageLinks: string[];
+        notes: string;
+        isActive: boolean;
+      };
+      setNewPestProtocol: (data: any) => void;
+    }
+  );
 
-export const PestProtocolDialog = ({
-    isOpen,
-    onClose,
-    onCreate,
-    isLoading,
-    newPestProtocol,
-    setNewPestProtocol,
-}: PestProtocolDialogProps) => {
-    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-    const uploadFilesMutation = useUploadFiles();
+export const PestProtocolDialog = (props: PestProtocolDialogProps) => {
+  const { isOpen, onClose, isLoading, isEditMode = false } = props;
 
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            setSelectedFiles(Array.from(e.target.files));
-        }
-    };
+  // Normalize props to work with both interfaces
+  const protocol = 'protocol' in props ? props.protocol : props.newPestProtocol;
+  const setProtocol = 'setProtocol' in props ? props.setProtocol : props.setNewPestProtocol;
+  const handleSubmit = 'onSubmit' in props ? props.onSubmit : props.onCreate;
 
-    const handleUpload = async () => {
-        if (selectedFiles.length === 0) return;
+  const [dragActive, setDragActive] = useState(false);
+  const uploadFilesMutation = useUploadFiles();
 
-        try {
-            const result = await uploadFilesMutation.mutateAsync(selectedFiles);
-            const newLinks = result.files.map((f) => f.url);
-            setNewPestProtocol({
-                ...newPestProtocol,
-                imageLinks: [...newPestProtocol.imageLinks, ...newLinks],
-            });
-            setSelectedFiles([]);
-        } catch (error) {
-            console.error('Upload failed:', error);
-        }
-    };
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
 
-    const removeImageLink = (index: number) => {
-        const updatedLinks = newPestProtocol.imageLinks.filter((_, i) => i !== index);
-        setNewPestProtocol({ ...newPestProtocol, imageLinks: updatedLinks });
-    };
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
 
-    if (!isOpen) return null;
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const files = Array.from(e.dataTransfer.files);
+      await handleUpload(files);
+    }
+  };
 
-    return (
-        <div className="fixed inset-0 z-[70] overflow-y-auto">
-            <div className="flex min-h-screen items-center justify-center p-4">
-                <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-                <div className="relative z-10 w-full max-w-2xl rounded-lg bg-white shadow-xl p-6 max-h-[90vh] overflow-y-auto">
-                    <h3 className="text-lg font-bold mb-4">Create Pest Protocol</h3>
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            onCreate(newPestProtocol);
-                        }}
-                        className="space-y-4"
-                    >
-                        <div>
-                            <Label>Name *</Label>
-                            <Input
-                                value={newPestProtocol.name}
-                                onChange={(e) => setNewPestProtocol({ ...newPestProtocol, name: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <Label>Description *</Label>
-                            <textarea
-                                value={newPestProtocol.description}
-                                onChange={(e) =>
-                                    setNewPestProtocol({ ...newPestProtocol, description: e.target.value })
-                                }
-                                rows={3}
-                                className="w-full rounded-md border px-3 py-2 text-sm"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <Label>Type *</Label>
-                            <Input
-                                value={newPestProtocol.type}
-                                onChange={(e) => setNewPestProtocol({ ...newPestProtocol, type: e.target.value })}
-                                required
-                            />
-                        </div>
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files);
+      await handleUpload(files);
+    }
+  };
 
-                        {/* Image Upload Section */}
-                        <div>
-                            <Label>Images</Label>
-                            <div className="space-y-2">
-                                <div className="flex gap-2">
-                                    <Input
-                                        type="file"
-                                        multiple
-                                        accept="image/*"
-                                        onChange={handleFileSelect}
-                                        className="flex-1"
-                                    />
-                                    <Button
-                                        type="button"
-                                        onClick={handleUpload}
-                                        disabled={selectedFiles.length === 0 || uploadFilesMutation.isPending}
-                                        size="sm"
-                                    >
-                                        <Upload className="h-4 w-4 mr-1" />
-                                        {uploadFilesMutation.isPending ? 'Uploading...' : 'Upload'}
-                                    </Button>
-                                </div>
+  const handleUpload = async (files: File[]) => {
+    if (files.length === 0) return;
 
-                                {selectedFiles.length > 0 && (
-                                    <p className="text-xs text-gray-600">
-                                        {selectedFiles.length} file(s) selected
-                                    </p>
-                                )}
+    try {
+      const result: any = await uploadFilesMutation.mutateAsync(files as any);
+      const newLinks = result.files.map((f: any) => f.url);
+      setProtocol({
+        ...protocol,
+        imageLinks: [...(protocol?.imageLinks || []), ...newLinks],
+      });
+    } catch (error) {
+      console.error('Upload failed:', error);
+      alert('Failed to upload images. Please try again.');
+    }
+  };
 
-                                {/* Display uploaded images */}
-                                {newPestProtocol.imageLinks.length > 0 && (
-                                    <div className="grid grid-cols-3 gap-2 mt-2">
-                                        {newPestProtocol.imageLinks.map((link, index) => (
-                                            <div key={index} className="relative group">
-                                                <img
-                                                    src={link}
-                                                    alt={`Preview ${index + 1}`}
-                                                    className="w-full h-24 object-cover rounded border"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeImageLink(index)}
-                                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                >
-                                                    <X className="h-3 w-3" />
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+  const removeImageLink = (index: number) => {
+    const updatedLinks = (protocol?.imageLinks || []).filter((_, i) => i !== index);
+    setProtocol({ ...protocol, imageLinks: updatedLinks });
+  };
 
-                        <div>
-                            <Label>Notes</Label>
-                            <textarea
-                                value={newPestProtocol.notes}
-                                onChange={(e) => setNewPestProtocol({ ...newPestProtocol, notes: e.target.value })}
-                                rows={2}
-                                className="w-full rounded-md border px-3 py-2 text-sm"
-                            />
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                checked={newPestProtocol.isActive}
-                                onChange={(e) =>
-                                    setNewPestProtocol({ ...newPestProtocol, isActive: e.target.checked })
-                                }
-                                id="pest-active"
-                            />
-                            <label htmlFor="pest-active">Active</label>
-                        </div>
-                        <div className="flex justify-end gap-2 pt-4 border-t">
-                            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
-                                Cancel
-                            </Button>
-                            <Button type="submit" disabled={isLoading}>
-                                {isLoading ? 'Creating...' : 'Create'}
-                            </Button>
-                        </div>
-                    </form>
-                </div>
+  if (!isOpen || !protocol) return null;
+
+  return (
+    <div className="fixed inset-0 z-[80] overflow-y-auto">
+      <div className="flex min-h-screen items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+        <div className="relative z-10 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
+          <h3 className="mb-4 text-lg font-bold">
+            {isEditMode ? 'Edit Pest Protocol' : 'Create Pest Protocol'}
+          </h3>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(protocol);
+            }}
+            className="space-y-4"
+          >
+            <div>
+              <Label>Name *</Label>
+              <Input
+                value={protocol.name || ''}
+                onChange={(e) =>
+                  setProtocol({
+                    ...protocol,
+                    name: e.target.value,
+                  })
+                }
+                required
+              />
             </div>
+            <div>
+              <Label>Description *</Label>
+              <textarea
+                value={protocol.description || ''}
+                onChange={(e) =>
+                  setProtocol({
+                    ...protocol,
+                    description: e.target.value,
+                  })
+                }
+                rows={3}
+                className="w-full rounded-md border px-3 py-2 text-sm"
+                required
+              />
+            </div>
+            <div>
+              <Label>Type *</Label>
+              <Input
+                value={protocol.type || ''}
+                onChange={(e) =>
+                  setProtocol({
+                    ...protocol,
+                    type: e.target.value,
+                  })
+                }
+                required
+              />
+            </div>
+
+            {/* Image Upload Section */}
+            <div>
+              <Label>Images</Label>
+              <div className="space-y-4">
+                {/* Drag and Drop Upload Area - Always visible */}
+                <div
+                  className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${dragActive
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-300 hover:border-gray-400'
+                    }`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                  onClick={() =>
+                    document.getElementById('pest-image-upload')?.click()
+                  }
+                >
+                  <ImageIcon className="mx-auto mb-3 size-10 text-muted-foreground" />
+                  <p className="mb-2 text-sm text-muted-foreground">
+                    Drag and drop your images here, or click to browse
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileChange}
+                    className="hidden"
+                    id="pest-image-upload"
+                    disabled={uploadFilesMutation.isPending}
+                  />
+                  <div className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 transition-colors hover:bg-gray-50">
+                    <Upload className="size-4" />
+                    <span className="text-sm font-medium">Select Images</span>
+                  </div>
+                  {uploadFilesMutation.isPending && (
+                    <p className="mt-2 text-xs text-primary">Uploading...</p>
+                  )}
+                </div>
+
+                {/* Display uploaded images in table format */}
+                {(protocol.imageLinks?.length || 0) > 0 && (
+                  <div className="overflow-hidden rounded-lg border border-gray-200">
+                    <table className="w-full">
+                      <thead className="border-b border-gray-200 bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            Preview
+                          </th>
+                          <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                            File
+                          </th>
+                          <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200 bg-white">
+                        {(protocol.imageLinks || []).map((link, index) => (
+                          <tr key={index} className="hover:bg-gray-50">
+                            <td className="px-4 py-3">
+                              <img
+                                src={link}
+                                alt={`Preview ${index + 1}`}
+                                className="size-12 rounded border object-cover"
+                              />
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="text-sm font-medium text-gray-900">
+                                Image {index + 1}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {link.split('/').pop()?.substring(0, 30)}...
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <button
+                                type="button"
+                                onClick={() => removeImageLink(index)}
+                                className="inline-flex items-center gap-1 rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
+                              >
+                                <X className="size-3" />
+                                Remove
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <Label>Notes</Label>
+              <textarea
+                value={protocol.notes || ''}
+                onChange={(e) =>
+                  setProtocol({
+                    ...protocol,
+                    notes: e.target.value,
+                  })
+                }
+                rows={2}
+                className="w-full rounded-md border px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={protocol.isActive}
+                onChange={(e) =>
+                  setProtocol({
+                    ...protocol,
+                    isActive: e.target.checked,
+                  })
+                }
+                id="pest-active"
+              />
+              <label htmlFor="pest-active">Active</label>
+            </div>
+            <div className="flex justify-end gap-2 border-t pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? 'Saving...' : isEditMode ? 'Save' : 'Create'}
+              </Button>
+            </div>
+          </form>
         </div>
-    );
+      </div>
+    </div>
+  );
 };

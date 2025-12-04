@@ -20,10 +20,13 @@ import {
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation } from 'react-router';
 
-import { DashboardLayout, SideNavigationItem } from '@/components/layouts';
+import { DashboardLayout, SideNavigationItem, SideNavigationGroup } from '@/components/layouts';
 import { paths } from '@/config/paths';
 import { useUser } from '@/lib/auth';
 import { ROLES, useAuthorization } from '@/lib/authorization';
+
+// Example: Import custom SVG icon (you can download any SVG and import it like this)
+import ExampleIcon from '@/assets/icons/example-icon.svg?react';
 
 export const ErrorBoundary = () => {
   return <div>Something went wrong!</div>;
@@ -38,13 +41,13 @@ const AppRoot = () => {
   // Role-based redirect when accessing /app root
   if (location.pathname === paths.app.root.path) {
     if (user.data?.role === ROLES.Admin) {
-      return <Navigate to={paths.app.admin.dashboard.getHref()} replace />;
+      return <Navigate to={paths.app.admin.roles.getHref()} replace />;
     }
     if (user.data?.role === ROLES.AgronomyExpert) {
-      return <Navigate to={paths.app.expert.dashboard.getHref()} replace />;
+      return <Navigate to={paths.app.expert.reports.getHref()} replace />;
     }
     if (user.data?.role === ROLES.Supervisor) {
-      return <Navigate to={paths.app.supervisor.dashboard.getHref()} replace />;
+      return <Navigate to={paths.app.supervisor.group.getHref()} replace />;
     }
     if (user.data?.role === ROLES.ClusterManager) {
       return <Navigate to={paths.app.cluster.dashboard.getHref()} replace />;
@@ -79,16 +82,18 @@ const AppRoot = () => {
 
   // Determine navigation based on current path and role
   let navigationItems: SideNavigationItem[] | undefined;
+  let navigationGroups: SideNavigationGroup[] | undefined;
 
-  // Expert Dashboard specific navigation
+  // Expert Dashboard specific navigation - Mixed flat and grouped navigation
   if (location.pathname.startsWith('/app/expert')) {
+    // Main items as flat navigation (always visible)
     navigationItems = [
-      {
-        name: 'Overview',
-        to: paths.app.expert.dashboard.getHref(),
-        icon: Home,
-        end: true,
-      },
+      // {
+      //   name: 'Overview',
+      //   to: paths.app.expert.dashboard.getHref(),
+      //   icon: Home,
+      //   end: true,
+      // },
       {
         name: 'Approvals',
         to: paths.app.expert.approvals.getHref(),
@@ -101,53 +106,78 @@ const AppRoot = () => {
         icon: AlertTriangle,
         end: true,
       },
+      // Example: Uncomment to use a custom downloaded SVG icon
+      // {
+      //   name: 'Custom Page',
+      //   to: paths.app.expert.custompage.getHref(),
+      //   icon: ExampleIcon, // Your custom SVG icon!
+      //   end: true,
+      // },
+    ];
+
+    // Grouped navigation for Plans and Resources
+    navigationGroups = [
       {
-        name: 'Emergency Plans',
-        to: paths.app.expert.emergency.getHref(),
-        icon: ShieldAlert,
-        end: true,
+        title: 'Plans',
+        icon: Folder, // Group header icon
+        items: [
+          // {
+          //   name: 'Emergency Plans',
+          //   to: paths.app.expert.emergency.getHref(),
+          //   icon: ShieldAlert,
+          //   end: true,
+          // },
+          {
+            name: 'Emergency Protocols',
+            to: paths.app.expert.emergencyProtocols.getHref(),
+            icon: ShieldAlert,
+            end: true,
+          },
+          {
+            name: 'Standard Plans',
+            to: paths.app.expert.standardPlans.getHref(),
+            icon: FileText,
+            end: true,
+          },
+          {
+            name: 'Plan Monitoring',
+            to: paths.app.expert.planMonitoring.getHref(),
+            icon: ClipboardList,
+            end: true,
+          },
+        ],
+        defaultOpen: true,
       },
       {
-        name: 'Emergency Protocols',
-        to: paths.app.expert.emergencyProtocols.getHref(),
-        icon: ShieldAlert,
-        end: true,
-      },
-      {
-        name: 'Standard Plans',
-        to: paths.app.expert.standardPlans.getHref(),
-        icon: FileText,
-        end: true,
-      },
-      {
-        name: 'Plan Monitoring',
-        to: paths.app.expert.planMonitoring.getHref(),
-        icon: ClipboardList,
-        end: true,
-      },
-      {
-        name: 'Materials',
-        to: paths.app.expert.materials.getHref(),
-        icon: Beaker,
-        end: true,
-      },
-      {
-        name: 'Rice Varieties',
-        to: paths.app.expert.riceVarieties.getHref(),
-        icon: Sprout,
-        end: true,
+        title: 'Resources',
+        icon: Settings, // Group header icon
+        items: [
+          {
+            name: 'Materials',
+            to: paths.app.expert.materials.getHref(),
+            icon: Beaker,
+            end: true,
+          },
+          {
+            name: 'Rice Varieties',
+            to: paths.app.expert.riceVarieties.getHref(),
+            icon: Sprout,
+            end: true,
+          },
+        ],
+        defaultOpen: false,
       },
     ];
   }
   // Supervisor Dashboard specific navigation
   else if (location.pathname.startsWith('/app/supervisor')) {
     navigationItems = [
-      {
-        name: 'Overview',
-        to: paths.app.supervisor.dashboard.getHref(),
-        icon: Home,
-        end: true,
-      },
+      // {
+      //   name: 'Overview',
+      //   to: paths.app.supervisor.dashboard.getHref(),
+      //   icon: Home,
+      //   end: true,
+      // },
       {
         name: 'Group Management',
         to: paths.app.supervisor.group.getHref(),
@@ -160,18 +190,18 @@ const AppRoot = () => {
         icon: Folder,
         end: true,
       },
-      {
-        name: 'Reports',
-        to: paths.app.supervisor.reports.getHref(),
-        icon: TrendingUp,
-        end: true,
-      },
+      // {
+      //   name: 'Reports',
+      //   to: paths.app.supervisor.reports.getHref(),
+      //   icon: TrendingUp,
+      //   end: true,
+      // },
       {
         name: 'Maps',
         to: paths.app.supervisor.maps.getHref(),
         icon: Map,
         end: true,
-      }
+      },
     ];
   }
   // Cluster Dashboard specific navigation
@@ -195,12 +225,12 @@ const AppRoot = () => {
         icon: UserCheck,
         end: true,
       },
-      {
-        name: 'Plans',
-        to: paths.app.cluster.plans.getHref(),
-        icon: ClipboardList,
-        end: true,
-      },
+      // {
+      //   name: 'Plans',
+      //   to: paths.app.cluster.plans.getHref(),
+      //   icon: ClipboardList,
+      //   end: true,
+      // },
       {
         name: 'Groups',
         to: paths.app.cluster.groups.getHref(),
@@ -211,7 +241,7 @@ const AppRoot = () => {
         name: 'Map',
         to: paths.app.cluster.maps.getHref(),
         icon: Map,
-        end: true
+        end: true,
       },
     ];
   }
@@ -221,12 +251,12 @@ const AppRoot = () => {
     checkAccess({ allowedRoles: [ROLES.Admin] })
   ) {
     navigationItems = [
-      {
-        name: 'Overview',
-        to: paths.app.admin.dashboard.getHref(),
-        icon: Home,
-        end: true,
-      },
+      // {
+      //   name: 'Overview',
+      //   to: paths.app.admin.dashboard.getHref(),
+      //   icon: Home,
+      //   end: true,
+      // },
       {
         name: 'Clusters',
         to: paths.app.admin.clusters.getHref(),
@@ -270,7 +300,7 @@ const AppRoot = () => {
       },
       checkAccess({ allowedRoles: [ROLES.AgronomyExpert] }) && {
         name: 'Expert Dashboard',
-        to: paths.app.expert.dashboard.getHref(),
+        to: paths.app.expert.reports.getHref(),
         icon: Home,
         end: true,
       },
@@ -295,9 +325,11 @@ const AppRoot = () => {
     ].filter(Boolean) as SideNavigationItem[];
   }
 
-
   return (
-    <DashboardLayout navigationItems={navigationItems}>
+    <DashboardLayout
+      navigationItems={navigationItems}
+      navigationGroups={navigationGroups}
+    >
       <Outlet />
     </DashboardLayout>
   );

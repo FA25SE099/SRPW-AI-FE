@@ -33,13 +33,15 @@ export const getStandardPlanReviewQueryOptions = (params: ReviewParams) => {
 
 type UseStandardPlanReviewOptions = {
   params: ReviewParams;
-  queryConfig?: QueryConfig<typeof getStandardPlanReviewQueryOptions>;
+  queryConfig?: QueryConfig<typeof getStandardPlanReview>;
 };
 
 export const useStandardPlanReview = ({ params, queryConfig }: UseStandardPlanReviewOptions) => {
   return useQuery({
-    ...getStandardPlanReviewQueryOptions(params),
     ...queryConfig,
+    queryKey: ['standard-plan-review', params],
+    queryFn: () => getStandardPlanReview(params),
+    enabled: !!params.id && !!params.sowDate && params.areaInHectares > 0 && (queryConfig?.enabled !== false),
   });
 };
 

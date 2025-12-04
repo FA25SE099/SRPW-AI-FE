@@ -72,7 +72,6 @@ export const ResolveReportDialog = ({
         queryConfig: {
             enabled: !!selectedProtocolId,
             staleTime: 0,
-            cacheTime: 0,
         },
     });
 
@@ -132,14 +131,14 @@ export const ResolveReportDialog = ({
 
     const handleAddTaskFromProtocol = () => {
         if (addingToStageIndex === null || addingToTaskPosition === null) return;
-        
+
         taskManagement.handleAddTaskFromProtocol(
             protocolDetails,
             selectedProtocolTasks,
             addingToStageIndex,
             addingToTaskPosition
         );
-        
+
         setIsAddingTask(false);
         setAddingToStageIndex(null);
         setAddingToTaskPosition(null);

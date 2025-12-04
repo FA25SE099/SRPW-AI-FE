@@ -159,7 +159,7 @@ export const getPlotDetailQueryOptions = (plotId: string) => {
 
 type UsePlotDetailOptions = {
     plotId: string;
-    queryConfig?: QueryConfig<typeof getPlotDetailQueryOptions>;
+    queryConfig?: QueryConfig<typeof getPlotDetail>;
 };
 
 export const usePlotDetail = ({
@@ -167,7 +167,9 @@ export const usePlotDetail = ({
     queryConfig,
 }: UsePlotDetailOptions) => {
     return useQuery({
-        ...getPlotDetailQueryOptions(plotId),
         ...queryConfig,
+        queryKey: ['plots', 'detail', plotId],
+        queryFn: () => getPlotDetail(plotId),
+        enabled: !!plotId && plotId !== '',
     });
 };

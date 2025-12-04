@@ -25,13 +25,11 @@ export const importUpsertMaterials = async (
   formData.append('ExcelFile', params.excelFile);
   formData.append('ImportDate', params.importDate);
 
-  const response = await api.post('/material/import-upsert-excel', formData, {
+  return api.post('/material/import-upsert-excel', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
-
-  return response;
 };
 
 type UseImportUpsertMaterialsOptions = {

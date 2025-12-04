@@ -1,8 +1,8 @@
 import { FileText } from 'lucide-react';
-import { ProductionPlan } from '@/features/production-plans/types';
+import { ProductionPlanDetail, PlotDetail } from '@/features/production-plans/types';
 
 type PlotSelectionStepProps = {
-    planDetails: ProductionPlan;
+    planDetails: ProductionPlanDetail;
     selectedPlotIds: Set<string>;
     setSelectedPlotIds: (ids: Set<string>) => void;
 };
@@ -28,16 +28,15 @@ export const PlotSelectionStep = ({
             </div>
 
             <div className="grid grid-cols-2 gap-4 max-h-[500px] overflow-y-auto">
-                {planDetails.groupDetails.plots.map((plot) => {
+                {planDetails.groupDetails.plots.map((plot: PlotDetail) => {
                     const isSelected = selectedPlotIds.has(plot.id);
                     return (
                         <label
                             key={plot.id}
-                            className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                                isSelected
+                            className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${isSelected
                                     ? 'border-blue-500 bg-blue-50'
                                     : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                            }`}
+                                }`}
                         >
                             <div className="flex items-start gap-3">
                                 <input

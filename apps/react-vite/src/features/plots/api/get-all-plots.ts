@@ -55,6 +55,7 @@ export type GetPlotsParams = {
     pageNumber?: number;
     pageSize?: number;
     searchTerm?: string;
+    clusterManagerId?: string;
 };
 
 export type GetPlotsOutSeasonParams = {
@@ -68,6 +69,7 @@ export const getPlots = async (params: GetPlotsParams = {}): Promise<PaginatedPl
     if (params.pageNumber) searchParams.append('pageNumber', params.pageNumber.toString());
     if (params.pageSize) searchParams.append('pageSize', params.pageSize.toString());
     if (params.searchTerm) searchParams.append('searchTerm', params.searchTerm);
+    if (params.clusterManagerId) searchParams.append('clusterManagerId', params.clusterManagerId);
 
     const queryString = searchParams.toString();
     const url = queryString ? `/Plot?${queryString}` :
@@ -85,12 +87,14 @@ export const getPlotsQueryOptions = (params: GetPlotsParams = {}) => {
 
 type UsePlotsOptions = {
     params?: GetPlotsParams;
-    queryConfig?: QueryConfig<typeof getPlotsQueryOptions>;
+    queryConfig?: QueryConfig<typeof getPlots>;
 };
 
 export const usePlots = ({ params = {}, queryConfig }: UsePlotsOptions = {}) => {
     return useQuery({
-        ...getPlotsQueryOptions(params),
         ...queryConfig,
+        queryKey: ['plots', params],
+        queryFn: () => getPlots(params),
+        staleTime: 5000,
     });
 };

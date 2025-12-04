@@ -40,7 +40,7 @@ export const UngroupedPlotsManager = ({
     }
   };
 
-  if (ungroupedPlots.length === 0) {
+  if (!ungroupedPlots || ungroupedPlots.length === 0) {
     return (
       <Card>
         <CardContent className="p-8 text-center">
@@ -58,7 +58,7 @@ export const UngroupedPlotsManager = ({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-orange-600" />
-            Ungrouped Plots - {ungroupedPlots.length}
+            Ungrouped Plots - {ungroupedPlots?.length || 0}
           </CardTitle>
           {selectedPlots.size > 0 && (
             <Badge variant="secondary">
@@ -90,7 +90,7 @@ export const UngroupedPlotsManager = ({
 
         {/* Ungrouped Plots List */}
         <div className="space-y-3 max-h-[600px] overflow-y-auto">
-          {ungroupedPlots.map((plot) => (
+          {ungroupedPlots?.map((plot) => (
             <Card key={plot.plotId} className="border-orange-200">
               <CardContent className="p-4">
                 <div className="space-y-3">
@@ -120,13 +120,13 @@ export const UngroupedPlotsManager = ({
                         </div>
                       </div>
                     </div>
-                    <Badge variant="outline">{plot.riceVariety}</Badge>
+                    <Badge variant="outline">{plot.riceVarietyName}</Badge>
                   </div>
 
                   {/* Reason */}
                   <div className="p-2 bg-orange-50 rounded text-sm">
                     <p className="font-medium text-orange-900">Reason:</p>
-                    <p className="text-orange-800">{plot.reason}</p>
+                    <p className="text-orange-800">{plot.reasonDescription}</p>
                   </div>
 
                   {/* Suggestions */}
@@ -148,18 +148,18 @@ export const UngroupedPlotsManager = ({
 
                   {/* Actions */}
                   <div className="flex gap-2 pt-2">
-                    {plot.nearestGroupId && availableGroups.length > 0 && (
+                    {plot.nearbyGroups?.[0]?.groupId && availableGroups.length > 0 && (
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() =>
-                          onAssignToGroup?.(plot.plotId, plot.nearestGroupId!)
+                          onAssignToGroup?.(plot.plotId, plot.nearbyGroups[0].groupId!)
                         }
                       >
                         Assign to Nearest Group
-                        {plot.distanceToNearestKm && (
+                        {plot.distanceToNearestGroup && (
                           <span className="ml-1 text-xs text-muted-foreground">
-                            ({plot.distanceToNearestKm.toFixed(1)}km)
+                            ({(plot.distanceToNearestGroup / 1000).toFixed(1)}km)
                           </span>
                         )}
                       </Button>

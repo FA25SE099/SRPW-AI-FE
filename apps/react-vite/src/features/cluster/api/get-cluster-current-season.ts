@@ -18,7 +18,7 @@ export const getClusterCurrentSeasonQueryOptions = (clusterId: string) =>
 
 type UseClusterCurrentSeasonOptions = {
   clusterId: string;
-  queryConfig?: QueryConfig<typeof getClusterCurrentSeasonQueryOptions>;
+  queryConfig?: QueryConfig<typeof getClusterCurrentSeason>;
 };
 
 export const useClusterCurrentSeason = ({
@@ -26,8 +26,9 @@ export const useClusterCurrentSeason = ({
   queryConfig,
 }: UseClusterCurrentSeasonOptions) => {
   return useQuery({
-    ...getClusterCurrentSeasonQueryOptions(clusterId),
     ...queryConfig,
+    queryKey: ['cluster-current-season', clusterId],
+    queryFn: () => getClusterCurrentSeason(clusterId),
   });
 };
 
