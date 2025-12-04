@@ -21,6 +21,7 @@ export const MaterialsList = () => {
   const [selectedType, setSelectedType] = useState<MaterialType>(MaterialType.Pesticide);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [isPartitionFilter, setIsPartitionFilter] = useState<boolean | undefined>(undefined);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -31,7 +32,13 @@ export const MaterialsList = () => {
   const [tempDateTime, setTempDateTime] = useState<string>(new Date().toISOString().slice(0, 16));
 
   const { data: materials, isLoading } = useMaterials({
-    params: { currentPage, pageSize, type: selectedType, dateTime: priceDateTime },
+    params: {
+      currentPage,
+      pageSize,
+      type: selectedType,
+      dateTime: priceDateTime,
+      isPartition: isPartitionFilter,
+    },
   });
 
   const downloadPriceListMutation = useDownloadMaterialPriceList();
@@ -103,6 +110,8 @@ export const MaterialsList = () => {
           >
             Pesticides
           </Button>
+
+
 
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Price at:</label>
@@ -202,6 +211,11 @@ export const MaterialsList = () => {
                           {material.type === MaterialType.Fertilizer
                             ? 'Fertilizer'
                             : 'Pesticide'}
+                          {material.isPartition && (
+                            <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
+                              Partitioned
+                            </span>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -300,6 +314,9 @@ export const MaterialsList = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Partition
+                      </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Actions
                       </th>
@@ -357,6 +374,16 @@ export const MaterialsList = () => {
                               }`}
                           >
                             {material.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${material.isPartition
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-gray-100 text-gray-700'
+                              }`}
+                          >
+                            {material.isPartition ? 'Partitioned' : 'Whole'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
