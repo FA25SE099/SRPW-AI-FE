@@ -399,7 +399,7 @@ export const GroupMapPreview = ({
             .setPopup(
               new mapboxgl.Popup({ offset: 15 }).setHTML(`
                 <div class="p-3 max-w-xs">
-                  <div class="font-semibold text-orange-600 mb-1">⚠️ Ungrouped Plot</div>
+                  <div class="font-semibold text-orange-600 mb-1"> Ungrouped Plot</div>
                   <div class="text-sm font-medium">${plot.farmerName}</div>
                   <div class="text-xs text-gray-600 mb-2">${plot.riceVarietyName} • ${plot.area.toFixed(2)}ha</div>
                   <div class="text-xs text-gray-700 mb-2">${plot.reasonDescription}</div>

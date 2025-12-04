@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { usePlots } from "@/features/plots/api/get-all-plots";
 import { usePolygonTasks } from "@/features/supervisor/api/get-polygon-task";
 import { useCompletePolygonTask } from "@/features/supervisor/api/get-polygon-complete";
+import { useValidatePolygonArea } from "@/features/supervisor/api/validate-polygon-area";
+import type { ValidatePolygonAreaResponse } from "@/features/supervisor/api/validate-polygon-area";
 import type { PlotDTO } from "@/features/plots/api/get-all-plots";
 import type { PolygonTask } from "@/types/polygon-task";
 import { Spinner } from "@/components/ui/spinner";
@@ -12,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Layers, ChevronDown, Map, MapPin, User, Satellite, Search, Filter, Clock, AlertTriangle, CheckCircle, Save, X } from "lucide-react";
+import { useNotifications } from "@/components/ui/notifications/notifications-store";
 
 import mapboxgl from "mapbox-gl";
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
@@ -156,11 +159,14 @@ const getPriorityLevel = (priority: number | string | undefined): 'High' | 'Medi
 };
 
 const SupervisorMap = () => {
+    const { addNotification } = useNotifications();
+
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<mapboxgl.Map | null>(null);
     const draw = useRef<MapboxDraw | null>(null);
     const popupRef = useRef<mapboxgl.Popup | null>(null);
     const markersRef = useRef<mapboxgl.Marker[]>([]);
+    const selectedTaskRef = useRef<PolygonTask | null>(null);
 
     const [isClient, setIsClient] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
@@ -179,6 +185,8 @@ const SupervisorMap = () => {
     const [statusFilter, setStatusFilter] = useState<string>("all");
     const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
     const [activeTab, setActiveTab] = useState<"tasks" | "completed">("tasks");
+    const [validationResult, setValidationResult] = useState<ValidatePolygonAreaResponse["data"] | null>(null);
+    const [isValidating, setIsValidating] = useState(false);
 
     const { data: plotsResponse, isLoading: plotsLoading, refetch: refetchPlots } = usePlots({
         params: { pageNumber: 1, pageSize: 500 },
@@ -187,6 +195,8 @@ const SupervisorMap = () => {
     const { data: tasksData, isLoading: tasksLoading, refetch: refetchTasks } = usePolygonTasks({
         filters: { status: 'Pending' }
     }) as any;
+
+    const validateMutation = useValidatePolygonArea();
 
     const completeTaskMutation = useCompletePolygonTask({
         mutationConfig: {
@@ -201,6 +211,8 @@ const SupervisorMap = () => {
                 setDrawnPolygon(null);
                 setPolygonArea(0);
                 setTaskNotes("");
+                setValidationResult(null);
+                setIsValidating(false);
                 if (draw.current) {
                     draw.current.deleteAll();
                 }
@@ -222,6 +234,25 @@ const SupervisorMap = () => {
                     }, 100);
                 }
             },
+            onError: (error: any) => {
+                // Handle backend validation errors (Option 1)
+                const errors = error?.response?.data?.errors || [];
+                const errorMessage = errors.length > 0 ? errors[0] : (error?.response?.data?.message || error?.message);
+
+                if (errorMessage?.toLowerCase().includes('area')) {
+                    addNotification({
+                        type: 'error',
+                        title: 'Area Validation Failed',
+                        message: errorMessage
+                    });
+                } else {
+                    addNotification({
+                        type: 'error',
+                        title: 'Error',
+                        message: errorMessage || 'Failed to complete task'
+                    });
+                }
+            }
         }
     });
 
@@ -346,15 +377,35 @@ const SupervisorMap = () => {
         });
 
         function updateArea(e: any) {
+            console.log('🎨 updateArea called, event:', e.type);
             const data = draw.current!.getAll();
+            console.log('📦 Features:', data.features.length);
+            console.log('📌 selectedTaskRef.current:', selectedTaskRef.current?.plotId);
+
             if (data.features.length > 0) {
                 const area = turf.area(data);
                 const roundedArea = Math.round(area * 100) / 100;
+                console.log('📏 Calculated area:', roundedArea, 'm²');
                 setPolygonArea(roundedArea);
                 setDrawnPolygon(data.features[0]);
+                console.log('✏️ Set drawnPolygon and polygonArea');
+
+                // Use ref to get current selectedTask value
+                const currentTask = selectedTaskRef.current;
+                if (currentTask && data.features[0]) {
+                    console.log('✅ Triggering validation for plot:', currentTask.plotId);
+                    validateDrawnPolygon(currentTask.plotId, data.features[0]);
+                } else {
+                    console.warn('⚠️ No selectedTask or feature for validation', {
+                        hasTask: !!currentTask,
+                        hasFeature: !!data.features[0]
+                    });
+                }
             } else {
+                console.log('❌ No features drawn');
                 setPolygonArea(0);
                 setDrawnPolygon(null);
+                setValidationResult(null);
             }
         }
 
@@ -559,9 +610,63 @@ const SupervisorMap = () => {
         }
     }, [selectedZone, mapLoaded, markersAdded]);
 
+    const validateDrawnPolygon = async (plotId: string, polygon: any) => {
+        setIsValidating(true);
+        setValidationResult(null);
+
+        try {
+            const geoJsonString = JSON.stringify(polygon.geometry);
+            console.log('🔍 Validating polygon for plot:', plotId);
+
+            const response = await validateMutation.mutateAsync({
+                plotId,
+                polygonGeoJson: geoJsonString,
+                tolerancePercent: 10
+            });
+
+            console.log('✅ Validation response (unwrapped by api-client):', response);
+
+            // API client already unwraps response.data, so response IS the data
+            if (response && typeof response === 'object' && 'isValid' in response) {
+                console.log('📊 Setting validation result:', response);
+                setValidationResult(response as any);
+                console.log('📊 Validation result state updated');
+
+                // Show notification if validation failed
+                if (!(response as any).isValid) {
+                    addNotification({
+                        type: 'error',
+                        title: 'Area Validation Failed',
+                        message: (response as any).message || `Area differs by ${(response as any).differencePercent}% (max: ${(response as any).tolerancePercent}%)`
+                    });
+                } else {
+                    addNotification({
+                        type: 'success',
+                        title: 'Polygon Validated',
+                        message: (response as any).message || 'Polygon area is within acceptable tolerance'
+                    });
+                }
+            } else {
+                console.error('❌ Unexpected validation response format:', response);
+            }
+        } catch (error: any) {
+            console.error('❌ Validation exception:', error);
+            const errorMessage = error?.response?.data?.errors?.[0] || error?.message || 'Failed to validate polygon area';
+            addNotification({
+                type: 'error',
+                title: 'Validation Error',
+                message: errorMessage
+            });
+            setValidationResult(null);
+        } finally {
+            setIsValidating(false);
+        }
+    };
+
     const startDrawingForTask = (task: PolygonTask) => {
         console.log('Starting drawing for task:', task.id);
         setSelectedTask(task);
+        selectedTaskRef.current = task; // Keep ref in sync
         setIsDrawing(true);
         setTaskNotes(`Drawing polygon for plot ${task.soThua}/${task.soTo}`);
         if (draw.current) {
@@ -571,10 +676,13 @@ const SupervisorMap = () => {
 
     const cancelDrawing = () => {
         setSelectedTask(null);
+        selectedTaskRef.current = null; // Clear ref too
         setIsDrawing(false);
         setDrawnPolygon(null);
         setPolygonArea(0);
         setTaskNotes("");
+        setValidationResult(null);
+        setIsValidating(false);
         if (draw.current) {
             draw.current.deleteAll();
             draw.current.changeMode('simple_select');
@@ -584,13 +692,33 @@ const SupervisorMap = () => {
     const completeDrawing = () => {
         if (!selectedTask || !drawnPolygon) return;
 
+        // Ensure validation has been done
+        if (!validationResult) {
+            addNotification({
+                type: 'warning',
+                title: 'Validation Required',
+                message: 'Please wait for polygon validation to complete before saving.'
+            });
+            return;
+        }
+
+        // Check validation result from Option 2
+        if (!validationResult.isValid) {
+            addNotification({
+                type: 'error',
+                title: 'Area Validation Failed',
+                message: `Drawn: ${validationResult.drawnAreaHa}ha, Plot: ${validationResult.plotAreaHa}ha, Difference: ${validationResult.differencePercent}% (max: ${validationResult.tolerancePercent}%). Please redraw within tolerance.`
+            });
+            return;
+        }
+
         const geoJsonString = JSON.stringify(drawnPolygon.geometry);
 
         completeTaskMutation.mutate({
             taskId: selectedTask.id,
             data: {
                 polygonGeoJson: geoJsonString,
-                notes: taskNotes || `Polygon drawn with area: ${polygonArea}m²`
+                notes: taskNotes || `Polygon drawn with area: ${validationResult.drawnAreaHa}ha (${polygonArea}m²)`
             }
         });
     };
@@ -727,14 +855,103 @@ const SupervisorMap = () => {
                             </div>
 
                             {drawnPolygon ? (
-                                <div className="space-y-2">
-                                    <div className="text-sm text-green-600 font-medium">✓ Polygon completed</div>
-                                    <div className="text-xs text-gray-600">Area: {polygonArea.toLocaleString()}m²</div>
+                                <div className="space-y-3">
+                                    {(() => {
+                                        console.log('🎨 Rendering validation UI - drawnPolygon:', !!drawnPolygon, 'isValidating:', isValidating, 'validationResult:', validationResult);
+                                        return null;
+                                    })()}
+                                    {isValidating ? (
+                                        <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
+                                            Validating area...
+                                        </div>
+                                    ) : validationResult ? (
+                                        <>
+                                            {/* Validation Status Header */}
+                                            <div className={`flex items-center gap-2 p-3 rounded-lg ${validationResult.isValid
+                                                ? 'bg-green-100 border border-green-300'
+                                                : 'bg-red-100 border border-red-300'
+                                                }`}>
+                                                <div className={`text-lg font-bold ${validationResult.isValid ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {validationResult.isValid ? '✓' : '✗'}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className={`text-sm font-semibold ${validationResult.isValid ? 'text-green-800' : 'text-red-800'}`}>
+                                                        {validationResult.isValid ? 'Area Validated!' : 'Area Validation Failed'}
+                                                    </div>
+                                                    <div className={`text-xs ${validationResult.isValid ? 'text-green-700' : 'text-red-700'}`}>
+                                                        {validationResult.isValid ? 'Within acceptable range' : 'Outside acceptable range'}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Area Comparison */}
+                                            <div className="bg-gray-50 p-3 rounded-lg space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-600">Drawn Area:</span>
+                                                    <span className="text-sm font-bold text-gray-900">
+                                                        {validationResult.drawnAreaHa} ha
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-600">Plot Area:</span>
+                                                    <span className="text-sm font-bold text-gray-900">
+                                                        {validationResult.plotAreaHa} ha
+                                                    </span>
+                                                </div>
+                                                <div className="border-t pt-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs text-gray-600">Difference:</span>
+                                                        <span className={`text-sm font-bold ${validationResult.isValid ? 'text-green-600' : 'text-red-600'}`}>
+                                                            {validationResult.differencePercent}%
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center mt-1">
+                                                        <span className="text-xs text-gray-500">Max Allowed:</span>
+                                                        <span className="text-xs text-gray-500">
+                                                            {validationResult.tolerancePercent}%
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Error Message */}
+                                            {!validationResult.isValid && validationResult.message && (
+                                                <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+                                                    <p className="text-xs text-red-800 font-medium">
+                                                        {validationResult.message}
+                                                    </p>
+                                                    <p className="text-xs text-red-600 mt-2">
+                                                        Please redraw the polygon with an area closer to {validationResult.plotAreaHa} ha
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Success Message */}
+                                            {validationResult.isValid && validationResult.message && (
+                                                <div className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
+                                                    <p className="text-xs text-green-800 font-medium">
+                                                        {validationResult.message}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-sm text-gray-600">
+                                            Area: {polygonArea.toLocaleString()}m²
+                                        </div>
+                                    )}
+
                                     <div className="flex gap-2 mt-3">
                                         <Button
                                             onClick={completeDrawing}
-                                            disabled={completeTaskMutation.isPending}
-                                            className="flex-1 bg-green-600 hover:bg-green-700"
+                                            disabled={
+                                                completeTaskMutation.isPending ||
+                                                isValidating ||
+                                                !validationResult ||
+                                                !validationResult.isValid
+                                            }
+                                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                             size="sm"
                                         >
                                             {completeTaskMutation.isPending ? (
@@ -755,10 +972,18 @@ const SupervisorMap = () => {
                                             <X className="w-4 h-4" />
                                         </Button>
                                     </div>
+
                                 </div>
                             ) : (
-                                <div className="text-sm text-orange-600">
-                                    Click on the map to draw polygon points
+                                <div className="space-y-2">
+                                    <div className="text-sm text-orange-600 font-medium">
+                                        Drawing polygon...
+                                    </div>
+                                    <div className="text-xs text-gray-600 space-y-1">
+                                        <div>1. Click on map to add points</div>
+                                        <div>2. Double-click last point to finish</div>
+                                        <div className="text-orange-600 font-medium">Or press Enter to complete</div>
+                                    </div>
                                 </div>
                             )}
                         </div>
