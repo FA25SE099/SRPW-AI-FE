@@ -9,6 +9,7 @@ type GetMaterialsParams = {
   pageSize: number;
   type?: MaterialType;
   dateTime?: string; // ISO datetime string for price retrieval
+  isPartition?: boolean; // Filter by partition type
 };
 
 export const getMaterials = async (
@@ -22,6 +23,9 @@ export const getMaterials = async (
   }
   if (params.dateTime) {
     formData.append('dateTime', params.dateTime);
+  }
+  if (params.isPartition !== undefined) {
+    formData.append('isPartition', params.isPartition.toString());
   }
 
   // The api-client interceptor now detects PagedResult and keeps it intact

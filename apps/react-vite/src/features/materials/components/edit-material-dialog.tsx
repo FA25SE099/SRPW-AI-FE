@@ -23,6 +23,7 @@ export const EditMaterialDialog = ({
   const [description, setDescription] = useState('');
   const [manufacturer, setManufacturer] = useState('');
   const [imgUrls, setImgUrls] = useState<string[]>([]);
+  const [isPartition, setIsPartition] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
   const uploadImagesMutation = useUploadMaterialImages();
@@ -33,6 +34,7 @@ export const EditMaterialDialog = ({
       setDescription(material.description || '');
       setManufacturer(material.manufacturer || '');
       setImgUrls(material.imgUrls || []);
+      setIsPartition(material.isPartition || false);
     }
   }, [material]);
 
@@ -102,6 +104,7 @@ export const EditMaterialDialog = ({
       description: description || undefined,
       manufacturer: manufacturer || undefined,
       isActive: material.isActive,
+      isPartition,
       imgUrls,
     });
   };
@@ -147,6 +150,20 @@ export const EditMaterialDialog = ({
           />
         </div>
 
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="isPartition"
+            checked={isPartition}
+            onChange={(e) => setIsPartition(e.target.checked)}
+            disabled={isLoading}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label htmlFor="isPartition" className="text-sm font-medium text-gray-700">
+            Can be partitioned (sold in smaller quantities)
+          </label>
+        </div>
+
         {/* Image Upload Section */}
         <div>
           <Label>Images</Label>
@@ -154,8 +171,8 @@ export const EditMaterialDialog = ({
             {/* Drag and Drop Upload Area */}
             <div
               className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${dragActive
-                  ? 'border-primary bg-primary/5'
-                  : 'border-gray-300 hover:border-gray-400'
+                ? 'border-primary bg-primary/5'
+                : 'border-gray-300 hover:border-gray-400'
                 }`}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}

@@ -209,6 +209,7 @@ export type Material = {
   description: string;
   manufacturer: string;
   isActive: boolean;
+  isPartition: boolean;
   imgUrls?: string[];
 };
 
@@ -298,6 +299,7 @@ export type CreateMaterialRequest = {
   description?: string;
   manufacturer?: string;
   isActive: boolean;
+  isPartition: boolean;
   priceValidFrom: string;
 };
 
@@ -311,6 +313,7 @@ export type UpdateMaterialRequest = {
   description?: string;
   manufacturer?: string;
   isActive: boolean;
+  isPartition: boolean;
   imgUrls?: string[];
 };
 
