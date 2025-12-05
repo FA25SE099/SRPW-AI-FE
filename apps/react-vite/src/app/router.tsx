@@ -56,11 +56,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
             ),
         },
         {
-          path: paths.app.discussion.path,
-          lazy: () =>
-            import('./routes/app/discussions/discussion').then(
-              convert(queryClient),
-            ),
+          // path: paths.app.discussion.path,
+          // lazy: () =>
+          //   import('./routes/app/discussions/discussion').then(
+          //     convert(queryClient),
+          //   ),
         },
         {
           path: paths.app.users.path,

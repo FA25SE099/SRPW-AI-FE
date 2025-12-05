@@ -7,7 +7,7 @@ import { useUsers } from '../api/get-users';
 import { DeleteUser } from './delete-user';
 
 export const UsersList = () => {
-  const usersQuery = useUsers();
+  const usersQuery = useUsers() as any;
 
   if (usersQuery.isLoading) {
     return (
@@ -17,9 +17,7 @@ export const UsersList = () => {
     );
   }
 
-  const users = usersQuery.data?.data;
-
-  if (!users) return null;
+  const users = usersQuery.data?.data || [];
 
   return (
     <Table

@@ -19,8 +19,8 @@ export const previewGroupFormation = async (
     maxPlotsPerGroup: params.maxPlots.toString(),
   });
 
-  const response = await api.get(`/Group/preview?${queryParams.toString()}`);
-  
+  const response: any = await api.get(`/Group/preview?${queryParams.toString()}`);
+
   // Transform backend response to frontend format
   return {
     totalGroupsFormed: response.summary?.groupsToBeFormed || 0,
@@ -36,8 +36,8 @@ export const previewGroupFormation = async (
         earliest: group.plantingWindowStart,
         latest: group.plantingWindowEnd,
         varianceDays: Math.ceil(
-          (new Date(group.plantingWindowEnd).getTime() - 
-           new Date(group.plantingWindowStart).getTime()) / 
+          (new Date(group.plantingWindowEnd).getTime() -
+            new Date(group.plantingWindowStart).getTime()) /
           (1000 * 60 * 60 * 24)
         ),
       },

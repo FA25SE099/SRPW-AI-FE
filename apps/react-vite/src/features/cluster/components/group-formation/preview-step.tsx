@@ -265,7 +265,7 @@ export const PreviewStep = ({
                   {/* Display suggestions if available */}
                   {plot.suggestions && plot.suggestions.length > 0 && (
                     <div className="text-xs text-blue-600 mt-1">
-                      💡 {plot.suggestions.join(', ')}
+                      {plot.suggestions.join(', ')}
                     </div>
                   )}
 

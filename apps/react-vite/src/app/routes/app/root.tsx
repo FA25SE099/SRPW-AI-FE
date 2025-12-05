@@ -41,13 +41,13 @@ const AppRoot = () => {
   // Role-based redirect when accessing /app root
   if (location.pathname === paths.app.root.path) {
     if (user.data?.role === ROLES.Admin) {
-      return <Navigate to={paths.app.admin.dashboard.getHref()} replace />;
+      return <Navigate to={paths.app.admin.roles.getHref()} replace />;
     }
     if (user.data?.role === ROLES.AgronomyExpert) {
-      return <Navigate to={paths.app.expert.dashboard.getHref()} replace />;
+      return <Navigate to={paths.app.expert.reports.getHref()} replace />;
     }
     if (user.data?.role === ROLES.Supervisor) {
-      return <Navigate to={paths.app.supervisor.dashboard.getHref()} replace />;
+      return <Navigate to={paths.app.supervisor.group.getHref()} replace />;
     }
     if (user.data?.role === ROLES.ClusterManager) {
       return <Navigate to={paths.app.cluster.dashboard.getHref()} replace />;
@@ -88,12 +88,12 @@ const AppRoot = () => {
   if (location.pathname.startsWith('/app/expert')) {
     // Main items as flat navigation (always visible)
     navigationItems = [
-      {
-        name: 'Overview',
-        to: paths.app.expert.dashboard.getHref(),
-        icon: Home,
-        end: true,
-      },
+      // {
+      //   name: 'Overview',
+      //   to: paths.app.expert.dashboard.getHref(),
+      //   icon: Home,
+      //   end: true,
+      // },
       {
         name: 'Approvals',
         to: paths.app.expert.approvals.getHref(),
@@ -121,12 +121,12 @@ const AppRoot = () => {
         title: 'Plans',
         icon: Folder, // Group header icon
         items: [
-          {
-            name: 'Emergency Plans',
-            to: paths.app.expert.emergency.getHref(),
-            icon: ShieldAlert,
-            end: true,
-          },
+          // {
+          //   name: 'Emergency Plans',
+          //   to: paths.app.expert.emergency.getHref(),
+          //   icon: ShieldAlert,
+          //   end: true,
+          // },
           {
             name: 'Emergency Protocols',
             to: paths.app.expert.emergencyProtocols.getHref(),
@@ -172,12 +172,12 @@ const AppRoot = () => {
   // Supervisor Dashboard specific navigation
   else if (location.pathname.startsWith('/app/supervisor')) {
     navigationItems = [
-      {
-        name: 'Overview',
-        to: paths.app.supervisor.dashboard.getHref(),
-        icon: Home,
-        end: true,
-      },
+      // {
+      //   name: 'Overview',
+      //   to: paths.app.supervisor.dashboard.getHref(),
+      //   icon: Home,
+      //   end: true,
+      // },
       {
         name: 'Group Management',
         to: paths.app.supervisor.group.getHref(),
@@ -190,12 +190,12 @@ const AppRoot = () => {
         icon: Folder,
         end: true,
       },
-      {
-        name: 'Reports',
-        to: paths.app.supervisor.reports.getHref(),
-        icon: TrendingUp,
-        end: true,
-      },
+      // {
+      //   name: 'Reports',
+      //   to: paths.app.supervisor.reports.getHref(),
+      //   icon: TrendingUp,
+      //   end: true,
+      // },
       {
         name: 'Maps',
         to: paths.app.supervisor.maps.getHref(),
@@ -225,12 +225,12 @@ const AppRoot = () => {
         icon: UserCheck,
         end: true,
       },
-      {
-        name: 'Plans',
-        to: paths.app.cluster.plans.getHref(),
-        icon: ClipboardList,
-        end: true,
-      },
+      // {
+      //   name: 'Plans',
+      //   to: paths.app.cluster.plans.getHref(),
+      //   icon: ClipboardList,
+      //   end: true,
+      // },
       {
         name: 'Groups',
         to: paths.app.cluster.groups.getHref(),
@@ -251,12 +251,12 @@ const AppRoot = () => {
     checkAccess({ allowedRoles: [ROLES.Admin] })
   ) {
     navigationItems = [
-      {
-        name: 'Overview',
-        to: paths.app.admin.dashboard.getHref(),
-        icon: Home,
-        end: true,
-      },
+      // {
+      //   name: 'Overview',
+      //   to: paths.app.admin.dashboard.getHref(),
+      //   icon: Home,
+      //   end: true,
+      // },
       {
         name: 'Clusters',
         to: paths.app.admin.clusters.getHref(),
@@ -300,7 +300,7 @@ const AppRoot = () => {
       },
       checkAccess({ allowedRoles: [ROLES.AgronomyExpert] }) && {
         name: 'Expert Dashboard',
-        to: paths.app.expert.dashboard.getHref(),
+        to: paths.app.expert.reports.getHref(),
         icon: Home,
         end: true,
       },
@@ -326,7 +326,7 @@ const AppRoot = () => {
   }
 
   return (
-    <DashboardLayout 
+    <DashboardLayout
       navigationItems={navigationItems}
       navigationGroups={navigationGroups}
     >

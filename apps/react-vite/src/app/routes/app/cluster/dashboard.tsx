@@ -241,7 +241,7 @@ const ClusterDashboard = () => {
   } | null>(null);
 
   // Get ClusterManagerId from logged-in user
-  const clusterManagerId = user.data?.id || '';
+  const clusterManagerId = user?.data?.id || '';
 
   // Fetch the actual clusterId using ClusterManagerId
   const {
@@ -251,11 +251,13 @@ const ClusterDashboard = () => {
   } = useClusterId({
     clusterManagerId,
     queryConfig: {
-      enabled: !!clusterManagerId,
+      enabled: !!clusterManagerId && !!user,
     },
   });
 
-  const clusterId = clusterIdData?.clusterId || '';
+  const clusterId = clusterIdQuery.data?.clusterId || '';
+  const isLoadingClusterId = clusterIdQuery.isLoading;
+  const clusterIdError = clusterIdQuery.error;
 
   // Fetch cluster data from API
   const {
@@ -269,19 +271,25 @@ const ClusterDashboard = () => {
     },
   });
 
-  const { data: historyData } = useClusterHistory({
+  const currentSeason = currentSeasonQuery.data;
+  const isLoadingSeason = currentSeasonQuery.isLoading;
+  const error = currentSeasonQuery.error;
+
+  const historyDataQuery = useClusterHistory({
     params: { clusterId, limit: 4 },
     queryConfig: {
       enabled: !!clusterId,
     },
   });
+  const historyData = historyDataQuery.data;
 
-  const { data: seasonsData } = useClusterSeasons({
+  const seasonsDataQuery = useClusterSeasons({
     params: { clusterId, limit: 10 },
     queryConfig: {
       enabled: !!clusterId,
     },
   });
+  const seasonsData = seasonsDataQuery.data;
 
   const { data: globalSeason } = useCurrentSeason();
 
@@ -328,6 +336,28 @@ const ClusterDashboard = () => {
             <p className="text-muted-foreground">Loading cluster data...</p>
           </div>
         </div>
+      </ContentLayout>
+    );
+  }
+
+  if (!user?.data) {
+    return (
+      <ContentLayout title="Cluster Manager Dashboard">
+        <Card className="border-destructive/50">
+          <CardContent className="p-8 text-center space-y-4">
+            <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
+            <div>
+              <h3 className="font-semibold text-lg mb-2">
+                Failed to Load Cluster ID
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                {clusterIdError.message ||
+                  'Could not fetch cluster information for your account.'}
+              </p>
+              <Button onClick={() => window.location.reload()}>Retry</Button>
+            </div>
+          </CardContent>
+        </Card>
       </ContentLayout>
     );
   }
@@ -400,21 +430,21 @@ const ClusterDashboard = () => {
   const stats = [
     {
       label: 'Farmers',
-      value: currentSeason.riceVarietySelection?.totalFarmers || 0,
+      value: currentSeason?.riceVarietySelection?.totalFarmers || 0,
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50 dark:bg-blue-950',
     },
     {
       label: 'Plots',
-      value: currentSeason.readiness?.availablePlots || 0,
+      value: currentSeason?.readiness?.availablePlots || 0,
       icon: MapPin,
       color: 'text-green-600',
       bgColor: 'bg-green-50 dark:bg-green-950',
     },
     {
       label: 'Varieties',
-      value: currentSeason.riceVarietySelection?.selections?.length || 0,
+      value: currentSeason?.riceVarietySelection?.selections?.length || 0,
       icon: Sprout,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50 dark:bg-purple-950',
@@ -441,7 +471,7 @@ const ClusterDashboard = () => {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold text-foreground">
-                  {currentSeason.clusterName}
+                  {currentSeason?.clusterName}
                 </h1>
                 <Badge
                   variant={currentSeason.hasGroups ? 'default' : 'secondary'}
@@ -459,7 +489,7 @@ const ClusterDashboard = () => {
                 {globalSeason && (
                   <>
                     <span>•</span>
-                    <span>Day {globalSeason.daysIntoSeason}</span>
+                    <span>Day {globalSeason?.daysIntoSeason}</span>
                     <span>•</span>
                     <span>
                       {globalSeason.startDate} - {globalSeason.endDate}
@@ -570,7 +600,7 @@ const ClusterDashboard = () => {
                   }}
                 />
               </>
-            )}
+            )} */}
 
             {historyData &&
               historyData.seasons &&
@@ -631,14 +661,14 @@ const ClusterDashboard = () => {
           )}
 
         {/* Group Formation Modal */}
-        {currentSeason.readiness && (
+        {currentSeason?.readiness && (
           <GroupFormationModal
             isOpen={showFormationModal}
             onClose={() => setShowFormationModal(false)}
             clusterId={clusterId}
-            seasonId={currentSeason.currentSeason.seasonId}
-            year={currentSeason.currentSeason.year}
-            availablePlots={currentSeason.readiness.availablePlots}
+            seasonId={currentSeason?.currentSeason?.seasonId || ''}
+            year={currentSeason?.currentSeason?.year || new Date().getFullYear()}
+            availablePlots={currentSeason?.readiness?.availablePlots || 0}
           />
         )}
 

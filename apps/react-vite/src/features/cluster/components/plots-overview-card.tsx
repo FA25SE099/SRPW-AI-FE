@@ -67,7 +67,7 @@ export const PlotsOverviewCard = ({ plots, totalPlots, onViewAll }: PlotsOvervie
             acc[plot.status] = [];
         }
         acc[plot.status].push(plot);
-        return {};
+        return acc;
     }, {} as Record<PlotStatus, Plot[]>);
 
     const statusCounts = {

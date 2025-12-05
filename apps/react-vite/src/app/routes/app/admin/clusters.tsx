@@ -334,7 +334,7 @@ const AdminClustersRoute = () => {
         managerPhone,
       );
 
-      setSelectedManagerId(newManagerId);
+      setSelectedManagerId(newManagerId.data);
       setSelectedManagerName(`${managerFullName} (${managerPhone})`);
 
       console.log(
@@ -347,18 +347,6 @@ const AdminClustersRoute = () => {
       setIsManagerDialogOpen(false);
       setNewManager({ fullName: '', email: '', phoneNumber: '' });
       queryClient.invalidateQueries({ queryKey: ['cluster-managers'] });
-
-      try {
-        const managerDetails = await fetchManagerById(newManagerId);
-        console.log('Fetched manager details:', managerDetails);
-        if (managerDetails && managerDetails.succeeded && managerDetails.data) {
-          setSelectedManagerName(
-            `${managerDetails.data.clusterManagerName} (${managerDetails.data.clusterManagerPhoneNumber})`,
-          );
-        }
-      } catch (error) {
-        console.error('Failed to fetch manager details:', error);
-      }
     },
     onError: (error: any) => {
       console.error('Create manager error:', error);
@@ -399,7 +387,7 @@ const AdminClustersRoute = () => {
         expertPhone,
       );
 
-      setSelectedExpertId(newExpertId);
+      setSelectedExpertId(newExpertId.data);
       setSelectedExpertName(`${expertFullName} (${expertPhone})`);
 
       console.log(
@@ -412,18 +400,6 @@ const AdminClustersRoute = () => {
       setIsExpertDialogOpen(false);
       setNewExpert({ fullName: '', email: '', phoneNumber: '' });
       queryClient.invalidateQueries({ queryKey: ['agronomy-experts'] });
-
-      try {
-        const expertDetails = await fetchExpertById(newExpertId);
-        console.log('Fetched expert details:', expertDetails);
-        if (expertDetails && expertDetails.succeeded && expertDetails.data) {
-          setSelectedExpertName(
-            `${expertDetails.data.expertName} (${expertDetails.data.expertPhoneNumber})`,
-          );
-        }
-      } catch (error) {
-        console.error('Failed to fetch expert details:', error);
-      }
     },
     onError: (error: any) => {
       console.error('Create expert error:', error);
@@ -576,12 +552,12 @@ const AdminClustersRoute = () => {
   const experts: AgronomyExpert[] = expertsData?.data || [];
   const clusters: Cluster[] = clustersData?.data || [];
 
-  const managerHasNext = managersData?.hasNext || false;
-  const managerHasPrevious = managersData?.hasPrevious || false;
-  const expertHasNext = expertsData?.hasNext || false;
-  const expertHasPrevious = expertsData?.hasPrevious || false;
-  const clusterHasNext = clustersData?.hasNext || false;
-  const clusterHasPrevious = clustersData?.hasPrevious || false;
+  const managerHasNext = managersData?.data.hasNext || false;
+  const managerHasPrevious = managersData?.data.hasPrevious || false;
+  const expertHasNext = expertsData?.data.hasNext || false;
+  const expertHasPrevious = expertsData?.data.hasPrevious || false;
+  const clusterHasNext = clustersData?.data.hasNext || false;
+  const clusterHasPrevious = clustersData?.data.hasPrevious || false;
 
   return (
     <ContentLayout title="Cluster Management">
@@ -835,8 +811,8 @@ const AdminClustersRoute = () => {
                                 </div>
                                 {selectedManagerId ===
                                   manager.clusterManagerId && (
-                                  <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                                )}
+                                    <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                                  )}
                               </button>
                             ))}
                           </div>
@@ -847,8 +823,8 @@ const AdminClustersRoute = () => {
                         <div className="flex items-center justify-between text-sm border-t pt-4">
                           <span className="text-gray-600">
                             Page {managerPage} of{' '}
-                            {managersData?.totalPages || 1} (
-                            {managersData?.totalCount || 0} total)
+                            {managersData?.data?.totalPages || 1} (
+                            {managersData?.data?.totalCount || 0} total)
                           </span>
                           <div className="flex gap-2">
                             <Button
@@ -1102,8 +1078,8 @@ const AdminClustersRoute = () => {
                       {experts.length > 0 && (
                         <div className="flex items-center justify-between text-sm border-t pt-4">
                           <span className="text-gray-600">
-                            Page {expertPage} of {expertsData?.totalPages || 1}{' '}
-                            ({expertsData?.totalCount || 0} total)
+                            Page {expertPage} of {expertsData?.data.totalPages || 1}{' '}
+                            ({expertsData?.data.totalCount || 0} total)
                           </span>
                           <div className="flex gap-2">
                             <Button
@@ -1392,8 +1368,8 @@ const AdminClustersRoute = () => {
                               </div>
                               {selectedManagerId ===
                                 manager.clusterManagerId && (
-                                <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                              )}
+                                  <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                                )}
                             </button>
                           ))}
                         </div>
@@ -1403,8 +1379,8 @@ const AdminClustersRoute = () => {
                     {managers.length > 0 && (
                       <div className="flex items-center justify-between text-sm border-t pt-4">
                         <span className="text-gray-600">
-                          Page {managerPage} of {managersData?.totalPages || 1}{' '}
-                          ({managersData?.totalCount || 0} total)
+                          Page {managerPage} of {managersData?.data.totalPages || 1}{' '}
+                          ({managersData?.data.totalCount || 0} total)
                         </span>
                         <div className="flex gap-2">
                           <Button
@@ -1655,8 +1631,8 @@ const AdminClustersRoute = () => {
                     {experts.length > 0 && (
                       <div className="flex items-center justify-between text-sm border-t pt-4">
                         <span className="text-gray-600">
-                          Page {expertPage} of {expertsData?.totalPages || 1} (
-                          {expertsData?.totalCount || 0} total)
+                          Page {expertPage} of {expertsData?.data.totalPages || 1} (
+                          {expertsData?.data.totalCount || 0} total)
                         </span>
                         <div className="flex gap-2">
                           <Button
@@ -1883,8 +1859,8 @@ const AdminClustersRoute = () => {
               {/* Pagination */}
               <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                 <div className="text-sm text-gray-600">
-                  Showing page {clusterPage} of {clustersData?.totalPages || 1}{' '}
-                  ({clustersData?.totalCount || 0} total clusters)
+                  Showing page {clusterPage} of {clustersData?.data?.totalPages || 1}{' '}
+                  ({clustersData?.data?.totalCount || 0} total clusters)
                 </div>
                 <div className="flex gap-2">
                   <Button

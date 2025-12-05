@@ -1,9 +1,13 @@
 import { Bug, Cloud, Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from '@/components/ui/button';
+import { useNotifications } from '@/components/ui/notifications';
 
+import { usePestProtocols, useCreatePestProtocol } from '../api/get-pest-protocols';
+import { useWeatherProtocols, useCreateWeatherProtocol } from '../api/get-weather-protocols';
 import { useRiceVarietiesSimple } from '../api/get-rice-varieties-simple';
 import { useSeasons } from '../api/get-seasons';
 
@@ -39,8 +43,8 @@ type ThresholdDialogProps = {
   onAdd: (threshold: EditableThreshold) => void;
   pestProtocols: any[];
   weatherProtocols: any[];
-  onCreatePestProtocol: () => void;
-  onCreateWeatherProtocol: () => void;
+  onCreatePestProtocol: () => void | Promise<void>;
+  onCreateWeatherProtocol: () => void | Promise<void>;
   initialData?: EditableThreshold | null;
   isEditMode?: boolean;
   onEditComplete?: (threshold: EditableThreshold) => void;
@@ -67,6 +71,8 @@ export const ThresholdDialog = ({
   isEditMode,
   onEditComplete,
 }: Omit<ThresholdDialogProps, 'riceVarieties' | 'seasons'>) => {
+  const queryClient = useQueryClient();
+  const { addNotification } = useNotifications();
   const { register, handleSubmit, reset, setValue } =
     useForm<EditableThreshold>();
   const [enablePest, setEnablePest] = useState(
@@ -80,6 +86,69 @@ export const ThresholdDialog = ({
   const { data: seasonsResponse, isLoading: isLoadingSeasons } = useSeasons();
   const { data: riceVarietiesResponse, isLoading: isLoadingRiceVarieties } =
     useRiceVarietiesSimple();
+
+  // Query pest and weather protocols for the dropdowns
+  const { data: pestProtocolsData, refetch: refetchPest } = usePestProtocols({
+    params: { currentPage: 1, pageSize: 100, isActive: true },
+  });
+  const { data: weatherProtocolsData, refetch: refetchWeather } = useWeatherProtocols({
+    params: { currentPage: 1, pageSize: 100, isActive: true },
+  });
+
+  // ADD THESE MUTATIONS HERE:
+  const createPestMutation = useCreatePestProtocol({
+    mutationConfig: {
+      onSuccess: () => {
+        addNotification({
+          type: 'success',
+          title: 'Success',
+          message: 'Pest protocol created successfully',
+        });
+        queryClient.invalidateQueries({ queryKey: ['pest-protocols'] });
+        refetchPest();
+      },
+      onError: (error: any) => {
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: error?.message || 'Failed to create pest protocol',
+        });
+      },
+    },
+  });
+
+  const createWeatherMutation = useCreateWeatherProtocol({
+    mutationConfig: {
+      onSuccess: () => {
+        addNotification({
+          type: 'success',
+          title: 'Success',
+          message: 'Weather protocol created successfully',
+        });
+        queryClient.invalidateQueries({ queryKey: ['weather-protocols'] });
+        refetchWeather();
+      },
+      onError: (error: any) => {
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: error?.message || 'Failed to create weather protocol',
+        });
+      },
+    },
+  });
+
+  // Use the queried data instead of props for the dropdowns
+  const pestProtocolsList = pestProtocolsData?.data || pestProtocols || [];
+  const weatherProtocolsList = weatherProtocolsData?.data || weatherProtocols || [];
+
+  // Refetch protocols whenever the dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      refetchPest();
+      refetchWeather();
+    }
+  }, [isOpen, refetchPest, refetchWeather]);
 
   // FIX: seasonsResponse is already the array, not an object with .data
   const seasons = Array.isArray(seasonsResponse)
@@ -109,6 +178,7 @@ export const ThresholdDialog = ({
     notes: '',
     isActive: true,
   });
+
   // Debug logs
   useEffect(() => {
     if (isOpen) {
@@ -138,14 +208,14 @@ export const ThresholdDialog = ({
   useEffect(() => {
     if (isEditMode && initialData && isOpen) {
       Object.keys(initialData).forEach((key) => {
-        setValue(key as any, initialData[key]);
+        setValue(key as any, (initialData as any)[key]);
       });
-      setEnablePest(!!initialData.pestProtocolId);
-      setEnableWeather(!!initialData.weatherProtocolId);
+      setEnablePest(!!initialData.pestProtocolId as any);
+      setEnableWeather(!!initialData.weatherProtocolId as any);
     } else if (!isOpen) {
       reset();
-      setEnablePest(true);
-      setEnableWeather(false);
+      setEnablePest(true as any);
+      setEnableWeather(false as any);
     }
   }, [isEditMode, initialData, isOpen, setValue, reset]);
 
@@ -185,10 +255,47 @@ export const ThresholdDialog = ({
     onClose();
   };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] overflow-y-auto">
+    <div className={isOpen ? 'fixed inset-0 z-[60] overflow-y-auto' : 'hidden'}>
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="fixed inset-0 bg-black/50" onClick={onClose} />
         <div className="relative z-10 w-full max-w-5xl rounded-lg bg-white shadow-xl">
@@ -213,7 +320,7 @@ export const ThresholdDialog = ({
                 <input
                   type="checkbox"
                   checked={enablePest}
-                  onChange={(e) => setEnablePest(e.target.checked)}
+                  onChange={(e) => setEnablePest(e.target.checked as any)}
                   className="rounded text-orange-600 focus:ring-orange-500"
                 />
                 <Bug className="size-4 text-orange-600" />
@@ -266,7 +373,7 @@ export const ThresholdDialog = ({
                           className="flex-1 rounded-md border bg-white px-2 py-1 text-xs"
                         >
                           <option value="">Select...</option>
-                          {pestProtocols.map((p: any) => (
+                          {pestProtocolsList.map((p: any) => (
                             <option key={p.id} value={p.id}>
                               {p.name}
                             </option>
@@ -399,7 +506,7 @@ export const ThresholdDialog = ({
                           className="flex-1 rounded-md border bg-white px-2 py-1 text-xs"
                         >
                           <option value="">Select...</option>
-                          {weatherProtocols.map((w: any) => (
+                          {weatherProtocolsList.map((w: any) => (
                             <option key={w.id} value={w.id}>
                               {w.name}
                             </option>
@@ -635,6 +742,7 @@ export const ThresholdDialog = ({
           </form>
         </div>
       </div>
+
       {/* Pest Protocol Dialog */}
       <PestProtocolDialog
         isOpen={isPestDialogOpen}
@@ -650,11 +758,24 @@ export const ThresholdDialog = ({
             isActive: true,
           });
         }}
-        onSubmit={(data) => {
-          onCreatePestProtocol();
-          setIsPestDialogOpen(false);
+        onSubmit={async (data) => {
+          try {
+            await createPestMutation.mutateAsync(data);
+            setIsPestDialogOpen(false);
+            setPestForm({
+              id: '',
+              name: '',
+              description: '',
+              type: '',
+              imageLinks: [],
+              notes: '',
+              isActive: true,
+            });
+          } catch (error) {
+            console.error('Failed to create pest protocol:', error);
+          }
         }}
-        isLoading={false}
+        isLoading={createPestMutation.isPending}
         isEditMode={false}
         protocol={pestForm}
         setProtocol={setPestForm}
@@ -671,16 +792,30 @@ export const ThresholdDialog = ({
             description: '',
             source: '',
             sourceLink: '',
-            imageLinks: [],
+            imageLinks: [] as string[],
             notes: '',
             isActive: true,
           });
         }}
-        onSubmit={(data) => {
-          onCreateWeatherProtocol();
-          setIsWeatherDialogOpen(false);
+        onSubmit={async (data) => {
+          try {
+            await createWeatherMutation.mutateAsync(data);
+            setIsWeatherDialogOpen(false);
+            setWeatherForm({
+              id: '',
+              name: '',
+              description: '',
+              source: '',
+              sourceLink: '',
+              imageLinks: [] as string[],
+              notes: '',
+              isActive: true,
+            });
+          } catch (error) {
+            console.error('Failed to create weather protocol:', error);
+          }
         }}
-        isLoading={false}
+        isLoading={createWeatherMutation.isPending}
         isEditMode={false}
         protocol={weatherForm}
         setProtocol={setWeatherForm}

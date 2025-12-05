@@ -71,10 +71,10 @@ const AdminUsersRoute = () => {
   });
 
   const users: User[] = usersResp?.data || [];
-  const totalPages = usersResp?.totalPages || 1;
-  const hasNext = usersResp?.hasNext || false;
-  const hasPrevious = usersResp?.hasPrevious || false;
-  const totalCount = usersResp?.totalCount || 0;
+  const totalPages = usersResp?.data?.totalPages || 1;
+  const hasNext = usersResp?.data?.hasNext || false;
+  const hasPrevious = usersResp?.data?.hasPrevious || false;
+  const totalCount = usersResp?.data?.totalCount || 0;
 
   const toggleSort = () => {
     setSortBy((prev) =>

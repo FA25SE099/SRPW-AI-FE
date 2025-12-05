@@ -95,7 +95,7 @@ export const getGroupsQueryOptions = () => {
 };
 
 type UseGroupsOptions = {
-    queryConfig?: QueryConfig<typeof getGroupsQueryOptions>;
+    queryConfig?: QueryConfig<typeof getGroups>;
 };
 
 // ======================================================
@@ -104,7 +104,6 @@ type UseGroupsOptions = {
 
 export const useGroups = ({ queryConfig }: UseGroupsOptions = {}) => {
     return useQuery({
-        ...getGroupsQueryOptions(),
         ...queryConfig,
 
         // Override queryFn để enrich groups với production plan

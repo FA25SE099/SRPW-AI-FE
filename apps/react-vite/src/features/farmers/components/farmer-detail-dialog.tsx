@@ -1,4 +1,3 @@
-"use client"
 
 import { Loader2, MapPin, Phone, Mail, Users, Grid, Sprout } from "lucide-react"
 import { useFarmerDetail } from "../api/get-farmer-detail"

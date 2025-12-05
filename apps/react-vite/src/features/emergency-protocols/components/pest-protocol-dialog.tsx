@@ -7,23 +7,47 @@ import { Label } from '@/components/ui/label';
 
 import { useUploadFiles } from '../api/get-pest-protocols';
 
-export const PestProtocolDialog = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  isLoading,
-  isEditMode,
-  protocol,
-  setProtocol,
-}: {
+type PestProtocolDialogProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
   isLoading: boolean;
-  isEditMode: boolean;
-  protocol: any;
-  setProtocol: (data: any) => void;
-}) => {
+  isEditMode?: boolean;
+} & (
+    | {
+      onSubmit: (data: any) => void;
+      protocol: {
+        id?: string;
+        name: string;
+        description: string;
+        type: string;
+        imageLinks: string[];
+        notes: string;
+        isActive: boolean;
+      };
+      setProtocol: (data: any) => void;
+    }
+    | {
+      onCreate: (data: any) => void;
+      newPestProtocol: {
+        name: string;
+        description: string;
+        type: string;
+        imageLinks: string[];
+        notes: string;
+        isActive: boolean;
+      };
+      setNewPestProtocol: (data: any) => void;
+    }
+  );
+
+export const PestProtocolDialog = (props: PestProtocolDialogProps) => {
+  const { isOpen, onClose, isLoading, isEditMode = false } = props;
+
+  // Normalize props to work with both interfaces
+  const protocol = 'protocol' in props ? props.protocol : props.newPestProtocol;
+  const setProtocol = 'setProtocol' in props ? props.setProtocol : props.setNewPestProtocol;
+  const handleSubmit = 'onSubmit' in props ? props.onSubmit : props.onCreate;
+
   const [dragActive, setDragActive] = useState(false);
   const uploadFilesMutation = useUploadFiles();
 
@@ -59,11 +83,11 @@ export const PestProtocolDialog = ({
     if (files.length === 0) return;
 
     try {
-      const result = await uploadFilesMutation.mutateAsync(files);
-      const newLinks = result.files.map((f) => f.url);
+      const result: any = await uploadFilesMutation.mutateAsync(files as any);
+      const newLinks = result.files.map((f: any) => f.url);
       setProtocol({
         ...protocol,
-        imageLinks: [...protocol.imageLinks, ...newLinks],
+        imageLinks: [...(protocol?.imageLinks || []), ...newLinks],
       });
     } catch (error) {
       console.error('Upload failed:', error);
@@ -72,11 +96,11 @@ export const PestProtocolDialog = ({
   };
 
   const removeImageLink = (index: number) => {
-    const updatedLinks = protocol.imageLinks.filter((_, i) => i !== index);
+    const updatedLinks = (protocol?.imageLinks || []).filter((_, i) => i !== index);
     setProtocol({ ...protocol, imageLinks: updatedLinks });
   };
 
-  if (!isOpen) return null;
+  if (!isOpen || !protocol) return null;
 
   return (
     <div className="fixed inset-0 z-[80] overflow-y-auto">
@@ -89,14 +113,14 @@ export const PestProtocolDialog = ({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              onSubmit(protocol);
+              handleSubmit(protocol);
             }}
             className="space-y-4"
           >
             <div>
               <Label>Name *</Label>
               <Input
-                value={protocol.name}
+                value={protocol.name || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -109,7 +133,7 @@ export const PestProtocolDialog = ({
             <div>
               <Label>Description *</Label>
               <textarea
-                value={protocol.description}
+                value={protocol.description || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -124,7 +148,7 @@ export const PestProtocolDialog = ({
             <div>
               <Label>Type *</Label>
               <Input
-                value={protocol.type}
+                value={protocol.type || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -141,11 +165,10 @@ export const PestProtocolDialog = ({
               <div className="space-y-4">
                 {/* Drag and Drop Upload Area - Always visible */}
                 <div
-                  className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
-                    dragActive
-                      ? 'border-primary bg-primary/5'
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
+                  className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${dragActive
+                    ? 'border-primary bg-primary/5'
+                    : 'border-gray-300 hover:border-gray-400'
+                    }`}
                   onDragEnter={handleDrag}
                   onDragLeave={handleDrag}
                   onDragOver={handleDrag}
@@ -177,7 +200,7 @@ export const PestProtocolDialog = ({
                 </div>
 
                 {/* Display uploaded images in table format */}
-                {protocol.imageLinks.length > 0 && (
+                {(protocol.imageLinks?.length || 0) > 0 && (
                   <div className="overflow-hidden rounded-lg border border-gray-200">
                     <table className="w-full">
                       <thead className="border-b border-gray-200 bg-gray-50">
@@ -194,7 +217,7 @@ export const PestProtocolDialog = ({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200 bg-white">
-                        {protocol.imageLinks.map((link, index) => (
+                        {(protocol.imageLinks || []).map((link, index) => (
                           <tr key={index} className="hover:bg-gray-50">
                             <td className="px-4 py-3">
                               <img
@@ -233,7 +256,7 @@ export const PestProtocolDialog = ({
             <div>
               <Label>Notes</Label>
               <textarea
-                value={protocol.notes}
+                value={protocol.notes || ''}
                 onChange={(e) =>
                   setProtocol({
                     ...protocol,
@@ -268,7 +291,7 @@ export const PestProtocolDialog = ({
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : 'Create'}
+                {isLoading ? 'Saving...' : isEditMode ? 'Save' : 'Create'}
               </Button>
             </div>
           </form>

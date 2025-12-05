@@ -43,14 +43,20 @@ export const getRiceVarietiesSimpleQueryOptions = () => {
 };
 
 type UseRiceVarietiesSimpleOptions = {
-  queryConfig?: QueryConfig<typeof getRiceVarietiesSimpleQueryOptions>;
+  queryConfig?: QueryConfig<typeof getRiceVarietiesSimple>;
 };
 
 export const useRiceVarietiesSimple = ({
   queryConfig,
-}: UseRiceVarietiesSimpleOptions = {}) => {
+}: UseRiceVarietiesSimpleOptions = {}): ReturnType<typeof useQuery<{
+  succeeded: boolean;
+  data: RiceVarietySimple[];
+  message: string;
+  errors: string[];
+}>> => {
   return useQuery({
-    ...getRiceVarietiesSimpleQueryOptions(),
     ...queryConfig,
+    queryKey: ['rice-varieties-simple'],
+    queryFn: () => getRiceVarietiesSimple(),
   });
 };

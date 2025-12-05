@@ -208,8 +208,8 @@ export const ProtocolsManagementTabs = () => {
           <button
             onClick={() => setActiveTab('pest')}
             className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'pest'
-                ? 'border-orange-500 text-orange-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+              ? 'border-orange-500 text-orange-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
           >
             Pest Protocols
@@ -217,8 +217,8 @@ export const ProtocolsManagementTabs = () => {
           <button
             onClick={() => setActiveTab('weather')}
             className={`border-b-2 px-4 py-2 text-sm font-medium transition-colors ${activeTab === 'weather'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+              ? 'border-blue-500 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
           >
             Weather Protocols
@@ -320,8 +320,8 @@ export const ProtocolsManagementTabs = () => {
                         <td className="whitespace-nowrap px-6 py-4">
                           <span
                             className={`rounded-full px-2 py-1 text-xs ${protocol.isActive
-                                ? 'border border-green-200 bg-green-100 text-green-800'
-                                : 'border border-gray-200 bg-gray-100 text-gray-800'
+                              ? 'border border-green-200 bg-green-100 text-green-800'
+                              : 'border border-gray-200 bg-gray-100 text-gray-800'
                               }`}
                           >
                             {protocol.isActive ? 'Active' : 'Inactive'}
@@ -465,8 +465,8 @@ export const ProtocolsManagementTabs = () => {
                     <div className="mt-1">
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${pestForm.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
                           }`}
                       >
                         {pestForm.isActive ? 'Active' : 'Inactive'}
@@ -605,8 +605,8 @@ export const ProtocolsManagementTabs = () => {
                         <td className="whitespace-nowrap px-6 py-4">
                           <span
                             className={`rounded-full px-2 py-1 text-xs ${weather.isActive
-                                ? 'border border-green-200 bg-green-100 text-green-800'
-                                : 'border border-gray-200 bg-gray-100 text-gray-800'
+                              ? 'border border-green-200 bg-green-100 text-green-800'
+                              : 'border border-gray-200 bg-gray-100 text-gray-800'
                               }`}
                           >
                             {weather.isActive ? 'Active' : 'Inactive'}
@@ -770,8 +770,8 @@ export const ProtocolsManagementTabs = () => {
                     <div className="mt-1">
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${weatherForm.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
                           }`}
                       >
                         {weatherForm.isActive ? 'Active' : 'Inactive'}

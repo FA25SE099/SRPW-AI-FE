@@ -1,10 +1,10 @@
 import { AlertTriangle, FileText } from 'lucide-react';
 import { EditableStage } from '../types';
-import { ProductionPlan } from '@/features/production-plans/types';
+import { ProductionPlanDetail } from '@/features/production-plans/types';
 
 type PreviewStepProps = {
     editableStages: EditableStage[];
-    planDetails: ProductionPlan;
+    planDetails: ProductionPlanDetail;
     selectedPlotIds: Set<string>;
     protocolDetails: any;
     versionName: string;
@@ -65,7 +65,7 @@ export const PreviewStep = ({
                                 {new Intl.NumberFormat('vi-VN', {
                                     style: 'currency',
                                     currency: 'VND',
-                                }).format(planDetails.estimatedTotalPlanCost)}
+                                }).format(planDetails.estimatedTotalCost || 0)}
                             </dd>
                         </div>
                     </dl>

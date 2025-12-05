@@ -1,4 +1,4 @@
-import { Users, MapPin, Phone, Mail, Download, Search } from 'lucide-react';
+import { Users, MapPin, Phone, Mail, Download, Search, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
 import { ContentLayout } from '@/components/layouts';
@@ -6,33 +6,40 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/components/ui/notifications';
 import { Spinner } from '@/components/ui/spinner';
-import { useExportFarmers } from '@/features/farmers/api/export-farmers';
 import { useFarmers } from '@/features/farmers/api/get-farmers';
+import { useExportFarmers } from '@/features/farmers/api/export-farmers';
 import { FarmerDetailDialog } from '@/features/farmers/components/farmer-detail-dialog';
 import { ImportFarmersDialog } from '@/features/farmers/components/import-farmers-dialog';
+import { CreateFarmerDialog } from '@/features/farmers/components/create-farmer-dialog';
+import { useUser } from '@/lib/auth';
 
 const ClusterFarmers = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize] = useState(12);
   const [searchTerm, setSearchTerm] = useState('');
   const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedFarmerId, setSelectedFarmerId] = useState<string | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   const { addNotification } = useNotifications();
+  const user = useUser();
 
-  const { data, isLoading, isError } = useFarmers({
+  const farmersQuery = useFarmers({
     params: {
       pageNumber,
       pageSize,
       searchTerm: searchTerm || undefined,
+      clusterManagerId: user.data?.id,
     },
   });
 
-  const farmers = data?.data || [];
-  const totalPages = data?.totalPages || 0;
-  const totalCount = data?.totalCount || 0;
-  const currentPage = data?.currentPage || 1;
+  const farmers = farmersQuery.data?.data || [];
+  const totalPages = farmersQuery.data?.totalPages || 0;
+  const totalCount = farmersQuery.data?.totalCount || 0;
+  const currentPage = farmersQuery.data?.currentPage || 1;
+  const isLoading = farmersQuery.isLoading;
+  const isError = farmersQuery.isError;
 
   const exportMutation = useExportFarmers({
     mutationConfig: {
@@ -64,7 +71,10 @@ const ClusterFarmers = () => {
 
   const handleExport = () => {
     const today = new Date().toISOString();
-    exportMutation.mutate(today);
+    exportMutation.mutate({
+      date: today,
+      clusterManagerId: user.data?.id,
+    });
   };
 
   const handleViewDetails = (farmerId: string) => {
@@ -111,6 +121,13 @@ const ClusterFarmers = () => {
             </p>
           </div>
           <div className="flex gap-3">
+            <Button
+              onClick={() => setCreateDialogOpen(true)}
+              className="gap-2 bg-green-600 text-white hover:bg-green-700"
+              icon={<UserPlus className="size-4" />}
+            >
+              Create Farmer
+            </Button>
             <Button
               onClick={() => setImportDialogOpen(true)}
               variant="outline"
@@ -159,7 +176,7 @@ const ClusterFarmers = () => {
                   Active Farmers
                 </p>
                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
-                  {farmers.filter((f) => f.isActive).length}
+                  {farmers.filter((f: any) => f.isActive).length}
                 </p>
               </div>
             </div>
@@ -191,7 +208,7 @@ const ClusterFarmers = () => {
                   Total Plots
                 </p>
                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
-                  {farmers.reduce((sum, f) => sum + f.plotCount, 0)}
+                  {farmers.reduce((sum: number, f: any) => sum + f.plotCount, 0)}
                 </p>
               </div>
             </div>
@@ -258,7 +275,7 @@ const ClusterFarmers = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {farmers.map((farmer) => (
+                  {farmers.map((farmer: any) => (
                     <tr key={farmer.farmerId} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -372,6 +389,10 @@ const ClusterFarmers = () => {
         farmerId={selectedFarmerId}
         open={detailDialogOpen}
         onOpenChange={setDetailDialogOpen}
+      />
+      <CreateFarmerDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
       />
       <ImportFarmersDialog
         open={importDialogOpen}

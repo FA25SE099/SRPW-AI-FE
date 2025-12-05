@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { MutationConfig } from '@/lib/react-query';
 import { ProductionPlan } from '../types';
-import { ProductionPlanDraft } from './get-production-plan-draft';
 
 export type CreateProductionPlanDTO = {
   groupId: string;

@@ -44,7 +44,7 @@ export const StandardPlansList = () => {
   };
 
   const handleDownloadTemplate = () => {
-    downloadTemplateMutation.mutate();
+    downloadTemplateMutation.mutate(undefined);
   };
 
   const handleViewDetail = (plan: StandardPlan) => {
@@ -99,7 +99,7 @@ export const StandardPlansList = () => {
                 variant={selectedCategory === category.id ? 'default' : 'outline'}
                 onClick={() => setSelectedCategory(category.id)}
               >
-                {category.categoryName}
+                {category.name}
               </Button>
             ))}
           </div>

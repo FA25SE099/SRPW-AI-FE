@@ -114,19 +114,6 @@ export type GetPendingApprovalsParams = {
   priority?: TaskPriority;
 };
 
-// export type PagedResult<T> = {
-//   currentPage: number;
-//   pageSize: number;
-//   totalCount: number;
-//   totalPages: number;
-//   hasPrevious: boolean;
-//   hasNext: boolean;
-//   succeeded: boolean;
-//   data: T;
-//   message?: string;
-//   errors?: string[];
-// };
-
 export type ApproveRejectPlanInput = {
   planId: string;
   approved: boolean;
@@ -140,6 +127,13 @@ export type PlanDetailMaterial = {
   materialUnit: string;
   quantityPerHa: number;
   estimatedAmount: number;
+  pricePerUnit?: number;
+  priceValidFrom?: string;
+  priceValidTo?: string | null;
+  isOutdated?: boolean;
+  totalQuantity?: number;
+  totalCost?: number;
+  imgUrl?: string | null;
 };
 
 export type PlanDetailTask = {
@@ -172,6 +166,9 @@ export type PlanDetailPlot = {
   soilType: string | null;
   status: string;
   farmerId: string;
+  farmerName?: string;
+  materials?: PlanDetailMaterial[];
+  totalEstimatedCost?: number;
 };
 
 export type PlanDetailGroup = {
@@ -212,21 +209,23 @@ export type Material = {
   description: string;
   manufacturer: string;
   isActive: boolean;
+  isPartition: boolean;
+  imgUrls?: string[];
 };
 
-// // PagedResult<T> from backend - extends Result<T> with pagination
-// export type PagedResult<T> = {
-//   succeeded: boolean;
-//   data: T;
-//   currentPage: number;
-//   totalPages: number;
-//   totalCount: number;
-//   pageSize: number;
-//   hasPrevious: boolean;
-//   hasNext: boolean;
-//   message?: string;
-//   errors?: string[];
-// };
+// PagedResult<T> from backend - extends Result<T> with pagination
+export type PagedResult<T> = {
+  succeeded: boolean;
+  data: T;
+  currentPage: number;
+  totalPages: number;
+  totalCount: number;
+  pageSize: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  message?: string;
+  errors?: string[];
+};
 
 // Rice Variety Management Types
 export type RiceVarietyCategory = {
@@ -300,6 +299,7 @@ export type CreateMaterialRequest = {
   description?: string;
   manufacturer?: string;
   isActive: boolean;
+  isPartition: boolean;
   priceValidFrom: string;
 };
 
@@ -313,7 +313,8 @@ export type UpdateMaterialRequest = {
   description?: string;
   manufacturer?: string;
   isActive: boolean;
-  priceValidFrom: string;
+  isPartition: boolean;
+  imgUrls?: string[];
 };
 
 // Rice Variety CRUD Types

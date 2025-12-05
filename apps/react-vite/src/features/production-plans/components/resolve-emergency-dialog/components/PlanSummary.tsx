@@ -1,10 +1,10 @@
 import { AlertTriangle } from 'lucide-react';
 
 import { Spinner } from '@/components/ui/spinner';
-import { ProductionPlan } from '@/features/production-plans/types';
+import { ProductionPlanDetail } from '@/features/production-plans/types';
 
 type PlanSummaryProps = {
-  planDetails: any;
+  planDetails: ProductionPlanDetail | undefined;
   isLoadingPlan: boolean;
 };
 
@@ -40,9 +40,7 @@ export const PlanSummary = ({
         <div>
           <dt className="font-medium text-yellow-700">Cluster:</dt>
           <dd className="text-gray-900">
-            {planDetails.groupDetails?.clusterName ||
-              planDetails.clusterName ||
-              'N/A'}
+            {planDetails.groupDetails?.clusterName || 'N/A'}
           </dd>
         </div>
         <div>
@@ -51,7 +49,7 @@ export const PlanSummary = ({
             {new Intl.NumberFormat('vi-VN', {
               style: 'currency',
               currency: 'VND',
-            }).format(planDetails.estimatedTotalCost)}
+            }).format(planDetails.estimatedTotalCost || 0)}
           </dd>
         </div>
         <div>
@@ -62,7 +60,7 @@ export const PlanSummary = ({
           <dt className="font-medium text-yellow-700">Total Tasks:</dt>
           <dd className="text-gray-900">
             {planDetails.stages.reduce(
-              (sum, stage) => sum + stage.tasks.length,
+              (sum: number, stage: any) => sum + stage.tasks.length,
               0,
             )}{' '}
             tasks
@@ -71,8 +69,7 @@ export const PlanSummary = ({
         <div>
           <dt className="font-medium text-yellow-700">Plots:</dt>
           <dd className="text-gray-900">
-            {planDetails.groupDetails?.plots?.length ||
-              (planDetails.plotName ? 1 : 0)}{' '}
+            {planDetails.groupDetails?.plots?.length || 0}{' '}
             plots
           </dd>
         </div>

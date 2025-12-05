@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { usePlots } from "@/features/plots/api/get-all-plots";
 import { usePolygonTasks } from "@/features/supervisor/api/get-polygon-task";
 import { useCompletePolygonTask } from "@/features/supervisor/api/get-polygon-complete";
+import { useValidatePolygonArea } from "@/features/supervisor/api/validate-polygon-area";
+import type { ValidatePolygonAreaResponse } from "@/features/supervisor/api/validate-polygon-area";
 import type { PlotDTO } from "@/features/plots/api/get-all-plots";
 import type { PolygonTask } from "@/types/polygon-task";
 import { Spinner } from "@/components/ui/spinner";
@@ -214,6 +216,8 @@ const getPriorityLevel = (
 };
 
 const SupervisorMap = () => {
+    const { addNotification } = useNotifications();
+
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<mapboxgl.Map | null>(null);
     const draw = useRef<MapboxDraw | null>(null);
@@ -238,6 +242,8 @@ const SupervisorMap = () => {
         null,
     );
     const [activeTab, setActiveTab] = useState<"tasks" | "completed">("tasks");
+    const [validationResult, setValidationResult] = useState<ValidatePolygonAreaResponse["data"] | null>(null);
+    const [isValidating, setIsValidating] = useState(false);
 
     const {
         data: plotsData,
@@ -245,7 +251,7 @@ const SupervisorMap = () => {
         refetch: refetchPlots,
     } = usePlots({
         params: { pageNumber: 1, pageSize: 500 },
-    });
+    }) as any;
 
     const {
         data: tasksData,
@@ -266,6 +272,8 @@ const SupervisorMap = () => {
                 setDrawnPolygon(null);
                 setPolygonArea(0);
                 setTaskNotes("");
+                setValidationResult(null);
+                setIsValidating(false);
                 if (draw.current) {
                     draw.current.deleteAll();
                 }
@@ -287,8 +295,8 @@ const SupervisorMap = () => {
         },
     });
 
-    const plots: PlotDTO[] = plotsData?.data || [];
-    const tasks: PolygonTask[] = tasksData || [];
+    const plots: PlotDTO[] = Array.isArray(plotsResponse?.data) ? plotsResponse.data : Array.isArray(plotsResponse) ? plotsResponse : [];
+    const tasks: PolygonTask[] = Array.isArray(tasksData) ? tasksData : [];
 
     useEffect(() => {
         setIsClient(true);
@@ -441,15 +449,35 @@ const SupervisorMap = () => {
         });
 
         function updateArea(e: any) {
+            console.log('🎨 updateArea called, event:', e.type);
             const data = draw.current!.getAll();
+            console.log('📦 Features:', data.features.length);
+            console.log('📌 selectedTaskRef.current:', selectedTaskRef.current?.plotId);
+
             if (data.features.length > 0) {
                 const area = turf.area(data);
                 const roundedArea = Math.round(area * 100) / 100;
+                console.log('📏 Calculated area:', roundedArea, 'm²');
                 setPolygonArea(roundedArea);
                 setDrawnPolygon(data.features[0]);
+                console.log('✏️ Set drawnPolygon and polygonArea');
+
+                // Use ref to get current selectedTask value
+                const currentTask = selectedTaskRef.current;
+                if (currentTask && data.features[0]) {
+                    console.log('✅ Triggering validation for plot:', currentTask.plotId);
+                    validateDrawnPolygon(currentTask.plotId, data.features[0]);
+                } else {
+                    console.warn('⚠️ No selectedTask or feature for validation', {
+                        hasTask: !!currentTask,
+                        hasFeature: !!data.features[0]
+                    });
+                }
             } else {
+                console.log('❌ No features drawn');
                 setPolygonArea(0);
                 setDrawnPolygon(null);
+                setValidationResult(null);
             }
         }
 
@@ -668,6 +696,7 @@ const SupervisorMap = () => {
     const startDrawingForTask = (task: PolygonTask) => {
         console.log("Starting drawing for task:", task.id);
         setSelectedTask(task);
+        selectedTaskRef.current = task; // Keep ref in sync
         setIsDrawing(true);
         setTaskNotes(`Drawing polygon for plot ${task.soThua}/${task.soTo}`);
         if (draw.current) {
@@ -677,10 +706,13 @@ const SupervisorMap = () => {
 
     const cancelDrawing = () => {
         setSelectedTask(null);
+        selectedTaskRef.current = null; // Clear ref too
         setIsDrawing(false);
         setDrawnPolygon(null);
         setPolygonArea(0);
         setTaskNotes("");
+        setValidationResult(null);
+        setIsValidating(false);
         if (draw.current) {
             draw.current.deleteAll();
             draw.current.changeMode("simple_select");
@@ -689,6 +721,26 @@ const SupervisorMap = () => {
 
     const completeDrawing = () => {
         if (!selectedTask || !drawnPolygon) return;
+
+        // Ensure validation has been done
+        if (!validationResult) {
+            addNotification({
+                type: 'warning',
+                title: 'Validation Required',
+                message: 'Please wait for polygon validation to complete before saving.'
+            });
+            return;
+        }
+
+        // Check validation result from Option 2
+        if (!validationResult.isValid) {
+            addNotification({
+                type: 'error',
+                title: 'Area Validation Failed',
+                message: `Drawn: ${validationResult.drawnAreaHa}ha, Plot: ${validationResult.plotAreaHa}ha, Difference: ${validationResult.differencePercent}% (max: ${validationResult.tolerancePercent}%). Please redraw within tolerance.`
+            });
+            return;
+        }
 
         const geoJsonString = JSON.stringify(drawnPolygon.geometry);
 
@@ -874,8 +926,13 @@ const SupervisorMap = () => {
                                     <div className="flex gap-2 mt-3">
                                         <Button
                                             onClick={completeDrawing}
-                                            disabled={completeTaskMutation.isPending}
-                                            className="flex-1 bg-green-600 hover:bg-green-700"
+                                            disabled={
+                                                completeTaskMutation.isPending ||
+                                                isValidating ||
+                                                !validationResult ||
+                                                !validationResult.isValid
+                                            }
+                                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                             size="sm"
                                         >
                                             {completeTaskMutation.isPending ? (
@@ -896,10 +953,18 @@ const SupervisorMap = () => {
                                             <X className="w-4 h-4" />
                                         </Button>
                                     </div>
+
                                 </div>
                             ) : (
-                                <div className="text-sm text-orange-600">
-                                    Click on the map to draw polygon points
+                                <div className="space-y-2">
+                                    <div className="text-sm text-orange-600 font-medium">
+                                        Drawing polygon...
+                                    </div>
+                                    <div className="text-xs text-gray-600 space-y-1">
+                                        <div>1. Click on map to add points</div>
+                                        <div>2. Double-click last point to finish</div>
+                                        <div className="text-orange-600 font-medium">Or press Enter to complete</div>
+                                    </div>
                                 </div>
                             )}
                         </div>

@@ -1,11 +1,9 @@
 import { api } from '@/lib/api-client';
 
 export const downloadPlotImportTemplate = async (): Promise<Blob> => {
-  const response = await api.get('/plot/download-import-template', {
+  return api.get('/plot/download-import-template', {
     responseType: 'blob',
   });
-  
-  return response;
 };
 
 export const usePlotImportTemplate = () => {

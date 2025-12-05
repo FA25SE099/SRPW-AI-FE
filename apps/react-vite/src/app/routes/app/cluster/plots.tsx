@@ -17,44 +17,79 @@ import { Spinner } from '@/components/ui/spinner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePlots } from '@/features/plots/api/get-all-plots';
 import { usePlotsOutSeason } from '@/features/plots/api/get-plots-out-season';
+import { usePlotsAwaitingPolygon } from '@/features/plots/api/get-plots-awaiting-polygon';
 import { ImportPlotsDialog } from '@/features/plots/components/import-plots-dialog';
 import { PlotsDetailDialog } from '@/features/plots/components/plots-detail-dialog';
+import { BulkCreatePlotsDialog } from '@/features/plots/components/bulk-create-plots-dialog';
+import { useUser } from '@/lib/auth';
 
 const Plots = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [pageNumber, setPageNumber] = useState(1);
-  const [activeTab, setActiveTab] = useState<'all' | 'out-season'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'out-season' | 'awaiting-polygon'>('all');
   const [selectedDate, setSelectedDate] = useState<string>();
   const [selectedPlotId, setSelectedPlotId] = useState<string>();
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showBulkCreateDialog, setShowBulkCreateDialog] = useState(false);
   const pageSize = 12;
 
-  const {
-    data: plotsResponse,
-    isLoading: isLoadingPlots,
-    isError: isErrorPlots,
-  } = usePlots({
-    params: { pageNumber, pageSize, searchTerm: searchTerm || undefined },
+  const user = useUser();
+
+  const plotsQuery = usePlots({
+    params: {
+      pageNumber,
+      pageSize,
+      searchTerm: searchTerm || undefined,
+      clusterManagerId: user.data?.id,
+    },
   });
 
-  const {
-    data: outSeasonResponse,
-    isLoading: isLoadingOutSeason,
-    isError: isErrorOutSeason,
-  } = usePlotsOutSeason({
+  const outSeasonQuery = usePlotsOutSeason({
     params: {
       currentDate: selectedDate,
       searchTerm: searchTerm || undefined,
+      clusterManagerId: user.data?.id,
     },
     queryConfig: {
       enabled: activeTab === 'out-season',
     },
   });
 
+  const awaitingPolygonQuery = usePlotsAwaitingPolygon({
+    params: {
+      pageNumber,
+      pageSize,
+      searchTerm: searchTerm || undefined,
+      clusterManagerId: user.data?.id,
+      sortBy: 'DaysWaiting',
+      descending: true,
+    },
+    queryConfig: {
+      enabled: activeTab === 'awaiting-polygon',
+    },
+  });
+
+  const plotsResponse = plotsQuery.data;
+  const isLoadingPlots = plotsQuery.isLoading;
+  const isErrorPlots = plotsQuery.isError;
+
+  const outSeasonResponse = outSeasonQuery.data;
+  const isLoadingOutSeason = outSeasonQuery.isLoading;
+  const isErrorOutSeason = outSeasonQuery.isError;
+
+  const awaitingPolygonResponse = awaitingPolygonQuery.data;
+  const isLoadingAwaitingPolygon = awaitingPolygonQuery.isLoading;
+  const isErrorAwaitingPolygon = awaitingPolygonQuery.isError;
+
   const plots = plotsResponse?.data || [];
-  const outSeasonPlots = outSeasonResponse || [];
-  const totalPages = plotsResponse?.totalPages || 0;
-  const totalCount = plotsResponse?.totalCount || 0;
+  const outSeasonPlots = outSeasonResponse?.data || [];
+  const awaitingPolygonPlots = awaitingPolygonResponse?.data || [];
+  const totalPages = activeTab === 'awaiting-polygon'
+    ? (awaitingPolygonResponse?.totalPages || 0)
+    : (plotsResponse?.totalPages || 0);
+  const totalCount = activeTab === 'awaiting-polygon'
+    ? (awaitingPolygonResponse?.totalCount || 0)
+    : (plotsResponse?.totalCount || 0);
 
   const getStatusColor = (status: string) => {
     const statusMap: Record<string, string> = {
@@ -66,7 +101,7 @@ const Plots = () => {
     return statusMap[status] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
 
-  const isError = isErrorPlots || isErrorOutSeason;
+  const isError = isErrorPlots || isErrorOutSeason || isErrorAwaitingPolygon;
 
   if (isError) {
     return (
@@ -105,6 +140,13 @@ const Plots = () => {
         </div>
         <div className="flex gap-3">
           <Button
+            onClick={() => setShowBulkCreateDialog(true)}
+            className="items-center gap-2 bg-green-600 text-white hover:bg-green-700"
+          >
+            <Plus className="size-4" />
+            Add Plots
+          </Button>
+          <Button
             onClick={() => setShowImportDialog(true)}
             variant="outline"
             className="items-center gap-2 border-green-600 text-green-600 hover:bg-green-50"
@@ -112,15 +154,11 @@ const Plots = () => {
             <Upload className="size-4" />
             Import Excel
           </Button>
-          <Button className="items-center gap-2 bg-green-600 text-white hover:bg-green-700">
-            <Plus className="size-4" />
-            Add Plot
-          </Button>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-full bg-green-100">
@@ -147,7 +185,7 @@ const Plots = () => {
                 Active
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
-                {plots.filter((p) => p.status === 'Active').length}
+                {plots.filter((p: any) => p.status === 'Active').length}
               </p>
             </div>
           </div>
@@ -171,6 +209,22 @@ const Plots = () => {
 
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
           <div className="flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-full bg-yellow-100">
+              <MapPin className="size-5 text-yellow-600" />
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
+                Awaiting Polygon
+              </p>
+              <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
+                {awaitingPolygonResponse?.totalCount || 0}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+          <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-full bg-blue-100">
               <MapPin className="size-5 text-blue-600" />
             </div>
@@ -179,7 +233,7 @@ const Plots = () => {
                 Total Area
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
-                {plots.reduce((sum, p) => sum + p.area, 0).toFixed(1)}{' '}
+                {plots.reduce((sum: number, p: any) => sum + p.area, 0).toFixed(1)}{' '}
                 <span className="text-base font-normal text-gray-600">ha</span>
               </p>
             </div>
@@ -228,7 +282,7 @@ const Plots = () => {
 
       <Tabs
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as 'all' | 'out-season')}
+        onValueChange={(v) => setActiveTab(v as 'all' | 'out-season' | 'awaiting-polygon')}
         className="space-y-6"
       >
         <TabsList className="bg-gray-100 p-1">
@@ -237,7 +291,7 @@ const Plots = () => {
             className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
           >
             <FileText className="mr-2 size-4" />
-            <span>All Plots ({totalCount})</span>
+            <span>All Plots ({plotsResponse?.totalCount || 0})</span>
           </TabsTrigger>
           <TabsTrigger
             value="out-season"
@@ -245,6 +299,13 @@ const Plots = () => {
           >
             <AlertTriangle className="mr-2 size-4" />
             <span>Out of Season ({outSeasonPlots.length})</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="awaiting-polygon"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
+          >
+            <MapPin className="mr-2 size-4" />
+            <span>Awaiting Polygon ({awaitingPolygonResponse?.totalCount || 0})</span>
           </TabsTrigger>
         </TabsList>
 
@@ -265,7 +326,10 @@ const Plots = () => {
                   : 'Start by creating your first plot'}
               </p>
               {!searchTerm && (
-                <Button className="mt-6 gap-2 bg-green-600 font-semibold text-white hover:bg-green-700">
+                <Button
+                  onClick={() => setShowBulkCreateDialog(true)}
+                  className="mt-6 gap-2 bg-green-600 font-semibold text-white hover:bg-green-700"
+                >
                   <Plus className="size-4" />
                   Create your first plot
                 </Button>
@@ -301,7 +365,7 @@ const Plots = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {plots.map((plot) => (
+                    {plots.map((plot: any) => (
                       <tr key={plot.plotId} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -346,11 +410,11 @@ const Plots = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-wrap gap-1">
-                            {(plot.seasons?.filter((s) => s.isActive) || [])
+                            {(plot.seasons?.filter((s: any) => s.isActive) || [])
                               .length > 0 ? (
                               (
-                                plot.seasons?.filter((s) => s.isActive) || []
-                              ).map((season) => (
+                                plot.seasons?.filter((s: any) => s.isActive) || []
+                              ).map((season: any) => (
                                 <Badge
                                   key={season.seasonId}
                                   variant="outline"
@@ -462,7 +526,7 @@ const Plots = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {outSeasonPlots.map((plot) => (
+                    {outSeasonPlots.map((plot: any) => (
                       <tr key={plot.plotId} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
@@ -523,6 +587,164 @@ const Plots = () => {
             </div>
           )}
         </TabsContent>
+
+        <TabsContent value="awaiting-polygon">
+          {isLoadingAwaitingPolygon ? (
+            <div className="flex items-center justify-center py-16">
+              <Spinner size="lg" className="text-green-600" />
+            </div>
+          ) : awaitingPolygonPlots.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-gray-200 bg-white py-16 text-center">
+              <MapPin className="mx-auto mb-4 size-16 text-green-400" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                No plots awaiting polygon
+              </h3>
+              <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">
+                All plots have been assigned polygon boundaries.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="border-b border-gray-200 bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Plot Info
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Farmer
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Area (m²)
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Days Waiting
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Assignment
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200 bg-white">
+                    {awaitingPolygonPlots.map((plot) => (
+                      <tr key={plot.plotId} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-yellow-100">
+                              <MapPin className="size-5 text-yellow-600" />
+                            </div>
+                            <div>
+                              <div className="text-sm font-semibold text-gray-900">
+                                Plot {plot.soThua ?? 'N/A'} / {plot.soTo ?? 'N/A'}
+                              </div>
+                              {plot.soilType && (
+                                <div className="text-xs text-gray-500">{plot.soilType}</div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {plot.farmerName || 'Unknown'}
+                          </div>
+                          {plot.farmerPhone && (
+                            <div className="text-xs text-gray-500">{plot.farmerPhone}</div>
+                          )}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <div className="text-sm text-gray-900">
+                            {plot.area.toFixed(2)}
+                          </div>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <Badge
+                            className={`border ${plot.status === 'PendingPolygon'
+                                ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                : 'bg-green-100 text-green-800 border-green-200'
+                              }`}
+                          >
+                            {plot.status}
+                          </Badge>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="size-4 text-gray-400" />
+                            <span className={`text-sm font-medium ${plot.daysAwaitingPolygon > 7
+                                ? 'text-red-600'
+                                : plot.daysAwaitingPolygon > 3
+                                  ? 'text-yellow-600'
+                                  : 'text-gray-900'
+                              }`}>
+                              {plot.daysAwaitingPolygon} days
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          {plot.hasActiveTask ? (
+                            <div>
+                              <div className="text-sm font-medium text-gray-900">
+                                {plot.assignedToSupervisorName || 'Assigned'}
+                              </div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${plot.taskStatus === 'InProgress'
+                                      ? 'border-blue-200 bg-blue-50 text-blue-700'
+                                      : plot.taskStatus === 'Completed'
+                                        ? 'border-green-200 bg-green-50 text-green-700'
+                                        : 'border-gray-200 bg-gray-50 text-gray-700'
+                                    }`}
+                                >
+                                  {plot.taskStatus}
+                                </Badge>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs italic text-gray-400">
+                              Not assigned
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {awaitingPolygonResponse && awaitingPolygonResponse.totalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
+                  <div className="text-sm text-gray-600">
+                    Showing page {awaitingPolygonResponse.currentPage} of {awaitingPolygonResponse.totalPages} ({awaitingPolygonResponse.totalCount} total plots)
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={awaitingPolygonResponse.currentPage === 1}
+                      onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
+                      className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={awaitingPolygonResponse.currentPage === awaitingPolygonResponse.totalPages}
+                      onClick={() => setPageNumber((p) => Math.min(awaitingPolygonResponse.totalPages, p + 1))}
+                      className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Dialogs */}
@@ -530,6 +752,11 @@ const Plots = () => {
         plotId={selectedPlotId!}
         open={!!selectedPlotId}
         onOpenChange={(open) => !open && setSelectedPlotId(undefined)}
+      />
+
+      <BulkCreatePlotsDialog
+        open={showBulkCreateDialog}
+        onOpenChange={setShowBulkCreateDialog}
       />
 
       <ImportPlotsDialog

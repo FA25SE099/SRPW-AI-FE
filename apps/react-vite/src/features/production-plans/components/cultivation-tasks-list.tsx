@@ -145,7 +145,7 @@ export const CultivationTasksList = ({
                         )}
                       </div>
                       <div className="flex gap-2">
-                        <Badge className={statusColors[task.status]}>
+                        <Badge className={statusColors[task.status as CultivationTaskStatus]}>
                           {task.status}
                         </Badge>
                         <Badge className={taskTypeColors[task.taskType] || 'bg-gray-100 text-gray-800'}>

@@ -29,12 +29,13 @@ export const getSeasonsQueryOptions = (params: GetSeasonsParams = {}) => {
 
 type UseSeasonsOptions = {
   params?: GetSeasonsParams;
-  queryConfig?: QueryConfig<typeof getSeasonsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getSeasons>;
 };
 
 export const useSeasons = ({ params = {}, queryConfig }: UseSeasonsOptions = {}) => {
   return useQuery({
-    ...getSeasonsQueryOptions(params),
     ...queryConfig,
+    queryKey: ['seasons', params],
+    queryFn: () => getSeasons(params),
   });
 };

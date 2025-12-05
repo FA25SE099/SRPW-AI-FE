@@ -8,6 +8,8 @@ type GetMaterialsParams = {
   currentPage: number;
   pageSize: number;
   type?: MaterialType;
+  dateTime?: string; // ISO datetime string for price retrieval
+  isPartition?: boolean; // Filter by partition type
 };
 
 export const getMaterials = async (
@@ -18,6 +20,12 @@ export const getMaterials = async (
   formData.append('pageSize', params.pageSize.toString());
   if (params.type !== undefined) {
     formData.append('type', params.type.toString());
+  }
+  if (params.dateTime) {
+    formData.append('dateTime', params.dateTime);
+  }
+  if (params.isPartition !== undefined) {
+    formData.append('isPartition', params.isPartition.toString());
   }
 
   // The api-client interceptor now detects PagedResult and keeps it intact
@@ -37,13 +45,14 @@ export const getMaterialsQueryOptions = (params: GetMaterialsParams) => {
 
 type UseMaterialsOptions = {
   params: GetMaterialsParams;
-  queryConfig?: QueryConfig<typeof getMaterialsQueryOptions>;
+  queryConfig?: QueryConfig<typeof getMaterials>;
 };
 
 export const useMaterials = ({ params, queryConfig }: UseMaterialsOptions) => {
   return useQuery({
-    ...getMaterialsQueryOptions(params),
     ...queryConfig,
+    queryKey: ['materials', params],
+    queryFn: () => getMaterials(params),
   });
 };
 

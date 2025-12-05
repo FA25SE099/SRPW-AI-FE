@@ -8,6 +8,22 @@ export const updateMaterial = async (data: UpdateMaterialRequest): Promise<strin
   return api.put(`/material/${data.materialId}`, data);
 };
 
+export const uploadMaterialImages = async (files: File[]): Promise<{ files: Array<{ url: string }> }> => {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('Files', file);
+  });
+  return api.post('/Test/upload-files', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+};
+
+export const useUploadMaterialImages = () => {
+  return useMutation({
+    mutationFn: uploadMaterialImages,
+  });
+};
+
 type UseUpdateMaterialOptions = {
   mutationConfig?: MutationConfig<typeof updateMaterial>;
 };
