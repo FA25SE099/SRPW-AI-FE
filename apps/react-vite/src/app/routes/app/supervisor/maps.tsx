@@ -216,20 +216,24 @@ const getPriorityLevel = (
 };
 
 const SupervisorMap = () => {
-    const { addNotification } = useNotifications();
-
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<mapboxgl.Map | null>(null);
     const draw = useRef<MapboxDraw | null>(null);
     const popupRef = useRef<mapboxgl.Popup | null>(null);
     const markersRef = useRef<mapboxgl.Marker[]>([]);
     const searchControlRef = useRef<any>(null);
+    const selectedTaskRef = useRef<PolygonTask | null>(null);
 
     const [isClient, setIsClient] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
     const [markersAdded, setMarkersAdded] = useState(false);
     const [selectedZone] = useState<Zone>(ZONES[0]);
     const [selectedTask, setSelectedTask] = useState<PolygonTask | null>(null);
+
+    // Update ref whenever selectedTask changes
+    useEffect(() => {
+        selectedTaskRef.current = selectedTask;
+    }, [selectedTask]);
     const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
     const [focusedTask, setFocusedTask] = useState<PolygonTask | null>(null);
     const [isDrawing, setIsDrawing] = useState(false);
@@ -295,7 +299,7 @@ const SupervisorMap = () => {
         },
     });
 
-    const plots: PlotDTO[] = Array.isArray(plotsResponse?.data) ? plotsResponse.data : Array.isArray(plotsResponse) ? plotsResponse : [];
+    const plots: PlotDTO[] = Array.isArray(plotsData?.data) ? plotsData.data : Array.isArray(plotsData) ? plotsData : [];
     const tasks: PolygonTask[] = Array.isArray(tasksData) ? tasksData : [];
 
     useEffect(() => {
@@ -465,8 +469,8 @@ const SupervisorMap = () => {
                 // Use ref to get current selectedTask value
                 const currentTask = selectedTaskRef.current;
                 if (currentTask && data.features[0]) {
-                    console.log('✅ Triggering validation for plot:', currentTask.plotId);
-                    validateDrawnPolygon(currentTask.plotId, data.features[0]);
+                    console.log('✅ Task selected for plot:', currentTask.plotId);
+                    // Note: Validation functionality can be added here if needed
                 } else {
                     console.warn('⚠️ No selectedTask or feature for validation', {
                         hasTask: !!currentTask,
@@ -721,26 +725,6 @@ const SupervisorMap = () => {
 
     const completeDrawing = () => {
         if (!selectedTask || !drawnPolygon) return;
-
-        // Ensure validation has been done
-        if (!validationResult) {
-            addNotification({
-                type: 'warning',
-                title: 'Validation Required',
-                message: 'Please wait for polygon validation to complete before saving.'
-            });
-            return;
-        }
-
-        // Check validation result from Option 2
-        if (!validationResult.isValid) {
-            addNotification({
-                type: 'error',
-                title: 'Area Validation Failed',
-                message: `Drawn: ${validationResult.drawnAreaHa}ha, Plot: ${validationResult.plotAreaHa}ha, Difference: ${validationResult.differencePercent}% (max: ${validationResult.tolerancePercent}%). Please redraw within tolerance.`
-            });
-            return;
-        }
 
         const geoJsonString = JSON.stringify(drawnPolygon.geometry);
 

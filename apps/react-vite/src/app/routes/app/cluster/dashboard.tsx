@@ -255,15 +255,13 @@ const ClusterDashboard = () => {
     },
   });
 
-  const clusterId = clusterIdQuery.data?.clusterId || '';
-  const isLoadingClusterId = clusterIdQuery.isLoading;
-  const clusterIdError = clusterIdQuery.error;
+  const clusterId = clusterIdData?.clusterId || '';
 
   // Fetch cluster data from API
   const {
-    data: currentSeason,
+    data: currentSeasonData,
     isLoading: isLoadingSeason,
-    error,
+    error: seasonError,
   } = useClusterCurrentSeason({
     clusterId,
     queryConfig: {
@@ -271,9 +269,7 @@ const ClusterDashboard = () => {
     },
   });
 
-  const currentSeason = currentSeasonQuery.data;
-  const isLoadingSeason = currentSeasonQuery.isLoading;
-  const error = currentSeasonQuery.error;
+  const currentSeason = currentSeasonData;
 
   const historyDataQuery = useClusterHistory({
     params: { clusterId, limit: 4 },
@@ -348,11 +344,11 @@ const ClusterDashboard = () => {
             <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
             <div>
               <h3 className="font-semibold text-lg mb-2">
-                Failed to Load Cluster ID
+                Failed to Load User Data
               </h3>
               <p className="text-muted-foreground mb-4">
-                {clusterIdError.message ||
-                  'Could not fetch cluster information for your account.'}
+                {clusterIdError?.message ||
+                  'Could not fetch user information.'}
               </p>
               <Button onClick={() => window.location.reload()}>Retry</Button>
             </div>
@@ -384,7 +380,7 @@ const ClusterDashboard = () => {
     );
   }
 
-  if (error) {
+  if (seasonError) {
     return (
       <ContentLayout title="Cluster Manager Dashboard">
         <Card className="border-destructive/50">
@@ -395,7 +391,7 @@ const ClusterDashboard = () => {
                 Failed to Load Cluster Data
               </h3>
               <p className="text-muted-foreground mb-4">
-                {error.message ||
+                {seasonError.message ||
                   'An error occurred while fetching cluster information.'}
               </p>
               <Button onClick={() => window.location.reload()}>Retry</Button>
@@ -600,7 +596,7 @@ const ClusterDashboard = () => {
                   }}
                 />
               </>
-            )} */}
+            )}
 
             {historyData &&
               historyData.seasons &&
