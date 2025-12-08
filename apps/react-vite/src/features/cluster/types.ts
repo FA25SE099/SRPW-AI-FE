@@ -255,6 +255,7 @@ export type Cluster = {
   agronomyExpertPhoneNumber: string | null;
   agronomyExpertEmail: string | null;
   area: number | null;
+  supervisors: SupervisorSummary[] | null;
 };
 
 export type ClusterManager = {
@@ -275,10 +276,39 @@ export type AgronomyExpert = {
   assignedDate: string | null;
 };
 
+export type SupervisorSummary = {
+  supervisorId: string;
+  fullName: string | null;
+  phoneNumber: string | null;
+  email: string | null;
+  currentFarmerCount: number;
+  maxFarmerCapacity: number;
+  assignedDate: string | null;
+};
+
+export type Supervisor = {
+  supervisorId: string;
+  supervisorName: string;
+  supervisorPhoneNumber: string;
+  email: string;
+  clusterId: string | null;
+  assignedDate: string | null;
+  currentFarmerCount: number;
+  maxFarmerCapacity: number;
+};
+
+export type CreateSupervisorDto = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  maxFarmerCapacity?: number;
+};
+
 export type CreateClusterDto = {
   clusterName: string;
-  clusterManagerId: string;
-  agronomyExpertId: string;
+  clusterManagerId?: string | null;
+  agronomyExpertId?: string | null;
+  supervisorIds?: string[] | null;
 };
 
 export type CreateClusterManagerDto = {
@@ -303,7 +333,8 @@ export enum SortBy {
 export type UpdateClusterDto = {
   clusterId: string;
   clusterName: string;
-  clusterManagerId: string;
-  agronomyExpertId: string;
+  clusterManagerId?: string | null;
+  agronomyExpertId?: string | null;
+  supervisorIds?: string[] | null;
 };
 

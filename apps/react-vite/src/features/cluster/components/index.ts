@@ -4,6 +4,12 @@ export * from './rice-variety-selection-card';
 export * from './group-formation-modal';
 export * from './ungrouped-plots-manager';
 export * from './groups-dashboard';
+export * from './manager-select-dialog';
+export * from './expert-select-dialog';
+export * from './create-manager-dialog';
+export * from './create-expert-dialog';
+export * from './supervisor-select-dialog';
+export * from './create-supervisor-dialog';
 
 // V0 Components
 export * from './current-season-card-v0';

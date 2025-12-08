@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, UserCheck, Search, Edit } from 'lucide-react';
 import { ContentLayout } from '@/components/layouts';
 import { Button } from '@/components/ui/button';
@@ -27,17 +27,21 @@ import {
   useCreateClusterManager,
   useAgronomyExperts,
   useCreateAgronomyExpert,
+  useSupervisors,
+  useCreateSupervisor,
 } from '@/features/cluster/api/cluster-management';
 import {
   Cluster,
   ClusterManager,
   AgronomyExpert,
+  Supervisor,
   SortBy,
 } from '@/features/cluster/types';
 import { ManagerSelectDialog } from '@/features/cluster/components/manager-select-dialog';
 import { ExpertSelectDialog } from '@/features/cluster/components/expert-select-dialog';
 import { CreateManagerDialog } from '@/features/cluster/components/create-manager-dialog';
 import { CreateExpertDialog } from '@/features/cluster/components/create-expert-dialog';
+import { SupervisorSelectDialog } from '@/features/cluster/components/supervisor-select-dialog';
 
 const AdminClustersRoute = () => {
   const { addNotification } = useNotifications();
@@ -62,13 +66,15 @@ const AdminClustersRoute = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingCluster, setEditingCluster] = useState<Cluster | null>(null);
 
-  // Shared create manager/expert dialogs
+  // Shared create manager/expert/supervisor dialogs
   const [isManagerDialogOpen, setIsManagerDialogOpen] = useState(false);
   const [isExpertDialogOpen, setIsExpertDialogOpen] = useState(false);
+  const [isSupervisorDialogOpen, setIsSupervisorDialogOpen] = useState(false);
 
-  // Shared manager/expert selection dialogs
+  // Shared manager/expert/supervisor selection dialogs
   const [isManagerSelectOpen, setIsManagerSelectOpen] = useState(false);
   const [isExpertSelectOpen, setIsExpertSelectOpen] = useState(false);
+  const [isSupervisorSelectOpen, setIsSupervisorSelectOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Search and pagination for managers
@@ -85,6 +91,15 @@ const AdminClustersRoute = () => {
   const [expertPageSize] = useState(10);
   const [expertFreeOrAssigned, setExpertFreeOrAssigned] = useState<boolean | null>(true);
 
+  // Search and pagination for supervisors
+  const [supervisorSearch, setSupervisorSearch] = useState('');
+  const [supervisorPhoneSearch, setSupervisorPhoneSearch] = useState('');
+  const [supervisorAdvancedSearch, setSupervisorAdvancedSearch] = useState('');
+  const [supervisorPage, setSupervisorPage] = useState(1);
+  const [supervisorPageSize] = useState(10);
+  const [selectedSupervisorIds, setSelectedSupervisorIds] = useState<string[]>([]);
+  const [allSupervisors, setAllSupervisors] = useState<Supervisor[]>([]);
+
   const [newManager, setNewManager] = useState({
     fullName: '',
     email: '',
@@ -95,6 +110,13 @@ const AdminClustersRoute = () => {
     fullName: '',
     email: '',
     phoneNumber: '',
+  });
+
+  const [newSupervisor, setNewSupervisor] = useState({
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    maxFarmerCapacity: 10,
   });
 
   // Fetch clusters list
@@ -127,6 +149,16 @@ const AdminClustersRoute = () => {
     isExpertSelectOpen,
   );
 
+  // Fetch supervisors
+  const { data: supervisorsData, isLoading: isLoadingSupervisors } = useSupervisors(
+    supervisorPage,
+    supervisorPageSize,
+    supervisorSearch,
+    supervisorPhoneSearch,
+    supervisorAdvancedSearch,
+    isSupervisorSelectOpen,
+  );
+
   // Create cluster mutation
   const createClusterMutation = useCreateCluster();
 
@@ -135,6 +167,9 @@ const AdminClustersRoute = () => {
 
   // Create agronomy expert mutation
   const createExpertMutation = useCreateAgronomyExpert();
+
+  // Create supervisor mutation
+  const createSupervisorMutation = useCreateSupervisor();
 
   // Update cluster mutation
   const updateClusterMutation = useUpdateCluster();
@@ -152,6 +187,31 @@ const AdminClustersRoute = () => {
         ? `${cluster.agronomyExpertName} (${cluster.agronomyExpertPhoneNumber})`
         : '',
     );
+    // Set selected supervisors from cluster and add them to allSupervisors
+    const clusterSupervisorIds = cluster.supervisors?.map((s) => s.supervisorId) || [];
+    setSelectedSupervisorIds(clusterSupervisorIds);
+
+    // Add cluster supervisors to allSupervisors if they exist
+    if (cluster.supervisors && cluster.supervisors.length > 0) {
+      const clusterSupervisorsData: Supervisor[] = cluster.supervisors.map(s => ({
+        supervisorId: s.supervisorId,
+        supervisorName: s.fullName || 'Unknown',
+        supervisorPhoneNumber: s.phoneNumber || '',
+        email: s.email || '',
+        clusterId: cluster.clusterId,
+        assignedDate: s.assignedDate,
+        currentFarmerCount: s.currentFarmerCount,
+        maxFarmerCapacity: s.maxFarmerCapacity,
+      }));
+
+      setAllSupervisors(prev => {
+        const newSupervisors = clusterSupervisorsData.filter(
+          s => !prev.some(existing => existing.supervisorId === s.supervisorId)
+        );
+        return [...prev, ...newSupervisors];
+      });
+    }
+
     setIsEditMode(true);
     setIsEditDialogOpen(true);
   };
@@ -173,6 +233,7 @@ const AdminClustersRoute = () => {
         clusterName,
         clusterManagerId: selectedManagerId,
         agronomyExpertId: selectedExpertId,
+        supervisorIds: selectedSupervisorIds.length > 0 ? selectedSupervisorIds : null,
       },
       {
         onSuccess: () => {
@@ -213,6 +274,7 @@ const AdminClustersRoute = () => {
         clusterName: clusterName,
         clusterManagerId: selectedManagerId,
         agronomyExpertId: selectedExpertId,
+        supervisorIds: selectedSupervisorIds.length > 0 ? selectedSupervisorIds : null,
       },
       {
         onSuccess: () => {
@@ -242,6 +304,7 @@ const AdminClustersRoute = () => {
     setSelectedExpertId('');
     setSelectedManagerName('');
     setSelectedExpertName('');
+    setSelectedSupervisorIds([]);
     setIsEditMode(false);
   };
 
@@ -254,6 +317,7 @@ const AdminClustersRoute = () => {
     setSelectedExpertId('');
     setSelectedManagerName('');
     setSelectedExpertName('');
+    setSelectedSupervisorIds([]);
   };
 
   const handleSelectManager = (manager: ClusterManager) => {
@@ -346,14 +410,105 @@ const AdminClustersRoute = () => {
     });
   };
 
+  const handleToggleSupervisor = (supervisor: Supervisor) => {
+    setSelectedSupervisorIds((prev) => {
+      if (prev.includes(supervisor.supervisorId)) {
+        return prev.filter((id) => id !== supervisor.supervisorId);
+      } else {
+        return [...prev, supervisor.supervisorId];
+      }
+    });
+  };
+
+  const handleConfirmSupervisors = () => {
+    setIsSupervisorSelectOpen(false);
+  };
+
+  const handleCreateSupervisor = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    createSupervisorMutation.mutate(newSupervisor, {
+      onSuccess: (response) => {
+        console.log('Supervisor created, full response:', response);
+
+        addNotification({
+          type: 'success',
+          title: 'Success',
+          message: 'Supervisor created successfully',
+        });
+
+        // Extract the new supervisor ID from response
+        const newSupervisorId = response?.data || response;
+        console.log('New supervisor ID:', newSupervisorId);
+
+        // Add the newly created supervisor to selected list
+        setSelectedSupervisorIds((prev) => [...prev, newSupervisorId]);
+
+        // Add to allSupervisors immediately
+        const createdSupervisor: Supervisor = {
+          supervisorId: newSupervisorId,
+          supervisorName: newSupervisor.fullName,
+          supervisorPhoneNumber: newSupervisor.phoneNumber,
+          email: newSupervisor.email,
+          clusterId: null,
+          assignedDate: null,
+          currentFarmerCount: 0,
+          maxFarmerCapacity: newSupervisor.maxFarmerCapacity,
+        };
+        setAllSupervisors((prev) => [createdSupervisor, ...prev]);
+
+        console.log('Supervisor added to selection - ID:', newSupervisorId);
+
+        // Close dialog and reset form
+        setIsSupervisorDialogOpen(false);
+        setNewSupervisor({ fullName: '', email: '', phoneNumber: '', maxFarmerCapacity: 10 });
+      },
+      onError: (error: any) => {
+        console.error('Create supervisor error:', error);
+        addNotification({
+          type: 'error',
+          title: 'Error',
+          message: error?.response?.data?.message || 'Failed to create supervisor',
+        });
+      },
+    });
+  };
+
   const managers: ClusterManager[] = managersData?.data || [];
   const experts: AgronomyExpert[] = expertsData?.data || [];
+  const supervisors: Supervisor[] = supervisorsData?.data || [];
   const clusters: Cluster[] = clustersData?.data || [];
+
+  // Track all supervisors including newly selected ones
+  useEffect(() => {
+    if (supervisors.length > 0) {
+      setAllSupervisors(prev => {
+        // Map API response to Supervisor type with correct property names
+        const mappedSupervisors = supervisors.map(s => ({
+          supervisorId: s.supervisorId,
+          supervisorName: s.fullName || '',
+          supervisorPhoneNumber: s.phoneNumber || '',
+          email: s.email || '',
+          clusterId: null,
+          assignedDate: null,
+          currentFarmerCount: s.currentFarmerCount || 0,
+          maxFarmerCapacity: 10, // Default value, not in API response
+        }));
+
+        const newSupervisors = mappedSupervisors.filter(
+          s => !prev.some(existing => existing.supervisorId === s.supervisorId)
+        );
+        return [...prev, ...newSupervisors];
+      });
+    }
+  }, [supervisors]);
 
   const managerHasNext = managersData?.data.hasNext || false;
   const managerHasPrevious = managersData?.data.hasPrevious || false;
   const expertHasNext = expertsData?.data.hasNext || false;
   const expertHasPrevious = expertsData?.data.hasPrevious || false;
+  const supervisorHasNext = supervisorsData?.data.hasNext || false;
+  const supervisorHasPrevious = supervisorsData?.data.hasPrevious || false;
   const clusterHasNext = clustersData?.data.hasNext || false;
   const clusterHasPrevious = clustersData?.data.hasPrevious || false;
 
@@ -481,6 +636,42 @@ const AdminClustersRoute = () => {
                     onFilterChange={setExpertFreeOrAssigned}
                     onPageChange={setExpertPage}
                     onSelect={handleSelectExpert}
+                  />
+                </div>
+
+                {/* Supervisors */}
+                <div className="space-y-2">
+                  <Label>Supervisors (Optional)</Label>
+
+                  <SupervisorSelectDialog
+                    open={isSupervisorSelectOpen}
+                    onOpenChange={setIsSupervisorSelectOpen}
+                    selectedSupervisorIds={selectedSupervisorIds}
+                    supervisors={supervisors}
+                    allSupervisors={allSupervisors}
+                    isLoading={isLoadingSupervisors}
+                    search={supervisorSearch}
+                    phoneSearch={supervisorPhoneSearch}
+                    advancedSearch={supervisorAdvancedSearch}
+                    page={supervisorPage}
+                    hasNext={supervisorHasNext}
+                    hasPrevious={supervisorHasPrevious}
+                    totalPages={supervisorsData?.data?.totalPages || 1}
+                    totalCount={supervisorsData?.data?.totalCount || 0}
+                    onSearchChange={setSupervisorSearch}
+                    onPhoneSearchChange={setSupervisorPhoneSearch}
+                    onAdvancedSearchChange={setSupervisorAdvancedSearch}
+                    onPageChange={setSupervisorPage}
+                    onToggleSelect={handleToggleSupervisor}
+                    onConfirm={handleConfirmSupervisors}
+                    isCreateDialogOpen={isSupervisorDialogOpen}
+                    onCreateDialogOpenChange={setIsSupervisorDialogOpen}
+                    newSupervisor={newSupervisor}
+                    onNewSupervisorChange={(field, value) =>
+                      setNewSupervisor({ ...newSupervisor, [field]: value })
+                    }
+                    onCreateSubmit={handleCreateSupervisor}
+                    isCreating={createSupervisorMutation.isPending}
                   />
                 </div>
 
@@ -612,6 +803,44 @@ const AdminClustersRoute = () => {
                 />
               </div>
 
+              {/* Supervisors */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Supervisors (Optional)</Label>
+                </div>
+
+                <SupervisorSelectDialog
+                  open={isSupervisorSelectOpen}
+                  onOpenChange={setIsSupervisorSelectOpen}
+                  selectedSupervisorIds={selectedSupervisorIds}
+                  supervisors={supervisors}
+                  allSupervisors={allSupervisors}
+                  isLoading={isLoadingSupervisors}
+                  search={supervisorSearch}
+                  phoneSearch={supervisorPhoneSearch}
+                  advancedSearch={supervisorAdvancedSearch}
+                  page={supervisorPage}
+                  hasNext={supervisorHasNext}
+                  hasPrevious={supervisorHasPrevious}
+                  totalPages={supervisorsData?.data?.totalPages || 1}
+                  totalCount={supervisorsData?.data?.totalCount || 0}
+                  onSearchChange={setSupervisorSearch}
+                  onPhoneSearchChange={setSupervisorPhoneSearch}
+                  onAdvancedSearchChange={setSupervisorAdvancedSearch}
+                  onPageChange={setSupervisorPage}
+                  onToggleSelect={handleToggleSupervisor}
+                  onConfirm={handleConfirmSupervisors}
+                  isCreateDialogOpen={isSupervisorDialogOpen}
+                  onCreateDialogOpenChange={setIsSupervisorDialogOpen}
+                  newSupervisor={newSupervisor}
+                  onNewSupervisorChange={(field, value) =>
+                    setNewSupervisor({ ...newSupervisor, [field]: value })
+                  }
+                  onCreateSubmit={handleCreateSupervisor}
+                  isCreating={createSupervisorMutation.isPending}
+                />
+              </div>
+
               {/* Submit Buttons */}
               <div className="flex justify-end gap-3 pt-4 border-t">
                 <Button type="button" variant="outline" onClick={handleEditDialogClose}>
@@ -709,6 +938,9 @@ const AdminClustersRoute = () => {
                         Agronomy Expert
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Supervisors
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Area (ha)
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -758,6 +990,30 @@ const AdminClustersRoute = () => {
                             </div>
                           ) : (
                             <span className="text-sm text-gray-500">Not assigned</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          {cluster.supervisors && cluster.supervisors.length > 0 ? (
+                            <div className="space-y-2">
+                              {cluster.supervisors.map((supervisor, idx) => (
+                                <div key={supervisor.supervisorId} className="flex items-start gap-2">
+                                  <UserCheck className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                                  <div>
+                                    <div className="text-sm font-medium text-gray-900">
+                                      {supervisor.fullName}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {supervisor.phoneNumber}
+                                    </div>
+                                    <div className="text-xs text-gray-400">
+                                      Capacity: {supervisor.currentFarmerCount}/{supervisor.maxFarmerCapacity}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-500">No supervisors</span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

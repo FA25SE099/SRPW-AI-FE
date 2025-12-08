@@ -4,6 +4,7 @@ import {
   CreateClusterDto,
   CreateClusterManagerDto,
   CreateAgronomyExpertDto,
+  CreateSupervisorDto,
   UpdateClusterDto,
   SortBy,
 } from '../types';
@@ -144,6 +145,49 @@ export const useCreateAgronomyExpert = () => {
       api.post('/AgronomyExpert', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['agronomy-experts'] });
+    },
+  });
+};
+
+// Supervisor APIs
+export const useSupervisors = (
+  page: number,
+  pageSize: number,
+  search: string,
+  phoneSearch: string,
+  advancedSearch: string,
+  enabled: boolean = false,
+) => {
+  return useQuery({
+    queryKey: [
+      'supervisors',
+      page,
+      pageSize,
+      search,
+      phoneSearch,
+      advancedSearch,
+    ],
+    queryFn: async () => {
+      const response = await api.post('/Supervisor/get-all-supervisor-admin', {
+        currentPage: page,
+        pageSize: pageSize,
+        searchNameOrEmail: search,
+        searchPhoneNumber: phoneSearch,
+        advancedSearch: advancedSearch,
+      });
+      return response;
+    },
+    enabled,
+  });
+};
+
+export const useCreateSupervisor = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateSupervisorDto) =>
+      api.post('/Supervisor', data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['supervisors'] });
     },
   });
 };
