@@ -104,6 +104,7 @@ type UseGroupsOptions = {
 
 export const useGroups = ({ queryConfig }: UseGroupsOptions = {}) => {
     return useQuery({
+        queryKey: ['groups'],
         ...queryConfig,
 
         // Override queryFn để enrich groups với production plan
