@@ -25,7 +25,8 @@ export const createAppRouter = (queryClient: QueryClient) =>
   createBrowserRouter([
     {
       path: paths.home.path,
-      lazy: () => import('./routes/landing').then(convert(queryClient)),
+      // lazy: () => import('./routes/landing').then(convert(queryClient)),
+      lazy: () => import('./routes/auth/login').then(convert(queryClient)),
     },
     {
       path: paths.auth.register.path,

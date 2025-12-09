@@ -73,7 +73,7 @@ export const ThresholdDialog = ({
 }: Omit<ThresholdDialogProps, 'riceVarieties' | 'seasons'>) => {
   const queryClient = useQueryClient();
   const { addNotification } = useNotifications();
-  const { register, handleSubmit, reset, setValue } =
+  const { register, handleSubmit, reset, setValue, getValues } =
     useForm<EditableThreshold>();
   const [enablePest, setEnablePest] = useState(
     !!initialData?.pestProtocolId || true,
@@ -95,17 +95,33 @@ export const ThresholdDialog = ({
     params: { currentPage: 1, pageSize: 100, isActive: true },
   });
 
-  // ADD THESE MUTATIONS HERE:
+  // Mutations with auto-selection after creation
   const createPestMutation = useCreatePestProtocol({
     mutationConfig: {
-      onSuccess: () => {
+      onSuccess: async (response: any) => {
+        console.log('Pest protocol created, full response:', response);
+        console.log('Response type:', typeof response);
+
         addNotification({
           type: 'success',
           title: 'Success',
           message: 'Pest protocol created successfully',
         });
-        queryClient.invalidateQueries({ queryKey: ['pest-protocols'] });
-        refetchPest();
+
+        // The response IS the ID string directly
+        const newPestId = typeof response === 'string' ? response : response?.data;
+        console.log('New pest protocol ID:', newPestId);
+
+        // Invalidate and wait for refetch to complete
+        await queryClient.invalidateQueries({ queryKey: ['pest-protocols'] });
+        await refetchPest();
+
+        // Set the newly created pest protocol as selected after data is refreshed
+        if (newPestId) {
+          setValue('pestProtocolId', newPestId, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+          console.log('Pest protocol set - ID:', newPestId);
+          console.log('Form value after setValue:', getValues('pestProtocolId'));
+        }
       },
       onError: (error: any) => {
         addNotification({
@@ -119,14 +135,30 @@ export const ThresholdDialog = ({
 
   const createWeatherMutation = useCreateWeatherProtocol({
     mutationConfig: {
-      onSuccess: () => {
+      onSuccess: async (response: any) => {
+        console.log('Weather protocol created, full response:', response);
+        console.log('Response type:', typeof response);
+
         addNotification({
           type: 'success',
           title: 'Success',
           message: 'Weather protocol created successfully',
         });
-        queryClient.invalidateQueries({ queryKey: ['weather-protocols'] });
-        refetchWeather();
+
+        // The response IS the ID string directly
+        const newWeatherId = typeof response === 'string' ? response : response?.data;
+        console.log('New weather protocol ID:', newWeatherId);
+
+        // Invalidate and wait for refetch to complete
+        await queryClient.invalidateQueries({ queryKey: ['weather-protocols'] });
+        await refetchWeather();
+
+        // Set the newly created weather protocol as selected after data is refreshed
+        if (newWeatherId) {
+          setValue('weatherProtocolId', newWeatherId, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+          console.log('Weather protocol set - ID:', newWeatherId);
+          console.log('Form value after setValue:', getValues('weatherProtocolId'));
+        }
       },
       onError: (error: any) => {
         addNotification({
@@ -136,9 +168,7 @@ export const ThresholdDialog = ({
         });
       },
     },
-  });
-
-  // Use the queried data instead of props for the dropdowns
+  });  // Use the queried data instead of props for the dropdowns
   const pestProtocolsList = pestProtocolsData?.data || pestProtocols || [];
   const weatherProtocolsList = weatherProtocolsData?.data || weatherProtocols || [];
 
@@ -760,7 +790,9 @@ export const ThresholdDialog = ({
         }}
         onSubmit={async (data) => {
           try {
-            await createPestMutation.mutateAsync(data);
+            const response = await createPestMutation.mutateAsync(data);
+            console.log('Pest protocol created with response:', response);
+            // Close dialog and reset form after successful creation
             setIsPestDialogOpen(false);
             setPestForm({
               id: '',
@@ -773,6 +805,7 @@ export const ThresholdDialog = ({
             });
           } catch (error) {
             console.error('Failed to create pest protocol:', error);
+            // Don't close dialog on error so user can retry
           }
         }}
         isLoading={createPestMutation.isPending}
@@ -799,7 +832,9 @@ export const ThresholdDialog = ({
         }}
         onSubmit={async (data) => {
           try {
-            await createWeatherMutation.mutateAsync(data);
+            const response = await createWeatherMutation.mutateAsync(data);
+            console.log('Weather protocol created with response:', response);
+            // Close dialog and reset form after successful creation
             setIsWeatherDialogOpen(false);
             setWeatherForm({
               id: '',
@@ -813,6 +848,7 @@ export const ThresholdDialog = ({
             });
           } catch (error) {
             console.error('Failed to create weather protocol:', error);
+            // Don't close dialog on error so user can retry
           }
         }}
         isLoading={createWeatherMutation.isPending}

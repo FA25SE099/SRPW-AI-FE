@@ -196,6 +196,7 @@ export type PlanDetail = {
 export enum MaterialType {
   Fertilizer = 0,
   Pesticide = 1,
+  Seed = 2,
 }
 
 export type Material = {
