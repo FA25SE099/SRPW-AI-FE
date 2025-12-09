@@ -484,7 +484,7 @@ const AdminClustersRoute = () => {
     if (supervisors.length > 0) {
       setAllSupervisors(prev => {
         // Map API response to Supervisor type with correct property names
-        const mappedSupervisors = supervisors.map(s => ({
+        const mappedSupervisors = supervisors.map((s: any) => ({
           supervisorId: s.supervisorId,
           supervisorName: s.fullName || '',
           supervisorPhoneNumber: s.phoneNumber || '',
@@ -501,9 +501,7 @@ const AdminClustersRoute = () => {
         return [...prev, ...newSupervisors];
       });
     }
-  }, [supervisors]);
-
-  const managerHasNext = managersData?.data.hasNext || false;
+  }, [supervisors]); const managerHasNext = managersData?.data.hasNext || false;
   const managerHasPrevious = managersData?.data.hasPrevious || false;
   const expertHasNext = expertsData?.data.hasNext || false;
   const expertHasPrevious = expertsData?.data.hasPrevious || false;
