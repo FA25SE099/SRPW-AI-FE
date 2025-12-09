@@ -1,3 +1,4 @@
+// GroupFormationModal.tsx
 import { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -20,6 +21,7 @@ type GroupFormationModalProps = {
   seasonId: string;
   year: number;
   availablePlots: number;
+  onGroupsCreated?: () => void;
 };
 
 export const GroupFormationModal = ({
@@ -29,6 +31,7 @@ export const GroupFormationModal = ({
   seasonId,
   year,
   availablePlots,
+  onGroupsCreated,
 }: GroupFormationModalProps) => {
   const { addNotification } = useNotifications();
   const [step, setStep] = useState<'preview' | 'success'>('preview');
@@ -53,7 +56,6 @@ export const GroupFormationModal = ({
   const previewMutation = usePreviewGroupFormation();
   const createMutation = useCreateGroups();
 
-  // Auto-load preview when modal opens (only once)
   useEffect(() => {
     if (isOpen && !previewData) {
       previewMutation.mutate(params, {
@@ -73,13 +75,10 @@ export const GroupFormationModal = ({
   }, [isOpen]);
 
   const handleParamsChange = (newParams: GroupFormationParams) => {
-    // Only update params, don't trigger API call
-    // User must click "Recalculate Groups" button to fetch new preview
     setParams(newParams);
   };
 
   const handleRecalculate = () => {
-    // Trigger recalculation when button is clicked
     previewMutation.mutate(params, {
       onSuccess: (data) => {
         setPreviewData(data);
@@ -110,6 +109,9 @@ export const GroupFormationModal = ({
           title: 'Success',
           message: `${data.groupsCreated} groups created successfully`,
         });
+
+        // ✅ báo cho Dashboard biết là đã tạo group xong
+        onGroupsCreated?.();
       },
       onError: (error: any) => {
         addNotification({
@@ -151,7 +153,9 @@ export const GroupFormationModal = ({
               <div className="flex items-center justify-center h-96">
                 <div className="text-center">
                   <Spinner size="lg" className="mx-auto mb-4" />
-                  <p className="text-muted-foreground">Analyzing plots and generating groups...</p>
+                  <p className="text-muted-foreground">
+                    Analyzing plots and generating groups...
+                  </p>
                 </div>
               </div>
             ) : previewData ? (
@@ -168,8 +172,12 @@ export const GroupFormationModal = ({
               />
             ) : (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">Failed to generate preview</p>
-                <Button onClick={handleClose} className="mt-4">Close</Button>
+                <p className="text-muted-foreground">
+                  Failed to generate preview
+                </p>
+                <Button onClick={handleClose} className="mt-4">
+                  Close
+                </Button>
               </div>
             )}
           </div>
@@ -190,4 +198,3 @@ export const GroupFormationModal = ({
     </Dialog>
   );
 };
-
