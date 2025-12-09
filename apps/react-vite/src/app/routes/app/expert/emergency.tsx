@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ContentLayout } from '@/components/layouts';
 import { EmergencyPlansList } from '@/features/production-plans/components';
-import { ProductionPlanDetail } from '@/features/production-plans/components';
+import { ProductionPlanDetailDialog } from '@/features/production-plans/components';
 import { ResolveEmergencyDialog } from '@/features/production-plans/components/resolve-emergency-dialog';
 
 const EmergencyRoute = () => {
@@ -12,17 +12,6 @@ const EmergencyRoute = () => {
         setSolvingPlan({ id: planId, name: planName });
     };
 
-    if (selectedPlanId) {
-        return (
-            <ContentLayout title="Emergency Plan Details">
-                <ProductionPlanDetail
-                    planId={selectedPlanId}
-                    onBack={() => setSelectedPlanId(null)}
-                />
-            </ContentLayout>
-        );
-    }
-
     return (
         <>
             <ContentLayout title="Emergency Plans">
@@ -31,6 +20,14 @@ const EmergencyRoute = () => {
                     onSolveEmergency={handleSolveEmergency}
                 />
             </ContentLayout>
+
+            {selectedPlanId && (
+                <ProductionPlanDetailDialog
+                    isOpen={true}
+                    onClose={() => setSelectedPlanId(null)}
+                    groupId={selectedPlanId}
+                />
+            )}
 
             {solvingPlan && (
                 <ResolveEmergencyDialog

@@ -11,18 +11,30 @@ import type { PolygonTask } from "@/types/polygon-task";
 import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Layers, ChevronDown, Map, MapPin, User, Satellite, Search, Filter, Clock, AlertTriangle, CheckCircle, Save, X } from "lucide-react";
-import { useNotifications } from "@/components/ui/notifications/notifications-store";
+import {
+    Map as MapIcon,
+    MapPin,
+    User,
+    Clock,
+    AlertTriangle,
+    CheckCircle,
+    Save,
+    X,
+} from "lucide-react";
 
 import mapboxgl from "mapbox-gl";
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
-import * as turf from '@turf/turf';
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import * as turf from "@turf/turf";
 import "mapbox-gl/dist/mapbox-gl.css";
-import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+declare global {
+    interface Window {
+        MapboxSearchBox?: any;
+    }
+}
+
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string;
 
 type Zone = {
     id: string;
@@ -32,40 +44,63 @@ type Zone = {
 };
 
 const ZONES: Zone[] = [
-    { id: "zone1", name: "Ho Chi Minh City", center: [106.6297, 10.8231], color: "#FFB366" },
+    {
+        id: "zone1",
+        name: "Ho Chi Minh City",
+        center: [106.6297, 10.8231],
+        color: "#FFB366",
+    },
     { id: "zone2", name: "Hanoi", center: [105.8542, 21.0285], color: "#E74C3C" },
     { id: "zone3", name: "Da Nang", center: [108.2022, 16.0544], color: "#3498DB" },
 ];
 
 const convertWKTToGeoJSON = (wkt: string): any | null => {
     try {
-        const cleanWkt = wkt.trim().replace(/\s+/g, ' ');
+        const cleanWkt = wkt.trim().replace(/\s+/g, " ");
 
-        if (cleanWkt.startsWith('POLYGON')) {
-            const coordinatesMatch = cleanWkt.match(/POLYGON\s*\(\s*\(([^)]+)\)\s*\)/);
+        if (cleanWkt.startsWith("POLYGON")) {
+            const coordinatesMatch = cleanWkt.match(
+                /POLYGON\s*\(\s*\(([^)]+)\)\s*\)/,
+            );
             if (!coordinatesMatch) return null;
 
             const coordString = coordinatesMatch[1];
-            const pairs = coordString.split(',').map(pair => {
-                const [lng, lat] = pair.trim().split(/\s+/).map(Number);
-                if (isNaN(lng) || isNaN(lat) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-                    console.warn('Invalid coordinates:', lng, lat);
-                    return null;
-                }
-                return [lng, lat];
-            }).filter(Boolean);
+            const pairs = coordString
+                .split(",")
+                .map((pair) => {
+                    const [lng, lat] = pair
+                        .trim()
+                        .split(/\s+/)
+                        .map(Number);
+                    if (
+                        isNaN(lng) ||
+                        isNaN(lat) ||
+                        lat < -90 ||
+                        lat > 90 ||
+                        lng < -180 ||
+                        lng > 180
+                    ) {
+                        console.warn("Invalid coordinates:", lng, lat);
+                        return null;
+                    }
+                    return [lng, lat];
+                })
+                .filter(Boolean);
 
             return {
-                type: 'Polygon',
-                coordinates: [pairs]
+                type: "Polygon",
+                coordinates: [pairs],
             };
         }
 
-        if (cleanWkt.startsWith('POINT')) {
+        if (cleanWkt.startsWith("POINT")) {
             const coordinatesMatch = cleanWkt.match(/POINT\s*\(\s*([^)]+)\s*\)/);
             if (!coordinatesMatch) return null;
 
-            const coords = coordinatesMatch[1].trim().split(/\s+/).map(Number);
+            const coords = coordinatesMatch[1]
+                .trim()
+                .split(/\s+/)
+                .map(Number);
             const [first, second] = coords;
 
             let lng, lat;
@@ -77,29 +112,41 @@ const convertWKTToGeoJSON = (wkt: string): any | null => {
                 lng = second;
             }
 
-            if (isNaN(lng) || isNaN(lat) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-                console.warn('Invalid coordinates:', lng, lat);
+            if (
+                isNaN(lng) ||
+                isNaN(lat) ||
+                lat < -90 ||
+                lat > 90 ||
+                lng < -180 ||
+                lng > 180
+            ) {
+                console.warn("Invalid coordinates:", lng, lat);
                 return null;
             }
 
             return {
-                type: 'Point',
-                coordinates: [lng, lat]
+                type: "Point",
+                coordinates: [lng, lat],
             };
         }
 
         return null;
     } catch (error) {
-        console.error('Error converting WKT to GeoJSON:', error);
+        console.error("Error converting WKT to GeoJSON:", error);
         return null;
     }
 };
 
-const getCoordinatesFromGeoJSON = (geoJsonString: string): [number, number] | null => {
+const getCoordinatesFromGeoJSON = (
+    geoJsonString: string,
+): [number, number] | null => {
     try {
         let parsed: any;
 
-        if (geoJsonString.startsWith('POLYGON') || geoJsonString.startsWith('POINT')) {
+        if (
+            geoJsonString.startsWith("POLYGON") ||
+            geoJsonString.startsWith("POINT")
+        ) {
             parsed = convertWKTToGeoJSON(geoJsonString);
         } else {
             parsed = JSON.parse(geoJsonString);
@@ -107,18 +154,18 @@ const getCoordinatesFromGeoJSON = (geoJsonString: string): [number, number] | nu
 
         if (!parsed) return null;
 
-        if (parsed.type === 'Point' && parsed.coordinates) {
+        if (parsed.type === "Point" && parsed.coordinates) {
             const [lng, lat] = parsed.coordinates;
-            if (typeof lng === 'number' && typeof lat === 'number') {
+            if (typeof lng === "number" && typeof lat === "number") {
                 return [lng, lat];
             }
         }
 
-        if (parsed.type === 'Polygon' && parsed.coordinates && parsed.coordinates[0]) {
+        if (parsed.type === "Polygon" && parsed.coordinates && parsed.coordinates[0]) {
             const coords = parsed.coordinates[0];
             if (coords.length > 0) {
                 const [lng, lat] = coords[0];
-                if (typeof lng === 'number' && typeof lat === 'number') {
+                if (typeof lng === "number" && typeof lat === "number") {
                     return [lng, lat];
                 }
             }
@@ -131,81 +178,99 @@ const getCoordinatesFromGeoJSON = (geoJsonString: string): [number, number] | nu
 };
 
 const getPriorityText = (priority: number | string | undefined): string => {
-    if (typeof priority === 'string') return priority;
-    if (typeof priority === 'number') {
+    if (typeof priority === "string") return priority;
+    if (typeof priority === "number") {
         switch (priority) {
-            case 1: return 'High';
-            case 2: return 'Medium';
-            case 3: return 'Low';
-            default: return 'Unknown';
+            case 1:
+                return "High";
+            case 2:
+                return "Medium";
+            case 3:
+                return "Low";
+            default:
+                return "Unknown";
         }
     }
-    return 'Unknown';
+    return "Unknown";
 };
 
-const getPriorityLevel = (priority: number | string | undefined): 'High' | 'Medium' | 'Low' | 'Unknown' => {
-    if (typeof priority === 'string') {
-        return priority as 'High' | 'Medium' | 'Low' | 'Unknown';
+const getPriorityLevel = (
+    priority: number | string | undefined,
+): "High" | "Medium" | "Low" | "Unknown" => {
+    if (typeof priority === "string") {
+        return priority as "High" | "Medium" | "Low" | "Unknown";
     }
-    if (typeof priority === 'number') {
+    if (typeof priority === "number") {
         switch (priority) {
-            case 1: return 'High';
-            case 2: return 'Medium';
-            case 3: return 'Low';
-            default: return 'Unknown';
+            case 1:
+                return "High";
+            case 2:
+                return "Medium";
+            case 3:
+                return "Low";
+            default:
+                return "Unknown";
         }
     }
-    return 'Unknown';
+    return "Unknown";
 };
 
 const SupervisorMap = () => {
-    const { addNotification } = useNotifications();
-
     const mapContainer = useRef<HTMLDivElement>(null);
     const map = useRef<mapboxgl.Map | null>(null);
     const draw = useRef<MapboxDraw | null>(null);
     const popupRef = useRef<mapboxgl.Popup | null>(null);
     const markersRef = useRef<mapboxgl.Marker[]>([]);
+    const searchControlRef = useRef<any>(null);
     const selectedTaskRef = useRef<PolygonTask | null>(null);
 
     const [isClient, setIsClient] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
     const [markersAdded, setMarkersAdded] = useState(false);
-    const [selectedZone, setSelectedZone] = useState<Zone>(ZONES[0]);
-    const [showZoneSelector, setShowZoneSelector] = useState(false);
+    const [selectedZone] = useState<Zone>(ZONES[0]);
     const [selectedTask, setSelectedTask] = useState<PolygonTask | null>(null);
+
+    // Update ref whenever selectedTask changes
+    useEffect(() => {
+        selectedTaskRef.current = selectedTask;
+    }, [selectedTask]);
     const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
     const [focusedTask, setFocusedTask] = useState<PolygonTask | null>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const [drawnPolygon, setDrawnPolygon] = useState<any>(null);
     const [polygonArea, setPolygonArea] = useState<number>(0);
     const [taskNotes, setTaskNotes] = useState("");
-    const [mapType, setMapType] = useState<"vector" | "satellite">("satellite");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [statusFilter, setStatusFilter] = useState<string>("all");
-    const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+    const [mapType] = useState<"vector" | "satellite">("satellite");
+    const [statusFilter] = useState<string>("all");
+    const [userLocation, setUserLocation] = useState<[number, number] | null>(
+        null,
+    );
     const [activeTab, setActiveTab] = useState<"tasks" | "completed">("tasks");
     const [validationResult, setValidationResult] = useState<ValidatePolygonAreaResponse["data"] | null>(null);
     const [isValidating, setIsValidating] = useState(false);
 
-    const { data: plotsResponse, isLoading: plotsLoading, refetch: refetchPlots } = usePlots({
+    const {
+        data: plotsData,
+        isLoading: plotsLoading,
+        refetch: refetchPlots,
+    } = usePlots({
         params: { pageNumber: 1, pageSize: 500 },
     }) as any;
 
-    const { data: tasksData, isLoading: tasksLoading, refetch: refetchTasks } = usePolygonTasks({
-        filters: { status: 'Pending' }
-    }) as any;
-
-    const validateMutation = useValidatePolygonArea();
+    const {
+        data: tasksData,
+        isLoading: tasksLoading,
+        refetch: refetchTasks,
+    } = usePolygonTasks({
+        filters: { status: "Pending" },
+    });
 
     const completeTaskMutation = useCompletePolygonTask({
         mutationConfig: {
             onSuccess: async () => {
-                // FIXED: Lưu vị trí và zoom hiện tại
                 const currentCenter = map.current?.getCenter();
                 const currentZoom = map.current?.getZoom();
 
-                // Reset drawing state
                 setSelectedTask(null);
                 setIsDrawing(false);
                 setDrawnPolygon(null);
@@ -217,46 +282,24 @@ const SupervisorMap = () => {
                     draw.current.deleteAll();
                 }
 
-                // Refetch data và rebuild map
                 await Promise.all([refetchPlots(), refetchTasks()]);
 
-                // Clear và rebuild markers
                 clearMarkers();
                 setMarkersAdded(false);
 
-                // FIXED: Restore lại vị trí và zoom
                 if (map.current && currentCenter && currentZoom) {
                     setTimeout(() => {
                         map.current?.jumpTo({
                             center: [currentCenter.lng, currentCenter.lat],
-                            zoom: currentZoom
+                            zoom: currentZoom,
                         });
                     }, 100);
                 }
             },
-            onError: (error: any) => {
-                // Handle backend validation errors (Option 1)
-                const errors = error?.response?.data?.errors || [];
-                const errorMessage = errors.length > 0 ? errors[0] : (error?.response?.data?.message || error?.message);
-
-                if (errorMessage?.toLowerCase().includes('area')) {
-                    addNotification({
-                        type: 'error',
-                        title: 'Area Validation Failed',
-                        message: errorMessage
-                    });
-                } else {
-                    addNotification({
-                        type: 'error',
-                        title: 'Error',
-                        message: errorMessage || 'Failed to complete task'
-                    });
-                }
-            }
-        }
+        },
     });
 
-    const plots: PlotDTO[] = Array.isArray(plotsResponse?.data) ? plotsResponse.data : Array.isArray(plotsResponse) ? plotsResponse : [];
+    const plots: PlotDTO[] = Array.isArray(plotsData?.data) ? plotsData.data : Array.isArray(plotsData) ? plotsData : [];
     const tasks: PolygonTask[] = Array.isArray(tasksData) ? tasksData : [];
 
     useEffect(() => {
@@ -276,8 +319,8 @@ const SupervisorMap = () => {
                 {
                     timeout: 3000,
                     maximumAge: 0,
-                    enableHighAccuracy: false
-                }
+                    enableHighAccuracy: false,
+                },
             );
         } else {
             setUserLocation([106.6297, 10.8231]);
@@ -292,32 +335,21 @@ const SupervisorMap = () => {
         }
 
         return result;
-    }, [tasks, searchTerm, statusFilter]);
+    }, [tasks, statusFilter]);
 
-    // Lọc plots đã có polygon
     const completedPlots = useMemo(() => {
-        return plots.filter(plot => plot.boundaryGeoJson);
+        return plots.filter((plot) => plot.boundaryGeoJson);
     }, [plots]);
 
-    const getMapCenter = (): [number, number] => {
-        if (userLocation) {
-            return userLocation;
-        }
-        return selectedZone.center;
-    };
-
-    const mapCenter = getMapCenter();
-
     const clearMarkers = () => {
-        markersRef.current.forEach(marker => marker.remove());
+        markersRef.current.forEach((marker) => marker.remove());
         markersRef.current = [];
 
-        // Clear all plot boundary layers
         if (map.current) {
             const layers = map.current.getStyle()?.layers;
             if (layers) {
                 layers.forEach((layer) => {
-                    if (layer.id.startsWith('plot-boundary-')) {
+                    if (layer.id.startsWith("plot-boundary-")) {
                         map.current!.removeLayer(layer.id);
                     }
                 });
@@ -325,7 +357,7 @@ const SupervisorMap = () => {
 
             const sources = Object.keys(map.current.getStyle()?.sources || {});
             sources.forEach((source) => {
-                if (source.startsWith('plot-boundary-')) {
+                if (source.startsWith("plot-boundary-")) {
                     map.current!.removeSource(source);
                 }
             });
@@ -333,7 +365,15 @@ const SupervisorMap = () => {
     };
 
     useEffect(() => {
-        if (!isClient || !MAPBOX_TOKEN || !mapContainer.current || plotsLoading || tasksLoading || !userLocation) return;
+        if (
+            !isClient ||
+            !MAPBOX_TOKEN ||
+            !mapContainer.current ||
+            plotsLoading ||
+            tasksLoading ||
+            !userLocation
+        )
+            return;
 
         mapboxgl.accessToken = MAPBOX_TOKEN;
 
@@ -341,33 +381,69 @@ const SupervisorMap = () => {
 
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
-            style: mapType === "satellite"
-                ? "mapbox://styles/mapbox/satellite-streets-v12"
-                : "mapbox://styles/mapbox/streets-v12",
+            style: "mapbox://styles/mapbox/satellite-streets-v12",
             center: center as [number, number],
             zoom: 10,
             attributionControl: false,
-            logoPosition: 'bottom-left',
+            logoPosition: "bottom-left",
         });
 
-        map.current.on('load', () => {
+        const initSearchControl = () => {
+            if (!map.current || !window.MapboxSearchBox) return;
+
+            const searchControl = new window.MapboxSearchBox();
+            searchControl.accessToken = MAPBOX_TOKEN || "";
+            searchControl.options = {
+                language: "vi",
+                country: "VN",
+                types: "address,poi,place,district,locality,neighborhood",
+                proximity: map.current.getCenter().toArray(),
+            };
+            searchControl.marker = true;
+            searchControl.mapboxgl = mapboxgl;
+
+            map.current.addControl(searchControl, "top-left");
+            searchControlRef.current = searchControl;
+        };
+
+        map.current.on("load", () => {
             setMapLoaded(true);
 
+            // Draw control
             draw.current = new MapboxDraw({
                 displayControlsDefault: false,
                 controls: {
-                    polygon: true,
-                    trash: true
+                    polygon: false,
+                    trash: false,
                 },
-                defaultMode: 'simple_select'
+                defaultMode: "simple_select",
             });
 
-            map.current!.addControl(draw.current, 'top-left');
-            map.current!.addControl(new mapboxgl.NavigationControl(), 'bottom-right');
+            map.current!.addControl(draw.current, "top-left");
+            map.current!.addControl(
+                new mapboxgl.NavigationControl(),
+                "bottom-right",
+            );
 
-            map.current!.on('draw.create', updateArea);
-            map.current!.on('draw.delete', updateArea);
-            map.current!.on('draw.update', updateArea);
+            map.current!.on("draw.create", updateArea);
+            map.current!.on("draw.delete", updateArea);
+            map.current!.on("draw.update", updateArea);
+
+            // Search JS
+            if (window.MapboxSearchBox) {
+                initSearchControl();
+            } else {
+                const script = document.createElement("script");
+                script.src = "https://api.mapbox.com/search-js/v1.5.0/web.js";
+                script.async = true;
+                script.onload = () => {
+                    initSearchControl();
+                };
+                script.onerror = () => {
+                    console.error("Failed to load Mapbox Search JS");
+                };
+                document.body.appendChild(script);
+            }
 
             setTimeout(() => {
                 if (map.current) {
@@ -393,8 +469,8 @@ const SupervisorMap = () => {
                 // Use ref to get current selectedTask value
                 const currentTask = selectedTaskRef.current;
                 if (currentTask && data.features[0]) {
-                    console.log('✅ Triggering validation for plot:', currentTask.plotId);
-                    validateDrawnPolygon(currentTask.plotId, data.features[0]);
+                    console.log('✅ Task selected for plot:', currentTask.plotId);
+                    // Note: Validation functionality can be added here if needed
                 } else {
                     console.warn('⚠️ No selectedTask or feature for validation', {
                         hasTask: !!currentTask,
@@ -410,6 +486,14 @@ const SupervisorMap = () => {
         }
 
         return () => {
+            try {
+                if (map.current && searchControlRef.current) {
+                    map.current.removeControl(searchControlRef.current);
+                }
+            } catch (e) {
+                console.warn("Failed to remove search control:", e);
+            }
+
             if (map.current) {
                 clearMarkers();
                 map.current.remove();
@@ -427,35 +511,17 @@ const SupervisorMap = () => {
         setMarkersAdded(true);
     }, [mapLoaded, plots, tasks, markersAdded]);
 
-    useEffect(() => {
-        if (!map.current) return;
-
-        const newStyle = mapType === "satellite"
-            ? "mapbox://styles/mapbox/satellite-streets-v12"
-            : "mapbox://styles/mapbox/streets-v12";
-
-        map.current.setStyle(newStyle);
-
-        map.current.once("style.load", () => {
-            clearMarkers();
-            setMarkersAdded(false);
-        });
-    }, [mapType]);
-
     const addPlotSources = () => {
         if (!map.current || markersAdded) return;
 
-        plots.forEach((plot, index) => {
-            const hasTask = tasks.find(t => t.plotId === plot.plotId);
-            const taskStatus = hasTask?.status;
+        plots.forEach((plot) => {
+            const hasTask = tasks.find((t) => t.plotId === plot.plotId);
 
-            // Chỉ add polygon boundaries, không add dot markers
-            // Chỉ add polygon boundaries, không add dot markers
             if (plot.boundaryGeoJson) {
                 try {
                     let boundaryGeoJSON: any;
 
-                    if (plot.boundaryGeoJson.startsWith('POLYGON')) {
+                    if (plot.boundaryGeoJson.startsWith("POLYGON")) {
                         boundaryGeoJSON = convertWKTToGeoJSON(plot.boundaryGeoJson);
                     } else {
                         boundaryGeoJSON = JSON.parse(plot.boundaryGeoJson);
@@ -463,214 +529,182 @@ const SupervisorMap = () => {
 
                     if (boundaryGeoJSON) {
                         map.current!.addSource(`plot-boundary-${plot.plotId}`, {
-                            type: 'geojson',
-                            data: boundaryGeoJSON
+                            type: "geojson",
+                            data: boundaryGeoJSON,
                         });
 
-                        // Fill layer với opacity cao hơn để dễ click
                         map.current!.addLayer({
                             id: `plot-boundary-fill-${plot.plotId}`,
-                            type: 'fill',
+                            type: "fill",
                             source: `plot-boundary-${plot.plotId}`,
                             paint: {
-                                'fill-color': hasTask ? '#F59E0B' : (plot.status === 'Active' ? '#10B981' : '#6B7280'),
-                                'fill-opacity': 0.3
-                            }
+                                "fill-color": hasTask
+                                    ? "#F59E0B"
+                                    : plot.status === "Active"
+                                        ? "#10B981"
+                                        : "#6B7280",
+                                "fill-opacity": 0.3,
+                            },
                         });
 
-                        // Outline layer
                         map.current!.addLayer({
                             id: `plot-boundary-line-${plot.plotId}`,
-                            type: 'line',
+                            type: "line",
                             source: `plot-boundary-${plot.plotId}`,
                             paint: {
-                                'line-color': hasTask ? '#F59E0B' : (plot.status === 'Active' ? '#10B981' : '#6B7280'),
-                                'line-width': 3,
-                                'line-opacity': 1
-                            }
+                                "line-color": hasTask
+                                    ? "#F59E0B"
+                                    : plot.status === "Active"
+                                        ? "#10B981"
+                                        : "#6B7280",
+                                "line-width": 3,
+                                "line-opacity": 1,
+                            },
                         });
 
-                        // Click handler - hiển thị popup với thông tin
-                        map.current!.on('click', `plot-boundary-fill-${plot.plotId}`, (e) => {
-                            e.originalEvent.stopPropagation();
+                        map.current!.on(
+                            "click",
+                            `plot-boundary-fill-${plot.plotId}`,
+                            (e) => {
+                                e.originalEvent.stopPropagation();
 
-                            const task = tasks.find(t => t.plotId === plot.plotId);
+                                const task = tasks.find((t) => t.plotId === plot.plotId);
 
-                            // Get coordinates từ click event hoặc polygon centroid
-                            let coordinates: [number, number];
-                            if (e.lngLat) {
-                                coordinates = [e.lngLat.lng, e.lngLat.lat];
-                            } else if (plot.coordinateGeoJson) {
-                                const coords = getCoordinatesFromGeoJSON(plot.coordinateGeoJson);
-                                coordinates = coords || selectedZone.center;
-                            } else {
-                                coordinates = selectedZone.center;
-                            }
+                                let coordinates: [number, number];
+                                if (e.lngLat) {
+                                    coordinates = [e.lngLat.lng, e.lngLat.lat];
+                                } else if (plot.coordinateGeoJson) {
+                                    const coords = getCoordinatesFromGeoJSON(
+                                        plot.coordinateGeoJson,
+                                    );
+                                    coordinates = coords || selectedZone.center;
+                                } else {
+                                    coordinates = selectedZone.center;
+                                }
 
-                            if (popupRef.current) {
-                                popupRef.current.remove();
-                            }
+                                if (popupRef.current) {
+                                    popupRef.current.remove();
+                                }
 
-                            if (task) {
-                                // Nếu có task, hiển thị popup với option Start Drawing
-                                popupRef.current = new mapboxgl.Popup({ offset: 15 })
-                                    .setLngLat(coordinates)
-                                    .setHTML(`
-                                        <div class="p-3 min-w-[250px]">
-                                            <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
-                                            <div class="space-y-1 mb-3">
-                                                <div class="text-sm"><span class="font-medium">Farmer:</span> ${task.farmerName || plot.farmerName}</div>
-                                                <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
-                                                <div class="text-sm"><span class="font-medium">Phone:</span> ${task.farmerPhone || 'N/A'}</div>
-                                                <div class="inline-block px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 mt-2">
-                                                    Drawing Task Available
-                                                </div>
-                                            </div>
-                                            <button 
-                                                id="start-drawing-btn-${plot.plotId}"
-                                                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
-                                            >
-                                                Start Drawing
-                                            </button>
-                                        </div>
-                                    `)
-                                    .addTo(map.current!);
+                                if (task) {
+                                    popupRef.current = new mapboxgl.Popup({ offset: 15 })
+                                        .setLngLat(coordinates)
+                                        .setHTML(`
+                      <div class="p-3 min-w-[250px]">
+                          <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
+                          <div class="space-y-1 mb-3">
+                              <div class="text-sm"><span class="font-medium">Farmer:</span> ${task.farmerName || plot.farmerName
+                                            }</div>
+                              <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area
+                                            }ha</div>
+                              <div class="text-sm"><span class="font-medium">Phone:</span> ${task.farmerPhone || "N/A"
+                                            }</div>
+                              <div class="inline-block px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 mt-2">
+                                  Drawing Task Available
+                              </div>
+                          </div>
+                          <button 
+                              id="start-drawing-btn-${plot.plotId}"
+                              class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
+                          >
+                              Start Drawing
+                          </button>
+                      </div>
+                  `)
+                                        .addTo(map.current!);
 
-                                // Add click handler cho button
-                                setTimeout(() => {
-                                    const btn = document.getElementById(`start-drawing-btn-${plot.plotId}`);
-                                    if (btn) {
-                                        btn.onclick = () => {
-                                            setSelectedTask(task);
-                                            setFocusedTask(task);
-                                            startDrawingForTask(task);
-                                            if (popupRef.current) {
-                                                popupRef.current.remove();
-                                            }
-                                        };
-                                    }
-                                }, 0);
-                            } else {
-                                // Không có task, chỉ hiển thị thông tin
-                                popupRef.current = new mapboxgl.Popup({ offset: 15 })
-                                    .setLngLat(coordinates)
-                                    .setHTML(`
-                                        <div class="p-3 min-w-[200px]">
-                                            <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
-                                            <div class="space-y-1">
-                                                <div class="text-sm"><span class="font-medium">Farmer:</span> ${plot.farmerName}</div>
-                                                <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
-                                                <div class="text-sm"><span class="font-medium">Variety:</span> ${plot.varietyName || 'N/A'}</div>
-                                                <div class="text-sm">
-                                                    <span class="font-medium">Status:</span> 
-                                                    <span class="px-2 py-1 rounded text-xs ${plot.status === 'Active' ? 'bg-green-100 text-green-800' :
-                                            plot.status === 'Emergency' ? 'bg-red-100 text-red-800' :
-                                                'bg-gray-100 text-gray-800'
-                                        }">${plot.status}</span>
-                                                </div>
-                                                <div class="text-xs text-gray-500 mt-2">No drawing task assigned</div>
-                                            </div>
-                                        </div>
-                                    `)
-                                    .addTo(map.current!);
-                            }
-                        });
+                                    setTimeout(() => {
+                                        const btn = document.getElementById(
+                                            `start-drawing-btn-${plot.plotId}`,
+                                        );
+                                        if (btn) {
+                                            btn.onclick = () => {
+                                                setSelectedTask(task);
+                                                setFocusedTask(task);
+                                                startDrawingForTask(task);
+                                                if (popupRef.current) {
+                                                    popupRef.current.remove();
+                                                }
+                                            };
+                                        }
+                                    }, 0);
+                                } else {
+                                    popupRef.current = new mapboxgl.Popup({ offset: 15 })
+                                        .setLngLat(coordinates)
+                                        .setHTML(`
+                      <div class="p-3 min-w-[200px]">
+                          <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
+                          <div class="space-y-1">
+                              <div class="text-sm"><span class="font-medium">Farmer:</span> ${plot.farmerName}</div>
+                              <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
+                              <div class="text-sm"><span class="font-medium">Variety:</span> ${plot.varietyName || "N/A"
+                                            }</div>
+                              <div class="text-sm">
+                                  <span class="font-medium">Status:</span> 
+                                  <span class="px-2 py-1 rounded text-xs ${plot.status === "Active"
+                                                ? "bg-green-100 text-green-800"
+                                                : plot.status === "Emergency"
+                                                    ? "bg-red-100 text-red-800"
+                                                    : "bg-gray-100 text-gray-800"
+                                            }">${plot.status}</span>
+                              </div>
+                              <div class="text-xs text-gray-500 mt-2">No drawing task assigned</div>
+                          </div>
+                      </div>
+                  `)
+                                        .addTo(map.current!);
+                                }
+                            },
+                        );
 
-                        // Hover effects
-                        map.current!.on('mouseenter', `plot-boundary-fill-${plot.plotId}`, () => {
-                            map.current!.getCanvas().style.cursor = 'pointer';
-                            // Highlight on hover
-                            map.current!.setPaintProperty(`plot-boundary-fill-${plot.plotId}`, 'fill-opacity', 0.5);
-                        });
+                        map.current!.on(
+                            "mouseenter",
+                            `plot-boundary-fill-${plot.plotId}`,
+                            () => {
+                                map.current!.getCanvas().style.cursor = "pointer";
+                                map.current!.setPaintProperty(
+                                    `plot-boundary-fill-${plot.plotId}`,
+                                    "fill-opacity",
+                                    0.5,
+                                );
+                            },
+                        );
 
-                        map.current!.on('mouseleave', `plot-boundary-fill-${plot.plotId}`, () => {
-                            map.current!.getCanvas().style.cursor = '';
-                            map.current!.setPaintProperty(`plot-boundary-fill-${plot.plotId}`, 'fill-opacity', 0.3);
-                        });
+                        map.current!.on(
+                            "mouseleave",
+                            `plot-boundary-fill-${plot.plotId}`,
+                            () => {
+                                map.current!.getCanvas().style.cursor = "";
+                                map.current!.setPaintProperty(
+                                    `plot-boundary-fill-${plot.plotId}`,
+                                    "fill-opacity",
+                                    0.3,
+                                );
+                            },
+                        );
                     }
                 } catch (error) {
-                    console.error(`Failed to add boundary for plot ${plot.plotId}:`, error);
+                    console.error(
+                        `Failed to add boundary for plot ${plot.plotId}:`,
+                        error,
+                    );
                 }
             } else {
-                // Nếu không có boundary, log warning
-                console.warn(`Plot ${plot.plotId} (${plot.soThua}/${plot.soTo}) has no boundary data`);
+                console.warn(
+                    `Plot ${plot.plotId} (${plot.soThua}/${plot.soTo}) has no boundary data`,
+                );
             }
         });
     };
 
-    useEffect(() => {
-        if (map.current && selectedZone && mapLoaded) {
-            if (markersAdded) {
-                map.current.flyTo({
-                    center: selectedZone.center,
-                    zoom: 10,
-                    duration: 1000
-                });
-            }
-        }
-    }, [selectedZone, mapLoaded, markersAdded]);
-
-    const validateDrawnPolygon = async (plotId: string, polygon: any) => {
-        setIsValidating(true);
-        setValidationResult(null);
-
-        try {
-            const geoJsonString = JSON.stringify(polygon.geometry);
-            console.log('🔍 Validating polygon for plot:', plotId);
-
-            const response = await validateMutation.mutateAsync({
-                plotId,
-                polygonGeoJson: geoJsonString,
-                tolerancePercent: 10
-            });
-
-            console.log('✅ Validation response (unwrapped by api-client):', response);
-
-            // API client already unwraps response.data, so response IS the data
-            if (response && typeof response === 'object' && 'isValid' in response) {
-                console.log('📊 Setting validation result:', response);
-                setValidationResult(response as any);
-                console.log('📊 Validation result state updated');
-
-                // Show notification if validation failed
-                if (!(response as any).isValid) {
-                    addNotification({
-                        type: 'error',
-                        title: 'Area Validation Failed',
-                        message: (response as any).message || `Area differs by ${(response as any).differencePercent}% (max: ${(response as any).tolerancePercent}%)`
-                    });
-                } else {
-                    addNotification({
-                        type: 'success',
-                        title: 'Polygon Validated',
-                        message: (response as any).message || 'Polygon area is within acceptable tolerance'
-                    });
-                }
-            } else {
-                console.error('❌ Unexpected validation response format:', response);
-            }
-        } catch (error: any) {
-            console.error('❌ Validation exception:', error);
-            const errorMessage = error?.response?.data?.errors?.[0] || error?.message || 'Failed to validate polygon area';
-            addNotification({
-                type: 'error',
-                title: 'Validation Error',
-                message: errorMessage
-            });
-            setValidationResult(null);
-        } finally {
-            setIsValidating(false);
-        }
-    };
-
     const startDrawingForTask = (task: PolygonTask) => {
-        console.log('Starting drawing for task:', task.id);
+        console.log("Starting drawing for task:", task.id);
         setSelectedTask(task);
         selectedTaskRef.current = task; // Keep ref in sync
         setIsDrawing(true);
         setTaskNotes(`Drawing polygon for plot ${task.soThua}/${task.soTo}`);
         if (draw.current) {
-            draw.current.changeMode('draw_polygon');
+            draw.current.changeMode("draw_polygon");
         }
     };
 
@@ -685,32 +719,12 @@ const SupervisorMap = () => {
         setIsValidating(false);
         if (draw.current) {
             draw.current.deleteAll();
-            draw.current.changeMode('simple_select');
+            draw.current.changeMode("simple_select");
         }
     };
 
     const completeDrawing = () => {
         if (!selectedTask || !drawnPolygon) return;
-
-        // Ensure validation has been done
-        if (!validationResult) {
-            addNotification({
-                type: 'warning',
-                title: 'Validation Required',
-                message: 'Please wait for polygon validation to complete before saving.'
-            });
-            return;
-        }
-
-        // Check validation result from Option 2
-        if (!validationResult.isValid) {
-            addNotification({
-                type: 'error',
-                title: 'Area Validation Failed',
-                message: `Drawn: ${validationResult.drawnAreaHa}ha, Plot: ${validationResult.plotAreaHa}ha, Difference: ${validationResult.differencePercent}% (max: ${validationResult.tolerancePercent}%). Please redraw within tolerance.`
-            });
-            return;
-        }
 
         const geoJsonString = JSON.stringify(drawnPolygon.geometry);
 
@@ -718,8 +732,8 @@ const SupervisorMap = () => {
             taskId: selectedTask.id,
             data: {
                 polygonGeoJson: geoJsonString,
-                notes: taskNotes || `Polygon drawn with area: ${validationResult.drawnAreaHa}ha (${polygonArea}m²)`
-            }
+                notes: taskNotes || `Polygon drawn with area: ${polygonArea}m²`,
+            },
         });
     };
 
@@ -727,7 +741,7 @@ const SupervisorMap = () => {
         setFocusedTask(task);
         setHoveredTaskId(task.id);
 
-        const plot = plots.find(p => p.plotId === task.plotId);
+        const plot = plots.find((p) => p.plotId === task.plotId);
         if (plot && map.current) {
             let coords: [number, number] | null = null;
 
@@ -737,7 +751,14 @@ const SupervisorMap = () => {
 
             if (coords && Array.isArray(coords) && coords.length === 2) {
                 const [lng, lat] = coords;
-                if (!isNaN(lng) && !isNaN(lat) && lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90) {
+                if (
+                    !isNaN(lng) &&
+                    !isNaN(lat) &&
+                    lng >= -180 &&
+                    lng <= 180 &&
+                    lat >= -90 &&
+                    lat <= 90
+                ) {
                     map.current.flyTo({
                         center: coords,
                         zoom: 15,
@@ -758,14 +779,20 @@ const SupervisorMap = () => {
 
             if (coords && Array.isArray(coords) && coords.length === 2) {
                 const [lng, lat] = coords;
-                if (!isNaN(lng) && !isNaN(lat) && lng >= -180 && lng <= 180 && lat >= -90 && lat <= 90) {
+                if (
+                    !isNaN(lng) &&
+                    !isNaN(lat) &&
+                    lng >= -180 &&
+                    lng <= 180 &&
+                    lat >= -90 &&
+                    lat <= 90
+                ) {
                     map.current.flyTo({
                         center: coords,
                         zoom: 16,
                         duration: 1000,
                     });
 
-                    // Hiển thị popup
                     if (popupRef.current) {
                         popupRef.current.remove();
                     }
@@ -773,22 +800,23 @@ const SupervisorMap = () => {
                     popupRef.current = new mapboxgl.Popup({ offset: 15 })
                         .setLngLat(coords)
                         .setHTML(`
-                            <div class="p-3 min-w-[200px]">
-                                <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
-                                <div class="space-y-1">
-                                    <div class="text-sm"><span class="font-medium">Farmer:</span> ${plot.farmerName}</div>
-                                    <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
-                                    <div class="text-sm"><span class="font-medium">Variety:</span> ${plot.varietyName || 'N/A'}</div>
-                                    <div class="text-sm">
-                                        <span class="font-medium">Status:</span> 
-                                        <span class="px-2 py-1 rounded text-xs bg-green-100 text-green-800">${plot.status}</span>
-                                    </div>
-                                    <div class="inline-block px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-2">
-                                        ✓ Has Polygon
-                                    </div>
-                                </div>
-                            </div>
-                        `)
+              <div class="p-3 min-w-[200px]">
+                  <div class="font-semibold text-lg mb-2">Plot ${plot.soThua}/${plot.soTo}</div>
+                  <div class="space-y-1">
+                      <div class="text-sm"><span class="font-medium">Farmer:</span> ${plot.farmerName}</div>
+                      <div class="text-sm"><span class="font-medium">Area:</span> ${plot.area}ha</div>
+                      <div class="text-sm"><span class="font-medium">Variety:</span> ${plot.varietyName || "N/A"
+                            }</div>
+                      <div class="text-sm">
+                          <span class="font-medium">Status:</span> 
+                          <span class="px-2 py-1 rounded text-xs bg-green-100 text-green-800">${plot.status}</span>
+                      </div>
+                      <div class="inline-block px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-2">
+                          ✓ Has Polygon
+                      </div>
+                  </div>
+              </div>
+          `)
                         .addTo(map.current);
                 }
             }
@@ -799,7 +827,10 @@ const SupervisorMap = () => {
         return (
             <div className="flex h-screen items-center justify-center bg-neutral-50">
                 <div className="text-center">
-                    <Spinner size="lg" className="text-emerald-600 mx-auto mb-4" />
+                    <Spinner
+                        size="lg"
+                        className="text-emerald-600 mx-auto mb-4"
+                    />
                     <p className="text-neutral-600 font-medium">Loading map data...</p>
                 </div>
             </div>
@@ -812,10 +843,12 @@ const SupervisorMap = () => {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
-                            <Map className="size-8 text-white" />
+                            <MapIcon className="size-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-neutral-900">Polygon Drawing Tasks</h1>
+                            <h1 className="text-3xl font-bold text-neutral-900">
+                                Polygon Drawing Tasks
+                            </h1>
                             <p className="text-sm text-neutral-600 mt-1">
                                 Draw and complete polygon tasks for plots
                             </p>
@@ -824,26 +857,38 @@ const SupervisorMap = () => {
 
                     <div className="flex items-center gap-4">
                         <div className="text-right">
-                            <p className="text-2xl font-bold text-blue-600">{filteredTasks.length}</p>
+                            <p className="text-2xl font-bold text-blue-600">
+                                {filteredTasks.length}
+                            </p>
                             <p className="text-xs text-neutral-600">tasks available</p>
                         </div>
-
-
                     </div>
                 </div>
             </div>
 
             <div className="flex-1 flex gap-6 p-6 overflow-hidden">
                 <div className="flex-1 rounded-xl border-2 border-neutral-200 overflow-hidden shadow-2xl bg-white relative">
-                    <div ref={mapContainer} style={{ width: "100%", height: "100%" }} />
+                    {/* Map */}
+                    <div
+                        ref={mapContainer}
+                        style={{ width: "100%", height: "100%" }}
+                    />
 
-                    {/* Compact Drawing Info - Top Right */}
+                    {/* 🔍 Search box container – nằm trên, giữa bản đồ */}
+                    <div
+                        id="search-box-container"
+                        className="absolute top-4 left-1/2 -translate-x-1/2 z-20 w-[380px] max-w-[90%]"
+                    />
+
+                    {/* Overlay drawing info */}
                     {isDrawing && selectedTask && (
-                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur rounded-lg shadow-xl p-4 w-80 z-20">
+                        <div className="absolute top-4 right-4 bg-white/95 backdrop-blur rounded-lg shadow-xl p-4 w-80 z-30">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                     <MapPin className="w-5 h-5 text-blue-600" />
-                                    <span className="font-semibold text-sm">Drawing: Plot {selectedTask.soThua}/{selectedTask.soTo}</span>
+                                    <span className="font-semibold text-sm">
+                                        Drawing: Plot {selectedTask.soThua}/{selectedTask.soTo}
+                                    </span>
                                 </div>
                                 <button
                                     onClick={cancelDrawing}
@@ -855,93 +900,13 @@ const SupervisorMap = () => {
                             </div>
 
                             {drawnPolygon ? (
-                                <div className="space-y-3">
-                                    {(() => {
-                                        console.log('🎨 Rendering validation UI - drawnPolygon:', !!drawnPolygon, 'isValidating:', isValidating, 'validationResult:', validationResult);
-                                        return null;
-                                    })()}
-                                    {isValidating ? (
-                                        <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
-                                            Validating area...
-                                        </div>
-                                    ) : validationResult ? (
-                                        <>
-                                            {/* Validation Status Header */}
-                                            <div className={`flex items-center gap-2 p-3 rounded-lg ${validationResult.isValid
-                                                ? 'bg-green-100 border border-green-300'
-                                                : 'bg-red-100 border border-red-300'
-                                                }`}>
-                                                <div className={`text-lg font-bold ${validationResult.isValid ? 'text-green-600' : 'text-red-600'}`}>
-                                                    {validationResult.isValid ? '✓' : '✗'}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className={`text-sm font-semibold ${validationResult.isValid ? 'text-green-800' : 'text-red-800'}`}>
-                                                        {validationResult.isValid ? 'Area Validated!' : 'Area Validation Failed'}
-                                                    </div>
-                                                    <div className={`text-xs ${validationResult.isValid ? 'text-green-700' : 'text-red-700'}`}>
-                                                        {validationResult.isValid ? 'Within acceptable range' : 'Outside acceptable range'}
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Area Comparison */}
-                                            <div className="bg-gray-50 p-3 rounded-lg space-y-2">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-600">Drawn Area:</span>
-                                                    <span className="text-sm font-bold text-gray-900">
-                                                        {validationResult.drawnAreaHa} ha
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-gray-600">Plot Area:</span>
-                                                    <span className="text-sm font-bold text-gray-900">
-                                                        {validationResult.plotAreaHa} ha
-                                                    </span>
-                                                </div>
-                                                <div className="border-t pt-2">
-                                                    <div className="flex justify-between items-center">
-                                                        <span className="text-xs text-gray-600">Difference:</span>
-                                                        <span className={`text-sm font-bold ${validationResult.isValid ? 'text-green-600' : 'text-red-600'}`}>
-                                                            {validationResult.differencePercent}%
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex justify-between items-center mt-1">
-                                                        <span className="text-xs text-gray-500">Max Allowed:</span>
-                                                        <span className="text-xs text-gray-500">
-                                                            {validationResult.tolerancePercent}%
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Error Message */}
-                                            {!validationResult.isValid && validationResult.message && (
-                                                <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
-                                                    <p className="text-xs text-red-800 font-medium">
-                                                        {validationResult.message}
-                                                    </p>
-                                                    <p className="text-xs text-red-600 mt-2">
-                                                        Please redraw the polygon with an area closer to {validationResult.plotAreaHa} ha
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            {/* Success Message */}
-                                            {validationResult.isValid && validationResult.message && (
-                                                <div className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
-                                                    <p className="text-xs text-green-800 font-medium">
-                                                        {validationResult.message}
-                                                    </p>
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <div className="text-sm text-gray-600">
-                                            Area: {polygonArea.toLocaleString()}m²
-                                        </div>
-                                    )}
-
+                                <div className="space-y-2">
+                                    <div className="text-sm text-green-600 font-medium">
+                                        ✓ Polygon completed
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                        Area: {polygonArea.toLocaleString()}m²
+                                    </div>
                                     <div className="flex gap-2 mt-3">
                                         <Button
                                             onClick={completeDrawing}
@@ -955,7 +920,7 @@ const SupervisorMap = () => {
                                             size="sm"
                                         >
                                             {completeTaskMutation.isPending ? (
-                                                'Saving...'
+                                                "Saving..."
                                             ) : (
                                                 <>
                                                     <Save className="w-4 h-4 mr-1" />
@@ -988,9 +953,6 @@ const SupervisorMap = () => {
                             )}
                         </div>
                     )}
-
-                    {/* Map Stats Overlay */}
-
                 </div>
 
                 {/* Sidebar */}
@@ -1082,7 +1044,9 @@ const SupervisorMap = () => {
 
                                                     <div className="flex items-center gap-1">
                                                         <Clock className="w-3 h-3" />
-                                                        <span>{new Date(task.assignedAt).toLocaleDateString()}</span>
+                                                        <span>
+                                                            {new Date(task.assignedAt).toLocaleDateString()}
+                                                        </span>
                                                     </div>
 
                                                     {task.priority !== undefined && (
@@ -1129,7 +1093,7 @@ const SupervisorMap = () => {
                         </Card>
                     )}
 
-                    {/* Completed Plots Tab */}
+                    {/* Completed tab */}
                     {activeTab === "completed" && (
                         <Card className="shadow-lg">
                             <CardHeader className="pb-3 bg-gradient-to-r from-green-50 to-blue-50">
@@ -1184,7 +1148,8 @@ const SupervisorMap = () => {
                                                 </div>
                                                 {plot.varietyName && (
                                                     <div>
-                                                        <span className="font-medium">Variety:</span> {plot.varietyName}
+                                                        <span className="font-medium">Variety:</span>{" "}
+                                                        {plot.varietyName}
                                                     </div>
                                                 )}
                                             </div>
@@ -1205,20 +1170,36 @@ const SupervisorMap = () => {
                         </CardHeader>
                         <CardContent className="space-y-2 text-sm">
                             <div className="flex items-start gap-2">
-                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">1</div>
-                                <div className="text-xs text-gray-600">Click on a plot marker or select from list</div>
+                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                    1
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                    Click on a plot marker or select from list
+                                </div>
                             </div>
                             <div className="flex items-start gap-2">
-                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">2</div>
-                                <div className="text-xs text-gray-600">Click on map to add polygon points</div>
+                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                    2
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                    Click on map to add polygon points
+                                </div>
                             </div>
                             <div className="flex items-start gap-2">
-                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">3</div>
-                                <div className="text-xs text-gray-600">Double-click to finish drawing</div>
+                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                    3
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                    Double-click to finish drawing
+                                </div>
                             </div>
                             <div className="flex items-start gap-2">
-                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">4</div>
-                                <div className="text-xs text-gray-600">Click Save to complete task</div>
+                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                                    4
+                                </div>
+                                <div className="text-xs text-gray-600">
+                                    Click Save to complete task
+                                </div>
                             </div>
                         </CardContent>
                     </Card>
@@ -1229,25 +1210,26 @@ const SupervisorMap = () => {
                         </CardHeader>
                         <CardContent className="space-y-2">
                             <div className="flex items-center gap-2">
-                                <div className="size-4 rounded-full bg-amber-500 border-2 border-white animate-pulse"></div>
+                                <div className="size-4 rounded-full bg-amber-500 border-2 border-white animate-pulse" />
                                 <span className="text-xs text-gray-700">Has Task</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="size-4 rounded-full bg-green-500 border-2 border-white"></div>
+                                <div className="size-4 rounded-full bg-green-500 border-2 border-white" />
                                 <span className="text-xs text-gray-700">Active</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="size-4 rounded-full bg-red-500 border-2 border-white"></div>
+                                <div className="size-4 rounded-full bg-red-500 border-2 border-white" />
                                 <span className="text-xs text-gray-700">Emergency</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="size-4 rounded-full bg-gray-500 border-2 border-white"></div>
+                                <div className="size-4 rounded-full bg-gray-500 border-2 border-white" />
                                 <span className="text-xs text-gray-700">Inactive</span>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
             </div>
+
         </div>
     );
 };
