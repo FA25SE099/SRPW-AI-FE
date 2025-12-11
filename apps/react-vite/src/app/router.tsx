@@ -129,6 +129,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/expert/reports').then(convert(queryClient)),
             },
+            {
+              path: 'late-management',
+              lazy: () =>
+                import('./routes/app/expert/late-management').then(convert(queryClient)),
+            },
           ],
         },
         {
@@ -203,7 +208,12 @@ export const createAppRouter = (queryClient: QueryClient) =>
               path: 'maps',
               lazy: () =>
                 import('./routes/app/supervisor/maps').then(convert(queryClient))
-            }
+            },
+            {
+              path: 'late-management',
+              lazy: () =>
+                import('./routes/app/supervisor/late-management').then(convert(queryClient)),
+            },
           ],
         },
         {
