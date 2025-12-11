@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { usePlots } from "@/features/plots/api/get-all-plots";
 import { usePolygonTasks } from "@/features/supervisor/api/get-polygon-task";
 import { useCompletePolygonTask } from "@/features/supervisor/api/get-polygon-complete";
+import { useUpdatePlot } from "@/features/plots/api/update-plot";
 import { useValidatePolygonArea } from "@/features/supervisor/api/validate-polygon-area";
 import type { ValidatePolygonAreaResponse } from "@/features/supervisor/api/validate-polygon-area";
 import type { PlotDTO } from "@/features/plots/api/get-all-plots";
@@ -20,6 +21,9 @@ import {
     CheckCircle,
     Save,
     X,
+    Lock,
+    Edit3,
+    Users,
 } from "lucide-react";
 
 import mapboxgl from "mapbox-gl";
@@ -229,11 +233,6 @@ const SupervisorMap = () => {
     const [markersAdded, setMarkersAdded] = useState(false);
     const [selectedZone] = useState<Zone>(ZONES[0]);
     const [selectedTask, setSelectedTask] = useState<PolygonTask | null>(null);
-
-    // Update ref whenever selectedTask changes
-    useEffect(() => {
-        selectedTaskRef.current = selectedTask;
-    }, [selectedTask]);
     const [hoveredTaskId, setHoveredTaskId] = useState<string | null>(null);
     const [focusedTask, setFocusedTask] = useState<PolygonTask | null>(null);
     const [isDrawing, setIsDrawing] = useState(false);
@@ -248,6 +247,32 @@ const SupervisorMap = () => {
     const [activeTab, setActiveTab] = useState<"tasks" | "completed">("tasks");
     const [validationResult, setValidationResult] = useState<ValidatePolygonAreaResponse["data"] | null>(null);
     const [isValidating, setIsValidating] = useState(false);
+    const [editingPlot, setEditingPlot] = useState<PlotDTO | null>(null);
+    const editingPlotRef = useRef<PlotDTO | null>(null);
+
+    // Update refs whenever selectedTask or editingPlot changes
+    useEffect(() => {
+        selectedTaskRef.current = selectedTask;
+    }, [selectedTask]);
+
+    useEffect(() => {
+        editingPlotRef.current = editingPlot;
+    }, [editingPlot]);
+
+    // Debug validation state changes
+    useEffect(() => {
+        if (drawnPolygon) {
+            console.log('🔍 Validation state changed:', {
+                isValidating,
+                hasValidationResult: !!validationResult,
+                validationResult,
+                isDrawing,
+                hasTask: !!selectedTask,
+                hasEditingPlot: !!editingPlot,
+                hasDrawnPolygon: !!drawnPolygon
+            });
+        }
+    }, [validationResult, isValidating, isDrawing, selectedTask, editingPlot, drawnPolygon]);
 
     const {
         data: plotsData,
@@ -263,6 +288,43 @@ const SupervisorMap = () => {
         refetch: refetchTasks,
     } = usePolygonTasks({
         filters: { status: "Pending" },
+    });
+
+    const validatePolygonMutation = useValidatePolygonArea();
+
+    const updatePlotMutation = useUpdatePlot({
+        mutationConfig: {
+            onSuccess: async () => {
+                const currentCenter = map.current?.getCenter();
+                const currentZoom = map.current?.getZoom();
+
+                setSelectedTask(null);
+                setEditingPlot(null);
+                setIsDrawing(false);
+                setDrawnPolygon(null);
+                setPolygonArea(0);
+                setTaskNotes("");
+                setValidationResult(null);
+                setIsValidating(false);
+                if (draw.current) {
+                    draw.current.deleteAll();
+                }
+
+                await Promise.all([refetchPlots(), refetchTasks()]);
+
+                clearMarkers();
+                setMarkersAdded(false);
+
+                if (map.current && currentCenter && currentZoom) {
+                    setTimeout(() => {
+                        map.current?.jumpTo({
+                            center: [currentCenter.lng, currentCenter.lat],
+                            zoom: currentZoom,
+                        });
+                    }, 100);
+                }
+            },
+        },
     });
 
     const completeTaskMutation = useCompletePolygonTask({
@@ -345,22 +407,30 @@ const SupervisorMap = () => {
         markersRef.current.forEach((marker) => marker.remove());
         markersRef.current = [];
 
-        if (map.current) {
-            const layers = map.current.getStyle()?.layers;
-            if (layers) {
-                layers.forEach((layer) => {
-                    if (layer.id.startsWith("plot-boundary-")) {
-                        map.current!.removeLayer(layer.id);
+        if (map.current && map.current.isStyleLoaded()) {
+            try {
+                const layers = map.current.getStyle()?.layers;
+                if (layers) {
+                    layers.forEach((layer) => {
+                        if (layer.id.startsWith("plot-boundary-")) {
+                            if (map.current!.getLayer(layer.id)) {
+                                map.current!.removeLayer(layer.id);
+                            }
+                        }
+                    });
+                }
+
+                const sources = Object.keys(map.current.getStyle()?.sources || {});
+                sources.forEach((source) => {
+                    if (source.startsWith("plot-boundary-")) {
+                        if (map.current!.getSource(source)) {
+                            map.current!.removeSource(source);
+                        }
                     }
                 });
+            } catch (error) {
+                console.warn('Error clearing markers:', error);
             }
-
-            const sources = Object.keys(map.current.getStyle()?.sources || {});
-            sources.forEach((source) => {
-                if (source.startsWith("plot-boundary-")) {
-                    map.current!.removeSource(source);
-                }
-            });
         }
     };
 
@@ -466,14 +536,97 @@ const SupervisorMap = () => {
                 setDrawnPolygon(data.features[0]);
                 console.log('✏️ Set drawnPolygon and polygonArea');
 
-                // Use ref to get current selectedTask value
+                // Use refs to get current selectedTask or editingPlot value
                 const currentTask = selectedTaskRef.current;
-                if (currentTask && data.features[0]) {
-                    console.log('✅ Task selected for plot:', currentTask.plotId);
-                    // Note: Validation functionality can be added here if needed
+                const currentEditingPlot = editingPlotRef.current;
+                const plotToValidate = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
+
+                if (plotToValidate && data.features[0]) {
+                    console.log('✅ Validating plot:', plotToValidate.plotId, currentEditingPlot ? '(editing)' : '(task)');
+
+                    // Validate polygon area
+                    const geoJsonString = JSON.stringify(data.features[0].geometry);
+                    setIsValidating(true);
+
+                    validatePolygonMutation.mutate(
+                        {
+                            plotId: plotToValidate.plotId,
+                            polygonGeoJson: geoJsonString,
+                            tolerancePercent: 10,
+                        },
+                        {
+                            onSuccess: (response) => {
+                                console.log('📊 Full validation response:', response);
+                                if (response.data) {
+                                    // Success case: validation returned data
+                                    console.log('✅ Setting validation result:', {
+                                        isValid: response.data.isValid,
+                                        drawnAreaHa: response.data.drawnAreaHa,
+                                        plotAreaHa: response.data.plotAreaHa,
+                                        differencePercent: response.data.differencePercent
+                                    });
+                                    setValidationResult(response.data);
+                                    setIsValidating(false);
+                                    console.log('🎯 State updated: isValidating=false, validationResult set');
+                                } else {
+                                    // API returned error in message field - treat as invalid
+                                    console.warn('⚠️ Validation failed - parsing error message:', response.message);
+
+                                    // Try to extract percentage from error message
+                                    const percentMatch = response.message?.match(/differs by ([\d.]+)%/);
+                                    const differencePercent = percentMatch ? parseFloat(percentMatch[1]) : 0;
+
+                                    // Get plot area from current plot
+                                    const currentTask = selectedTaskRef.current;
+                                    const currentEditingPlot = editingPlotRef.current;
+                                    const plotForArea = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
+                                    const plotAreaHa = plotForArea?.area || 0;
+
+                                    // Create a validation result from the error
+                                    const errorValidationResult = {
+                                        isValid: false,
+                                        drawnAreaHa: polygonArea / 10000,
+                                        plotAreaHa: plotAreaHa,
+                                        differencePercent: differencePercent,
+                                        tolerancePercent: 10,
+                                        message: response.message || 'Validation failed'
+                                    };
+
+                                    console.log('🔧 Created validation result from error:', errorValidationResult);
+                                    setValidationResult(errorValidationResult);
+                                    setIsValidating(false);
+                                }
+                            },
+                            onError: (error: any) => {
+                                setIsValidating(false);
+                                console.error('❌ Validation error:', error);
+
+                                // Try to extract error info for display
+                                const errorMessage = error?.response?.data?.message || error?.message || 'Validation failed';
+                                const percentMatch = errorMessage.match(/differs by ([\d.]+)%/);
+                                const differencePercent = percentMatch ? parseFloat(percentMatch[1]) : 0;
+
+                                // Get plot area from current plot
+                                const currentTask = selectedTaskRef.current;
+                                const currentEditingPlot = editingPlotRef.current;
+                                const plotForArea = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
+                                const plotAreaHa = plotForArea?.area || 0;
+
+                                setValidationResult({
+                                    isValid: false,
+                                    drawnAreaHa: polygonArea / 10000,
+                                    plotAreaHa: plotAreaHa,
+                                    differencePercent: differencePercent,
+                                    tolerancePercent: 10,
+                                    message: errorMessage
+                                });
+                            },
+                        }
+                    );
                 } else {
-                    console.warn('⚠️ No selectedTask or feature for validation', {
+                    console.warn('⚠️ No selectedTask/editingPlot or feature for validation', {
                         hasTask: !!currentTask,
+                        hasEditingPlot: !!currentEditingPlot,
                         hasFeature: !!data.features[0]
                     });
                 }
@@ -587,6 +740,9 @@ const SupervisorMap = () => {
                                 }
 
                                 if (task) {
+                                    const isEditable = plot.isEditableInCurrentSeason !== false;
+                                    const editNote = plot.editabilityNote || '';
+
                                     popupRef.current = new mapboxgl.Popup({ offset: 15 })
                                         .setLngLat(coordinates)
                                         .setHTML(`
@@ -599,15 +755,23 @@ const SupervisorMap = () => {
                                             }ha</div>
                               <div class="text-sm"><span class="font-medium">Phone:</span> ${task.farmerPhone || "N/A"
                                             }</div>
+                              ${!isEditable ? `
+                              <div class="inline-block px-2 py-1 rounded text-xs font-medium bg-red-100 text-red-800 mt-2 flex items-center gap-1">
+                                  🔒 Not Editable
+                              </div>
+                              <div class="text-xs text-red-600 mt-1">${editNote}</div>
+                              ` : `
                               <div class="inline-block px-2 py-1 rounded text-xs font-medium bg-orange-100 text-orange-800 mt-2">
                                   Drawing Task Available
                               </div>
+                              `}
                           </div>
                           <button 
                               id="start-drawing-btn-${plot.plotId}"
-                              class="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm font-medium transition-colors"
+                              class="w-full ${isEditable ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'} text-white px-3 py-2 rounded text-sm font-medium transition-colors"
+                              ${!isEditable ? 'disabled' : ''}
                           >
-                              Start Drawing
+                              ${isEditable ? 'Start Drawing' : '🔒 Locked'}
                           </button>
                       </div>
                   `)
@@ -618,14 +782,17 @@ const SupervisorMap = () => {
                                             `start-drawing-btn-${plot.plotId}`,
                                         );
                                         if (btn) {
-                                            btn.onclick = () => {
-                                                setSelectedTask(task);
-                                                setFocusedTask(task);
-                                                startDrawingForTask(task);
-                                                if (popupRef.current) {
-                                                    popupRef.current.remove();
-                                                }
-                                            };
+                                            const isEditable = plot.isEditableInCurrentSeason !== false;
+                                            if (isEditable) {
+                                                btn.onclick = () => {
+                                                    setSelectedTask(task);
+                                                    setFocusedTask(task);
+                                                    startDrawingForTask(task);
+                                                    if (popupRef.current) {
+                                                        popupRef.current.remove();
+                                                    }
+                                                };
+                                            }
                                         }
                                     }, 0);
                                 } else {
@@ -699,6 +866,14 @@ const SupervisorMap = () => {
 
     const startDrawingForTask = (task: PolygonTask) => {
         console.log("Starting drawing for task:", task.id);
+
+        // Check if plot is editable
+        const plot = plots.find((p) => p.plotId === task.plotId);
+        if (plot && plot.isEditableInCurrentSeason === false) {
+            alert(`Cannot edit this plot: ${plot.editabilityNote || 'Plot is not editable in current season'}`);
+            return;
+        }
+
         setSelectedTask(task);
         selectedTaskRef.current = task; // Keep ref in sync
         setIsDrawing(true);
@@ -708,9 +883,34 @@ const SupervisorMap = () => {
         }
     };
 
+    const startEditingPlot = (plot: PlotDTO, e: React.MouseEvent) => {
+        e.stopPropagation();
+        console.log("Starting edit for plot:", plot.plotId);
+
+        // Check if plot is editable
+        if (plot.isEditableInCurrentSeason === false) {
+            alert(`Cannot edit this plot: ${plot.editabilityNote || 'Plot is not editable in current season'}`);
+            return;
+        }
+
+        setEditingPlot(plot);
+        setIsDrawing(true);
+        setTaskNotes(`Updating polygon for plot ${plot.soThua}/${plot.soTo}`);
+
+        // Delete existing polygon if present
+        if (draw.current) {
+            draw.current.deleteAll();
+            draw.current.changeMode("draw_polygon");
+        }
+
+        // Focus on the plot
+        handlePlotFocus(plot);
+    };
+
     const cancelDrawing = () => {
         setSelectedTask(null);
         selectedTaskRef.current = null; // Clear ref too
+        setEditingPlot(null);
         setIsDrawing(false);
         setDrawnPolygon(null);
         setPolygonArea(0);
@@ -724,17 +924,47 @@ const SupervisorMap = () => {
     };
 
     const completeDrawing = () => {
-        if (!selectedTask || !drawnPolygon) return;
+        if (!drawnPolygon) return;
 
-        const geoJsonString = JSON.stringify(drawnPolygon.geometry);
+        // Determine which plot we're working with
+        const plot = editingPlot || (selectedTask ? plots.find((p) => p.plotId === selectedTask.plotId) : null);
+        if (!plot) return;
 
-        completeTaskMutation.mutate({
-            taskId: selectedTask.id,
-            data: {
-                polygonGeoJson: geoJsonString,
-                notes: taskNotes || `Polygon drawn with area: ${polygonArea}m²`,
-            },
+        // Check if plot is editable
+        if (plot.isEditableInCurrentSeason === false) {
+            alert(`Cannot edit plot: ${plot.editabilityNote || 'Plot is not editable in current season'}`);
+            return;
+        }
+
+        // Convert GeoJSON to WKT format for the API
+        const coordinates = drawnPolygon.geometry.coordinates[0];
+        const wktCoords = coordinates
+            .map((coord: number[]) => `${coord[0]} ${coord[1]}`)
+            .join(", ");
+        const wktPolygon = `POLYGON((${wktCoords}))`;
+
+        // Use update plot API
+        updatePlotMutation.mutate({
+            plotId: plot.plotId,
+            farmerId: plot.farmerId,
+            boundary: wktPolygon,
+            area: plot.area,
+            status: 0, // Active
+            soThua: plot.soThua,
+            soTo: plot.soTo,
         });
+
+        // Also complete the task if using task-based workflow
+        if (selectedTask?.id) {
+            const geoJsonString = JSON.stringify(drawnPolygon.geometry);
+            completeTaskMutation.mutate({
+                taskId: selectedTask.id,
+                data: {
+                    polygonGeoJson: geoJsonString,
+                    notes: taskNotes || `Polygon drawn with area: ${polygonArea}m²`,
+                },
+            });
+        }
     };
 
     const handleTaskFocus = (task: PolygonTask) => {
@@ -881,13 +1111,17 @@ const SupervisorMap = () => {
                     />
 
                     {/* Overlay drawing info */}
-                    {isDrawing && selectedTask && (
+                    {isDrawing && (selectedTask || editingPlot) && (
                         <div className="absolute top-4 right-4 bg-white/95 backdrop-blur rounded-lg shadow-xl p-4 w-80 z-30">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
-                                    <MapPin className="w-5 h-5 text-blue-600" />
+                                    {editingPlot ? (
+                                        <Edit3 className="w-5 h-5 text-orange-600" />
+                                    ) : (
+                                        <MapPin className="w-5 h-5 text-blue-600" />
+                                    )}
                                     <span className="font-semibold text-sm">
-                                        Drawing: Plot {selectedTask.soThua}/{selectedTask.soTo}
+                                        {editingPlot ? 'Editing' : 'Drawing'}: Plot {(editingPlot || selectedTask)?.soThua}/{(editingPlot || selectedTask)?.soTo}
                                     </span>
                                 </div>
                                 <button
@@ -905,13 +1139,58 @@ const SupervisorMap = () => {
                                         ✓ Polygon completed
                                     </div>
                                     <div className="text-xs text-gray-600">
-                                        Area: {polygonArea.toLocaleString()}m²
+                                        Area: {polygonArea.toLocaleString()}m² ({(polygonArea / 10000).toFixed(2)}ha)
                                     </div>
+
+                                    {/* Validation status - always show if validating or has result */}
+                                    {isValidating ? (
+                                        <div className="flex items-center gap-2 p-2 bg-blue-50 rounded text-xs">
+                                            <Spinner size="sm" className="text-blue-600" />
+                                            <span className="text-blue-700">Validating area...</span>
+                                        </div>
+                                    ) : validationResult ? (
+                                        <div className={`p-2 rounded text-xs space-y-1 ${validationResult.isValid
+                                            ? 'bg-green-50 border border-green-200'
+                                            : 'bg-red-50 border border-red-200'
+                                            }`}>
+                                            <div className={`font-medium flex items-center gap-1 ${validationResult.isValid ? 'text-green-700' : 'text-red-700'
+                                                }`}>
+                                                {validationResult.isValid ? (
+                                                    <>
+                                                        <CheckCircle className="w-3 h-3" />
+                                                        Valid Area
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <AlertTriangle className="w-3 h-3" />
+                                                        Area Mismatch
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div className="text-gray-700">
+                                                Drawn: {validationResult.drawnAreaHa.toFixed(2)}ha
+                                            </div>
+                                            <div className="text-gray-700">
+                                                Expected: {validationResult.plotAreaHa.toFixed(2)}ha
+                                            </div>
+                                            <div className={`font-medium ${validationResult.isValid ? 'text-green-700' : 'text-red-700'
+                                                }`}>
+                                                Difference: {Math.abs(validationResult.differencePercent).toFixed(1)}%
+                                            </div>
+                                            {!validationResult.isValid && (
+                                                <div className="text-red-600 text-xs mt-1">
+                                                    {validationResult.message}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : null}
+
                                     <div className="flex gap-2 mt-3">
                                         <Button
                                             onClick={completeDrawing}
                                             disabled={
                                                 completeTaskMutation.isPending ||
+                                                updatePlotMutation.isPending ||
                                                 isValidating ||
                                                 !validationResult ||
                                                 !validationResult.isValid
@@ -919,7 +1198,7 @@ const SupervisorMap = () => {
                                             className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                             size="sm"
                                         >
-                                            {completeTaskMutation.isPending ? (
+                                            {(completeTaskMutation.isPending || updatePlotMutation.isPending) ? (
                                                 "Saving..."
                                             ) : (
                                                 <>
@@ -932,7 +1211,7 @@ const SupervisorMap = () => {
                                             onClick={cancelDrawing}
                                             variant="outline"
                                             size="sm"
-                                            disabled={completeTaskMutation.isPending}
+                                            disabled={completeTaskMutation.isPending || updatePlotMutation.isPending}
                                         >
                                             <X className="w-4 h-4" />
                                         </Button>
@@ -997,11 +1276,13 @@ const SupervisorMap = () => {
                                     filteredTasks.map((task) => {
                                         const priorityLevel = getPriorityLevel(task.priority);
                                         const priorityText = getPriorityText(task.priority);
+                                        const plot = plots.find((p) => p.plotId === task.plotId);
+                                        const isEditable = plot?.isEditableInCurrentSeason !== false;
 
                                         return (
                                             <div
                                                 key={task.id}
-                                                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${focusedTask?.id === task.id
+                                                className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${!isEditable ? "opacity-60" : ""} ${focusedTask?.id === task.id
                                                     ? "border-blue-500 bg-blue-100 shadow-lg scale-[1.02]"
                                                     : hoveredTaskId === task.id
                                                         ? "border-blue-400 bg-blue-50 shadow-md"
@@ -1017,8 +1298,11 @@ const SupervisorMap = () => {
                                                     <div className="flex items-center gap-2">
                                                         <MapPin className="w-4 h-4 text-blue-600" />
                                                         <div>
-                                                            <div className="font-medium text-sm">
+                                                            <div className="font-medium text-sm flex items-center gap-1">
                                                                 Plot {task.soThua}/{task.soTo}
+                                                                {!isEditable && (
+                                                                    <Lock className="w-3 h-3 text-red-500" />
+                                                                )}
                                                             </div>
                                                             <div className="text-xs text-gray-600">
                                                                 {task.plotId.slice(0, 8)}...
@@ -1048,6 +1332,12 @@ const SupervisorMap = () => {
                                                             {new Date(task.assignedAt).toLocaleDateString()}
                                                         </span>
                                                     </div>
+
+                                                    {!isEditable && plot?.editabilityNote && (
+                                                        <div className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">
+                                                            🔒 {plot.editabilityNote}
+                                                        </div>
+                                                    )}
 
                                                     {task.priority !== undefined && (
                                                         <div
@@ -1079,9 +1369,10 @@ const SupervisorMap = () => {
                                                                 e.stopPropagation();
                                                                 startDrawingForTask(task);
                                                             }}
+                                                            disabled={!isEditable}
                                                             className="w-full"
                                                         >
-                                                            Start Drawing
+                                                            {isEditable ? "Start Drawing" : "🔒 Locked"}
                                                         </Button>
                                                     </div>
                                                 )}
@@ -1108,57 +1399,102 @@ const SupervisorMap = () => {
                                         No plots with polygon yet
                                     </p>
                                 ) : (
-                                    completedPlots.map((plot) => (
-                                        <div
-                                            key={plot.plotId}
-                                            className="p-3 rounded-lg border-2 border-neutral-200 hover:border-green-300 hover:bg-green-50/50 transition-all cursor-pointer"
-                                            onClick={() => handlePlotFocus(plot)}
-                                        >
-                                            <div className="flex items-start justify-between mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <CheckCircle className="w-4 h-4 text-green-600" />
-                                                    <div>
-                                                        <div className="font-medium text-sm">
-                                                            Plot {plot.soThua}/{plot.soTo}
-                                                        </div>
-                                                        <div className="text-xs text-gray-600">
-                                                            {plot.plotId.slice(0, 8)}...
+                                    completedPlots.map((plot) => {
+                                        const isEditable = plot.isEditableInCurrentSeason !== false;
+                                        const hasGroup = plot.groupId && plot.groupId !== '00000000-0000-0000-0000-000000000000';
+
+                                        return (
+                                            <div
+                                                key={plot.plotId}
+                                                className="p-3 rounded-lg border-2 border-neutral-200 hover:border-green-300 hover:bg-green-50/50 transition-all cursor-pointer"
+                                                onClick={() => handlePlotFocus(plot)}
+                                            >
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <CheckCircle className="w-4 h-4 text-green-600" />
+                                                        <div>
+                                                            <div className="font-medium text-sm flex items-center gap-1">
+                                                                Plot {plot.soThua}/{plot.soTo}
+                                                                {!isEditable && (
+                                                                    <Lock className="w-3 h-3 text-red-500" />
+                                                                )}
+                                                            </div>
+                                                            <div className="text-xs text-gray-600">
+                                                                {plot.plotId.slice(0, 8)}...
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div
-                                                    className={`px-2 py-1 rounded text-xs font-medium ${plot.status === "Active"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : plot.status === "Emergency"
-                                                            ? "bg-red-100 text-red-800"
-                                                            : "bg-gray-100 text-gray-800"
-                                                        }`}
-                                                >
-                                                    {plot.status}
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-1 text-xs text-gray-600">
-                                                <div className="flex items-center gap-1">
-                                                    <User className="w-3 h-3" />
-                                                    <span>{plot.farmerName}</span>
-                                                </div>
-                                                <div>
-                                                    <span className="font-medium">Area:</span> {plot.area}ha
-                                                </div>
-                                                {plot.varietyName && (
-                                                    <div>
-                                                        <span className="font-medium">Variety:</span>{" "}
-                                                        {plot.varietyName}
+                                                    <div
+                                                        className={`px-2 py-1 rounded text-xs font-medium ${plot.status === "Active"
+                                                            ? "bg-green-100 text-green-800"
+                                                            : plot.status === "Emergency"
+                                                                ? "bg-red-100 text-red-800"
+                                                                : "bg-gray-100 text-gray-800"
+                                                            }`}
+                                                    >
+                                                        {plot.status}
                                                     </div>
-                                                )}
-                                            </div>
+                                                </div>
 
-                                            <div className="mt-2 text-xs text-green-600 font-medium">
-                                                ✓ Polygon available
+                                                <div className="space-y-1 text-xs text-gray-600">
+                                                    <div className="flex items-center gap-1">
+                                                        <User className="w-3 h-3" />
+                                                        <span>{plot.farmerName}</span>
+                                                    </div>
+                                                    <div>
+                                                        <span className="font-medium">Area:</span> {plot.area}ha
+                                                    </div>
+                                                    {plot.varietyName && (
+                                                        <div>
+                                                            <span className="font-medium">Variety:</span>{" "}
+                                                            {plot.varietyName}
+                                                        </div>
+                                                    )}
+                                                    {hasGroup && (
+                                                        <div className="flex items-center gap-1">
+                                                            <Users className="w-3 h-3 text-purple-600" />
+                                                            <span className="text-purple-700 font-medium">
+                                                                {plot.groupName || 'In Group'}
+                                                            </span>
+                                                            {!plot.groupName && (
+                                                                <span className="text-xs text-gray-500">({plot.groupId.slice(0, 8)}...)</span>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                    {!isEditable && plot.editabilityNote && (
+                                                        <div className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700 mt-1">
+                                                            🔒 {plot.editabilityNote}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="mt-2 flex items-center justify-between">
+                                                    <div className="text-xs text-green-600 font-medium">
+                                                        ✓ Polygon available
+                                                    </div>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={(e) => startEditingPlot(plot, e)}
+                                                        disabled={!isEditable}
+                                                        className="h-7 px-2 text-xs"
+                                                    >
+                                                        {isEditable ? (
+                                                            <>
+                                                                <Edit3 className="w-3 h-3 mr-1" />
+                                                                Edit
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <Lock className="w-3 h-3 mr-1" />
+                                                                Locked
+                                                            </>
+                                                        )}
+                                                    </Button>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </CardContent>
                         </Card>
