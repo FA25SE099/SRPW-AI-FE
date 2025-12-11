@@ -557,6 +557,13 @@ const SupervisorMap = () => {
                         {
                             onSuccess: (response) => {
                                 console.log('📊 Full validation response:', response);
+                                console.log('📊 Response details:', {
+                                    succeeded: response.succeeded,
+                                    hasData: !!response.data,
+                                    data: response.data,
+                                    message: response.message
+                                });
+
                                 if (response.data) {
                                     // Success case: validation returned data
                                     console.log('✅ Setting validation result:', {
@@ -567,14 +574,13 @@ const SupervisorMap = () => {
                                     });
                                     setValidationResult(response.data);
                                     setIsValidating(false);
-                                    console.log('🎯 State updated: isValidating=false, validationResult set');
+                                    console.log('🎯 State updated: isValidating=false, validationResult set, isValid:', response.data.isValid);
                                 } else {
-                                    // API returned error in message field - treat as invalid
-                                    console.warn('⚠️ Validation failed - parsing error message:', response.message);
+                                    // API returned message without data - check if it's success or failure
+                                    const message = response.message || '';
+                                    const isAcceptable = message.includes('within acceptable tolerance');
 
-                                    // Try to extract percentage from error message
-                                    const percentMatch = response.message?.match(/differs by ([\d.]+)%/);
-                                    const differencePercent = percentMatch ? parseFloat(percentMatch[1]) : 0;
+                                    console.log(isAcceptable ? '✅ Validation passed (from message)' : '⚠️ Validation failed - parsing error message:', message);
 
                                     // Get plot area from current plot
                                     const currentTask = selectedTaskRef.current;
@@ -582,29 +588,56 @@ const SupervisorMap = () => {
                                     const plotForArea = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
                                     const plotAreaHa = plotForArea?.area || 0;
 
-                                    // Create a validation result from the error
-                                    const errorValidationResult = {
-                                        isValid: false,
-                                        drawnAreaHa: polygonArea / 10000,
+                                    // Calculate drawn area from the current draw data (not from state which may be stale)
+                                    const currentDrawData = draw.current?.getAll();
+                                    let drawnAreaHa = 0;
+                                    if (currentDrawData && currentDrawData.features.length > 0) {
+                                        const area = turf.area(currentDrawData);
+                                        drawnAreaHa = area / 10000; // Convert m² to ha
+                                    }
+
+                                    // Try to extract percentage from error message
+                                    const percentMatch = message.match(/differs by ([\d.]+)%/);
+                                    const differencePercent = percentMatch ? parseFloat(percentMatch[1]) : Math.abs(((drawnAreaHa - plotAreaHa) / plotAreaHa) * 100);
+
+                                    // Create a validation result from the message
+                                    const validationResult = {
+                                        isValid: isAcceptable,
+                                        drawnAreaHa: drawnAreaHa,
                                         plotAreaHa: plotAreaHa,
                                         differencePercent: differencePercent,
                                         tolerancePercent: 10,
-                                        message: response.message || 'Validation failed'
+                                        message: message
                                     };
 
-                                    console.log('🔧 Created validation result from error:', errorValidationResult);
-                                    setValidationResult(errorValidationResult);
+                                    console.log('🔧 Created validation result from message:', validationResult);
+                                    setValidationResult(validationResult);
                                     setIsValidating(false);
                                 }
                             },
                             onError: (error: any) => {
-                                setIsValidating(false);
                                 console.error('❌ Validation error:', error);
+                                console.error('❌ Error details:', {
+                                    response: error?.response,
+                                    data: error?.response?.data,
+                                    message: error?.message
+                                });
 
-                                // Try to extract error info for display
-                                const errorMessage = error?.response?.data?.message || error?.message || 'Validation failed';
+                                // Check if the error response contains the validation data
+                                const errorData = error?.response?.data;
+
+                                // If backend returned PolygonValidationResponse in error
+                                if (errorData?.data) {
+                                    console.log('📊 Validation data in error response:', errorData.data);
+                                    setValidationResult(errorData.data);
+                                    setIsValidating(false);
+                                    return;
+                                }
+
+                                // Otherwise, try to parse from message
+                                const errorMessage = errorData?.message || error?.message || 'Validation failed';
                                 const percentMatch = errorMessage.match(/differs by ([\d.]+)%/);
-                                const differencePercent = percentMatch ? parseFloat(percentMatch[1]) : 0;
+                                const isAcceptable = errorMessage.includes('within acceptable tolerance');
 
                                 // Get plot area from current plot
                                 const currentTask = selectedTaskRef.current;
@@ -612,14 +645,25 @@ const SupervisorMap = () => {
                                 const plotForArea = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
                                 const plotAreaHa = plotForArea?.area || 0;
 
+                                // Calculate drawn area from the current draw data (not from state which may be stale)
+                                const currentDrawData = draw.current?.getAll();
+                                let drawnAreaHa = 0;
+                                if (currentDrawData && currentDrawData.features.length > 0) {
+                                    const area = turf.area(currentDrawData);
+                                    drawnAreaHa = area / 10000; // Convert m² to ha
+                                }
+
+                                const differencePercent = percentMatch ? parseFloat(percentMatch[1]) : Math.abs(((drawnAreaHa - plotAreaHa) / plotAreaHa) * 100);
+
                                 setValidationResult({
-                                    isValid: false,
-                                    drawnAreaHa: polygonArea / 10000,
+                                    isValid: isAcceptable,
+                                    drawnAreaHa: drawnAreaHa,
                                     plotAreaHa: plotAreaHa,
                                     differencePercent: differencePercent,
                                     tolerancePercent: 10,
                                     message: errorMessage
                                 });
+                                setIsValidating(false);
                             },
                         }
                     );
@@ -1189,11 +1233,11 @@ const SupervisorMap = () => {
                                         <Button
                                             onClick={completeDrawing}
                                             disabled={
+                                                !drawnPolygon ||
                                                 completeTaskMutation.isPending ||
                                                 updatePlotMutation.isPending ||
                                                 isValidating ||
-                                                !validationResult ||
-                                                !validationResult.isValid
+                                                (validationResult !== null && !validationResult.isValid)
                                             }
                                             className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                             size="sm"
@@ -1203,7 +1247,7 @@ const SupervisorMap = () => {
                                             ) : (
                                                 <>
                                                     <Save className="w-4 h-4 mr-1" />
-                                                    Save
+                                                    {validationResult?.isValid ? 'Save' : validationResult ? 'Save Anyway' : 'Save'}
                                                 </>
                                             )}
                                         </Button>
