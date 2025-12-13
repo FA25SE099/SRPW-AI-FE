@@ -187,6 +187,10 @@ export const paths = {
         path: 'cluster/map',
         getHref: () => '/app/cluster/map',
       },
+      uavOrders: {
+        path: 'cluster/uav-orders',
+        getHref: () => '/app/cluster/uav-orders',
+      },
     },
   },
 } as const;
