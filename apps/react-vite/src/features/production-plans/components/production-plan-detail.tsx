@@ -16,7 +16,7 @@ type Props = {
   groupId: string;
 };
 
-export const ProductionPlanDetailDialog = ({
+export const ProductionPlanDetail = ({
   isOpen,
   onClose,
   groupId,

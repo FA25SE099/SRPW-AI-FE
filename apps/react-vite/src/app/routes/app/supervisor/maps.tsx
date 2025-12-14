@@ -910,13 +910,8 @@ const SupervisorMap = () => {
                                     <div className="flex gap-2 mt-3">
                                         <Button
                                             onClick={completeDrawing}
-                                            disabled={
-                                                completeTaskMutation.isPending ||
-                                                isValidating ||
-                                                !validationResult ||
-                                                !validationResult.isValid
-                                            }
-                                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            disabled={completeTaskMutation.isPending}
+                                            className="flex-1 bg-green-600 hover:bg-green-700"
                                             size="sm"
                                         >
                                             {completeTaskMutation.isPending ? (
@@ -1039,6 +1034,13 @@ const SupervisorMap = () => {
                                                         <div className="flex items-center gap-1">
                                                             <User className="w-3 h-3" />
                                                             <span>{task.farmerName}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {task.plotArea && (
+                                                        <div className="flex items-center gap-1">
+                                                            <MapPin className="w-3 h-3" />
+                                                            <span>Area: {task.plotArea}ha</span>
                                                         </div>
                                                     )}
 
