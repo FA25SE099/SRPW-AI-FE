@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Search, AlertTriangle } from 'lucide-react';
+import { Search, AlertTriangle, Eye } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { useLatePlots } from '../api';
 import { PlotWithLateCountDTO, PlotStatus } from '../types';
+import { CultivationPlanDetailDialog } from '@/features/supervisor/components/cultivation-plan-detail-dialog';
 
 interface LatePlotsListProps {
     agronomyExpertId?: string;
@@ -52,6 +53,8 @@ export const LatePlotsList = ({
 }: LatePlotsListProps) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
+    const [showCultivationPlanDialog, setShowCultivationPlanDialog] = useState(false);
+    const [selectedPlot, setSelectedPlot] = useState<PlotWithLateCountDTO | null>(null);
     const pageSize = 10;
 
     const { data, isLoading, error } = useLatePlots({
@@ -85,6 +88,16 @@ export const LatePlotsList = ({
     const handleSearch = (value: string) => {
         setSearchTerm(value);
         setPage(1); // Reset to first page on search
+    };
+
+    const handleViewCultivationPlan = (plot: PlotWithLateCountDTO) => {
+        setSelectedPlot(plot);
+        setShowCultivationPlanDialog(true);
+    };
+
+    const handleCloseCultivationPlanDialog = () => {
+        setShowCultivationPlanDialog(false);
+        setSelectedPlot(null);
     };
 
     return (
@@ -153,12 +166,15 @@ export const LatePlotsList = ({
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status
                                     </th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
                                 {plots.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
                                             No plots found with late records
                                         </td>
                                     </tr>
@@ -203,6 +219,17 @@ export const LatePlotsList = ({
                                                     {getPlotStatusLabel(plot.status)}
                                                 </span>
                                             </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleViewCultivationPlan(plot)}
+                                                    disabled={!plot.groupId}
+                                                >
+                                                    <Eye className="mr-1 h-4 w-4" />
+                                                    Detail
+                                                </Button>
+                                            </td>
                                         </tr>
                                     ))
                                 )}
@@ -237,6 +264,17 @@ export const LatePlotsList = ({
                         </div>
                     )}
                 </>
+            )}
+
+            {/* Cultivation Plan Detail Dialog */}
+            {selectedPlot && selectedPlot.groupId && (
+                <CultivationPlanDetailDialog
+                    isOpen={showCultivationPlanDialog}
+                    onClose={handleCloseCultivationPlanDialog}
+                    plotId={selectedPlot.plotId}
+                    groupId={selectedPlot.groupId}
+                    plotName={`Tờ ${selectedPlot.soTo}, Thửa ${selectedPlot.soThua}`}
+                />
             )}
         </div>
     );

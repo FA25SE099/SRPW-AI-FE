@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useLateFarmers, useLateFarmerDetail } from '../api';
-import { FarmerWithLateCountDTO } from '../types';
+import { FarmerWithLateCountDTO, LateFarmerRecordDTO } from '../types';
+import { CultivationPlanDetailDialog } from '@/features/supervisor/components/cultivation-plan-detail-dialog';
 
 interface LateFarmersListProps {
     agronomyExpertId?: string;
@@ -25,6 +26,8 @@ export const LateFarmersList = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(1);
     const [selectedFarmerId, setSelectedFarmerId] = useState<string | null>(null);
+    const [showCultivationPlanDialog, setShowCultivationPlanDialog] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState<LateFarmerRecordDTO | null>(null);
     const pageSize = 10;
 
     const { data, isLoading, error } = useLateFarmers({
@@ -81,6 +84,16 @@ export const LateFarmersList = ({
 
     const handleCloseDetail = () => {
         setSelectedFarmerId(null);
+    };
+
+    const handleViewCultivationPlan = (record: LateFarmerRecordDTO) => {
+        setSelectedRecord(record);
+        setShowCultivationPlanDialog(true);
+    };
+
+    const handleCloseCultivationPlanDialog = () => {
+        setShowCultivationPlanDialog(false);
+        setSelectedRecord(null);
     };
 
     return (
@@ -345,12 +358,15 @@ export const LateFarmersList = ({
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                                                     Notes
                                                 </th>
+                                                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                                                    Actions
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 bg-white">
                                             {farmerDetail.lateRecords.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                                                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                                                         No late records found
                                                     </td>
                                                 </tr>
@@ -377,6 +393,16 @@ export const LateFarmersList = ({
                                                         <td className="px-4 py-3 text-sm text-gray-600">
                                                             {record.notes || '-'}
                                                         </td>
+                                                        <td className="px-4 py-3 whitespace-nowrap text-right text-sm">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => handleViewCultivationPlan(record)}
+                                                            >
+                                                                <Eye className="mr-1 h-4 w-4" />
+                                                                Detail
+                                                            </Button>
+                                                        </td>
                                                     </tr>
                                                 ))
                                             )}
@@ -388,6 +414,17 @@ export const LateFarmersList = ({
                     )}
                 </DialogContent>
             </Dialog>
+
+            {/* Cultivation Plan Detail Dialog */}
+            {selectedRecord && (
+                <CultivationPlanDetailDialog
+                    isOpen={showCultivationPlanDialog}
+                    onClose={handleCloseCultivationPlanDialog}
+                    plotId={selectedRecord.plotId}
+                    groupId={selectedRecord.groupId}
+                    plotName={`Tờ ${selectedRecord.soTo}, Thửa ${selectedRecord.soThua}`}
+                />
+            )}
         </div>
     );
 };
