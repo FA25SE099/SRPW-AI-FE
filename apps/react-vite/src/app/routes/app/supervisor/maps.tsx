@@ -24,6 +24,11 @@ import {
     Lock,
     Edit3,
     Users,
+    Layers,
+    ChevronDown,
+    Satellite,
+    Search,
+    Filter,
 } from "lucide-react";
 
 import mapboxgl from "mapbox-gl";
@@ -358,7 +363,7 @@ const SupervisorMap = () => {
                     }, 100);
                 }
             },
-        },
+        }
     });
 
     const plots: PlotDTO[] = Array.isArray(plotsData?.data) ? plotsData.data : Array.isArray(plotsData) ? plotsData : [];
@@ -536,141 +541,19 @@ const SupervisorMap = () => {
                 setDrawnPolygon(data.features[0]);
                 console.log('✏️ Set drawnPolygon and polygonArea');
 
-                // Use refs to get current selectedTask or editingPlot value
+                // Use ref to get current selectedTask value
                 const currentTask = selectedTaskRef.current;
                 const currentEditingPlot = editingPlotRef.current;
-                const plotToValidate = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
 
-                if (plotToValidate && data.features[0]) {
-                    console.log('✅ Validating plot:', plotToValidate.plotId, currentEditingPlot ? '(editing)' : '(task)');
-
-                    // Validate polygon area
-                    const geoJsonString = JSON.stringify(data.features[0].geometry);
-                    setIsValidating(true);
-
-                    validatePolygonMutation.mutate(
-                        {
-                            plotId: plotToValidate.plotId,
-                            polygonGeoJson: geoJsonString,
-                            tolerancePercent: 10,
-                        },
-                        {
-                            onSuccess: (response) => {
-                                console.log('📊 Full validation response:', response);
-                                console.log('📊 Response details:', {
-                                    succeeded: response.succeeded,
-                                    hasData: !!response.data,
-                                    data: response.data,
-                                    message: response.message
-                                });
-
-                                if (response.data) {
-                                    // Success case: validation returned data
-                                    console.log('✅ Setting validation result:', {
-                                        isValid: response.data.isValid,
-                                        drawnAreaHa: response.data.drawnAreaHa,
-                                        plotAreaHa: response.data.plotAreaHa,
-                                        differencePercent: response.data.differencePercent
-                                    });
-                                    setValidationResult(response.data);
-                                    setIsValidating(false);
-                                    console.log('🎯 State updated: isValidating=false, validationResult set, isValid:', response.data.isValid);
-                                } else {
-                                    // API returned message without data - check if it's success or failure
-                                    const message = response.message || '';
-                                    const isAcceptable = message.includes('within acceptable tolerance');
-
-                                    console.log(isAcceptable ? '✅ Validation passed (from message)' : '⚠️ Validation failed - parsing error message:', message);
-
-                                    // Get plot area from current plot
-                                    const currentTask = selectedTaskRef.current;
-                                    const currentEditingPlot = editingPlotRef.current;
-                                    const plotForArea = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
-                                    const plotAreaHa = plotForArea?.area || 0;
-
-                                    // Calculate drawn area from the current draw data (not from state which may be stale)
-                                    const currentDrawData = draw.current?.getAll();
-                                    let drawnAreaHa = 0;
-                                    if (currentDrawData && currentDrawData.features.length > 0) {
-                                        const area = turf.area(currentDrawData);
-                                        drawnAreaHa = area / 10000; // Convert m² to ha
-                                    }
-
-                                    // Try to extract percentage from error message
-                                    const percentMatch = message.match(/differs by ([\d.]+)%/);
-                                    const differencePercent = percentMatch ? parseFloat(percentMatch[1]) : Math.abs(((drawnAreaHa - plotAreaHa) / plotAreaHa) * 100);
-
-                                    // Create a validation result from the message
-                                    const validationResult = {
-                                        isValid: isAcceptable,
-                                        drawnAreaHa: drawnAreaHa,
-                                        plotAreaHa: plotAreaHa,
-                                        differencePercent: differencePercent,
-                                        tolerancePercent: 10,
-                                        message: message
-                                    };
-
-                                    console.log('🔧 Created validation result from message:', validationResult);
-                                    setValidationResult(validationResult);
-                                    setIsValidating(false);
-                                }
-                            },
-                            onError: (error: any) => {
-                                console.error('❌ Validation error:', error);
-                                console.error('❌ Error details:', {
-                                    response: error?.response,
-                                    data: error?.response?.data,
-                                    message: error?.message
-                                });
-
-                                // Check if the error response contains the validation data
-                                const errorData = error?.response?.data;
-
-                                // If backend returned PolygonValidationResponse in error
-                                if (errorData?.data) {
-                                    console.log('📊 Validation data in error response:', errorData.data);
-                                    setValidationResult(errorData.data);
-                                    setIsValidating(false);
-                                    return;
-                                }
-
-                                // Otherwise, try to parse from message
-                                const errorMessage = errorData?.message || error?.message || 'Validation failed';
-                                const percentMatch = errorMessage.match(/differs by ([\d.]+)%/);
-                                const isAcceptable = errorMessage.includes('within acceptable tolerance');
-
-                                // Get plot area from current plot
-                                const currentTask = selectedTaskRef.current;
-                                const currentEditingPlot = editingPlotRef.current;
-                                const plotForArea = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
-                                const plotAreaHa = plotForArea?.area || 0;
-
-                                // Calculate drawn area from the current draw data (not from state which may be stale)
-                                const currentDrawData = draw.current?.getAll();
-                                let drawnAreaHa = 0;
-                                if (currentDrawData && currentDrawData.features.length > 0) {
-                                    const area = turf.area(currentDrawData);
-                                    drawnAreaHa = area / 10000; // Convert m² to ha
-                                }
-
-                                const differencePercent = percentMatch ? parseFloat(percentMatch[1]) : Math.abs(((drawnAreaHa - plotAreaHa) / plotAreaHa) * 100);
-
-                                setValidationResult({
-                                    isValid: isAcceptable,
-                                    drawnAreaHa: drawnAreaHa,
-                                    plotAreaHa: plotAreaHa,
-                                    differencePercent: differencePercent,
-                                    tolerancePercent: 10,
-                                    message: errorMessage
-                                });
-                                setIsValidating(false);
-                            },
-                        }
-                    );
+                if (currentTask && data.features[0]) {
+                    console.log('✅ Triggering validation for plot:', currentTask.plotId);
+                    validateDrawnPolygon(currentTask.plotId, data.features[0]);
+                } else if (currentEditingPlot && data.features[0]) {
+                    console.log('✅ Triggering validation for edit:', currentEditingPlot.plotId);
+                    validateDrawnPolygon(currentEditingPlot.plotId, data.features[0]);
                 } else {
-                    console.warn('⚠️ No selectedTask/editingPlot or feature for validation', {
+                    console.warn('⚠️ No selectedTask or feature for validation', {
                         hasTask: !!currentTask,
-                        hasEditingPlot: !!currentEditingPlot,
                         hasFeature: !!data.features[0]
                     });
                 }
@@ -908,6 +791,39 @@ const SupervisorMap = () => {
         });
     };
 
+    const validateDrawnPolygon = async (plotId: string, polygon: any) => {
+        setIsValidating(true);
+        setValidationResult(null);
+
+        try {
+            const geoJsonString = JSON.stringify(polygon.geometry);
+            console.log('🔍 Validating polygon for plot:', plotId);
+
+            const response = await validatePolygonMutation.mutateAsync({
+                plotId,
+                polygonGeoJson: geoJsonString,
+                tolerancePercent: 10
+            });
+
+            console.log('✅ Validation response (unwrapped by api-client):', response);
+
+            // API client already unwraps response.data, so response IS the data
+            if (response && typeof response === 'object' && 'isValid' in response) {
+                console.log('📊 Setting validation result:', response);
+                setValidationResult(response as any);
+                console.log('📊 Validation result state updated');
+            } else {
+                console.error('❌ Unexpected validation response format:', response);
+            }
+        } catch (error: any) {
+            console.error('❌ Validation exception:', error);
+            const errorMessage = error?.response?.data?.errors?.[0] || error?.message || 'Failed to validate polygon area';
+            setValidationResult(null);
+        } finally {
+            setIsValidating(false);
+        }
+    };
+
     const startDrawingForTask = (task: PolygonTask) => {
         console.log("Starting drawing for task:", task.id);
 
@@ -968,45 +884,48 @@ const SupervisorMap = () => {
     };
 
     const completeDrawing = () => {
-        if (!drawnPolygon) return;
+        if (selectedTask && !editingPlot) { // This is the task drawing flow
+            if (!selectedTask || !drawnPolygon || !validationResult || !validationResult.isValid) {
+                 console.warn("Complete drawing called with invalid state", { selectedTask, drawnPolygon, validationResult });
+                 return;
+            }
 
-        // Determine which plot we're working with
-        const plot = editingPlot || (selectedTask ? plots.find((p) => p.plotId === selectedTask.plotId) : null);
-        if (!plot) return;
-
-        // Check if plot is editable
-        if (plot.isEditableInCurrentSeason === false) {
-            alert(`Cannot edit plot: ${plot.editabilityNote || 'Plot is not editable in current season'}`);
-            return;
-        }
-
-        // Convert GeoJSON to WKT format for the API
-        const coordinates = drawnPolygon.geometry.coordinates[0];
-        const wktCoords = coordinates
-            .map((coord: number[]) => `${coord[0]} ${coord[1]}`)
-            .join(", ");
-        const wktPolygon = `POLYGON((${wktCoords}))`;
-
-        // Use update plot API
-        updatePlotMutation.mutate({
-            plotId: plot.plotId,
-            farmerId: plot.farmerId,
-            boundary: wktPolygon,
-            area: plot.area,
-            status: 0, // Active
-            soThua: plot.soThua,
-            soTo: plot.soTo,
-        });
-
-        // Also complete the task if using task-based workflow
-        if (selectedTask?.id) {
             const geoJsonString = JSON.stringify(drawnPolygon.geometry);
+
             completeTaskMutation.mutate({
                 taskId: selectedTask.id,
                 data: {
                     polygonGeoJson: geoJsonString,
-                    notes: taskNotes || `Polygon drawn with area: ${polygonArea}m²`,
-                },
+                    notes: taskNotes || `Polygon drawn with area: ${validationResult.drawnAreaHa}ha (${polygonArea}m²)`
+                }
+            });
+        } else if (editingPlot) { // This is the edit flow
+            if (!drawnPolygon) return;
+
+            const plot = editingPlot;
+
+            // Check if plot is editable
+            if (plot.isEditableInCurrentSeason === false) {
+                alert(`Cannot edit plot: ${plot.editabilityNote || 'Plot is not editable in current season'}`);
+                return;
+            }
+
+            // Convert GeoJSON to WKT format for the API
+            const coordinates = drawnPolygon.geometry.coordinates[0];
+            const wktCoords = coordinates
+                .map((coord: number[]) => `${coord[0]} ${coord[1]}`)
+                .join(", ");
+            const wktPolygon = `POLYGON((${wktCoords}))`;
+
+            // Use update plot API
+            updatePlotMutation.mutate({
+                plotId: plot.plotId,
+                farmerId: plot.farmerId,
+                boundary: wktPolygon,
+                area: plot.area,
+                status: 0, // Active
+                soThua: plot.soThua,
+                soTo: plot.soTo,
             });
         }
     };
@@ -1178,76 +1097,107 @@ const SupervisorMap = () => {
                             </div>
 
                             {drawnPolygon ? (
-                                <div className="space-y-2">
-                                    <div className="text-sm text-green-600 font-medium">
-                                        ✓ Polygon completed
-                                    </div>
-                                    <div className="text-xs text-gray-600">
-                                        Area: {polygonArea.toLocaleString()}m² ({(polygonArea / 10000).toFixed(2)}ha)
-                                    </div>
-
-                                    {/* Validation status - always show if validating or has result */}
+                                <div className="space-y-3">
                                     {isValidating ? (
-                                        <div className="flex items-center gap-2 p-2 bg-blue-50 rounded text-xs">
-                                            <Spinner size="sm" className="text-blue-600" />
-                                            <span className="text-blue-700">Validating area...</span>
+                                        <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
+                                            Validating area...
                                         </div>
                                     ) : validationResult ? (
-                                        <div className={`p-2 rounded text-xs space-y-1 ${validationResult.isValid
-                                            ? 'bg-green-50 border border-green-200'
-                                            : 'bg-red-50 border border-red-200'
-                                            }`}>
-                                            <div className={`font-medium flex items-center gap-1 ${validationResult.isValid ? 'text-green-700' : 'text-red-700'
+                                        <>
+                                            {/* Validation Status Header */}
+                                            <div className={`flex items-center gap-2 p-3 rounded-lg ${validationResult.isValid
+                                                ? 'bg-green-100 border border-green-300'
+                                                : 'bg-red-100 border border-red-300'
                                                 }`}>
-                                                {validationResult.isValid ? (
-                                                    <>
-                                                        <CheckCircle className="w-3 h-3" />
-                                                        Valid Area
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <AlertTriangle className="w-3 h-3" />
-                                                        Area Mismatch
-                                                    </>
-                                                )}
+                                                <div className={`text-lg font-bold ${validationResult.isValid ? 'text-green-600' : 'text-red-600'}`}>
+                                                    {validationResult.isValid ? '✓' : '✗'}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className={`text-sm font-semibold ${validationResult.isValid ? 'text-green-800' : 'text-red-800'}`}>
+                                                        {validationResult.isValid ? 'Area Validated!' : 'Area Validation Failed'}
+                                                    </div>
+                                                    <div className={`text-xs ${validationResult.isValid ? 'text-green-700' : 'text-red-700'}`}>
+                                                        {validationResult.isValid ? 'Within acceptable range' : 'Outside acceptable range'}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="text-gray-700">
-                                                Drawn: {validationResult.drawnAreaHa.toFixed(2)}ha
+
+                                            {/* Area Comparison */}
+                                            <div className="bg-gray-50 p-3 rounded-lg space-y-2">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-600">Drawn Area:</span>
+                                                    <span className="text-sm font-bold text-gray-900">
+                                                        {validationResult.drawnAreaHa} ha
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs text-gray-600">Plot Area:</span>
+                                                    <span className="text-sm font-bold text-gray-900">
+                                                        {validationResult.plotAreaHa} ha
+                                                    </span>
+                                                </div>
+                                                <div className="border-t pt-2">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-xs text-gray-600">Difference:</span>
+                                                        <span className={`text-sm font-bold ${validationResult.isValid ? 'text-green-600' : 'text-red-600'}`}>
+                                                            {validationResult.differencePercent}%
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center mt-1">
+                                                        <span className="text-xs text-gray-500">Max Allowed:</span>
+                                                        <span className="text-xs text-gray-500">
+                                                            {validationResult.tolerancePercent}%
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div className="text-gray-700">
-                                                Expected: {validationResult.plotAreaHa.toFixed(2)}ha
-                                            </div>
-                                            <div className={`font-medium ${validationResult.isValid ? 'text-green-700' : 'text-red-700'
-                                                }`}>
-                                                Difference: {Math.abs(validationResult.differencePercent).toFixed(1)}%
-                                            </div>
-                                            {!validationResult.isValid && (
-                                                <div className="text-red-600 text-xs mt-1">
-                                                    {validationResult.message}
+
+                                            {/* Error Message */}
+                                            {!validationResult.isValid && validationResult.message && (
+                                                <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+                                                    <p className="text-xs text-red-800 font-medium">
+                                                        {validationResult.message}
+                                                    </p>
+                                                    <p className="text-xs text-red-600 mt-2">
+                                                        Please redraw the polygon with an area closer to {validationResult.plotAreaHa} ha
+                                                    </p>
                                                 </div>
                                             )}
+
+                                            {/* Success Message */}
+                                            {validationResult.isValid && validationResult.message && (
+                                                <div className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
+                                                    <p className="text-xs text-green-800 font-medium">
+                                                        {validationResult.message}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-sm text-gray-600">
+                                            Area: {polygonArea.toLocaleString()}m²
                                         </div>
-                                    ) : null}
+                                    )}
 
                                     <div className="flex gap-2 mt-3">
                                         <Button
                                             onClick={completeDrawing}
                                             disabled={
-                                                !drawnPolygon ||
                                                 completeTaskMutation.isPending ||
-                                                updatePlotMutation.isPending ||
                                                 isValidating ||
-                                                (validationResult !== null && !validationResult.isValid)
+                                                !validationResult ||
+                                                !validationResult.isValid
                                             }
                                             className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                                             size="sm"
                                         >
-                                            {(completeTaskMutation.isPending || updatePlotMutation.isPending) ? (
+                                            {completeTaskMutation.isPending ? (
                                                 "Saving..."
                                             ) : (
                                                 <>
                                                     <Save className="w-4 h-4 mr-1" />
-                                                    {validationResult?.isValid ? 'Save' : validationResult ? 'Save Anyway' : 'Save'}
+                                                    Save
                                                 </>
                                             )}
                                         </Button>
@@ -1255,7 +1205,7 @@ const SupervisorMap = () => {
                                             onClick={cancelDrawing}
                                             variant="outline"
                                             size="sm"
-                                            disabled={completeTaskMutation.isPending || updatePlotMutation.isPending}
+                                            disabled={completeTaskMutation.isPending}
                                         >
                                             <X className="w-4 h-4" />
                                         </Button>
