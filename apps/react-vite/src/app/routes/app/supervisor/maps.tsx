@@ -227,6 +227,7 @@ const SupervisorMap = () => {
     const markersRef = useRef<mapboxgl.Marker[]>([]);
     const searchControlRef = useRef<any>(null);
     const selectedTaskRef = useRef<PolygonTask | null>(null);
+    const plotsRef = useRef<PlotDTO[]>([]);
 
     const [isClient, setIsClient] = useState(false);
     const [mapLoaded, setMapLoaded] = useState(false);
@@ -363,6 +364,9 @@ const SupervisorMap = () => {
 
     const plots: PlotDTO[] = Array.isArray(plotsData?.data) ? plotsData.data : Array.isArray(plotsData) ? plotsData : [];
     const tasks: PolygonTask[] = Array.isArray(tasksData) ? tasksData : [];
+
+    // Keep plotsRef in sync - do this immediately, not in useEffect
+    plotsRef.current = plots;
 
     useEffect(() => {
         setIsClient(true);
@@ -539,7 +543,25 @@ const SupervisorMap = () => {
                 // Use refs to get current selectedTask or editingPlot value
                 const currentTask = selectedTaskRef.current;
                 const currentEditingPlot = editingPlotRef.current;
-                const plotToValidate = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
+                console.log('🔍 Checking for plot to validate:', {
+                    currentTask: currentTask?.plotId,
+                    currentEditingPlot: currentEditingPlot?.plotId,
+                    plotsRefLength: plotsRef.current.length
+                });
+
+                // Try to find plot by plotId first, then fallback to soThua/soTo
+                let plotToValidate = currentEditingPlot || (currentTask ? plotsRef.current.find(p => p.plotId === currentTask.plotId) : null);
+
+                // Fallback: if not found by plotId, try by soThua/soTo
+                if (!plotToValidate && currentTask) {
+                    console.warn('⚠️ Plot not found by plotId, trying soThua/soTo:', currentTask.soThua, currentTask.soTo);
+                    plotToValidate = plotsRef.current.find(p => p.soThua === currentTask.soThua && p.soTo === currentTask.soTo);
+                    if (plotToValidate) {
+                        console.log('✅ Found plot by soThua/soTo:', plotToValidate.plotId);
+                    }
+                }
+
+                console.log('📍 Plot to validate:', plotToValidate?.plotId, plotToValidate?.soThua, plotToValidate?.soTo);
 
                 if (plotToValidate && data.features[0]) {
                     console.log('✅ Validating plot:', plotToValidate.plotId, currentEditingPlot ? '(editing)' : '(task)');
@@ -579,13 +601,17 @@ const SupervisorMap = () => {
                                     // Get plot area from current plot
                                     const currentTask = selectedTaskRef.current;
                                     const currentEditingPlot = editingPlotRef.current;
-                                    const plotForArea = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
+                                    let plotForArea = currentEditingPlot || (currentTask ? plotsRef.current.find(p => p.plotId === currentTask.plotId) : null);
+                                    // Fallback to soThua/soTo if not found by plotId
+                                    if (!plotForArea && currentTask) {
+                                        plotForArea = plotsRef.current.find(p => p.soThua === currentTask.soThua && p.soTo === currentTask.soTo);
+                                    }
                                     const plotAreaHa = plotForArea?.area || 0;
 
                                     // Create a validation result from the error
                                     const errorValidationResult = {
                                         isValid: false,
-                                        drawnAreaHa: polygonArea / 10000,
+                                        drawnAreaHa: roundedArea / 10000,
                                         plotAreaHa: plotAreaHa,
                                         differencePercent: differencePercent,
                                         tolerancePercent: 10,
@@ -609,12 +635,16 @@ const SupervisorMap = () => {
                                 // Get plot area from current plot
                                 const currentTask = selectedTaskRef.current;
                                 const currentEditingPlot = editingPlotRef.current;
-                                const plotForArea = currentEditingPlot || (currentTask ? plots.find(p => p.plotId === currentTask.plotId) : null);
+                                let plotForArea = currentEditingPlot || (currentTask ? plotsRef.current.find(p => p.plotId === currentTask.plotId) : null);
+                                // Fallback to soThua/soTo if not found by plotId
+                                if (!plotForArea && currentTask) {
+                                    plotForArea = plotsRef.current.find(p => p.soThua === currentTask.soThua && p.soTo === currentTask.soTo);
+                                }
                                 const plotAreaHa = plotForArea?.area || 0;
 
                                 setValidationResult({
                                     isValid: false,
-                                    drawnAreaHa: polygonArea / 10000,
+                                    drawnAreaHa: roundedArea / 10000,
                                     plotAreaHa: plotAreaHa,
                                     differencePercent: differencePercent,
                                     tolerancePercent: 10,
@@ -865,10 +895,25 @@ const SupervisorMap = () => {
     };
 
     const startDrawingForTask = (task: PolygonTask) => {
-        console.log("Starting drawing for task:", task.id);
+        console.log("Starting drawing for task:", task.id, "plotId:", task.plotId);
 
-        // Check if plot is editable
-        const plot = plots.find((p) => p.plotId === task.plotId);
+        // Use plotsRef to get the latest plots data
+        const currentPlots = plotsRef.current.length > 0 ? plotsRef.current : plots;
+
+        // Try to find plot by plotId first
+        let plot = currentPlots.find((p) => p.plotId === task.plotId);
+        console.log('🔍 Found plot by plotId:', plot?.plotId, 'Total plots:', currentPlots.length);
+
+        // Fallback: if not found by plotId, try by soThua/soTo
+        if (!plot && task.soThua && task.soTo) {
+            console.warn('⚠️ Plot not found by plotId, trying soThua/soTo:', task.soThua, task.soTo);
+            plot = currentPlots.find((p) => p.soThua === task.soThua && p.soTo === task.soTo);
+            if (plot) {
+                console.log('✅ Found plot by soThua/soTo:', plot.plotId);
+            }
+        }
+
+        // Check if plot is editable (only if we found it)
         if (plot && plot.isEditableInCurrentSeason === false) {
             alert(`Cannot edit this plot: ${plot.editabilityNote || 'Plot is not editable in current season'}`);
             return;
@@ -926,9 +971,28 @@ const SupervisorMap = () => {
     const completeDrawing = () => {
         if (!drawnPolygon) return;
 
+        // Use plotsRef to get the latest plots data
+        const currentPlots = plotsRef.current.length > 0 ? plotsRef.current : plots;
+
         // Determine which plot we're working with
-        const plot = editingPlot || (selectedTask ? plots.find((p) => p.plotId === selectedTask.plotId) : null);
-        if (!plot) return;
+        let plot: PlotDTO | null = editingPlot;
+
+        // If not editing, find plot from selectedTask
+        if (!plot && selectedTask) {
+            // Try to find by plotId first
+            plot = currentPlots.find((p) => p.plotId === selectedTask.plotId) || null;
+
+            // Fallback: try by soThua/soTo
+            if (!plot && selectedTask.soThua && selectedTask.soTo) {
+                plot = currentPlots.find((p) => p.soThua === selectedTask.soThua && p.soTo === selectedTask.soTo) || null;
+                console.log('🔍 Found plot by soThua/soTo in completeDrawing:', plot?.plotId);
+            }
+        }
+
+        if (!plot) {
+            console.error('❌ Plot not found in completeDrawing');
+            return;
+        }
 
         // Check if plot is editable
         if (plot.isEditableInCurrentSeason === false) {
@@ -1192,10 +1256,12 @@ const SupervisorMap = () => {
                                                 completeTaskMutation.isPending ||
                                                 updatePlotMutation.isPending ||
                                                 isValidating ||
-                                                !validationResult ||
-                                                !validationResult.isValid
+                                                !validationResult
                                             }
-                                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            className={`flex-1 ${validationResult?.isValid
+                                                ? 'bg-green-600 hover:bg-green-700'
+                                                : 'bg-yellow-600 hover:bg-yellow-700'
+                                                } disabled:opacity-50 disabled:cursor-not-allowed`}
                                             size="sm"
                                         >
                                             {(completeTaskMutation.isPending || updatePlotMutation.isPending) ? (
@@ -1203,7 +1269,7 @@ const SupervisorMap = () => {
                                             ) : (
                                                 <>
                                                     <Save className="w-4 h-4 mr-1" />
-                                                    Save
+                                                    {validationResult?.isValid ? 'Save' : 'Save Anyway'}
                                                 </>
                                             )}
                                         </Button>
