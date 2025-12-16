@@ -1,4 +1,4 @@
-import { CheckCircle2, XCircle, User, MapPin, Phone, Home } from 'lucide-react';
+import { CheckCircle2, XCircle, User, MapPin, Phone, Home, FileText } from 'lucide-react';
 
 import {
   TableElement,
@@ -16,13 +16,15 @@ import { cn } from '@/utils/cn';
 interface PlotsTableProps {
   plots: PlotDetail[];
   onViewPolygon?: (plot: PlotDetail) => void;
+  onViewDetail?: (plot: PlotDetail) => void;
+  groupId?: string;
 }
 
 const getStatusColor = (hasPolygon: boolean) => {
   return hasPolygon ? 'default' : 'destructive';
 };
 
-export const PlotsTable = ({ plots, onViewPolygon }: PlotsTableProps) => {
+export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: PlotsTableProps) => {
   const plotsWithPolygon = plots.filter(p => p.hasPolygon).length;
   const plotsWithoutPolygon = plots.filter(p => !p.hasPolygon).length;
 
@@ -66,7 +68,7 @@ export const PlotsTable = ({ plots, onViewPolygon }: PlotsTableProps) => {
               <TableHead>Farmer</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Action</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -78,7 +80,7 @@ export const PlotsTable = ({ plots, onViewPolygon }: PlotsTableProps) => {
               </TableRow>
             ) : (
               plots.map((plot) => (
-                <TableRow 
+                <TableRow
                   key={plot.plotId}
                   className={cn(
                     !plot.hasPolygon && "bg-red-50 dark:bg-red-950/20"
@@ -158,15 +160,27 @@ export const PlotsTable = ({ plots, onViewPolygon }: PlotsTableProps) => {
                     <Badge variant="outline">{plot.status}</Badge>
                   </TableCell>
                   <TableCell>
-                    {plot.hasPolygon && onViewPolygon && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onViewPolygon(plot)}
-                      >
-                        View Map
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {plot.hasPolygon && onViewPolygon && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onViewPolygon(plot)}
+                        >
+                          View Map
+                        </Button>
+                      )}
+                      {onViewDetail && groupId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onViewDetail(plot)}
+                        >
+                          <FileText className="mr-2 h-4 w-4" />
+                          Detail
+                        </Button>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

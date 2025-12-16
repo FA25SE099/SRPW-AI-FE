@@ -20,6 +20,7 @@ export type PlotDTO = {
     farmerId: string;
     farmerName: string;
     groupId: string;
+    groupName?: string; // Optional: Group name when backend provides it
     boundaryGeoJson: string; // GeoJSON Polygon
     coordinateGeoJson: string; // GeoJSON Point
     soThua: number;
@@ -29,6 +30,8 @@ export type PlotDTO = {
     status: PlotStatus;
     varietyName: string;
     seasons: SeasonDTO[];
+    isEditableInCurrentSeason?: boolean;
+    editabilityNote?: string;
 };
 
 export type PaginatedPlotsResponse = {

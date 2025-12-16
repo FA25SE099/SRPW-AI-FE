@@ -90,18 +90,22 @@ export const StandardPlansList = () => {
             <Button
               variant={selectedCategory === '' ? 'default' : 'outline'}
               onClick={() => setSelectedCategory('')}
+              className={selectedCategory === '' ? '' : 'text-gray-700'}
             >
               All Categories
             </Button>
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? 'default' : 'outline'}
-                onClick={() => setSelectedCategory(category.id)}
-              >
-                {category.name}
-              </Button>
-            ))}
+            {categories.map((category: any) => {
+              return (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? 'default' : 'outline'}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className={selectedCategory === category.id ? '' : 'text-gray-700'}
+                >
+                  {category.categoryName || category.name || 'Unnamed Category'}
+                </Button>
+              );
+            })}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -173,11 +177,10 @@ export const StandardPlansList = () => {
                     <p className="text-sm text-gray-500">{plan.categoryName}</p>
                   </div>
                   <span
-                    className={`rounded-full px-2 py-1 text-xs font-medium ${
-                      plan.isActive
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}
+                    className={`rounded-full px-2 py-1 text-xs font-medium ${plan.isActive
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-gray-100 text-gray-700'
+                      }`}
                   >
                     {plan.isActive ? 'Active' : 'Inactive'}
                   </span>
