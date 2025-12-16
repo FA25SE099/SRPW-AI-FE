@@ -19,9 +19,11 @@ import { GroupInfoCard } from '@/features/supervisor/components/group-info-card'
 import { PlotsTable } from '@/features/supervisor/components/plots-table';
 import { PlanProgressCard } from '@/features/supervisor/components/plan-progress-card';
 import { EconomicsCard } from '@/features/supervisor/components/economics-card';
+import { CultivationPlanDetailDialog } from '@/features/supervisor/components/cultivation-plan-detail-dialog';
 import { CreateProductionPlanDialog } from '@/features/production-plans/components';
 import { paths } from '@/config/paths';
 import { Head } from '@/components/seo/head';
+import { PlotDetail } from '@/types/group';
 
 const SupervisorGroupPage = () => {
   const navigate = useNavigate();
@@ -31,6 +33,8 @@ const SupervisorGroupPage = () => {
   }>();
   const [selectedGroupId, setSelectedGroupId] = useState<string>();
   const [showCreatePlanDialog, setShowCreatePlanDialog] = useState(false);
+  const [showCultivationPlanDialog, setShowCultivationPlanDialog] = useState(false);
+  const [selectedPlot, setSelectedPlot] = useState<PlotDetail | null>(null);
 
   // Get available seasons for dropdown
   const { data: availableSeasonsData, isLoading: isLoadingSeasons } = useAvailableSeasons();
@@ -80,6 +84,16 @@ const SupervisorGroupPage = () => {
 
   const handleFixPolygons = () => {
     navigate(paths.app.supervisor.dashboard.getHref());
+  };
+
+  const handleViewPlotDetail = (plot: PlotDetail) => {
+    setSelectedPlot(plot);
+    setShowCultivationPlanDialog(true);
+  };
+
+  const handleCloseCultivationPlanDialog = () => {
+    setShowCultivationPlanDialog(false);
+    setSelectedPlot(null);
   };
 
   if (isLoading || isLoadingSeasons) {
@@ -307,7 +321,11 @@ const SupervisorGroupPage = () => {
               {group.planOverview && (
                 <PlanProgressCard progress={group.planOverview} />
               )}
-              <PlotsTable plots={group.plots} />
+              <PlotsTable
+                plots={group.plots}
+                groupId={group.groupId}
+                onViewDetail={handleViewPlotDetail}
+              />
             </>
           )}
 
@@ -318,7 +336,11 @@ const SupervisorGroupPage = () => {
               {group.planOverview && (
                 <PlanProgressCard progress={group.planOverview} />
               )}
-              <PlotsTable plots={group.plots} />
+              <PlotsTable
+                plots={group.plots}
+                groupId={group.groupId}
+                onViewDetail={handleViewPlotDetail}
+              />
             </>
           )}
 
@@ -329,7 +351,11 @@ const SupervisorGroupPage = () => {
               {group.planOverview && (
                 <PlanProgressCard progress={group.planOverview} />
               )}
-              <PlotsTable plots={group.plots} />
+              <PlotsTable
+                plots={group.plots}
+                groupId={group.groupId}
+                onViewDetail={handleViewPlotDetail}
+              />
             </>
           )}
 
@@ -343,7 +369,11 @@ const SupervisorGroupPage = () => {
               {group.economicsOverview && (
                 <EconomicsCard economics={group.economicsOverview} />
               )}
-              <PlotsTable plots={group.plots} />
+              <PlotsTable
+                plots={group.plots}
+                groupId={group.groupId}
+                onViewDetail={handleViewPlotDetail}
+              />
             </>
           )}
         </div>
@@ -358,6 +388,17 @@ const SupervisorGroupPage = () => {
           groupName={group.groupName}
           totalArea={group.totalArea || 1}
           seasonId={group.season.seasonId}
+        />
+      )}
+
+      {/* Cultivation Plan Detail Dialog */}
+      {selectedPlot && group && (
+        <CultivationPlanDetailDialog
+          isOpen={showCultivationPlanDialog}
+          onClose={handleCloseCultivationPlanDialog}
+          plotId={selectedPlot.plotId}
+          groupId={group.groupId}
+          plotName={`Tờ ${selectedPlot.soTo}, Thửa ${selectedPlot.soThua}`}
         />
       )}
     </>

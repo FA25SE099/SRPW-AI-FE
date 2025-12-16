@@ -110,8 +110,15 @@ export const MaterialsList = () => {
           >
             Pesticides
           </Button>
-
-
+          <Button
+            variant={selectedType === MaterialType.Seed ? 'default' : 'outline'}
+            onClick={() => {
+              setCurrentPage(1);
+              setSelectedType(MaterialType.Seed);
+            }}
+          >
+            Seeds
+          </Button>
 
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Price at:</label>
@@ -210,7 +217,11 @@ export const MaterialsList = () => {
                         <p className="text-sm text-gray-500">
                           {material.type === MaterialType.Fertilizer
                             ? 'Fertilizer'
-                            : 'Pesticide'}
+                            : material.type === MaterialType.Pesticide
+                              ? 'Pesticide'
+                              : material.type === MaterialType.Seed
+                                ? 'Seed'
+                                : ''}
                           {material.isPartition && (
                             <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
                               Partitioned

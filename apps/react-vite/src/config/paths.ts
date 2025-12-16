@@ -96,6 +96,10 @@ export const paths = {
         path: 'expert/reports',
         getHref: () => '/app/expert/reports',
       },
+      lateManagement: {
+        path: 'expert/late-management',
+        getHref: () => '/app/expert/late-management',
+      },
     },
     admin: {
       root: {
@@ -160,6 +164,10 @@ export const paths = {
       maps: {
         path: 'supervisor/maps',
         getHref: () => '/app/supervisor/maps',
+      },
+      lateManagement: {
+        path: 'supervisor/late-management',
+        getHref: () => '/app/supervisor/late-management',
       },
     },
     cluster: {

@@ -546,7 +546,16 @@ export const CreateProductionPlanDialog = ({
                     </label>
                     <input
                       type="date"
-                      {...register('basePlantingDate', { required: 'Planting date is required' })}
+                      min={new Date().toISOString().split('T')[0]}
+                      {...register('basePlantingDate', {
+                        required: 'Planting date is required',
+                        validate: (value) => {
+                          const selectedDate = new Date(value);
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          return selectedDate >= today || 'Planting date cannot be in the past';
+                        }
+                      })}
                       className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                     />
                     {errors.basePlantingDate && (

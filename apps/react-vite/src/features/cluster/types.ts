@@ -242,3 +242,99 @@ export type GroupFormationResponse = {
   }>;
 };
 
+// Cluster Management Types
+export type Cluster = {
+  clusterId: string;
+  clusterName: string;
+  clusterManagerId: string;
+  agronomyExpertId: string | null;
+  clusterManagerName: string;
+  clusterManagerPhoneNumber: string;
+  clusterManagerEmail: string;
+  agronomyExpertName: string | null;
+  agronomyExpertPhoneNumber: string | null;
+  agronomyExpertEmail: string | null;
+  area: number | null;
+  supervisors: SupervisorSummary[] | null;
+};
+
+export type ClusterManager = {
+  clusterManagerId: string;
+  clusterManagerName: string;
+  clusterManagerPhoneNumber: string;
+  email: string;
+  clusterId: string | null;
+  assignedDate: string | null;
+};
+
+export type AgronomyExpert = {
+  expertId: string;
+  expertName: string;
+  expertPhoneNumber: string;
+  email: string;
+  clusterId: string | null;
+  assignedDate: string | null;
+};
+
+export type SupervisorSummary = {
+  supervisorId: string;
+  fullName: string | null;
+  phoneNumber: string | null;
+  email: string | null;
+  currentFarmerCount: number;
+  maxFarmerCapacity: number;
+  assignedDate: string | null;
+};
+
+export type Supervisor = {
+  supervisorId: string;
+  supervisorName: string;
+  supervisorPhoneNumber: string;
+  email: string;
+  clusterId: string | null;
+  assignedDate: string | null;
+  currentFarmerCount: number;
+  maxFarmerCapacity: number;
+};
+
+export type CreateSupervisorDto = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  maxFarmerCapacity?: number;
+};
+
+export type CreateClusterDto = {
+  clusterName: string;
+  clusterManagerId?: string | null;
+  agronomyExpertId?: string | null;
+  supervisorIds?: string[] | null;
+};
+
+export type CreateClusterManagerDto = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+};
+
+export type CreateAgronomyExpertDto = {
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+};
+
+export enum SortBy {
+  NameAscending = 'NameAscending',
+  NameDescending = 'NameDescending',
+  DateCreatedAscending = 'DateCreatedAscending',
+  DateCreatedDescending = 'DateCreatedDescending',
+}
+
+export type UpdateClusterDto = {
+  clusterId: string;
+  clusterName: string;
+  clusterManagerId?: string | null;
+  agronomyExpertId?: string | null;
+  supervisorIds?: string[] | null;
+};
+
