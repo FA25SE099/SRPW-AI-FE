@@ -11,7 +11,7 @@ import { UpdateStandardPlanDialog } from './update-standard-plan-dialog';
 import { CreateStandardPlanDialog } from './create-standard-plan-dialog';
 import { StandardPlan } from '@/types/api';
 import { Spinner } from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button/button';
 
 export const StandardPlansList = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');

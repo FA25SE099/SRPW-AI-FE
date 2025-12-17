@@ -350,6 +350,7 @@ export type ProductionPlanTask = {
   scheduledEndDate: string | null;
   priority: string;
   sequenceOrder: number;
+  status?: string; // Task status: Draft, Emergency, etc.
   estimatedMaterialCost: number;
   materials: TaskMaterial[];
 };

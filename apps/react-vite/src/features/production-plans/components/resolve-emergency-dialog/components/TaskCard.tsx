@@ -57,18 +57,27 @@ export const TaskCard = ({
             )}
 
             <div
-                className={`rounded-md border-2 ${
-                    hasTaskError ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-white'
-                } p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col`}
+                className={`rounded-md border-2 ${hasTaskError ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-white'
+                    } p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col`}
             >
                 <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-wrap">
                         <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
                             {taskIndex + 1}
                         </span>
                         {task.isFromProtocol && (
                             <span className="inline-block text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
                                 Protocol
+                            </span>
+                        )}
+                        {!task.isFromProtocol && !task.originalTaskId && task.status === 'Emergency' && (
+                            <span className="inline-block text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                                New-Emergency
+                            </span>
+                        )}
+                        {task.status === 'Emergency' && task.originalTaskId && !task.isFromProtocol && (
+                            <span className="inline-block text-[9px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">
+                                Re-added
                             </span>
                         )}
                     </div>
@@ -91,9 +100,8 @@ export const TaskCard = ({
                             onChange={(e) => onUpdateTask(stageIndex, taskIndex, { taskName: e.target.value })}
                             disabled={isLoading}
                             placeholder="Task name"
-                            className={`block w-full rounded-md border ${
-                                hasTaskError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                            } px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
+                            className={`block w-full rounded-md border ${hasTaskError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                                } px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
                         />
                         {hasTaskError && (
                             <p className="text-[10px] text-red-600 mt-0.5">Task name is required</p>

@@ -9,6 +9,8 @@ type PreviewStepProps = {
     protocolDetails: any;
     versionName: string;
     resolutionReason: string;
+    fertilizers: any[];
+    pesticides: any[];
 };
 
 export const PreviewStep = ({
@@ -18,7 +20,20 @@ export const PreviewStep = ({
     protocolDetails,
     versionName,
     resolutionReason,
+    fertilizers,
+    pesticides,
 }: PreviewStepProps) => {
+    // Helper function to get material name by ID
+    const getMaterialName = (materialId: string): string => {
+        const fertilizer = fertilizers.find((f: any) => f.materialId === materialId);
+        if (fertilizer) return fertilizer.name;
+
+        const pesticide = pesticides.find((p: any) => p.materialId === materialId);
+        if (pesticide) return pesticide.name;
+
+        return materialId; // Fallback to ID if not found
+    };
+
     return (
         <div className="space-y-4 max-h-[600px] overflow-y-auto">
             {/* Header Info */}
@@ -76,11 +91,33 @@ export const PreviewStep = ({
                             <div key={idx} className="bg-white rounded p-2 border border-yellow-300">
                                 <div className="font-medium text-xs text-yellow-900 mb-1">{stage.stageName}</div>
                                 <div className="space-y-1">
-                                    {stage.tasks.map((task, taskIdx) => (
-                                        <div key={taskIdx} className="text-xs text-gray-700 pl-2">
-                                            • {task.taskName}
-                                        </div>
-                                    ))}
+                                    {stage.tasks.map((task, taskIdx) => {
+                                        const taskAny = task as any;
+                                        return (
+                                            <div key={taskIdx} className="text-xs text-gray-700 pl-2">
+                                                <div className="font-medium">• {task.taskName}</div>
+                                                {(taskAny.daysAfter !== undefined || taskAny.durationDays !== undefined || taskAny.taskType) && (
+                                                    <div className="text-[10px] text-gray-600 pl-3">
+                                                        {taskAny.daysAfter !== undefined && `Day ${taskAny.daysAfter}`}
+                                                        {taskAny.daysAfter !== undefined && taskAny.durationDays !== undefined && ' • '}
+                                                        {taskAny.durationDays !== undefined && `${taskAny.durationDays}d`}
+                                                        {(taskAny.daysAfter !== undefined || taskAny.durationDays !== undefined) && taskAny.taskType && ' • '}
+                                                        {taskAny.taskType && taskAny.taskType}
+                                                    </div>
+                                                )}
+                                                {task.materials && task.materials.length > 0 && (
+                                                    <div className="pl-3 mt-0.5 text-[10px] text-gray-600 space-y-0.5">
+                                                        <div className="font-medium">Materials:</div>
+                                                        {task.materials.map((m: any, mIdx: number) => (
+                                                            <div key={mIdx} className="pl-2">
+                                                                • {m.materialName} ({m.quantityPerHa}/ha)
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
                         ))}
@@ -139,6 +176,16 @@ export const PreviewStep = ({
                                                         </span>
                                                     )}
                                                 </div>
+                                                {task.materials && task.materials.length > 0 && (
+                                                    <div className="text-[10px] text-gray-600 mt-0.5 space-y-0.5">
+                                                        <div className="font-medium">Materials:</div>
+                                                        {task.materials.map((m: any, mIdx: number) => (
+                                                            <div key={mIdx} className="pl-2">
+                                                                • {getMaterialName(m.materialId)} ({m.quantityPerHa}/ha)
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     ))}

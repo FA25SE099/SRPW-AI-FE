@@ -41,8 +41,10 @@ export const useLatePlots = ({
   queryConfig,
 }: UseLatePlotsOptions) => {
   return useQuery({
-    ...getLatePlotsQueryOptions(params),
-    enabled: !!(params.agronomyExpertId || params.supervisorId),
     ...queryConfig,
+    queryKey: ['late-plots', params],
+    queryFn: () => getLatePlots(params),
+    enabled: !!(params.agronomyExpertId || params.supervisorId),
   });
 };
+

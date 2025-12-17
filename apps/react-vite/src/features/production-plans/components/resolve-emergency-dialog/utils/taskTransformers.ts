@@ -20,6 +20,7 @@ export const convertPlanToEditableStages = (planDetails: ProductionPlanDetail): 
                 sequenceOrder: task.sequenceOrder,
                 isFromProtocol: false,
                 originalTaskId: task.id,
+                status: task.status || 'Draft', // Preserve task status
                 materials: task.materials.map(m => ({
                     materialId: m.materialId,
                     quantityPerHa: m.quantityPerHa,
@@ -44,8 +45,15 @@ export const convertEditableTasksToPayload = (
             const scheduledEndDate = new Date(scheduledDate);
             scheduledEndDate.setDate(scheduledEndDate.getDate() + task.durationDays - 1);
 
-            // Only mark NEW tasks as contingency (when productionPlanTaskId is null)
+            // Determine if this is a new or protocol task
             const isNewTask = !task.originalTaskId;
+            
+            // New tasks and protocol tasks get Emergency status
+            // Old tasks keep their original status
+            let taskStatus = task.status;
+            if (isNewTask || task.isFromProtocol) {
+                taskStatus = 'Emergency';
+            }
 
             baseCultivationTasks.push({
                 productionPlanTaskId: task.originalTaskId || null,
@@ -53,10 +61,10 @@ export const convertEditableTasksToPayload = (
                 description: task.description,
                 taskType: task.taskType,
                 scheduledEndDate: scheduledEndDate.toISOString(),
-                status: 'Draft',
+                status: taskStatus,
                 executionOrder: task.sequenceOrder,
-                isContingency: isNewTask,
-                contingencyReason: isNewTask ? resolutionReason : null,
+                isContingency: isNewTask || task.isFromProtocol,
+                contingencyReason: (isNewTask || task.isFromProtocol) ? resolutionReason : null,
                 defaultAssignedToUserId: null,
                 defaultAssignedToVendorId: null,
                 materialsPerHectare: task.materials.map(m => ({

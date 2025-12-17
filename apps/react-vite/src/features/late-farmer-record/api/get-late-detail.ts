@@ -28,7 +28,9 @@ export const useLateFarmerDetail = ({
   queryConfig,
 }: UseLateFarmerDetailOptions) => {
   return useQuery({
-    ...getLateFarmerDetailQueryOptions(farmerId),
     ...queryConfig,
+    queryKey: ['late-farmer-detail', farmerId],
+    queryFn: () => getLateFarmerDetail(farmerId),
   });
 };
+
