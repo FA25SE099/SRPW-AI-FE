@@ -38,6 +38,7 @@ export type GetFarmerPlotsResponse = {
 
 export const getFarmerPlots = (params: GetFarmerPlotsParams): Promise<GetFarmerPlotsResponse> => {
     const requestBody: any = {
+        farmerId: params.farmerId,
         currentPage: params.currentPage || 1,
         pageSize: params.pageSize || 20,
     };
@@ -49,7 +50,7 @@ export const getFarmerPlots = (params: GetFarmerPlotsParams): Promise<GetFarmerP
         requestBody.isUnassigned = params.isUnassigned;
     }
 
-    return api.post(`/farmer/${params.farmerId}/plots`, requestBody);
+    return api.post(`/Farmer/plots`, requestBody);
 };
 
 export const getFarmerPlotsQueryOptions = (params: GetFarmerPlotsParams) => {
