@@ -95,7 +95,12 @@ export type FarmerDetail = {
 
 // API Function
 export const getFarmerDetail = (farmerId: string): Promise<FarmerDetail> => {
-    return api.get(`/farmer/detail/${farmerId}`);
+    return api.post(`/farmer/detail/${farmerId}`, {
+        currentPage: 1,
+        pageSize: 100,
+        status: "Active",
+        isUnassigned: false,
+    });
 };
 
 // Query Options - SỬA LẠI TÊN HÀM
