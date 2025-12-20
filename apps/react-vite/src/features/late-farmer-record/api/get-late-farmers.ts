@@ -44,7 +44,7 @@ export const useLateFarmers = ({
     ...queryConfig,
     queryKey: ['late-farmers', params],
     queryFn: () => getLateFarmers(params),
-    enabled: !!(params.agronomyExpertId || params.supervisorId),
+    enabled: !!(params.agronomyExpertId || params.supervisorId) && (queryConfig?.enabled !== false),
   });
 };
 
