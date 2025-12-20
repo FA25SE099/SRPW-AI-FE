@@ -18,6 +18,8 @@ import {
   Network,
   ShieldAlert,
   Clock,
+  Plane,
+  ReceiptText,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation, useRouteError } from 'react-router';
 
@@ -274,6 +276,12 @@ const AppRoot = () => {
         name: 'Groups',
         to: paths.app.cluster.groups.getHref(),
         icon: Users,
+        end: true,
+      },
+      {
+        name: 'UAV Orders',
+        to: paths.app.cluster.uavOrders.getHref(),
+        icon: ReceiptText,
         end: true,
       },
       {

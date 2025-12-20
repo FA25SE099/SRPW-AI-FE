@@ -249,6 +249,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/cluster/map').then(convert(queryClient)),
             },
+            {
+              path: 'uav-orders',
+              lazy: () =>
+                import('./routes/app/cluster/uav-orders').then(convert(queryClient)),
+            },
           ],
         },
       ],
