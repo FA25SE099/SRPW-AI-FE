@@ -1,24 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Form, Input } from '@/components/ui/form';
 import { paths } from '@/config/paths';
+import { useForgotPassword, forgotPasswordInputSchema } from '../api/forgot-password';
 
 export const ForgotPasswordForm = () => {
-    const [email, setEmail] = useState('');
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [contactInfo, setContactInfo] = useState('');
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsLoading(true);
-
-        // TODO: Implement forgot password API call
-        setTimeout(() => {
+    const forgotPassword = useForgotPassword({
+        onSuccess: (data) => {
             setIsSubmitted(true);
-            setIsLoading(false);
-        }, 1000);
-    };
+        },
+    });
 
     if (isSubmitted) {
         return (
@@ -40,7 +35,7 @@ export const ForgotPasswordForm = () => {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Check your email</h3>
                 <p className="text-gray-600 mb-6">
-                    We've sent a password reset link to <strong>{email}</strong>
+                    We've sent a password reset link to <strong>{contactInfo}</strong>
                 </p>
                 <Link
                     to={paths.auth.login.getHref()}
@@ -54,33 +49,42 @@ export const ForgotPasswordForm = () => {
 
     return (
         <div>
-            <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        Email address
-                    </label>
-                    <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        required
-                        className="w-full"
-                    />
-                    <p className="mt-2 text-sm text-gray-500">
-                        Enter the email address associated with your account and we'll send you a link to reset your password.
-                    </p>
-                </div>
+            <Form
+                onSubmit={(values) => {
+                    setContactInfo(values.email);
+                    forgotPassword.mutate(values);
+                }}
+                schema={forgotPasswordInputSchema}
+                options={{
+                    defaultValues: {
+                        email: '',
+                    },
+                }}
+            >
+                {({ register, formState }) => (
+                    <>
+                        <Input
+                            type="email"
+                            label="Email address"
+                            placeholder="Enter your email"
+                            error={formState.errors['email']}
+                            registration={register('email')}
+                        />
 
-                <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full"
-                >
-                    {isLoading ? 'Sending...' : 'Send reset link'}
-                </Button>
-            </form>
+                        <p className="mt-2 text-sm text-gray-500">
+                            Enter the email address associated with your account and we'll send you a link to reset your password.
+                        </p>
+
+                        <Button
+                            type="submit"
+                            isLoading={forgotPassword.isPending}
+                            className="w-full"
+                        >
+                            Send reset link
+                        </Button>
+                    </>
+                )}
+            </Form>
 
             <div className="mt-6 text-center">
                 <Link

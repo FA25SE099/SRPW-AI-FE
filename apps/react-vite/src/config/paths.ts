@@ -19,6 +19,10 @@ export const paths = {
       path: '/auth/forgot-password',
       getHref: () => '/auth/forgot-password',
     },
+    changePassword: {
+      path: '/auth/change-password',
+      getHref: () => '/auth/change-password',
+    },
   },
 
   unauthorized: {
