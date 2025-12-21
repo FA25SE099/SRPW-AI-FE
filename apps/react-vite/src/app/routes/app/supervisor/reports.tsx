@@ -1,8 +1,55 @@
-import { Download, TrendingUp, BarChart3 } from 'lucide-react';
-
+import { TrendingUp, BarChart3, FileText, FileSpreadsheet, Calendar, Eye } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { ContentLayout } from '@/components/layouts';
 
+const getFileTypeIcon = (type: string) => {
+    switch (type) {
+        case 'PDF':
+            return <FileText className="h-5 w-5" />;
+        case 'Excel':
+            return <FileSpreadsheet className="h-5 w-5" />;
+        default:
+            return <FileText className="h-5 w-5" />;
+    }
+};
+
+const getFileTypeColor = (type: string) => {
+    switch (type) {
+        case 'PDF':
+            return 'text-red-600 bg-red-50';
+        case 'Excel':
+            return 'text-green-600 bg-green-50';
+        default:
+            return 'text-gray-600 bg-gray-50';
+    }
+};
+
+const getReportTypeColor = (name: string) => {
+    // Use different colors based on report name keywords
+    if (name.toLowerCase().includes('production') || name.toLowerCase().includes('summary')) {
+        return 'bg-blue-100 text-blue-800 border-blue-300';
+    }
+    if (name.toLowerCase().includes('performance') || name.toLowerCase().includes('farmer')) {
+        return 'bg-green-100 text-green-800 border-green-300';
+    }
+    if (name.toLowerCase().includes('material') || name.toLowerCase().includes('usage')) {
+        return 'bg-purple-100 text-purple-800 border-purple-300';
+    }
+    if (name.toLowerCase().includes('yield') || name.toLowerCase().includes('comparison')) {
+        return 'bg-orange-100 text-orange-800 border-orange-300';
+    }
+    if (name.toLowerCase().includes('financial')) {
+        return 'bg-indigo-100 text-indigo-800 border-indigo-300';
+    }
+    return 'bg-gray-100 text-gray-800 border-gray-300';
+};
+
 const ReportsRoute = () => {
+    const handleViewDetails = (reportId: string) => {
+        // Handle view details action
+        console.log('View details for report:', reportId);
+    };
+
     return (
         <ContentLayout title="Reports & Analytics">
             <div className="space-y-6">
@@ -42,61 +89,94 @@ const ReportsRoute = () => {
                             Generate New Report
                         </button>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {[
                             { 
+                                id: '1',
                                 name: 'Monthly Production Summary', 
                                 date: 'March 2024', 
                                 type: 'PDF',
                                 description: 'Overview of all production activities'
                             },
                             { 
+                                id: '2',
                                 name: 'Farmer Performance Analysis', 
                                 date: 'Q1 2024', 
                                 type: 'Excel',
                                 description: 'Individual farmer metrics and comparisons'
                             },
                             { 
+                                id: '3',
                                 name: 'Material Usage Report', 
                                 date: 'Feb 2024', 
                                 type: 'PDF',
                                 description: 'Fertilizer and pesticide consumption'
                             },
                             { 
+                                id: '4',
                                 name: 'Yield Comparison Report', 
                                 date: '2023-2024', 
                                 type: 'PDF',
                                 description: 'Year-over-year yield analysis'
                             },
                             { 
+                                id: '5',
                                 name: 'Financial Summary', 
                                 date: 'Q1 2024', 
                                 type: 'Excel',
                                 description: 'Costs, revenues, and profitability'
                             },
-                        ].map((report, idx) => (
-                            <div
-                                key={idx}
-                                className="flex items-start justify-between rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50"
-                            >
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-medium text-gray-900">{report.name}</p>
-                                        <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-                                            {report.type}
-                                        </span>
+                        ].map((report) => {
+                            const typeColor = getFileTypeColor(report.type);
+                            const typeIcon = getFileTypeIcon(report.type);
+                            const borderColor = getReportTypeColor(report.name);
+
+                            return (
+                                <div
+                                    key={report.id}
+                                    className={`rounded-lg border-2 ${borderColor} p-4 shadow-sm hover:shadow-md transition-shadow`}
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div className={`p-2 rounded-lg ${typeColor}`}>
+                                                    {typeIcon}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <h3 className="text-lg font-semibold text-gray-900">{report.name}</h3>
+                                                        <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
+                                                            {report.type}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <p className="text-sm text-gray-700 mb-3 line-clamp-2">{report.description}</p>
+
+                                            <div className="flex items-center gap-1.5 text-sm text-gray-600">
+                                                <Calendar className="h-4 w-4" />
+                                                <span>
+                                                    Period: <span className="font-medium text-gray-900">{report.date}</span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col gap-2 ml-4">
+                                            <Button
+                                                onClick={() => handleViewDetails(report.id)}
+                                                variant="outline"
+                                                size="sm"
+                                                className="whitespace-nowrap"
+                                            >
+                                                <Eye className="h-4 w-4 mr-1" />
+                                                View Details
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <p className="mt-1 text-xs text-gray-500">{report.description}</p>
-                                    <p className="mt-1 text-xs text-gray-400">
-                                        Period: {report.date}
-                                    </p>
                                 </div>
-                                <button className="flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700">
-                                    <Download className="h-4 w-4" />
-                                    Download
-                                </button>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
 

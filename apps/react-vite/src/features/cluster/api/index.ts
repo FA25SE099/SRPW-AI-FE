@@ -11,4 +11,5 @@ export * from './get-task-types';
 export * from './get-group-statuses';
 export * from './get-uav-vendors';
 export * from './create-groups';
+export * from './get-cluster-manager-orders';
 
