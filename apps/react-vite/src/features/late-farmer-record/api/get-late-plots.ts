@@ -48,3 +48,4 @@ export const useLatePlots = ({
     enabled: !!(params.agronomyExpertId || params.supervisorId) && (queryConfig?.enabled !== false),
   });
 };
+

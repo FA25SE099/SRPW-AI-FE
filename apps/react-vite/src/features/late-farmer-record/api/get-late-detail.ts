@@ -33,3 +33,4 @@ export const useLateFarmerDetail = ({
     queryFn: () => getLateFarmerDetail(farmerId),
   });
 };
+

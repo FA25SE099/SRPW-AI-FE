@@ -165,6 +165,10 @@ export const paths = {
         path: 'supervisor/late-management',
         getHref: () => '/app/supervisor/late-management',
       },
+      farmers: {
+        path: 'supervisor/farmers',
+        getHref: () => '/app/supervisor/farmers',
+      },
     },
     cluster: {
       root: {

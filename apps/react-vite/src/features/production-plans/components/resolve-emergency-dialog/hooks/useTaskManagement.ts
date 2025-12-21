@@ -91,6 +91,7 @@ export const useTaskManagement = (
             priority: 'Normal',
             sequenceOrder: 0,
             isFromProtocol: false,
+            status: 'Emergency', // New tasks get Emergency status
             materials: [],
         };
 
@@ -124,6 +125,7 @@ export const useTaskManagement = (
                         priority: task.priority,
                         sequenceOrder: 0,
                         isFromProtocol: true,
+                        status: 'Emergency', // Protocol tasks get Emergency status
                         materials: task.materials.map((m: any) => ({
                             materialId: m.materialId,
                             quantityPerHa: m.quantityPerHa,
@@ -132,6 +134,44 @@ export const useTaskManagement = (
                 }
             });
         });
+
+        const newStages = [...editableStages];
+        newStages[addingToStageIndex].tasks.splice(addingToTaskPosition, 0, ...selectedTasks);
+        newStages[addingToStageIndex].tasks.forEach((task, idx) => {
+            task.sequenceOrder = idx;
+        });
+        setEditableStages(newStages);
+    }, [editableStages, setEditableStages]);
+
+    const handleAddOldTask = useCallback((
+        originalPlanTasks: any[],
+        selectedOldTaskIds: Set<string>,
+        addingToStageIndex: number,
+        addingToTaskPosition: number
+    ) => {
+        if (addingToStageIndex === null || addingToTaskPosition === null) return;
+
+        const selectedTasks: EditableTask[] = originalPlanTasks
+            .filter(task => {
+                const taskId = task.taskId || task.id;
+                return taskId && selectedOldTaskIds.has(taskId);
+            })
+            .map(task => ({
+                taskName: task.taskName,
+                description: task.description || '',
+                taskType: task.taskType,
+                daysAfter: task.daysAfter,
+                durationDays: task.durationDays,
+                priority: task.priority,
+                sequenceOrder: 0,
+                isFromProtocol: false,
+                status: 'Emergency', // Re-added old tasks get Emergency status
+                originalTaskId: task.taskId || task.id, // Keep reference to original task
+                materials: task.materials.map((m: any) => ({
+                    materialId: m.materialId,
+                    quantityPerHa: m.quantityPerHa,
+                })),
+            }));
 
         const newStages = [...editableStages];
         newStages[addingToStageIndex].tasks.splice(addingToTaskPosition, 0, ...selectedTasks);
@@ -150,6 +190,7 @@ export const useTaskManagement = (
         handleAddMaterial,
         handleAddNewTask,
         handleAddTaskFromProtocol,
+        handleAddOldTask,
     };
 };
 

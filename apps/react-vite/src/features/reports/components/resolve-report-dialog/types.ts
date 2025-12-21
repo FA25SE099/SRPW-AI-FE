@@ -1,6 +1,6 @@
 export type Step = 'report' | 'protocol' | 'edit' | 'name' | 'preview';
 
-export type AddTaskMode = 'new' | 'protocol' | null;
+export type AddTaskMode = 'new' | 'protocol' | 'old' | null;
 
 export type EditableStage = {
     stageName: string;
@@ -18,6 +18,8 @@ export type EditableTask = {
     sequenceOrder: number;
     isFromProtocol: boolean;
     originalTaskId?: string; // CultivationPlanTask.Id
+    originalTaskStatus?: string; // Original task status from cultivation plan
+    status: string; // Current status: Draft, Emergency, etc.
     originalProtocolTaskId?: string;
     materials: {
         materialId: string;

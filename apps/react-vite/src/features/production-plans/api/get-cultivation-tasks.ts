@@ -19,6 +19,7 @@ export type CultivationTask = {
   actualServiceCost: number;
   isContingency: boolean;
   contingencyReason?: string;
+  plotCultivationId?: string; // ID for the plot cultivation (used for farm logs)
 };
 
 type GetCultivationTasksParams = {

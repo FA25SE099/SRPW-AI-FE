@@ -146,6 +146,32 @@ export const ResolveReportDialog = ({
         setSelectedProtocolTasks(new Set());
     };
 
+    const handleAddOldTask = () => {
+        if (addingToStageIndex === null || addingToTaskPosition === null || !cultivationPlan) return;
+
+        // Get all tasks from the original cultivation plan
+        const originalPlanTasks = cultivationPlan.stages.flatMap((stage: any) =>
+            stage.tasks.map((task: any) => ({
+                ...task,
+                stageName: stage.stageName,
+                stageSequenceOrder: stage.sequenceOrder,
+            }))
+        );
+
+        taskManagement.handleAddOldTask(
+            originalPlanTasks,
+            selectedProtocolTasks, // Reusing the same Set for old task IDs
+            addingToStageIndex,
+            addingToTaskPosition
+        );
+
+        setIsAddingTask(false);
+        setAddingToStageIndex(null);
+        setAddingToTaskPosition(null);
+        setAddTaskMode(null);
+        setSelectedProtocolTasks(new Set());
+    };
+
     const handleResolve = (formData: FormData) => {
         if (!user?.id || !cultivationPlan || !report) return;
 
@@ -255,6 +281,8 @@ export const ResolveReportDialog = ({
                                 protocolDetails={protocolDetails}
                                 versionName={watch('versionName')}
                                 resolutionReason={watch('resolutionReason')}
+                                fertilizers={fertilizers}
+                                pesticides={pesticides}
                             />
                         )}
                     </div>
@@ -284,6 +312,8 @@ export const ResolveReportDialog = ({
                         }}
                         onSelectProtocol={() => setAddTaskMode('protocol')}
                         onAddFromProtocol={handleAddTaskFromProtocol}
+                        onSelectOldTask={() => setAddTaskMode('old')}
+                        onAddOldTask={handleAddOldTask}
                         onBack={() => {
                             setAddTaskMode(null);
                             setSelectedProtocolTasks(new Set());
@@ -298,6 +328,14 @@ export const ResolveReportDialog = ({
                             setSelectedProtocolTasks(newSelected);
                         }}
                         addNotification={addNotification}
+                        originalPlanTasks={cultivationPlan?.stages.flatMap((stage: any) =>
+                            stage.tasks.map((task: any) => ({
+                                ...task,
+                                stageName: stage.stageName,
+                                stageSequenceOrder: stage.sequenceOrder,
+                            }))
+                        )}
+                        editableStages={editableStages}
                     />
 
                     {/* Footer */}

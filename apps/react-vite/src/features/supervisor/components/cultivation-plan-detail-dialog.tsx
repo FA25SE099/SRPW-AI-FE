@@ -10,6 +10,7 @@ import {
     Package,
     TrendingUp,
     X,
+    RefreshCw,
 } from 'lucide-react';
 
 import {
@@ -25,6 +26,7 @@ import { Card } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useCultivationPlanByGroupPlot } from '../api/get-cultivation-plan';
 import { CultivationPlanTask, CultivationPlanStage } from '../types/cultivation-plan';
+import { useFarmLogsByCultivation } from '@/features/production-plans/api/get-farm-logs-by-cultivation';
 import { cn } from '@/utils/cn';
 
 interface CultivationPlanDetailDialogProps {
@@ -74,6 +76,239 @@ const formatDate = (dateString: string | null) => {
     });
 };
 
+// Task component with farm logs
+const TaskItemWithLogs = ({
+    task,
+    plotCultivationId,
+    isInProgress,
+    inProgressTaskRef,
+}: {
+    task: CultivationPlanTask;
+    plotCultivationId: string;
+    isInProgress: boolean;
+    inProgressTaskRef: React.RefObject<HTMLDivElement> | null;
+}) => {
+    const [isOpen, setIsOpen] = useState(isInProgress);
+    const [loadLogs, setLoadLogs] = useState(false);
+
+    const { data: logsData, isLoading: logsLoading, refetch } = useFarmLogsByCultivation({
+        params: {
+            plotCultivationId: plotCultivationId,
+            currentPage: 1,
+            pageSize: 10,
+        },
+        queryConfig: {
+            enabled: loadLogs,
+        },
+    });
+
+    useEffect(() => {
+        if (isOpen && !loadLogs) {
+            setLoadLogs(true);
+        }
+    }, [isOpen, loadLogs]);
+
+    return (
+        <Collapsible
+            open={isOpen}
+            onOpenChange={setIsOpen}
+        >
+            <div
+                ref={inProgressTaskRef}
+                className={cn(
+                    'border rounded-lg transition-colors',
+                    isInProgress && 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+                )}
+            >
+                <CollapsibleTrigger className="w-full">
+                    <div className="p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3 flex-1 text-left">
+                            {isOpen ? (
+                                <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            ) : (
+                                <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            )}
+
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                                {getTaskTypeIcon(task.taskType)}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{task.taskName}</p>
+                            </div>
+
+                            <div className="flex items-center gap-3 flex-shrink-0">
+                                <Badge className={getStatusColor(task.status)}>
+                                    {task.status}
+                                </Badge>
+
+                                {task.plannedStartDate && (
+                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                        <Clock className="h-3 w-3" />
+                                        <span>Start: {formatDate(task.plannedStartDate)}</span>
+                                    </div>
+                                )}
+
+                                {task.plannedEndDate && (
+                                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                        <Clock className="h-3 w-3" />
+                                        <span>End: {formatDate(task.plannedEndDate)}</span>
+                                    </div>
+                                )}
+
+                                {task.actualStartDate && (
+                                    <div className="flex items-center gap-1 text-xs text-green-600">
+                                        <Clock className="h-3 w-3" />
+                                        <span>Actual Start: {formatDate(task.actualStartDate)}</span>
+                                    </div>
+                                )}
+
+                                {task.actualEndDate && (
+                                    <div className="flex items-center gap-1 text-xs text-green-600">
+                                        <Clock className="h-3 w-3" />
+                                        <span>Actual End: {formatDate(task.actualEndDate)}</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </CollapsibleTrigger>
+
+                <CollapsibleContent>
+                    <div className="px-3 pb-3 space-y-3 border-t pt-3 mt-2">
+                        {/* Task Description */}
+                        {task.taskDescription && (
+                            <div>
+                                <p className="text-sm font-medium mb-1">Description:</p>
+                                <p className="text-sm text-muted-foreground whitespace-pre-line">
+                                    {task.taskDescription}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Materials */}
+                        {task.materials.length > 0 && (
+                            <div>
+                                <p className="text-sm font-medium mb-2">Materials:</p>
+                                <div className="space-y-2">
+                                    {task.materials.map((material) => (
+                                        <div
+                                            key={material.materialId}
+                                            className="flex items-center justify-between p-2 bg-muted/50 rounded"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <Package className="h-4 w-4 text-muted-foreground" />
+                                                <span className="text-sm font-medium">
+                                                    {material.materialName}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-4 text-sm">
+                                                {material.plannedQuantity > 0 && (
+                                                    <span className="text-muted-foreground">
+                                                        Planned: {material.plannedQuantity} {material.unit}
+                                                    </span>
+                                                )}
+                                                {material.actualQuantity > 0 && (
+                                                    <span className="font-medium">
+                                                        Actual: {material.actualQuantity} {material.unit}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Task Priority */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground">Priority:</span>
+                            <Badge variant={task.priority === 'High' ? 'destructive' : 'outline'}>
+                                {task.priority}
+                            </Badge>
+                        </div>
+
+                        {/* Farm Logs Section */}
+                        <div className="mt-4 pt-4 border-t">
+                            <div className="flex items-center justify-between mb-3">
+                                <h5 className="text-sm font-semibold">Farm Logs</h5>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        refetch();
+                                    }}
+                                    disabled={logsLoading}
+                                >
+                                    <RefreshCw className={cn('h-4 w-4', logsLoading && 'animate-spin')} />
+                                </Button>
+                            </div>
+
+                            {logsLoading && (
+                                <div className="flex items-center justify-center py-4">
+                                    <Spinner size="sm" />
+                                </div>
+                            )}
+
+                            {!logsLoading && logsData?.data && logsData.data.length > 0 ? (
+                                <div className="space-y-2 max-h-60 overflow-y-auto">
+                                    {logsData.data.map((log) => (
+                                        <div
+                                            key={log.farmLogId}
+                                            className="p-3 bg-muted/30 rounded-lg space-y-2"
+                                        >
+                                            <div className="flex items-start justify-between">
+                                                <div className="space-y-1 flex-1">
+                                                    <p className="text-sm font-medium">{log.cultivationTaskName}</p>
+                                                    {log.workDescription && (
+                                                        <p className="text-sm text-muted-foreground">{log.workDescription}</p>
+                                                    )}
+                                                </div>
+                                                <Badge variant="outline" className="ml-2">
+                                                    {log.completionPercentage}% Complete
+                                                </Badge>
+                                            </div>
+
+                                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                                                <span>Logged: {formatDate(log.loggedDate)}</span>
+                                                {log.actualAreaCovered && (
+                                                    <span>Area: {log.actualAreaCovered} ha</span>
+                                                )}
+                                            </div>
+
+                                            {(log.materialsUsed.length > 0 || (log.serviceCost && log.serviceCost > 0)) && (
+                                                <div className="flex items-center gap-4 text-xs">
+                                                    {log.materialsUsed.length > 0 && (
+                                                        <span className="text-orange-600">
+                                                            Materials: {log.materialsUsed.length} item(s)
+                                                        </span>
+                                                    )}
+                                                    {log.serviceCost && log.serviceCost > 0 && (
+                                                        <span className="text-blue-600">
+                                                            Service: {log.serviceCost.toLocaleString('vi-VN')} VND
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                !logsLoading && (
+                                    <p className="text-sm text-muted-foreground text-center py-4">
+                                        No farm logs available
+                                    </p>
+                                )
+                            )}
+                        </div>
+                    </div>
+                </CollapsibleContent>
+            </div>
+        </Collapsible>
+    );
+};
+
 export const CultivationPlanDetailDialog = ({
     isOpen,
     onClose,
@@ -81,7 +316,6 @@ export const CultivationPlanDetailDialog = ({
     groupId,
     plotName,
 }: CultivationPlanDetailDialogProps) => {
-    const [openTasks, setOpenTasks] = useState<Set<string>>(new Set());
     const inProgressTaskRef = useRef<HTMLDivElement>(null);
 
     const { data: cultivationPlan, isLoading, error, refetch } = useCultivationPlanByGroupPlot({
@@ -98,48 +332,17 @@ export const CultivationPlanDetailDialog = ({
         }
     }, [isOpen, plotId, groupId, refetch]);
 
-    // Auto-expand InProgress tasks and scroll to the first one
+    // Auto-scroll to first InProgress task
     useEffect(() => {
         if (cultivationPlan?.stages) {
-            const inProgressTaskIds = new Set<string>();
-            let firstInProgressTaskId: string | null = null;
-
-            cultivationPlan.stages.forEach((stage) => {
-                stage.tasks.forEach((task) => {
-                    if (task.status === 'InProgress') {
-                        inProgressTaskIds.add(task.taskId);
-                        if (!firstInProgressTaskId) {
-                            firstInProgressTaskId = task.taskId;
-                        }
-                    }
+            setTimeout(() => {
+                inProgressTaskRef.current?.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
                 });
-            });
-
-            setOpenTasks(inProgressTaskIds);
-
-            // Scroll to first InProgress task after a short delay to ensure rendering
-            if (firstInProgressTaskId) {
-                setTimeout(() => {
-                    inProgressTaskRef.current?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
-                    });
-                }, 100);
-            }
+            }, 100);
         }
     }, [cultivationPlan]);
-
-    const toggleTask = (taskId: string) => {
-        setOpenTasks((prev) => {
-            const next = new Set(prev);
-            if (next.has(taskId)) {
-                next.delete(taskId);
-            } else {
-                next.add(taskId);
-            }
-            return next;
-        });
-    };
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
@@ -297,135 +500,18 @@ export const CultivationPlanDetailDialog = ({
                                     <div className="space-y-2">
                                         {stage.tasks.map((task, index) => {
                                             const isInProgress = task.status === 'InProgress';
-                                            const isOpen = openTasks.has(task.taskId);
                                             const isFirstInProgress = isInProgress && !cultivationPlan.stages
                                                 .slice(0, cultivationPlan.stages.indexOf(stage))
                                                 .some(s => s.tasks.some(t => t.status === 'InProgress'));
 
                                             return (
-                                                <Collapsible
+                                                <TaskItemWithLogs
                                                     key={task.taskId}
-                                                    open={isOpen}
-                                                    onOpenChange={() => toggleTask(task.taskId)}
-                                                >
-                                                    <div
-                                                        ref={isFirstInProgress ? inProgressTaskRef : null}
-                                                        className={cn(
-                                                            'border rounded-lg transition-colors',
-                                                            isInProgress && 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
-                                                        )}
-                                                    >
-                                                        <CollapsibleTrigger className="w-full">
-                                                            <div className="p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg">
-                                                                <div className="flex items-center gap-3 flex-1 text-left">
-                                                                    {isOpen ? (
-                                                                        <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                                                                    ) : (
-                                                                        <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                                                                    )}
-
-                                                                    <div className="flex items-center gap-2 flex-shrink-0">
-                                                                        {getTaskTypeIcon(task.taskType)}
-                                                                    </div>
-
-                                                                    <div className="flex-1 min-w-0">
-                                                                        <p className="font-medium truncate">{task.taskName}</p>
-                                                                    </div>
-
-                                                                    <div className="flex items-center gap-3 flex-shrink-0">
-                                                                        <Badge className={getStatusColor(task.status)}>
-                                                                            {task.status}
-                                                                        </Badge>
-
-                                                                        {task.plannedStartDate && (
-                                                                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                                                <Clock className="h-3 w-3" />
-                                                                                <span>Start: {formatDate(task.plannedStartDate)}</span>
-                                                                            </div>
-                                                                        )}
-
-                                                                        {task.plannedEndDate && (
-                                                                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                                                                <Clock className="h-3 w-3" />
-                                                                                <span>End: {formatDate(task.plannedEndDate)}</span>
-                                                                            </div>
-                                                                        )}
-
-                                                                        {task.actualStartDate && (
-                                                                            <div className="flex items-center gap-1 text-xs text-green-600">
-                                                                                <Clock className="h-3 w-3" />
-                                                                                <span>Actual Start: {formatDate(task.actualStartDate)}</span>
-                                                                            </div>
-                                                                        )}
-
-                                                                        {task.actualEndDate && (
-                                                                            <div className="flex items-center gap-1 text-xs text-green-600">
-                                                                                <Clock className="h-3 w-3" />
-                                                                                <span>Actual End: {formatDate(task.actualEndDate)}</span>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </CollapsibleTrigger>
-
-                                                        <CollapsibleContent>
-                                                            <div className="px-3 pb-3 space-y-3 border-t pt-3 mt-2">
-                                                                {/* Task Description */}
-                                                                {task.taskDescription && (
-                                                                    <div>
-                                                                        <p className="text-sm font-medium mb-1">Description:</p>
-                                                                        <p className="text-sm text-muted-foreground whitespace-pre-line">
-                                                                            {task.taskDescription}
-                                                                        </p>
-                                                                    </div>
-                                                                )}
-
-                                                                {/* Materials */}
-                                                                {task.materials.length > 0 && (
-                                                                    <div>
-                                                                        <p className="text-sm font-medium mb-2">Materials:</p>
-                                                                        <div className="space-y-2">
-                                                                            {task.materials.map((material) => (
-                                                                                <div
-                                                                                    key={material.materialId}
-                                                                                    className="flex items-center justify-between p-2 bg-muted/50 rounded"
-                                                                                >
-                                                                                    <div className="flex items-center gap-2">
-                                                                                        <Package className="h-4 w-4 text-muted-foreground" />
-                                                                                        <span className="text-sm font-medium">
-                                                                                            {material.materialName}
-                                                                                        </span>
-                                                                                    </div>
-                                                                                    <div className="flex items-center gap-4 text-sm">
-                                                                                        {material.plannedQuantity > 0 && (
-                                                                                            <span className="text-muted-foreground">
-                                                                                                Planned: {material.plannedQuantity} {material.unit}
-                                                                                            </span>
-                                                                                        )}
-                                                                                        {material.actualQuantity > 0 && (
-                                                                                            <span className="font-medium">
-                                                                                                Actual: {material.actualQuantity} {material.unit}
-                                                                                            </span>
-                                                                                        )}
-                                                                                    </div>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-
-                                                                {/* Task Priority */}
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-sm text-muted-foreground">Priority:</span>
-                                                                    <Badge variant={task.priority === 'High' ? 'destructive' : 'outline'}>
-                                                                        {task.priority}
-                                                                    </Badge>
-                                                                </div>
-                                                            </div>
-                                                        </CollapsibleContent>
-                                                    </div>
-                                                </Collapsible>
+                                                    task={task}
+                                                    plotCultivationId={cultivationPlan.plotCultivationId}
+                                                    isInProgress={isInProgress}
+                                                    inProgressTaskRef={isFirstInProgress ? inProgressTaskRef : null}
+                                                />
                                             );
                                         })}
                                     </div>

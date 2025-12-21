@@ -219,12 +219,18 @@ const AppRoot = () => {
         icon: Folder,
         end: true,
       },
-      // {
-      //   name: 'Reports',
-      //   to: paths.app.supervisor.reports.getHref(),
-      //   icon: TrendingUp,
-      //   end: true,
-      // },
+      {
+        name: 'Farmers',
+        to: paths.app.supervisor.farmers.getHref(),
+        icon: Users,
+        end: true,
+      },
+      {
+        name: 'Reports',
+        to: paths.app.supervisor.reports.getHref(),
+        icon: AlertTriangle,
+        end: true,
+      },
       {
         name: 'Maps',
         to: paths.app.supervisor.maps.getHref(),

@@ -47,3 +47,4 @@ export const useLateFarmers = ({
     enabled: !!(params.agronomyExpertId || params.supervisorId) && (queryConfig?.enabled !== false),
   });
 };
+

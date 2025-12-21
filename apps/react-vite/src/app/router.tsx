@@ -214,6 +214,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/supervisor/late-management').then(convert(queryClient)),
             },
+            {
+              path: 'farmers',
+              lazy: () =>
+                import('./routes/app/supervisor/farmers').then(convert(queryClient)),
+            },
           ],
         },
         {

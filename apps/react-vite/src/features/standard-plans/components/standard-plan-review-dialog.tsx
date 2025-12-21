@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useStandardPlanReview } from '../api/get-standard-plan-review';
-import { StandardPlan } from '@/types/api';
+import { useCalculateStandardPlanMaterialCost } from '../api/calculate-standard-plan-material-cost';
+import { StandardPlan, StandardPlanMaterialCost } from '@/types/api';
 import { SimpleDialog } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button/button';
 import { Spinner } from '@/components/ui/spinner';
-import { Calendar, DollarSign, TrendingUp, Package } from 'lucide-react';
+import { DollarSign, Package, TrendingUp, Info, ChevronDown, ChevronUp } from 'lucide-react';
 
 type StandardPlanReviewDialogProps = {
   isOpen: boolean;
@@ -17,211 +17,222 @@ export const StandardPlanReviewDialog = ({
   onClose,
   plan,
 }: StandardPlanReviewDialogProps) => {
-  const [sowDate, setSowDate] = useState('');
   const [areaInHectares, setAreaInHectares] = useState<number>(1);
-  const [showReview, setShowReview] = useState(false);
+  const [result, setResult] = useState<StandardPlanMaterialCost | null>(null);
+  const [openTask, setOpenTask] = useState<string | null>(null);
 
-  const { data: review, isLoading } = useStandardPlanReview({
-    params: {
-      id: plan?.id || '',
-      sowDate,
-      areaInHectares,
-    },
-    queryConfig: {
-      enabled: showReview && !!plan?.id && !!sowDate && areaInHectares > 0,
+  const costCalculationMutation = useCalculateStandardPlanMaterialCost({
+    mutationConfig: {
+      onSuccess: (data) => {
+        setResult(data);
+      },
     },
   });
 
-  const handleReview = () => {
-    if (sowDate && areaInHectares > 0) {
-      setShowReview(true);
+  const handleCalculateCost = () => {
+    if (plan && areaInHectares > 0) {
+      costCalculationMutation.mutate({
+        standardPlanId: plan.id,
+        area: areaInHectares,
+      });
     }
   };
 
   const handleClose = () => {
-    setSowDate('');
     setAreaInHectares(1);
-    setShowReview(false);
+    setResult(null);
+    setOpenTask(null);
     onClose();
+  };
+
+  const renderContent = () => {
+    if (costCalculationMutation.isPending) {
+      return (
+        <div className="flex h-48 items-center justify-center">
+          <Spinner size="lg" />
+        </div>
+      );
+    }
+
+    if (result) {
+      return (
+        <div className="space-y-6">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="rounded-lg border bg-green-50 p-4">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-green-600" />
+                <span className="text-sm font-medium text-green-900">Total Cost for Area</span>
+              </div>
+              <p className="mt-2 text-2xl font-bold text-green-900">
+                {result.totalCostForArea.toLocaleString('vi-VN')}
+              </p>
+              <p className="text-xs text-green-700">VND for {result.area} ha</p>
+            </div>
+
+            <div className="rounded-lg border bg-purple-50 p-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-purple-600" />
+                <span className="text-sm font-medium text-purple-900">Cost/Hectare</span>
+              </div>
+              <p className="mt-2 text-2xl font-bold text-purple-900">
+                {result.totalCostPerHa.toLocaleString('vi-VN')}
+              </p>
+              <p className="text-xs text-purple-700">VND/ha</p>
+            </div>
+
+            <div className="rounded-lg border bg-orange-50 p-4">
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-orange-600" />
+                <span className="text-sm font-medium text-orange-900">Material Types</span>
+              </div>
+              <p className="mt-2 text-2xl font-bold text-orange-900">
+                {result.materialCostItems.length}
+              </p>
+              <p className="text-xs text-orange-700">types</p>
+            </div>
+          </div>
+
+          {/* Task Cost Breakdowns */}
+          <div>
+            <h3 className="mb-3 text-lg font-semibold text-gray-800">Task Cost Breakdowns</h3>
+            <div className="space-y-2">
+              {result.taskCostBreakdowns.map((task) => (
+                <div key={task.taskName} className="rounded-lg border">
+                  <button
+                    className="flex w-full items-center justify-between p-4 text-left"
+                    onClick={() => setOpenTask(openTask === task.taskName ? null : task.taskName)}
+                  >
+                    <div>
+                      <p className="font-medium text-gray-900">{task.taskName}</p>
+                      <p className="text-sm text-gray-500">{task.taskDescription}</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="font-semibold text-blue-600">
+                        {task.totalTaskCost.toLocaleString('vi-VN')} VND
+                      </span>
+                      {openTask === task.taskName ? (
+                        <ChevronUp className="h-5 w-5 text-gray-500" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-gray-500" />
+                      )}
+                    </div>
+                  </button>
+                  {openTask === task.taskName && (
+                    <div className="border-t bg-gray-50 p-4">
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-100">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                              Material
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                              Qty Needed
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                              Packages
+                            </th>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
+                              Total Cost
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                          {task.materials.map((item) => (
+                            <tr key={item.materialId}>
+                              <td className="px-4 py-2 text-sm text-gray-800">{item.materialName}</td>
+                              <td className="px-4 py-2 text-sm text-gray-600">
+                                {item.totalQuantityNeeded.toFixed(2)} {item.unit}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-gray-600">{item.packagesNeeded}</td>
+                              <td className="px-4 py-2 text-sm font-medium text-gray-800">
+                                {item.totalCost.toLocaleString('vi-VN')} VND
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {result.priceWarnings && result.priceWarnings.length > 0 && (
+            <div className="rounded-md bg-yellow-50 p-3">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <Info className="h-5 w-5 text-yellow-400" />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-yellow-800">Price Warnings</h3>
+                  <div className="mt-2 text-sm text-yellow-700">
+                    <ul className="list-disc space-y-1 pl-5">
+                      {result.priceWarnings.map((warning, index) => (
+                        <li key={index}>{warning}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setResult(null)}>
+              Back
+            </Button>
+            <Button onClick={handleClose}>Close</Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <p className="text-sm text-gray-600">
+          Enter the cultivation area to calculate the estimated material cost for this standard plan.
+        </p>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">Area (Hectares) *</label>
+          <input
+            type="number"
+            min="0.1"
+            step="0.1"
+            value={areaInHectares}
+            onChange={(e) => setAreaInHectares(Number(e.target.value))}
+            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+            placeholder="e.g., 10.5"
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-4">
+          <Button variant="outline" onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCalculateCost}
+            disabled={areaInHectares <= 0 || costCalculationMutation.isPending}
+            isLoading={costCalculationMutation.isPending}
+            icon={<DollarSign className="h-4 w-4" />}
+          >
+            Calculate Cost
+          </Button>
+        </div>
+      </>
+    );
   };
 
   return (
     <SimpleDialog
       isOpen={isOpen}
       onClose={handleClose}
-      title={`Review: ${plan?.name || 'Standard Plan'}`}
-      maxWidth="3xl"
+      title={`Cost Review: ${plan?.name || 'Standard Plan'}`}
+      maxWidth="4xl"
     >
-      <div className="space-y-4">
-        {/* Input Form */}
-        {!showReview && (
-          <>
-            <p className="text-sm text-gray-600">
-              Enter the sowing date and cultivation area to preview the plan with estimated costs and schedule.
-            </p>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Sowing Date *
-                </label>
-                <input
-                  type="date"
-                  value={sowDate}
-                  onChange={(e) => setSowDate(e.target.value)}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  Area (Hectares) *
-                </label>
-                <input
-                  type="number"
-                  min="0.1"
-                  step="0.1"
-                  value={areaInHectares}
-                  onChange={(e) => setAreaInHectares(Number(e.target.value))}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                  placeholder="e.g., 10.5"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleReview}
-                disabled={!sowDate || areaInHectares <= 0}
-                icon={<Calendar className="h-4 w-4" />}
-              >
-                Generate Review
-              </Button>
-            </div>
-          </>
-        )}
-
-        {/* Review Results */}
-        {showReview && (
-          <>
-            {isLoading ? (
-              <div className="flex h-48 items-center justify-center">
-                <Spinner size="lg" />
-              </div>
-            ) : review ? (
-              <div className="space-y-4">
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-lg border bg-blue-50 p-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-blue-600" />
-                      <span className="text-sm font-medium text-blue-900">Duration</span>
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-blue-900">
-                      {review.totalDurationDays}
-                    </p>
-                    <p className="text-xs text-blue-700">days</p>
-                  </div>
-
-                  <div className="rounded-lg border bg-green-50 p-4">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium text-green-900">Total Cost</span>
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-green-900">
-                      {review.estimatedTotalCost.toLocaleString('vi-VN')}
-                    </p>
-                    <p className="text-xs text-green-700">VND</p>
-                  </div>
-
-                  <div className="rounded-lg border bg-purple-50 p-4">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-purple-600" />
-                      <span className="text-sm font-medium text-purple-900">Cost/Hectare</span>
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-purple-900">
-                      {review.estimatedCostPerHectare.toLocaleString('vi-VN')}
-                    </p>
-                    <p className="text-xs text-purple-700">VND/ha</p>
-                  </div>
-
-                  <div className="rounded-lg border bg-orange-50 p-4">
-                    <div className="flex items-center gap-2">
-                      <Package className="h-5 w-5 text-orange-600" />
-                      <span className="text-sm font-medium text-orange-900">Materials</span>
-                    </div>
-                    <p className="mt-2 text-2xl font-bold text-orange-900">
-                      {review.totalMaterialQuantity.toFixed(1)}
-                    </p>
-                    <p className="text-xs text-orange-700">{review.totalMaterialTypes} types</p>
-                  </div>
-                </div>
-
-                {/* Schedule Information */}
-                <div className="rounded-lg border bg-gray-50 p-4">
-                  <h4 className="font-semibold text-gray-900">Schedule</h4>
-                  <div className="mt-2 grid grid-cols-1 gap-2 text-sm md:grid-cols-3">
-                    <div>
-                      <span className="font-medium text-gray-700">Start Date:</span>{' '}
-                      <span className="text-gray-900">
-                        {new Date(review.estimatedStartDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">Sow Date:</span>{' '}
-                      <span className="text-gray-900">
-                        {new Date(review.sowDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-700">End Date:</span>{' '}
-                      <span className="text-gray-900">
-                        {new Date(review.estimatedEndDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Plan Info */}
-                <div className="rounded-lg border bg-white p-4">
-                  <h4 className="font-semibold text-gray-900">{review.planName}</h4>
-                  {review.description && (
-                    <p className="mt-1 text-sm text-gray-600">{review.description}</p>
-                  )}
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
-                      {review.categoryName}
-                    </span>
-                    <span className="rounded-full bg-purple-100 px-2 py-1 text-xs font-medium text-purple-700">
-                      {review.totalStages} stages
-                    </span>
-                    <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                      {review.totalTasks} tasks
-                    </span>
-                    <span className="rounded-full bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
-                      {areaInHectares} ha
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" onClick={() => setShowReview(false)}>
-                    Back
-                  </Button>
-                  <Button onClick={handleClose}>Close</Button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex h-48 items-center justify-center">
-                <p className="text-gray-500">Unable to generate review</p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+      <div className="space-y-4">{renderContent()}</div>
     </SimpleDialog>
   );
 };

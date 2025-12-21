@@ -471,3 +471,49 @@ export type DownloadStandardPlansRequest = {
   isActive?: boolean;
 };
 
+export type MaterialCostItem = {
+  materialId: string;
+  materialName: string;
+  unit: string;
+  quantityPerHa: number;
+  totalQuantityNeeded: number;
+  amountPerMaterial: number;
+  packagesNeeded: number;
+  actualQuantity: number;
+  pricePerMaterial: number;
+  totalCost: number;
+  costPerHa: number;
+  priceValidFrom: string;
+};
+
+export type TaskCostBreakdownMaterial = {
+  materialId: string;
+  materialName: string;
+  unit: string;
+  quantityPerHa: number;
+  totalQuantityNeeded: number;
+  amountPerMaterial: number;
+  packagesNeeded: number;
+  actualQuantity: number;
+  pricePerMaterial: number;
+  totalCost: number;
+  costPerHa: number;
+  priceValidFrom: string;
+};
+
+export type TaskCostBreakdown = {
+  taskName: string;
+  taskDescription: string;
+  totalTaskCost: number;
+  materials: TaskCostBreakdownMaterial[];
+};
+
+export type StandardPlanMaterialCost = {
+  area: number;
+  totalCostPerHa: number;
+  totalCostForArea: number;
+  materialCostItems: MaterialCostItem[];
+  taskCostBreakdowns: TaskCostBreakdown[];
+  priceWarnings: string[];
+};
+

@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router';
-import { ArrowLeft, CheckCircle2, Clock, AlertTriangle, DollarSign } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, AlertTriangle, DollarSign, RefreshCw, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -22,6 +23,7 @@ import {
   TabsContent as RadixTabsContent,
 } from '@/components/ui/tabs/radix-tabs';
 import { usePlanDetails } from '@/features/supervisor/api/get-plan-details';
+import { useFarmLogsByProductionPlanTask } from '@/features/production-plans/api/get-farm-logs-by-task';
 import { Head } from '@/components/seo/head';
 import { formatDate } from '@/utils/format';
 import { cn } from '@/utils/cn';
@@ -42,6 +44,169 @@ const getStatusIcon = (status: string) => {
     default:
       return <Clock className="h-5 w-5 text-gray-400" />;
   }
+};
+
+// Task row component with farm logs
+const TaskRowWithLogs = ({ task }: { task: any }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [loadLogs, setLoadLogs] = useState(false);
+
+  const { data: logsData, isLoading: logsLoading, refetch } = useFarmLogsByProductionPlanTask({
+    params: {
+      productionPlanTaskId: task.productionPlanTaskId || task.taskId,
+      currentPage: 1,
+      pageSize: 10,
+    },
+    queryConfig: {
+      enabled: loadLogs,
+    },
+  });
+
+  const handleToggle = () => {
+    if (!isOpen && !loadLogs) {
+      setLoadLogs(true);
+    }
+    setIsOpen(!isOpen);
+  };
+
+  const handleRefresh = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    refetch();
+  };
+
+  return (
+    <>
+      <TableRow>
+        <TableCell className="font-medium">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={handleToggle}
+            >
+              <ChevronDown
+                className={cn(
+                  'h-4 w-4 transition-transform',
+                  isOpen && 'transform rotate-180'
+                )}
+              />
+            </Button>
+            {task.taskName}
+          </div>
+        </TableCell>
+        <TableCell>{task.taskType}</TableCell>
+        <TableCell className="text-sm">{formatDate(task.scheduledDate)}</TableCell>
+        <TableCell className="text-sm">
+          {task.actualStartDate ? formatDate(task.actualStartDate) : '-'}
+        </TableCell>
+        <TableCell>
+          {task.totalActualCost
+            ? formatCurrency(task.totalActualCost)
+            : formatCurrency(task.estimatedCost)}
+        </TableCell>
+        <TableCell>
+          <div className="flex items-center gap-2">
+            <Badge variant={task.status === 'Completed' ? 'default' : 'outline'}>
+              {task.status}
+            </Badge>
+            {isOpen && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0"
+                onClick={handleRefresh}
+                disabled={logsLoading}
+              >
+                <RefreshCw className={cn('h-3 w-3', logsLoading && 'animate-spin')} />
+              </Button>
+            )}
+          </div>
+        </TableCell>
+      </TableRow>
+      {isOpen && (
+        <TableRow>
+          <TableCell colSpan={6} className="bg-muted/50 p-4">
+            {logsLoading ? (
+              <div className="flex items-center justify-center py-4">
+                <Spinner size="sm" />
+                <span className="ml-2 text-sm text-muted-foreground">Loading farm logs...</span>
+              </div>
+            ) : logsData && logsData.data && logsData.data.length > 0 ? (
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm mb-3">
+                  Farm Logs ({logsData.totalCount})
+                </h4>
+                {logsData.data.map((log) => (
+                  <div
+                    key={log.farmLogId}
+                    className="border rounded-lg p-3 bg-background"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="font-medium text-sm">{log.plotName}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {log.completionPercentage}% Complete
+                          </Badge>
+                        </div>
+                        {log.workDescription && (
+                          <p className="text-sm text-muted-foreground mb-2">
+                            {log.workDescription}
+                          </p>
+                        )}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                          <div>
+                            <span className="text-muted-foreground">Date:</span>{' '}
+                            {formatDate(log.loggedDate)}
+                          </div>
+                          {log.actualAreaCovered && (
+                            <div>
+                              <span className="text-muted-foreground">Area:</span>{' '}
+                              {log.actualAreaCovered} ha
+                            </div>
+                          )}
+                          {log.serviceCost && (
+                            <div>
+                              <span className="text-muted-foreground">Service Cost:</span>{' '}
+                              {formatCurrency(log.serviceCost)}
+                            </div>
+                          )}
+                          {log.weatherConditions && (
+                            <div>
+                              <span className="text-muted-foreground">Weather:</span>{' '}
+                              {log.weatherConditions}
+                            </div>
+                          )}
+                        </div>
+                        {log.materialsUsed && log.materialsUsed.length > 0 && (
+                          <div className="mt-2 pt-2 border-t">
+                            <p className="text-xs font-medium mb-1">Materials Used:</p>
+                            <div className="space-y-1">
+                              {log.materialsUsed.map((material, idx) => (
+                                <div key={idx} className="text-xs text-muted-foreground">
+                                  {material.materialName}: {material.actualQuantityUsed} (
+                                  {formatCurrency(material.actualCost)})
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">
+                No farm logs found for this task
+              </p>
+            )}
+          </TableCell>
+        </TableRow>
+      )}
+    </>
+  );
 };
 
 const SupervisorPlanDetailsPage = () => {
@@ -242,26 +407,7 @@ const SupervisorPlanDetailsPage = () => {
                       </TableHeader>
                       <TableBody>
                         {(stage?.tasks || []).map((task: any) => (
-                          <TableRow key={task.taskId}>
-                            <TableCell className="font-medium">{task.taskName}</TableCell>
-                            <TableCell>{task.taskType}</TableCell>
-                            <TableCell className="text-sm">
-                              {formatDate(task.scheduledDate)}
-                            </TableCell>
-                            <TableCell className="text-sm">
-                              {task.actualStartDate ? formatDate(task.actualStartDate) : '-'}
-                            </TableCell>
-                            <TableCell>
-                              {task.totalActualCost
-                                ? formatCurrency(task.totalActualCost)
-                                : formatCurrency(task.estimatedCost)}
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={task.status === 'Completed' ? 'default' : 'outline'}>
-                                {task.status}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
+                          <TaskRowWithLogs key={task.taskId} task={task} />
                         ))}
                       </TableBody>
                     </TableElement>
