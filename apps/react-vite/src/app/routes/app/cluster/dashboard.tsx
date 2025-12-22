@@ -17,6 +17,8 @@ import {
   useClusterSeasons,
   useCurrentSeason,
   useClusterId,
+  useClusterSupervisors,
+  ClusterSupervisor,
 } from '@/features/cluster/api';
 // Sửa import này từ production-plans sang cluster
 import { ProductionPlanDetailDialog } from '@/features/cluster/components/production-plan-detail-dialog';
@@ -300,6 +302,17 @@ const ClusterDashboard = () => {
     },
   });
 
+  // ================== SUPERVISORS DATA ==================
+  const { data: supervisorsData, isLoading: isLoadingSupervisors } = useClusterSupervisors({
+    clusterId: clusterId,
+    queryConfig: {
+      enabled: !!clusterId,
+    },
+  });
+
+  console.log('Supervisors Data:', supervisorsData);
+  console.log('Cluster ID:', clusterId);
+
   const overviewPlots =
     plotsData?.data?.map((plot) => {
       const plantingDate = plot.seasons?.[0]?.startDate;
@@ -316,7 +329,35 @@ const ClusterDashboard = () => {
 
   const totalPlotsFromApi = plotsData?.totalCount;
 
-  const isLoading = isLoadingClusterId || isLoadingSeason;
+  // Map supervisors data
+  const supervisors = supervisorsData?.map((supervisor: ClusterSupervisor) => {
+    // Get real data from API response
+    const assignedGroups = supervisor.supervisedGroups?.length || 0;
+    const totalPlots = supervisor.supervisedGroups?.reduce((sum, group) => sum + (group.plotCount || 0), 0) || 0;
+    const totalArea = supervisor.supervisedGroups?.reduce((sum, group) => sum + (group.totalArea || 0), 0) || 0;
+
+    // Determine status based on capacity and activity
+    let status: 'Available' | 'Assigned' | 'Busy' = 'Available';
+    if (supervisor.currentFarmerCount > 0 || assignedGroups > 0) {
+      const utilizationRate = supervisor.currentFarmerCount / supervisor.maxFarmerCapacity;
+      if (utilizationRate >= 0.9) {
+        status = 'Busy';
+      } else {
+        status = 'Assigned';
+      }
+    }
+
+    return {
+      supervisorId: supervisor.supervisorId,
+      name: supervisor.supervisorName,
+      email: 'N/A',
+      phone: 'N/A',
+      assignedGroups,
+      totalPlots,
+      totalArea,
+      status,
+    };
+  }) ?? []; const isLoading = isLoadingClusterId || isLoadingSeason;
 
   // màu dot cho group
   const groupColors = ['#22c55e', '#3b82f6', '#a855f7', '#f97316', '#0ea5e9'];
@@ -548,49 +589,8 @@ const ClusterDashboard = () => {
                 />
 
                 <SupervisorOverviewCard
-                  supervisors={[
-                    {
-                      supervisorId: '1',
-                      name: 'John Smith',
-                      email: 'john.smith@example.com',
-                      phone: '+1 234-567-8901',
-                      assignedGroups: 0,
-                      totalPlots: 0,
-                      totalArea: 0,
-                      status: 'Available',
-                    },
-                    {
-                      supervisorId: '2',
-                      name: 'Sarah Johnson',
-                      email: 'sarah.johnson@example.com',
-                      phone: '+1 234-567-8902',
-                      assignedGroups: 0,
-                      totalPlots: 0,
-                      totalArea: 0,
-                      status: 'Available',
-                    },
-                    {
-                      supervisorId: '3',
-                      name: 'Michael Brown',
-                      email: 'michael.brown@example.com',
-                      phone: '+1 234-567-8903',
-                      assignedGroups: 1,
-                      totalPlots: 15,
-                      totalArea: 45.5,
-                      status: 'Assigned',
-                    },
-                    {
-                      supervisorId: '4',
-                      name: 'Emily Davis',
-                      email: 'emily.davis@example.com',
-                      phone: '+1 234-567-8904',
-                      assignedGroups: 0,
-                      totalPlots: 0,
-                      totalArea: 0,
-                      status: 'Available',
-                    },
-                  ]}
-                  totalSupervisors={currentSeason.readiness.availableSupervisors}
+                  supervisors={supervisors}
+                  totalSupervisors={supervisorsData?.length || currentSeason.readiness.availableSupervisors}
                   onViewAll={() => {
                     console.log('View all supervisors');
                   }}

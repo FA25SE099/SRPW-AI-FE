@@ -4,5 +4,12 @@ export * from './get-cluster-seasons';
 export * from './get-current-season';
 export * from './get-cluster-id';
 export * from './preview-group-formation';
+export * from './get-managed-groups';
+export * from './get-plots-ready-for-uav';
+export * from './create-uav-order';
+export * from './get-task-types';
+export * from './get-group-statuses';
+export * from './get-uav-vendors';
 export * from './create-groups';
-
+export * from './get-cluster-manager-orders';
+export * from './get-cluster-supervisors';

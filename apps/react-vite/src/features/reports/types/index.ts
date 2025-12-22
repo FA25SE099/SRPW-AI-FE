@@ -73,6 +73,8 @@ export type CultivationTask = {
     scheduledEndDate: string | null;
     priority: string;
     sequenceOrder: number;
+    taskStatus?: string; // Task status from API: Draft, Approved, InProgress, Completed, etc.
+    status?: string; // For backward compatibility
     materials: TaskMaterial[];
 };
 

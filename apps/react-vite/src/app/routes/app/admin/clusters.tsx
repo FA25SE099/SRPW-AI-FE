@@ -990,25 +990,13 @@ const AdminClustersRoute = () => {
                             <span className="text-sm text-gray-500">Not assigned</span>
                           )}
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-6 py-4 whitespace-nowrap">
                           {cluster.supervisors && cluster.supervisors.length > 0 ? (
-                            <div className="space-y-2">
-                              {cluster.supervisors.map((supervisor, idx) => (
-                                <div key={supervisor.supervisorId} className="flex items-start gap-2">
-                                  <UserCheck className="h-4 w-4 text-gray-400 flex-shrink-0 mt-0.5" />
-                                  <div>
-                                    <div className="text-sm font-medium text-gray-900">
-                                      {supervisor.fullName}
-                                    </div>
-                                    <div className="text-xs text-gray-500">
-                                      {supervisor.phoneNumber}
-                                    </div>
-                                    <div className="text-xs text-gray-400">
-                                      Capacity: {supervisor.currentFarmerCount}/{supervisor.maxFarmerCapacity}
-                                    </div>
-                                  </div>
-                                </div>
-                              ))}
+                            <div className="flex items-center gap-2">
+                              <UserCheck className="h-4 w-4 text-blue-500" />
+                              <span className="text-sm font-medium text-gray-900">
+                                {cluster.supervisors.length} supervisor{cluster.supervisors.length !== 1 ? 's' : ''}
+                              </span>
                             </div>
                           ) : (
                             <span className="text-sm text-gray-500">No supervisors</span>

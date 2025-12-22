@@ -41,6 +41,10 @@ export const TaskCard = ({
     onAddMaterial,
     onOpenAddTaskMenu,
 }: TaskCardProps) => {
+    // Disable editing for completed tasks
+    const isCompleted = task.status === 'Completed';
+    const isDisabled = isLoading || isCompleted;
+
     return (
         <div className="relative">
             {/* Add task before this task - small icon button */}
@@ -57,12 +61,11 @@ export const TaskCard = ({
             )}
 
             <div
-                className={`rounded-md border-2 ${
-                    hasTaskError ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-white'
-                } p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col`}
+                className={`rounded-md border-2 ${hasTaskError ? 'border-red-300 bg-red-50' : 'border-blue-200 bg-white'
+                    } p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col`}
             >
                 <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 flex-wrap">
                         <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
                             {taskIndex + 1}
                         </span>
@@ -71,12 +74,64 @@ export const TaskCard = ({
                                 Protocol
                             </span>
                         )}
+                        {!task.isFromProtocol && !task.originalTaskId && (
+                            <span className="inline-block text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                                New
+                            </span>
+                        )}
+                        {/* Task Status Badge - Read-only */}
+                        {task.status === 'Draft' && (
+                            <span className="inline-block text-[9px] bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded">
+                                Draft
+                            </span>
+                        )}
+                        {task.status === 'PendingApproval' && (
+                            <span className="inline-block text-[9px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">
+                                Pending
+                            </span>
+                        )}
+                        {task.status === 'Approved' && (
+                            <span className="inline-block text-[9px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                                Approved
+                            </span>
+                        )}
+                        {task.status === 'InProgress' && (
+                            <span className="inline-block text-[9px] bg-cyan-100 text-cyan-700 px-1.5 py-0.5 rounded">
+                                In Progress
+                            </span>
+                        )}
+                        {task.status === 'OnHold' && (
+                            <span className="inline-block text-[9px] bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded">
+                                On Hold
+                            </span>
+                        )}
+                        {task.status === 'Completed' && (
+                            <span className="inline-block text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
+                                Completed
+                            </span>
+                        )}
+                        {task.status === 'Cancelled' && (
+                            <span className="inline-block text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                                Cancelled
+                            </span>
+                        )}
+                        {task.status === 'Emergency' && (
+                            <span className="inline-block text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                                Emergency
+                            </span>
+                        )}
+                        {task.status === 'EmergencyApproval' && (
+                            <span className="inline-block text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">
+                                Emerg. Approval
+                            </span>
+                        )}
                     </div>
                     <button
                         type="button"
                         onClick={() => onRemoveTask(stageIndex, taskIndex)}
-                        disabled={isLoading}
-                        className="p-0.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700"
+                        disabled={isDisabled}
+                        className="p-0.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={isCompleted ? 'Cannot delete completed tasks' : 'Delete task'}
                     >
                         <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -89,11 +144,10 @@ export const TaskCard = ({
                             type="text"
                             value={task.taskName}
                             onChange={(e) => onUpdateTask(stageIndex, taskIndex, { taskName: e.target.value })}
-                            disabled={isLoading}
+                            disabled={isDisabled}
                             placeholder="Task name"
-                            className={`block w-full rounded-md border ${
-                                hasTaskError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
-                            } px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
+                            className={`block w-full rounded-md border ${hasTaskError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
+                                } px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed`}
                         />
                         {hasTaskError && (
                             <p className="text-[10px] text-red-600 mt-0.5">Task name is required</p>
@@ -105,10 +159,10 @@ export const TaskCard = ({
                         <textarea
                             value={task.description || ''}
                             onChange={(e) => onUpdateTask(stageIndex, taskIndex, { description: e.target.value })}
-                            disabled={isLoading}
+                            disabled={isDisabled}
                             placeholder="Description"
                             rows={2}
-                            className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                            className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         />
                     </div>
 
@@ -119,9 +173,9 @@ export const TaskCard = ({
                                 type="number"
                                 value={task.daysAfter}
                                 onChange={(e) => onUpdateTask(stageIndex, taskIndex, { daysAfter: parseInt(e.target.value) || 0 })}
-                                disabled={isLoading}
+                                disabled={isDisabled}
                                 placeholder="0"
-                                className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                             />
                         </div>
                         <div className="space-y-0.5">
@@ -130,10 +184,10 @@ export const TaskCard = ({
                                 type="number"
                                 value={task.durationDays}
                                 onChange={(e) => onUpdateTask(stageIndex, taskIndex, { durationDays: parseInt(e.target.value) || 1 })}
-                                disabled={isLoading}
+                                disabled={isDisabled}
                                 min="1"
                                 placeholder="1"
-                                className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                                className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                             />
                         </div>
                     </div>
@@ -143,8 +197,8 @@ export const TaskCard = ({
                         <select
                             value={task.taskType}
                             onChange={(e) => onUpdateTask(stageIndex, taskIndex, { taskType: e.target.value })}
-                            disabled={isLoading}
-                            className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                            disabled={isDisabled}
+                            className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="LandPreparation">Land Preparation</option>
                             <option value="Fertilization">Fertilization</option>
@@ -159,8 +213,8 @@ export const TaskCard = ({
                         <select
                             value={task.priority}
                             onChange={(e) => onUpdateTask(stageIndex, taskIndex, { priority: e.target.value })}
-                            disabled={isLoading}
-                            className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
+                            disabled={isDisabled}
+                            className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
                         >
                             <option value="Low">Low</option>
                             <option value="Normal">Normal</option>
@@ -173,7 +227,7 @@ export const TaskCard = ({
                         materials={task.materials}
                         stageIndex={stageIndex}
                         taskIndex={taskIndex}
-                        isLoading={isLoading}
+                        isLoading={isDisabled}
                         isLoadingMaterials={isLoadingMaterials}
                         fertilizers={fertilizers}
                         pesticides={pesticides}
@@ -189,7 +243,7 @@ export const TaskCard = ({
                 type="button"
                 onClick={() => onOpenAddTaskMenu(stageIndex, taskIndex + 1)}
                 disabled={isLoading}
-                className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
+                className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Add task after"
             >
                 <Plus className="h-3.5 w-3.5" />

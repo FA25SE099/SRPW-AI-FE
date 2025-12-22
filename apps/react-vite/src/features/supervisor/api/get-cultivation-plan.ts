@@ -6,6 +6,7 @@ import { CultivationPlanDetail } from '../types/cultivation-plan';
 export interface GetCultivationPlanParams {
   plotId: string;
   groupId: string;
+  versionId?: string | null;
 }
 
 export const getCultivationPlanByGroupPlot = async (
@@ -25,7 +26,7 @@ export const useCultivationPlanByGroupPlot = ({
 }: UseCultivationPlanByGroupPlotOptions) => {
   return useQuery({
     ...queryConfig,
-    queryKey: ['cultivation-plan', params.groupId, params.plotId],
+    queryKey: ['cultivation-plan', params.groupId, params.plotId, params.versionId],
     queryFn: () => getCultivationPlanByGroupPlot(params),
     enabled: !!params.plotId && !!params.groupId,
   });

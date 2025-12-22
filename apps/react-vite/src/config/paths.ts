@@ -15,6 +15,14 @@ export const paths = {
       getHref: (redirectTo?: string | null | undefined) =>
         `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
     },
+    forgotPassword: {
+      path: '/auth/forgot-password',
+      getHref: () => '/auth/forgot-password',
+    },
+    changePassword: {
+      path: '/auth/change-password',
+      getHref: () => '/auth/change-password',
+    },
   },
 
   unauthorized: {
@@ -165,6 +173,10 @@ export const paths = {
         path: 'supervisor/late-management',
         getHref: () => '/app/supervisor/late-management',
       },
+      farmers: {
+        path: 'supervisor/farmers',
+        getHref: () => '/app/supervisor/farmers',
+      },
     },
     cluster: {
       root: {
@@ -194,6 +206,10 @@ export const paths = {
       maps: {
         path: 'cluster/map',
         getHref: () => '/app/cluster/map',
+      },
+      uavOrders: {
+        path: 'cluster/uav-orders',
+        getHref: () => '/app/cluster/uav-orders',
       },
     },
   },

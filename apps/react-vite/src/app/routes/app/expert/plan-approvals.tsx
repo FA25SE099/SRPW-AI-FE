@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ContentLayout } from '@/components/layouts';
-import { PendingApprovalsList, ProductionPlanDetailDialog } from '@/features/production-plans/components';
+import { PendingApprovalsList, ProductionPlanDetail } from '@/features/production-plans/components';
 
 const PlanApprovalsRoute = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
@@ -12,7 +12,7 @@ const PlanApprovalsRoute = () => {
       </ContentLayout>
 
       {selectedPlanId && (
-        <ProductionPlanDetailDialog
+        <ProductionPlanDetail
           isOpen={true}
           onClose={() => setSelectedPlanId(null)}
           groupId={selectedPlanId}

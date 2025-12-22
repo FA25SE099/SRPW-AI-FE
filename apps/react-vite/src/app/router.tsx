@@ -37,6 +37,14 @@ export const createAppRouter = (queryClient: QueryClient) =>
       lazy: () => import('./routes/auth/login').then(convert(queryClient)),
     },
     {
+      path: paths.auth.forgotPassword.path,
+      lazy: () => import('./routes/auth/forgot-password').then(convert(queryClient)),
+    },
+    {
+      path: paths.auth.changePassword.path,
+      lazy: () => import('./routes/auth/change-password').then(convert(queryClient)),
+    },
+    {
       path: paths.unauthorized.path,
       lazy: () => import('./routes/unauthorized').then(convert(queryClient)),
     },
@@ -214,6 +222,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/supervisor/late-management').then(convert(queryClient)),
             },
+            {
+              path: 'farmers',
+              lazy: () =>
+                import('./routes/app/supervisor/farmers').then(convert(queryClient)),
+            },
           ],
         },
         {
@@ -243,6 +256,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               path: 'map',
               lazy: () =>
                 import('./routes/app/cluster/map').then(convert(queryClient)),
+            },
+            {
+              path: 'uav-orders',
+              lazy: () =>
+                import('./routes/app/cluster/uav-orders').then(convert(queryClient)),
             },
           ],
         },

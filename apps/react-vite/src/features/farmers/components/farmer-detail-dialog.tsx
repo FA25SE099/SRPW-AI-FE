@@ -117,21 +117,21 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                   className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${activeTab === "groups" ? "bg-background text-foreground shadow-sm" : "hover:bg-background/50"
                     }`}
                 >
-                  Groups ({farmer.groups.length})
+                  Groups ({farmer.groups?.length || 0})
                 </button>
                 <button
                   onClick={() => setActiveTab("plots")}
                   className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${activeTab === "plots" ? "bg-background text-foreground shadow-sm" : "hover:bg-background/50"
                     }`}
                 >
-                  Plots ({farmer.plots.length})
+                  Plots ({farmer.plots?.length || 0})
                 </button>
               </div>
 
               {/* Groups Tab Content */}
               {activeTab === "groups" && (
                 <div className="space-y-4 mt-4">
-                  {farmer.groups.length === 0 ? (
+                  {!farmer.groups || farmer.groups.length === 0 ? (
                     <div className="text-center py-12 border rounded-lg">
                       <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                       <p className="text-muted-foreground">No groups found</p>
@@ -163,7 +163,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
               {/* Plots Tab Content */}
               {activeTab === "plots" && (
                 <div className="space-y-4 mt-4">
-                  {farmer.plots.length === 0 ? (
+                  {!farmer.plots || farmer.plots.length === 0 ? (
                     <div className="text-center py-12 border rounded-lg">
                       <Grid className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                       <p className="text-muted-foreground">No plots found</p>
