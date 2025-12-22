@@ -1,10 +1,11 @@
-export type Step = 'report' | 'protocol' | 'edit' | 'name' | 'preview';
+export type Step = 'report' | 'protocol' | 'edit' | 'config' | 'preview';
 
 export type AddTaskMode = 'new' | 'protocol' | 'old' | null;
 
 export type EditableStage = {
     stageName: string;
     sequenceOrder: number;
+    cultivationPlanTaskId?: string; // Store one cultivationPlanTaskId from the stage for emergency tasks
     tasks: EditableTask[];
 };
 

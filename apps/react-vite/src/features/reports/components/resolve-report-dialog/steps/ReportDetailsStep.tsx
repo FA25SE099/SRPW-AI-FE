@@ -2,14 +2,10 @@ import { AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets }
 import { Spinner } from '@/components/ui/spinner';
 import { Report, ReportType } from '@/features/reports/types';
 import { formatDate } from '@/utils/format';
-import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { FormData } from '../types';
 
 type ReportDetailsStepProps = {
     report: Report | undefined;
     isLoadingReport: boolean;
-    register: UseFormRegister<FormData>;
-    errors: FieldErrors<FormData>;
 };
 
 const getReportTypeIcon = (type: ReportType) => {
@@ -43,8 +39,6 @@ const getSeverityColor = (severity: string) => {
 export const ReportDetailsStep = ({
     report,
     isLoadingReport,
-    register,
-    errors,
 }: ReportDetailsStepProps) => {
     if (isLoadingReport) {
         return (
@@ -63,9 +57,9 @@ export const ReportDetailsStep = ({
     }
 
     return (
-        <div className="grid grid-cols-3 gap-4 h-[600px]">
-            {/* Left: Report Info */}
-            <div className="col-span-2 space-y-4 overflow-y-auto pr-4">
+        <div className="h-[600px]">
+            {/* Report Info */}
+            <div className="space-y-4 overflow-y-auto pr-4 h-full">
                 {/* Report Header */}
                 <div className="bg-white border rounded-lg p-4">
                     <div className="flex items-start gap-3 mb-3">
@@ -171,31 +165,8 @@ export const ReportDetailsStep = ({
                 )}
             </div>
 
-            {/* Right: Resolution Reason */}
-            <div className="col-span-1 border-l pl-4 space-y-4">
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                        <h4 className="font-semibold text-yellow-900 text-sm">Resolution Required</h4>
-                    </div>
-                    <p className="text-xs text-yellow-800">
-                        This report requires your attention. You will modify the cultivation plan for this specific plot.
-                    </p>
-                </div>
-
-                <div>
-                    <h3 className="font-semibold text-gray-900 mb-2 text-sm">Resolution Report *</h3>
-                    <textarea
-                        {...register('resolutionReason', { required: 'Resolution reason is required' })}
-                        rows={12}
-                        placeholder="Describe how you will address this issue and what changes will be made..."
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                    {errors.resolutionReason && (
-                        <p className="text-xs text-red-600 mt-1">{errors.resolutionReason.message}</p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-2">This will be saved with the resolution</p>
-                </div>
+            {/* Right: Spacer */}
+            <div className="col-span-1">
             </div>
         </div>
     );

@@ -1,7 +1,5 @@
 import { Search } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
-import { UseFormRegister, FieldErrors } from 'react-hook-form';
-import { FormData } from '../types';
 import { PlanSummary } from '../components/PlanSummary';
 import { ProtocolPreview } from '../components/ProtocolPreview';
 
@@ -16,8 +14,6 @@ type ProtocolSelectionStepProps = {
     isLoadingDetails: boolean;
     planDetails: any;
     isLoadingPlan: boolean;
-    register: UseFormRegister<FormData>;
-    errors: FieldErrors<FormData>;
 };
 
 export const ProtocolSelectionStep = ({
@@ -31,29 +27,12 @@ export const ProtocolSelectionStep = ({
     isLoadingDetails,
     planDetails,
     isLoadingPlan,
-    register,
-    errors,
 }: ProtocolSelectionStepProps) => {
     return (
         <div className="grid grid-cols-3 gap-4 h-[600px]">
-            {/* Left: Current Plan Info + Resolution Reason */}
-            <div className="col-span-1 border-r pr-4 space-y-4">
+            {/* Left: Current Plan Info */}
+            <div className="col-span-1 border-r pr-4">
                 <PlanSummary planDetails={planDetails} isLoadingPlan={isLoadingPlan} />
-
-                {/* Resolution Reason */}
-                <div>
-                    <h3 className="font-semibold text-gray-900 mb-2">Resolution Report *</h3>
-                    <textarea
-                        {...register('resolutionReason', { required: 'Resolution reason is required' })}
-                        rows={8}
-                        placeholder="Describe the emergency situation and resolution approach..."
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                    />
-                    {errors.resolutionReason && (
-                        <p className="text-xs text-red-600 mt-1">{errors.resolutionReason.message}</p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-2">This will be saved with the resolution</p>
-                </div>
             </div>
 
             {/* Right: Protocol Search and Selection */}
@@ -82,11 +61,10 @@ export const ProtocolSelectionStep = ({
                             <button
                                 key={protocol.id}
                                 onClick={() => handleSelectProtocol(protocol.id)}
-                                className={`w-full text-left rounded-lg border-2 p-3 transition-colors ${
-                                    selectedProtocolId === protocol.id
+                                className={`w-full text-left rounded-lg border-2 p-3 transition-colors ${selectedProtocolId === protocol.id
                                         ? 'border-blue-500 bg-blue-50'
                                         : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                                }`}
+                                    }`}
                             >
                                 <div className="font-medium text-gray-900">{protocol.planName}</div>
                                 <div className="text-sm text-gray-600 mt-1">{protocol.description}</div>

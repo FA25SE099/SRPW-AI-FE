@@ -19,7 +19,7 @@ import { AddTaskModal } from '@/features/production-plans/components/resolve-eme
 import { ReportDetailsStep } from './steps/ReportDetailsStep';
 import { ProtocolSelectionStep } from './steps/ProtocolSelectionStep';
 import { EditTasksStep } from './steps/EditTasksStep';
-import { VersionNameStep } from './steps/VersionNameStep';
+import { ConfigurationStep } from './steps/ConfigurationStep';
 import { PreviewStep } from './steps/PreviewStep';
 import { PlanSummary } from '@/features/production-plans/components/resolve-emergency-dialog/components/PlanSummary';
 
@@ -39,10 +39,11 @@ export const ResolveReportDialog = ({
     const [addTaskMode, setAddTaskMode] = useState<AddTaskMode>(null);
     const [selectedProtocolTasks, setSelectedProtocolTasks] = useState<Set<string>>(new Set());
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: boolean }>({});
+    const [plotCultivationId, setPlotCultivationId] = useState<string | null>(null);
 
     const { data: user } = useUser();
     const { addNotification } = useNotifications();
-    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<FormData>();
+    const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormData>();
     const { fertilizers, pesticides, isLoadingMaterials } = useMaterialsData();
 
     const { data: report, isLoading: isLoadingReport } = useReport({
@@ -104,11 +105,18 @@ export const ResolveReportDialog = ({
         }
     }, [cultivationPlan, editableStages.length]);
 
+    useEffect(() => {
+        if (report?.cultivationPlanId) {
+            setPlotCultivationId(report.cultivationPlanId);
+        }
+    }, [report?.cultivationPlanId]);
+
     const handleClose = () => {
         setStep('report');
         setSearchQuery('');
         setSelectedProtocolId(null);
         setEditableStages([]);
+        setPlotCultivationId(null);
         setIsAddingTask(false);
         setAddingToStageIndex(null);
         setAddingToTaskPosition(null);
@@ -194,7 +202,7 @@ export const ResolveReportDialog = ({
         resolveMutation.mutate({
             reportId,
             cultivationPlanId: cultivationPlan.id,
-            newVersionName: formData.versionName,
+            newVersionName: formData.versionName.trim(),
             resolutionReason: formData.resolutionReason,
             expertId: user.id,
             cultivationStageId: firstStageId,
@@ -232,8 +240,6 @@ export const ResolveReportDialog = ({
                             <ReportDetailsStep
                                 report={report}
                                 isLoadingReport={isLoadingReport}
-                                register={register}
-                                errors={errors}
                             />
                         )}
 
@@ -249,8 +255,6 @@ export const ResolveReportDialog = ({
                                 isLoadingDetails={isLoadingDetails}
                                 planDetails={cultivationPlan}
                                 isLoadingPlan={isLoadingPlan}
-                                register={register}
-                                errors={errors}
                             />
                         )}
 
@@ -272,7 +276,15 @@ export const ResolveReportDialog = ({
                             />
                         )}
 
-                        {step === 'name' && <VersionNameStep register={register} errors={errors} />}
+                        {step === 'config' && (
+                            <ConfigurationStep
+                                register={register}
+                                errors={errors}
+                                setValue={setValue}
+                                watch={watch}
+                                plotCultivationId={plotCultivationId}
+                            />
+                        )}
 
                         {step === 'preview' && cultivationPlan && (
                             <PreviewStep
@@ -350,8 +362,8 @@ export const ResolveReportDialog = ({
                                     onClick={() => {
                                         if (step === 'protocol') setStep('report');
                                         else if (step === 'edit') setStep('protocol');
-                                        else if (step === 'name') setStep('edit');
-                                        else if (step === 'preview') setStep('name');
+                                        else if (step === 'config') setStep('edit');
+                                        else if (step === 'preview') setStep('config');
                                     }}
                                     disabled={isLoading}
                                 >
@@ -375,14 +387,17 @@ export const ResolveReportDialog = ({
                             )}
 
                             {step === 'edit' && (
-                                <Button onClick={() => setStep('name')} disabled={isLoading}>
-                                    Next: Version Name
+                                <Button onClick={() => setStep('config')} disabled={isLoading}>
+                                    Next: Configuration
                                     <ChevronRight className="h-4 w-4 ml-1" />
                                 </Button>
                             )}
 
-                            {step === 'name' && (
-                                <Button onClick={() => setStep('preview')} disabled={isLoading}>
+                            {step === 'config' && (
+                                <Button
+                                    onClick={handleSubmit(() => setStep('preview'))}
+                                    disabled={isLoading || !watch('resolutionReason') || !watch('versionName')}
+                                >
                                     Next: Preview
                                     <ChevronRight className="h-4 w-4 ml-1" />
                                 </Button>

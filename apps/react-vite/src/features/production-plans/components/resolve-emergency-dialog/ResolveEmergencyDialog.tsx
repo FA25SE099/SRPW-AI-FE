@@ -18,7 +18,7 @@ import { AddTaskModal } from './components/AddTaskModal';
 import { ProtocolSelectionStep } from './steps/ProtocolSelectionStep';
 import { PlotSelectionStep } from './steps/PlotSelectionStep';
 import { EditTasksStep } from './steps/EditTasksStep';
-import { VersionNameStep } from './steps/VersionNameStep';
+import { ConfigurationStep } from './steps/ConfigurationStep';
 import { PreviewStep } from './steps/PreviewStep';
 
 export const ResolveEmergencyDialog = ({
@@ -38,10 +38,11 @@ export const ResolveEmergencyDialog = ({
     const [selectedProtocolTasks, setSelectedProtocolTasks] = useState<Set<string>>(new Set());
     const [validationErrors, setValidationErrors] = useState<{ [key: string]: boolean }>({});
     const [selectedPlotIds, setSelectedPlotIds] = useState<Set<string>>(new Set());
+    const [plotCultivationId, setPlotCultivationId] = useState<string | null>(null);
 
     const { data: user } = useUser();
     const { addNotification } = useNotifications();
-    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<FormData>();
+    const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormData>();
     const { fertilizers, pesticides, isLoadingMaterials } = useMaterialsData();
 
     const { data: protocolsResponse, isLoading: isLoadingProtocols } = useEmergencyProtocols({
@@ -103,6 +104,7 @@ export const ResolveEmergencyDialog = ({
         setSelectedProtocolId(null);
         setEditableStages([]);
         setSelectedPlotIds(new Set());
+        setPlotCultivationId(null);
         setIsAddingTask(false);
         setAddingToStageIndex(null);
         setAddingToTaskPosition(null);
@@ -187,7 +189,7 @@ export const ResolveEmergencyDialog = ({
 
         resolveMutation.mutate({
             planId,
-            newVersionName: formData.versionName,
+            newVersionName: formData.versionName.trim(),
             resolutionReason: formData.resolutionReason,
             expertId: user.id,
             productionStageId: firstStageId,
@@ -234,8 +236,6 @@ export const ResolveEmergencyDialog = ({
                                 isLoadingDetails={isLoadingDetails}
                                 planDetails={planDetails}
                                 isLoadingPlan={isLoadingPlan}
-                                register={register}
-                                errors={errors}
                             />
                         )}
 
@@ -265,7 +265,15 @@ export const ResolveEmergencyDialog = ({
                             />
                         )}
 
-                        {step === 'name' && <VersionNameStep register={register} errors={errors} />}
+                        {step === 'config' && (
+                            <ConfigurationStep
+                                register={register}
+                                errors={errors}
+                                setValue={setValue}
+                                watch={watch}
+                                plotCultivationId={plotCultivationId}
+                            />
+                        )}
 
                         {step === 'preview' && planDetails && (
                             <PreviewStep
@@ -344,8 +352,8 @@ export const ResolveEmergencyDialog = ({
                                     onClick={() => {
                                         if (step === 'plots') setStep('protocol');
                                         else if (step === 'edit') setStep('plots');
-                                        else if (step === 'name') setStep('edit');
-                                        else if (step === 'preview') setStep('name');
+                                        else if (step === 'config') setStep('edit');
+                                        else if (step === 'preview') setStep('config');
                                     }}
                                     disabled={isLoading}
                                 >
@@ -369,14 +377,17 @@ export const ResolveEmergencyDialog = ({
                             )}
 
                             {step === 'edit' && (
-                                <Button onClick={() => setStep('name')} disabled={isLoading}>
-                                    Next: Version Name
+                                <Button onClick={() => setStep('config')} disabled={isLoading}>
+                                    Next: Configuration
                                     <ChevronRight className="h-4 w-4 ml-1" />
                                 </Button>
                             )}
 
-                            {step === 'name' && (
-                                <Button onClick={() => setStep('preview')} disabled={isLoading}>
+                            {step === 'config' && (
+                                <Button
+                                    onClick={handleSubmit(() => setStep('preview'))}
+                                    disabled={isLoading || !watch('resolutionReason') || !watch('versionName')}
+                                >
                                     Next: Preview
                                     <ChevronRight className="h-4 w-4 ml-1" />
                                 </Button>
