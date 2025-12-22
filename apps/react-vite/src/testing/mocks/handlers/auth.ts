@@ -26,6 +26,17 @@ type LoginBody = {
   password: string;
 };
 
+type ChangePasswordBody = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+type ForgotPasswordBody = {
+  email?: string;
+  phoneNumber?: string;
+};
+
 export const authHandlers = [
   http.post(`${env.API_URL}/auth/register`, async ({ request }) => {
     await networkDelay();
@@ -155,6 +166,122 @@ export const authHandlers = [
     try {
       const { user } = requireAuth(cookies);
       return HttpResponse.json({ data: user });
+    } catch (error: any) {
+      return HttpResponse.json(
+        { message: error?.message || 'Server Error' },
+        { status: 500 },
+      );
+    }
+  }),
+
+  http.post(`${env.API_URL}/auth/change-password`, async ({ request, cookies }) => {
+    await networkDelay();
+
+    try {
+      const { user, error } = requireAuth(cookies);
+
+      if (error || !user) {
+        return HttpResponse.json(
+          { message: 'Unauthorized' },
+          { status: 401 },
+        );
+      }
+
+      const body = (await request.json()) as ChangePasswordBody;
+
+      // Validate passwords match
+      if (body.newPassword !== body.confirmPassword) {
+        return HttpResponse.json(
+          { message: "Passwords don't match" },
+          { status: 400 },
+        );
+      }
+
+      // Find the user in the database
+      const dbUser = db.user.findFirst({
+        where: {
+          id: {
+            equals: user.id,
+          },
+        },
+      });
+
+      if (!dbUser) {
+        return HttpResponse.json(
+          { message: 'User not found' },
+          { status: 404 },
+        );
+      }
+
+      // Verify current password
+      const hashedCurrentPassword = hash(body.currentPassword);
+      if (dbUser.password !== hashedCurrentPassword) {
+        return HttpResponse.json(
+          { message: 'Current password is incorrect' },
+          { status: 400 },
+        );
+      }
+
+      // Update password in database
+      db.user.update({
+        where: {
+          id: {
+            equals: user.id,
+          },
+        },
+        data: {
+          password: hash(body.newPassword),
+        },
+      });
+
+      await persistDb('user');
+
+      return HttpResponse.json({
+        message: 'Password changed successfully',
+      });
+    } catch (error: any) {
+      return HttpResponse.json(
+        { message: error?.message || 'Server Error' },
+        { status: 500 },
+      );
+    }
+  }),
+
+  http.post(`${env.API_URL}/auth/forgot-password`, async ({ request }) => {
+    await networkDelay();
+
+    try {
+      const body = (await request.json()) as ForgotPasswordBody;
+
+      // Validate email is provided
+      if (!body.email) {
+        return HttpResponse.json(
+          { message: 'Email không được để trống' },
+          { status: 400 },
+        );
+      }
+
+      // Find user by email
+      const user = db.user.findFirst({
+        where: {
+          email: {
+            equals: body.email,
+          },
+        },
+      });
+
+      // Check if user exists
+      if (!user) {
+        return HttpResponse.json(
+          { message: 'Email không tồn tại trong hệ thống' },
+          { status: 400 },
+        );
+      }
+
+      // Success - send password reset email
+      return HttpResponse.json({
+        message: 'Mật khẩu mới đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư và đổi mật khẩu sau khi đăng nhập',
+      });
     } catch (error: any) {
       return HttpResponse.json(
         { message: error?.message || 'Server Error' },

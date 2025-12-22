@@ -15,6 +15,14 @@ export const paths = {
       getHref: (redirectTo?: string | null | undefined) =>
         `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
     },
+    forgotPassword: {
+      path: '/auth/forgot-password',
+      getHref: () => '/auth/forgot-password',
+    },
+    changePassword: {
+      path: '/auth/change-password',
+      getHref: () => '/auth/change-password',
+    },
   },
 
   unauthorized: {

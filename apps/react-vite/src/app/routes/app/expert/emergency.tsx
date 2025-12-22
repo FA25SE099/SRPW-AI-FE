@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ContentLayout } from '@/components/layouts';
 import { EmergencyPlansList } from '@/features/production-plans/components';
-import { ProductionPlanDetailDialog } from '@/features/production-plans/components';
+import { ProductionPlanDetail } from '@/features/production-plans/components';
 import { ResolveEmergencyDialog } from '@/features/production-plans/components/resolve-emergency-dialog';
 
 const EmergencyRoute = () => {
@@ -22,7 +22,7 @@ const EmergencyRoute = () => {
             </ContentLayout>
 
             {selectedPlanId && (
-                <ProductionPlanDetailDialog
+                <ProductionPlanDetail
                     isOpen={true}
                     onClose={() => setSelectedPlanId(null)}
                     groupId={selectedPlanId}
