@@ -12,7 +12,8 @@ export type FarmLogMaterialRecord = {
 export type FarmLogDetailResponse = {
   farmLogId: string;
   cultivationTaskName: string;
-  plotName: string;
+  soThua: number;
+  soTo: number;
   loggedDate: string;
   workDescription?: string;
   completionPercentage: number;
@@ -44,7 +45,7 @@ export type FarmLogsResponse = {
 export const getFarmLogsByProductionPlanTask = async (
   params: GetFarmLogsByProductionPlanTaskParams
 ): Promise<FarmLogsResponse> => {
-  return api.post('/farmlog/farm-logs/by-production-plan-task', {
+  return api.post('/Farmlog/farm-logs/by-production-plan-task', {
     productionPlanTaskId: params.productionPlanTaskId,
     currentPage: params.currentPage || 1,
     pageSize: params.pageSize || 20,
