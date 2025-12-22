@@ -5,3 +5,8 @@
 
 # misc
 .DS_Store
+
+# Ignore env files
+.env*
+!.env.example  
+!.env.development.local  
