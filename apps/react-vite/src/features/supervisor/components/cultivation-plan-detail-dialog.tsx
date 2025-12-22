@@ -490,7 +490,11 @@ export const CultivationPlanDetailDialog = ({
                                 <div className="w-[200px]">
                                     <Select
                                         value={selectedVersionId || "latest"}
-                                        onValueChange={(value) => setSelectedVersionId(value === "latest" ? null : value)}
+                                        onValueChange={(value) => {
+                                            const newVersionId = value === "latest" ? null : value;
+                                            console.log('Version changed:', { value, newVersionId });
+                                            setSelectedVersionId(newVersionId);
+                                        }}
                                         disabled={isVersionsLoading}
                                     >
                                         <SelectTrigger className="h-8">
@@ -659,13 +663,16 @@ export const CultivationPlanDetailDialog = ({
                                             const isFirstInProgress = isInProgress && !cultivationPlan.stages
                                                 .slice(0, cultivationPlan.stages.indexOf(stage))
                                                 .some(s => s.tasks.some(t => t.status === 'InProgress'));
+                                            
+                                            const isLatestVersion = !selectedVersionId;
+                                            console.log('Rendering task:', { taskId: task.taskId, selectedVersionId, isLatestVersion });
 
                                             return (
                                                 <TaskItemWithLogs
                                                     key={task.taskId}
                                                     task={task}
                                                     isInProgress={isInProgress}
-                                                    isLatestVersion={selectedVersionId === null || selectedVersionId === cultivationPlan.activeVersionId}
+                                                    isLatestVersion={isLatestVersion}
                                                     inProgressTaskRef={isFirstInProgress ? inProgressTaskRef : null}
                                                 />
                                             );
