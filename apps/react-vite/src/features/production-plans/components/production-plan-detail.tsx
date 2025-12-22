@@ -86,8 +86,8 @@ const TaskItemWithLogs = ({ task }: { task: any }) => {
     <>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <div className="border rounded-lg transition-colors">
-          <CollapsibleTrigger className="w-full">
-            <div className="p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg">
+          <CollapsibleTrigger asChild>
+            <div className="w-full p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg cursor-pointer">
               <div className="flex items-center gap-3 flex-1 text-left">
                 {isOpen ? (
                   <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />

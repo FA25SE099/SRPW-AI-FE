@@ -12,6 +12,7 @@ import {
     X,
     RefreshCw,
     Camera,
+    AlertTriangle,
 } from 'lucide-react';
 
 import {
@@ -26,6 +27,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { Card } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useCultivationPlanByGroupPlot } from '../api/get-cultivation-plan';
+import { useCreateLateFarmerRecord } from '../api/create-late-farmer-record';
 import { useCultivationVersions } from '../api/get-cultivation-versions';
 import { CultivationPlanTask, CultivationPlanStage } from '../types/cultivation-plan';
 import { useFarmLogsByCultivationTask } from '@/features/production-plans/api/get-farm-logs-by-cultivation-task';
@@ -109,14 +111,18 @@ const TaskItemWithLogs = ({
     task,
     isInProgress,
     inProgressTaskRef,
+    isLatestVersion,
 }: {
     task: CultivationPlanTask;
     isInProgress: boolean;
     inProgressTaskRef: React.RefObject<HTMLDivElement> | null;
+    isLatestVersion: boolean;
 }) => {
     const [isOpen, setIsOpen] = useState(isInProgress);
     const [loadLogs, setLoadLogs] = useState(false);
     const [viewingImages, setViewingImages] = useState<string[] | null>(null);
+    const [isReportingLate, setIsReportingLate] = useState(false);
+    const [lateNotes, setLateNotes] = useState('');
 
     const { data: logsData, isLoading: logsLoading, refetch } = useFarmLogsByCultivationTask({
         params: {
@@ -128,6 +134,24 @@ const TaskItemWithLogs = ({
             enabled: loadLogs,
         },
     });
+
+    const createLateRecordMutation = useCreateLateFarmerRecord();
+
+    const handleReportLate = () => {
+        if (!lateNotes.trim()) {
+            // Optionally show a notification for empty notes
+            return;
+        }
+        createLateRecordMutation.mutate({
+            cultivationTaskId: task.taskId,
+            notes: lateNotes,
+        }, {
+            onSuccess: () => {
+                setIsReportingLate(false);
+                setLateNotes('');
+            }
+        });
+    };
 
     useEffect(() => {
         if (isOpen && !loadLogs) {
@@ -148,8 +172,8 @@ const TaskItemWithLogs = ({
                         isInProgress && 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
                     )}
                 >
-                    <CollapsibleTrigger className="w-full">
-                        <div className="p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg">
+                    <CollapsibleTrigger asChild>
+                        <div className="w-full p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg cursor-pointer">
                             <div className="flex items-center gap-3 flex-1 text-left">
                                 {isOpen ? (
                                     <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -166,6 +190,20 @@ const TaskItemWithLogs = ({
                                 </div>
 
                                 <div className="flex items-center gap-3 flex-shrink-0">
+                                    {isLatestVersion && (
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
+                                            className="h-7 w-7"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsReportingLate(true);
+                                            }}
+                                            title="Report Late Task"
+                                        >
+                                            <AlertTriangle className="h-4 w-4 text-orange-500" />
+                                        </Button>
+                                    )}
                                     <Badge className={getStatusColor(task.status)}>
                                         {task.status}
                                     </Badge>
@@ -366,6 +404,30 @@ const TaskItemWithLogs = ({
                 open={!!viewingImages}
                 onClose={() => setViewingImages(null)}
             />
+            <Dialog open={isReportingLate} onOpenChange={setIsReportingLate}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Report Late Task: {task.taskName}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <label htmlFor="lateNotes" className="text-sm font-medium text-muted-foreground">Notes</label>
+                        <textarea
+                            id="lateNotes"
+                            value={lateNotes}
+                            onChange={(e) => setLateNotes(e.target.value)}
+                            placeholder="Enter notes for the late record..."
+                            className="w-full p-2 border rounded-md min-h-[100px] focus:ring-1 focus:ring-primary focus:border-primary"
+                            rows={4}
+                        />
+                        <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setIsReportingLate(false)} disabled={createLateRecordMutation.isPending}>Cancel</Button>
+                            <Button onClick={handleReportLate} disabled={createLateRecordMutation.isPending || !lateNotes.trim()}>
+                                {createLateRecordMutation.isPending ? <Spinner size="sm" /> : 'Submit'}
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </>
     );
 };
@@ -606,6 +668,7 @@ export const CultivationPlanDetailDialog = ({
                                                     key={task.taskId}
                                                     task={task}
                                                     isInProgress={isInProgress}
+                                                    isLatestVersion={selectedVersionId === null || selectedVersionId === cultivationPlan.activeVersionId}
                                                     inProgressTaskRef={isFirstInProgress ? inProgressTaskRef : null}
                                                 />
                                             );

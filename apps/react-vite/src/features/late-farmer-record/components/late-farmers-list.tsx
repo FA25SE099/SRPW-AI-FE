@@ -301,31 +301,31 @@ export const LateFarmersList = ({
                                     <div>
                                         <span className="text-gray-600">Name:</span>{' '}
                                         <span className="font-medium text-gray-900">
-                                            {farmerDetail.data.fullName || 'N/A'}
+                                            {farmerDetail.fullName || 'N/A'}
                                         </span>
                                     </div>
                                     <div>
                                         <span className="text-gray-600">Phone:</span>{' '}
                                         <span className="font-medium text-gray-900">
-                                            {farmerDetail.data.phoneNumber || 'N/A'}
+                                            {farmerDetail.phoneNumber || 'N/A'}
                                         </span>
                                     </div>
                                     <div>
                                         <span className="text-gray-600">Farm Code:</span>{' '}
                                         <span className="font-medium text-gray-900">
-                                            {farmerDetail.data.farmCode || 'N/A'}
+                                            {farmerDetail.farmCode || 'N/A'}
                                         </span>
                                     </div>
                                     <div>
                                         <span className="text-gray-600">Total Late Count:</span>{' '}
                                         <span className="font-semibold text-red-600">
-                                            {farmerDetail.data.totalLateCount} times
+                                            {farmerDetail.totalLateCount} times
                                         </span>
                                     </div>
                                     <div className="col-span-2">
                                         <span className="text-gray-600">Address:</span>{' '}
                                         <span className="font-medium text-gray-900">
-                                            {farmerDetail.data.address || 'N/A'}
+                                            {farmerDetail.address || 'N/A'}
                                         </span>
                                     </div>
                                 </div>
@@ -364,14 +364,14 @@ export const LateFarmersList = ({
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200 bg-white">
-                                            {farmerDetail.data.lateRecords.length === 0 ? (
+                                            {farmerDetail.lateRecords?.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                                                         No late records found
                                                     </td>
                                                 </tr>
                                             ) : (
-                                                farmerDetail.data.lateRecords.map((record: LateFarmerRecordDTO) => (
+                                                farmerDetail.lateRecords?.map((record: LateFarmerRecordDTO) => (
                                                     <tr key={record.id} className="hover:bg-gray-50">
                                                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                                                             {new Date(record.recordedAt).toLocaleDateString()}
