@@ -26,7 +26,7 @@ export const useCreateLateFarmerRecord = ({ mutationConfig }: UseCreateLateFarme
       addNotification({
         type: 'success',
         title: 'Success',
-        message: data.message || 'Late farmer record created successfully.',
+        message: (data as any).message || 'Late farmer record created successfully.',
       });
       // You might want to invalidate queries that show task status or logs
     },

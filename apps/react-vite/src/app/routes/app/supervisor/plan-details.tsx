@@ -145,7 +145,6 @@ const TaskRowWithLogs = ({ task }: { task: any }) => {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="font-medium text-sm">{log.plotName}</span>
                           <Badge variant="outline" className="text-xs">
                             {log.completionPercentage}% Complete
                           </Badge>

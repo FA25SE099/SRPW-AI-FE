@@ -145,12 +145,9 @@ const TaskItemWithLogs = ({
         createLateRecordMutation.mutate({
             cultivationTaskId: task.taskId,
             notes: lateNotes,
-        }, {
-            onSuccess: () => {
-                setIsReportingLate(false);
-                setLateNotes('');
-            }
         });
+        setIsReportingLate(false);
+        setLateNotes('');
     };
 
     useEffect(() => {

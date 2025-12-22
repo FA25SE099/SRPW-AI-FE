@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { useNotifications } from '@/components/ui/notifications';
+import { MutationConfig } from '@/lib/react-query';
 
 export type CreateLateFarmerRecordDTO = {
   cultivationTaskId: string;
@@ -12,23 +13,24 @@ export const createLateFarmerRecord = (data: CreateLateFarmerRecordDTO): Promise
 };
 
 type UseCreateLateFarmerRecordOptions = {
-  mutationConfig?: any;
+  mutationConfig?: MutationConfig<typeof createLateFarmerRecord>;
 };
 
 export const useCreateLateFarmerRecord = ({ mutationConfig }: UseCreateLateFarmerRecordOptions = {}) => {
   const { addNotification } = useNotifications();
   const queryClient = useQueryClient();
 
+  const { onSuccess, ...restConfig } = mutationConfig || {};
+
   return useMutation({
-    ...mutationConfig,
     mutationFn: createLateFarmerRecord,
-    onSuccess: (data) => {
+    onSuccess: (data, ...args) => {
       addNotification({
         type: 'success',
         title: 'Success',
-        message: data.message || 'Late farmer record created successfully.',
+        message: (data as any).message || 'Late farmer record created successfully.',
       });
-      // You might want to invalidate queries that show task status or logs
+      onSuccess?.(data, ...args);
     },
     onError: (error: any) => {
       addNotification({
@@ -37,5 +39,6 @@ export const useCreateLateFarmerRecord = ({ mutationConfig }: UseCreateLateFarme
         message: error.message || 'Failed to create late farmer record.',
       });
     },
+    ...restConfig,
   });
 };

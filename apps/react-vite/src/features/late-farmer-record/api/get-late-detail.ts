@@ -2,12 +2,11 @@ import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
 import { QueryConfig } from '@/lib/react-query';
-import { Result } from '@/types/api';
 import { FarmerLateDetailDTO } from '../types';
 
 export const getLateFarmerDetail = (
   farmerId: string
-): Promise<Result<FarmerLateDetailDTO>> => {
+): Promise<FarmerLateDetailDTO> => {
   return api.get(`/LateFarmerRecord/farmer/${farmerId}/detail`);
 };
 
