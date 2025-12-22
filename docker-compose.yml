@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  frontend:
+    image: rice-frontend:latest
+    container_name: rice-frontend
+    build: .
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    networks:
+      - monitoring
+networks:
+  monitoring:
+    external: true
