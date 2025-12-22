@@ -25,9 +25,11 @@ import { Spinner } from '@/components/ui/spinner';
 import { Card } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useCultivationPlanByGroupPlot } from '../api/get-cultivation-plan';
+import { useCultivationVersions } from '../api/get-cultivation-versions';
 import { CultivationPlanTask, CultivationPlanStage } from '../types/cultivation-plan';
-import { useFarmLogsByCultivation } from '@/features/production-plans/api/get-farm-logs-by-cultivation';
+import { useFarmLogsByCultivationTask } from '@/features/production-plans/api/get-farm-logs-by-cultivation-task';
 import { cn } from '@/utils/cn';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface CultivationPlanDetailDialogProps {
     isOpen: boolean;
@@ -79,21 +81,19 @@ const formatDate = (dateString: string | null) => {
 // Task component with farm logs
 const TaskItemWithLogs = ({
     task,
-    plotCultivationId,
     isInProgress,
     inProgressTaskRef,
 }: {
     task: CultivationPlanTask;
-    plotCultivationId: string;
     isInProgress: boolean;
     inProgressTaskRef: React.RefObject<HTMLDivElement> | null;
 }) => {
     const [isOpen, setIsOpen] = useState(isInProgress);
     const [loadLogs, setLoadLogs] = useState(false);
 
-    const { data: logsData, isLoading: logsLoading, refetch } = useFarmLogsByCultivation({
+    const { data: logsData, isLoading: logsLoading, refetch } = useFarmLogsByCultivationTask({
         params: {
-            plotCultivationId: plotCultivationId,
+            cultivationTaskId: task.taskId,
             currentPage: 1,
             pageSize: 10,
         },
@@ -261,6 +261,9 @@ const TaskItemWithLogs = ({
                                             <div className="flex items-start justify-between">
                                                 <div className="space-y-1 flex-1">
                                                     <p className="text-sm font-medium">{log.cultivationTaskName}</p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Thửa {log.soThua}, Tờ {log.soTo}
+                                                    </p>
                                                     {log.workDescription && (
                                                         <p className="text-sm text-muted-foreground">{log.workDescription}</p>
                                                     )}
@@ -317,18 +320,31 @@ export const CultivationPlanDetailDialog = ({
     plotName,
 }: CultivationPlanDetailDialogProps) => {
     const inProgressTaskRef = useRef<HTMLDivElement>(null);
+    const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
 
     const { data: cultivationPlan, isLoading, error, refetch } = useCultivationPlanByGroupPlot({
-        params: { plotId, groupId },
+        params: { plotId, groupId, versionId: selectedVersionId },
         queryConfig: {
             enabled: isOpen && !!plotId && !!groupId,
         },
     });
 
+    const { data: versionsData, isLoading: isVersionsLoading } = useCultivationVersions({
+        plotCultivationId: cultivationPlan?.plotCultivationId || '',
+        queryConfig: {
+            enabled: !!cultivationPlan?.plotCultivationId,
+        }
+    });
+
+    // Handle potential API response inconsistency (unwrapped array vs object with data property)
+    const versions = Array.isArray(versionsData) ? versionsData : (versionsData as any)?.data || [];
+
     // Refetch when dialog opens
     useEffect(() => {
         if (isOpen && plotId && groupId) {
             refetch();
+        } else if (!isOpen) {
+            setSelectedVersionId(null);
         }
     }, [isOpen, plotId, groupId, refetch]);
 
@@ -349,9 +365,32 @@ export const CultivationPlanDetailDialog = ({
             <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <div className="flex items-center justify-between">
-                        <DialogTitle className="text-2xl">
-                            {plotName || cultivationPlan?.plotName || 'Cultivation Plan Details'}
-                        </DialogTitle>
+                        <div className="flex items-center gap-4">
+                            <DialogTitle className="text-2xl">
+                                {plotName || cultivationPlan?.plotName || 'Cultivation Plan Details'}
+                            </DialogTitle>
+                            {(isVersionsLoading || versions.length > 0) && (
+                                <div className="w-[200px]">
+                                    <Select
+                                        value={selectedVersionId || "latest"}
+                                        onValueChange={(value) => setSelectedVersionId(value === "latest" ? null : value)}
+                                        disabled={isVersionsLoading}
+                                    >
+                                        <SelectTrigger className="h-8">
+                                            <SelectValue placeholder={isVersionsLoading ? "Loading..." : "Select version"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="latest">Latest Version</SelectItem>
+                                            {versions.map((version: any) => (
+                                                <SelectItem key={version.id} value={version.id}>
+                                                    {version.versionName} {version.isActive ? '(Active)' : ''}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+                        </div>
                         <Button variant="ghost" size="sm" onClick={onClose}>
                             <X className="h-4 w-4" />
                         </Button>
@@ -508,7 +547,6 @@ export const CultivationPlanDetailDialog = ({
                                                 <TaskItemWithLogs
                                                     key={task.taskId}
                                                     task={task}
-                                                    plotCultivationId={cultivationPlan.plotCultivationId}
                                                     isInProgress={isInProgress}
                                                     inProgressTaskRef={isFirstInProgress ? inProgressTaskRef : null}
                                                 />
