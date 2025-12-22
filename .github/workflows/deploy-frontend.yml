@@ -1,0 +1,44 @@
+name: CI/CD Frontend - Deploy to VPS
+
+on:
+  push:
+    branches:
+      - frontendDeployment  
+  workflow_dispatch:  
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'  
+
+      - name: Install dependencies (monorepo root)
+        run: npm ci  
+
+      - name: Build react-vite app
+        run: |
+          cd apps/react-vite
+          npm ci
+          npm run build  # build ra dist
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            cd ~/frontend/SRPW-AI-FE
+            git pull origin main  
+            docker compose up --build -d frontend
+            docker image prune -f
+            echo "Frontend deploy successfully!"
