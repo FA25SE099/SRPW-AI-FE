@@ -1,442 +1,320 @@
-import { useState } from 'react';
+"use client";
+
+import { useState, useEffect } from "react";
 import {
-  Calendar,
-  DollarSign,
-  Package,
-  Users,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Send,
-  TrendingUp,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Loader2,
+  ChevronDown,
+  ChevronRight,
+  RefreshCw,
+  Camera,
   MapPin,
-} from 'lucide-react';
+  Calendar,
+  Leaf,
+  TrendingUp,
+  Clock,
+  Package,
+  FileText,
+} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { cn } from "@/utils/cn";
+import { useGroupDetail } from "@/features/groups/api/get-groups-detail";
+import { useProductionPlan } from "../api/get-production-plan";
+import { useFarmLogsByProductionPlanTask } from "../api/get-farm-logs-by-task";
 
-import { Button } from '@/components/ui/button';
-import { Spinner } from '@/components/ui/spinner';
-import { useNotifications } from '@/components/ui/notifications';
-import { useUser } from '@/lib/auth';
-import { ROLES } from '@/lib/authorization';
-import { useProductionPlan } from '../api/get-production-plan';
-import { useSubmitProductionPlan } from '../api/submit-production-plan';
-import { useApproveRejectProductionPlan } from '../api/approve-reject-production-plan';
-import { useExecutionSummary } from '../api/get-execution-summary';
-
-type ProductionPlanDetailProps = {
-  planId: string;
-  onBack?: () => void;
-};
-
-export const ProductionPlanDetail = ({ planId, onBack }: ProductionPlanDetailProps) => {
-  const { addNotification } = useNotifications();
-  const user = useUser();
-  const [comments, setComments] = useState('');
-  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
-
-  const { data: plan, isLoading } = useProductionPlan({ planId });
-  const { data: executionSummary, isLoading: isLoadingExecution } = useExecutionSummary({
-    planId,
-    queryConfig: {
-      enabled: plan?.status === 'Approved',
-    },
-  });
-
-  const submitMutation = useSubmitProductionPlan({
-    mutationConfig: {
-      onSuccess: () => {
-        addNotification({
-          type: 'success',
-          title: 'Success',
-          message: 'Production plan submitted for approval',
-        });
-      },
-    },
-  });
-
-  const approveRejectMutation = useApproveRejectProductionPlan({
-    mutationConfig: {
-      onSuccess: (_, variables) => {
-        addNotification({
-          type: 'success',
-          title: 'Success',
-          message: variables.isApproved
-            ? 'Production plan approved successfully'
-            : 'Production plan rejected',
-        });
-        setShowApprovalDialog(false);
-        setComments('');
-      },
-    },
-  });
-
-  const handleSubmit = () => {
-    if (!plan || !user.data?.id) return;
-    submitMutation.mutate({
-      planId: plan.id,
-      supervisorId: user.data.id,
-    });
-  };
-
-  const handleApproveReject = (isApproved: boolean) => {
-    if (!plan) return;
-    approveRejectMutation.mutate({
-      planId: plan.id,
-      isApproved,
-      comments: comments || undefined,
-    });
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex h-64 items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
-  if (!plan) {
-    return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4">
-        <p className="text-red-800">Production plan not found</p>
-      </div>
-    );
-  }
-
-  const isSupervisor = user.data?.role === ROLES.Supervisor;
-  const isExpert = user.data?.role === ROLES.AgronomyExpert;
-  const canSubmit = isSupervisor && plan.status === 'Draft';
-  const canApprove = isExpert && plan.status === 'Pending';
-  const isApproved = plan.status === 'Approved';
+const ImageViewer = ({ images, open, onClose }: { images: string[]; open: boolean; onClose: () => void }) => {
+  if (!open) return null;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{plan.planName}</h1>
-          {/* <p className="mt-1 text-sm text-gray-600">{plan.groupName}</p> */}
-        </div>
-        <div className="flex items-center gap-2">
-          {onBack && (
-            <Button variant="outline" onClick={onBack}>
-              Back
-            </Button>
-          )}
-          {canSubmit && (
-            <Button
-              onClick={handleSubmit}
-              isLoading={submitMutation.isPending}
-              icon={<Send className="h-4 w-4" />}
-            >
-              Submit for Approval
-            </Button>
-          )}
-          {canApprove && (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowApprovalDialog(true);
-                }}
-                icon={<XCircle className="h-4 w-4" />}
-              >
-                Reject
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowApprovalDialog(true);
-                }}
-                icon={<CheckCircle className="h-4 w-4" />}
-              >
-                Approve
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Status Badge */}
-      <div className="flex items-center gap-3">
-        <span
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium ${plan.status === 'Draft'
-            ? 'bg-gray-100 text-gray-700'
-            : plan.status === 'Pending'
-              ? 'bg-yellow-100 text-yellow-700'
-              : plan.status === 'Approved'
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
-            }`}
-        >
-          {plan.status === 'Draft' && <Clock className="h-4 w-4" />}
-          {plan.status === 'Pending' && <Send className="h-4 w-4" />}
-          {plan.status === 'Approved' && <CheckCircle className="h-4 w-4" />}
-          {plan.status === 'Rejected' && <XCircle className="h-4 w-4" />}
-          {plan.status}
-        </span>
-      </div>
-
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div className="rounded-lg border bg-white p-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <DollarSign className="h-4 w-4" />
-            <span>Estimated Cost</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-gray-900">
-            {plan.estimatedTotalCost?.toLocaleString('vi-VN')}
-          </p>
-          <p className="text-xs text-gray-500">VND</p>
-        </div>
-
-        <div className="rounded-lg border bg-white p-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Package className="h-4 w-4" />
-            <span>Total Area</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-gray-900">
-            {plan.totalArea.toFixed(2)}
-          </p>
-          <p className="text-xs text-gray-500">hectares</p>
-        </div>
-
-        <div className="rounded-lg border bg-white p-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Calendar className="h-4 w-4" />
-            <span>Planting Date</span>
-          </div>
-          <p className="mt-2 text-lg font-semibold text-gray-900">
-            {new Date(plan.basePlantingDate).toLocaleDateString()}
-          </p>
-        </div>
-
-        <div className="rounded-lg border bg-white p-4">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Clock className="h-4 w-4" />
-            <span>Duration</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-gray-900">
-            {plan.stages.reduce((sum, s) => sum + (s.expectedDurationDays ?? 0), 0)}
-          </p>
-          <p className="text-xs text-gray-500">days</p>
-        </div>
-      </div>
-
-      {/* Execution Summary (for approved plans) */}
-      {isApproved && executionSummary && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-900">Execution Summary</h2>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
-            <div className="rounded-lg border bg-blue-50 p-4">
-              <div className="flex items-center gap-2 text-sm text-blue-700">
-                <Users className="h-4 w-4" />
-                <span>Plots / Farmers</span>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-blue-900">
-                {executionSummary.plotCount} / {executionSummary.farmerCount}
-              </p>
-            </div>
-
-            <div className="rounded-lg border bg-green-50 p-4">
-              <div className="flex items-center gap-2 text-sm text-green-700">
-                <CheckCircle className="h-4 w-4" />
-                <span>Tasks Completed</span>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-green-900">
-                {executionSummary.tasksCompleted} / {executionSummary.totalTasksCreated}
-              </p>
-              <p className="text-xs text-green-700">
-                {executionSummary.completionPercentage.toFixed(1)}% complete
-              </p>
-            </div>
-
-            <div className="rounded-lg border bg-yellow-50 p-4">
-              <div className="flex items-center gap-2 text-sm text-yellow-700">
-                <Clock className="h-4 w-4" />
-                <span>In Progress</span>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-yellow-900">
-                {executionSummary.tasksInProgress}
-              </p>
-            </div>
-
-            <div className="rounded-lg border bg-purple-50 p-4">
-              <div className="flex items-center gap-2 text-sm text-purple-700">
-                <DollarSign className="h-4 w-4" />
-                <span>Actual Cost</span>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-purple-900">
-                {executionSummary.actualCost.toLocaleString('vi-VN')}
-              </p>
-              <p className="text-xs text-purple-700">
-                / {executionSummary.estimatedCost.toLocaleString('vi-VN')} VND
-              </p>
-            </div>
-          </div>
-
-          {/* Plot Progress */}
-          <div className="rounded-lg border bg-white p-6">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900">Plot Progress</h3>
-            <div className="space-y-3">
-              {executionSummary.plotSummaries.map((plot) => (
-                <div
-                  key={plot.plotId}
-                  className="flex items-center justify-between rounded-lg border bg-gray-50 p-4"
-                >
-                  <div className="flex items-center gap-4">
-                    <MapPin className="h-5 w-5 text-gray-400" />
-                    <div>
-                      <p className="font-medium text-gray-900">{plot.plotName}</p>
-                      <p className="text-sm text-gray-600">
-                        {plot.farmerName} • {plot.plotArea.toFixed(2)} ha
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-gray-900">
-                        {plot.completedTasks} / {plot.taskCount} tasks
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {plot.completionRate.toFixed(1)}% complete
-                      </p>
-                    </div>
-                    <div className="h-12 w-24 overflow-hidden rounded-full bg-gray-200">
-                      <div
-                        className="h-full bg-green-500 transition-all"
-                        style={{ width: `${plot.completionRate}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Stages & Tasks */}
-      <div className="rounded-lg border bg-white p-6">
-        <h2 className="mb-4 text-xl font-bold text-gray-900">Stages & Tasks</h2>
-        <div className="space-y-4">
-          {plan.stages.map((stage, idx) => (
-            <div key={idx} className="rounded-lg border bg-gray-50 p-4">
-              <div className="mb-3">
-                <h3 className="font-semibold text-gray-900">
-                  {stage.sequenceOrder}. {stage.stageName}
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Duration: {stage.expectedDurationDays} days
-                  {/* {stage.isMandatory && (
-                    <span className="ml-2 text-xs text-red-600">(Mandatory)</span>
-                  )} */}
-                </p>
-                {stage.notes && (
-                  <p className="mt-1 text-sm text-gray-500">{stage.notes}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                {stage.tasks.map((task, taskIdx) => (
-                  <div
-                    key={taskIdx}
-                    className="rounded-md border border-gray-200 bg-white p-3"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-gray-900">{task.taskName}</h4>
-                        <p className="mt-1 text-sm text-gray-600">{task.description}</p>
-                        <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500">
-                          <span className="rounded bg-blue-100 px-2 py-1 text-blue-700">
-                            Day {Math.ceil((new Date(task.scheduledDate).getTime() - new Date(plan.basePlantingDate).getTime()) / (1000 * 60 * 60 * 24))}
-                          </span>
-                          <span className="rounded bg-purple-100 px-2 py-1 text-purple-700">
-                            {task.taskType}
-                          </span>
-                          <span className="rounded bg-green-100 px-2 py-1 text-green-700">
-                            {task.priority}
-                          </span>
-                        </div>
-
-                        {task.materials && task.materials.length > 0 && (
-                          <div className="mt-2">
-                            <p className="text-xs font-medium text-gray-700">Materials:</p>
-                            <ul className="mt-1 space-y-1">
-                              {task.materials.map((material, matIdx) => (
-                                <li key={matIdx} className="text-xs text-gray-600">
-                                  • {material.materialName}: {material.quantityPerHa} {material.materialUnit || 'units'}/ha
-                                  {material.estimatedAmount && (
-                                    <span className="ml-2 text-gray-500">
-                                      (Total: {material.estimatedAmount.toLocaleString('vi-VN')} VND)
-                                    </span>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Farm Log Images</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto p-4">
+          {images.map((url, index) => (
+            <a href={url} target="_blank" rel="noopener noreferrer" key={index}>
+              <img
+                src={url}
+                alt={`Farm log image ${index + 1}`}
+                className="rounded-lg object-cover w-full h-full cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </a>
           ))}
         </div>
-      </div>
-
-      {/* Approval Dialog */}
-      {showApprovalDialog && canApprove && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="max-w-md rounded-lg bg-white p-6">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Approve/Reject Production Plan
-            </h3>
-            <div className="mt-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Comments
-                </label>
-                <textarea
-                  value={comments}
-                  onChange={(e) => setComments(e.target.value)}
-                  rows={4}
-                  className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-                  placeholder="Add comments (optional)..."
-                />
-              </div>
-
-              <div className="flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowApprovalDialog(false);
-                    setComments('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleApproveReject(false)}
-                  isLoading={approveRejectMutation.isPending}
-                  icon={<XCircle className="h-4 w-4" />}
-                >
-                  Reject
-                </Button>
-                <Button
-                  onClick={() => handleApproveReject(true)}
-                  isLoading={approveRejectMutation.isPending}
-                  icon={<CheckCircle className="h-4 w-4" />}
-                >
-                  Approve
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
+const TaskItemWithLogs = ({ task }: { task: any }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [loadLogs, setLoadLogs] = useState(false);
+  const [viewingImages, setViewingImages] = useState<string[] | null>(null);
+
+  const { data: logsData, isLoading: logsLoading, refetch } = useFarmLogsByProductionPlanTask({
+    params: {
+      productionPlanTaskId: task.taskId,
+      currentPage: 1,
+      pageSize: 10,
+    },
+    queryConfig: {
+      enabled: loadLogs,
+    },
+  });
+
+  useEffect(() => {
+    if (isOpen && !loadLogs) {
+      setLoadLogs(true);
+    }
+  }, [isOpen, loadLogs]);
+
+  return (
+    <>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div className="border rounded-lg transition-colors">
+          <CollapsibleTrigger asChild>
+            <div className="w-full p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg cursor-pointer">
+              <div className="flex items-center gap-3 flex-1 text-left">
+                {isOpen ? (
+                  <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">{task.taskName}</p>
+                </div>
+                <Badge variant="outline">{task.taskType}</Badge>
+              </div>
+            </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="px-3 pb-3 space-y-3 border-t pt-3 mt-2">
+              {task.description && (
+                <p className="text-sm text-muted-foreground">{task.description}</p>
+              )}
+              <div className="mt-4 pt-4 border-t">
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="text-sm font-semibold">Farm Logs</h5>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      refetch();
+                    }}
+                    disabled={logsLoading}
+                  >
+                    <RefreshCw className={cn("h-4 w-4", logsLoading && "animate-spin")} />
+                  </Button>
+                </div>
+                {logsLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Spinner size="sm" />
+                  </div>
+                ) : logsData?.data && logsData.data.length > 0 ? (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {logsData.data.map((log) => (
+                      <div key={log.farmLogId} className="p-3 bg-muted/30 rounded-lg space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1 flex-1">
+                            <p className="text-sm font-medium">{log.cultivationTaskName}</p>
+                            <p className="text-xs text-muted-foreground">
+                              Thửa {log.soThua}, Tờ {log.soTo}
+                            </p>
+                            {log.workDescription && (
+                              <p className="text-sm text-muted-foreground">{log.workDescription}</p>
+                            )}
+                          </div>
+                          <Badge variant="outline" className="ml-2">
+                            {log.completionPercentage}%
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span>Logged: {new Date(log.loggedDate).toLocaleDateString("vi-VN")}</span>
+                          {log.actualAreaCovered && <span>Area: {log.actualAreaCovered} ha</span>}
+                        </div>
+                        {(log.materialsUsed.length > 0 || (log.serviceCost && log.serviceCost > 0) || (log.photoUrls && log.photoUrls.length > 0)) && (
+                          <div className="mt-2 space-y-2">
+                            {log.materialsUsed.length > 0 && (
+                              <div className="text-xs bg-orange-50 dark:bg-orange-950/20 p-2 rounded border border-orange-100 dark:border-orange-900/30">
+                                <p className="font-medium text-orange-700 dark:text-orange-300 mb-1">Materials Used:</p>
+                                <ul className="space-y-1">
+                                  {log.materialsUsed.map((material, idx) => (
+                                    <li key={idx} className="flex justify-between text-orange-800 dark:text-orange-200">
+                                      <span>• {material.materialName}</span>
+                                      <span>{material.actualQuantityUsed}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            <div className="flex items-center gap-4 text-xs">
+                              {log.serviceCost && log.serviceCost > 0 && (
+                                <span className="text-blue-600 font-medium">
+                                  Service: {log.serviceCost.toLocaleString("vi-VN")} VND
+                                </span>
+                              )}
+                              {log.photoUrls && log.photoUrls.length > 0 && (
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="p-0 h-auto text-xs flex items-center gap-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setViewingImages(log.photoUrls || []);
+                                  }}
+                                >
+                                  <Camera className="h-3 w-3" />
+                                  View {log.photoUrls.length} image(s)
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No farm logs available
+                  </p>
+                )}
+              </div>
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+      <ImageViewer
+        images={viewingImages || []}
+        open={!!viewingImages}
+        onClose={() => setViewingImages(null)}
+      />
+    </>
+  );
+};
+
+type Props = {
+  isOpen: boolean;
+  onClose: () => void;
+  groupId: string;
+};
+
+export const ProductionPlanDetail = ({
+  isOpen,
+  onClose,
+  groupId,
+}: Props) => {
+  const { data, isLoading } = useGroupDetail({ groupId });
+  const planSummary = data?.productionPlans?.[0];
+
+  const { data: planDetail, isLoading: isPlanDetailLoading } = useProductionPlan({
+    planId: planSummary?.id || "",
+    queryConfig: {
+      enabled: !!planSummary?.id && isOpen,
+    },
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Production Plan Details</DialogTitle>
+        </DialogHeader>
+
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex items-center justify-center h-40">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
+
+        {/* No plan */}
+        {!isLoading && !planSummary && (
+          <p className="text-center text-muted-foreground py-8">
+            This group has no production plan yet.
+          </p>
+        )}
+
+        {/* Plan info */}
+        {!isLoading && planSummary && (
+          <div className="space-y-6">
+            {/* Header */}
+            <Card className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold">{planSummary.planName}</h2>
+                <Badge
+                  variant={
+                    planSummary.status === "Completed"
+                      ? "default"
+                      : planSummary.status === "InProgress"
+                        ? "secondary"
+                        : "outline"
+                  }
+                >
+                  {planSummary.status}
+                </Badge>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-8 w-8 text-purple-600" />
+                  <div>
+                    <p className="text-sm font-bold">{planSummary.basePlantingDate?.slice(0, 10)}</p>
+                    <p className="text-sm text-muted-foreground">Planting Date</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-8 w-8 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-bold">{planSummary.totalArea} ha</p>
+                    <p className="text-sm text-muted-foreground">Total Area</p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Stages and Tasks */}
+            {isPlanDetailLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Spinner size="lg" />
+              </div>
+            ) : planDetail ? (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Cultivation Stages & Tasks</h3>
+                {planDetail.stages.map((stage: any) => (
+                  <Card key={stage.stageId} className="p-4">
+                    <div className="mb-3">
+                      <h4 className="text-md font-semibold flex items-center gap-2">
+                        <span className="text-primary">{stage.sequenceOrder}.</span>
+                        {stage.stageName}
+                      </h4>
+                    </div>
+                    <div className="space-y-2">
+                      {stage.tasks.map((task: any) => (
+                        <TaskItemWithLogs key={task.taskId} task={task} />
+                      ))}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};

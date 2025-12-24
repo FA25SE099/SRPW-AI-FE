@@ -23,6 +23,7 @@ export const CreateMaterialDialog = ({
   const [description, setDescription] = useState('');
   const [manufacturer, setManufacturer] = useState('');
   const [isActive, setIsActive] = useState(true);
+  const [isPartition, setIsPartition] = useState(false);
 
   const createMutation = useCreateMaterial({
     mutationConfig: {
@@ -36,6 +37,7 @@ export const CreateMaterialDialog = ({
         setDescription('');
         setManufacturer('');
         setIsActive(true);
+        setIsPartition(false);
         onClose();
       },
     },
@@ -53,6 +55,7 @@ export const CreateMaterialDialog = ({
       description: description || undefined,
       manufacturer: manufacturer || undefined,
       isActive,
+      isPartition,
       priceValidFrom: new Date().toISOString(),
     });
   };
@@ -180,6 +183,20 @@ export const CreateMaterialDialog = ({
           />
           <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
             Active
+          </label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="isPartition"
+            checked={isPartition}
+            onChange={(e) => setIsPartition(e.target.checked)}
+            disabled={isLoading}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label htmlFor="isPartition" className="text-sm font-medium text-gray-700">
+            Can be partitioned (sold in smaller quantities)
           </label>
         </div>
 

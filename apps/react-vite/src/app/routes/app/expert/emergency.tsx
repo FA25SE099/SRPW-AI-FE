@@ -12,17 +12,6 @@ const EmergencyRoute = () => {
         setSolvingPlan({ id: planId, name: planName });
     };
 
-    if (selectedPlanId) {
-        return (
-            <ContentLayout title="Emergency Plan Details">
-                <ProductionPlanDetail
-                    planId={selectedPlanId}
-                    onBack={() => setSelectedPlanId(null)}
-                />
-            </ContentLayout>
-        );
-    }
-
     return (
         <>
             <ContentLayout title="Emergency Plans">
@@ -31,6 +20,14 @@ const EmergencyRoute = () => {
                     onSolveEmergency={handleSolveEmergency}
                 />
             </ContentLayout>
+
+            {selectedPlanId && (
+                <ProductionPlanDetail
+                    isOpen={true}
+                    onClose={() => setSelectedPlanId(null)}
+                    groupId={selectedPlanId}
+                />
+            )}
 
             {solvingPlan && (
                 <ResolveEmergencyDialog

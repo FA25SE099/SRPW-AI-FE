@@ -122,6 +122,20 @@ export const MaterialDetailDialog = ({
                                     </span>
                                 </p>
                             </div>
+
+                            <div>
+                                <label className="text-sm font-medium text-gray-700">Partition Type</label>
+                                <p className="mt-1">
+                                    <span
+                                        className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${material.isPartition
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : 'bg-gray-100 text-gray-700'
+                                            }`}
+                                    >
+                                        {material.isPartition ? 'Partitioned' : 'Whole Package'}
+                                    </span>
+                                </p>
+                            </div>
                         </div>
 
                         {/* Description */}

@@ -104,15 +104,6 @@ export const EditTasksStep = ({
                                             <span className="text-xs font-semibold text-blue-900">
                                                 Tasks ({stage.tasks.length})
                                             </span>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleOpenAddTaskMenu(stageIndex, stage.tasks.length)}
-                                                disabled={isLoading}
-                                                className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
-                                            >
-                                                <Plus className="h-3 w-3" />
-                                                Add Task at End
-                                            </button>
                                         </div>
 
                                         <div className="grid grid-cols-3 gap-2.5">

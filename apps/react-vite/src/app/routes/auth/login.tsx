@@ -1,4 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router';
+import { Link } from 'react-router';
 import { useUser } from '@/lib/auth';
 
 import { AuthLayout } from '@/components/layouts/auth-layout';
@@ -17,7 +18,7 @@ const LoginRoute = () => {
         onSuccess={() => {
           // Wait for user query to refetch before navigating
           user.refetch().then(() => {
-            console.log('Refetched user role:', user.data?.role);  
+            console.log('Refetched user role:', user.data?.role);
             navigate(
               `${redirectTo ? `${redirectTo}` : paths.app.root.getHref()}`,
               {
@@ -27,6 +28,14 @@ const LoginRoute = () => {
           });
         }}
       />
+      <div className="mt-4 text-center">
+        <Link
+          to={paths.auth.forgotPassword.getHref()}
+          className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+        >
+          Forgot your password?
+        </Link>
+      </div>
     </AuthLayout>
   );
 };

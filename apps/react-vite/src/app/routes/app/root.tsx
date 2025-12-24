@@ -17,8 +17,11 @@ import {
   BarChart3,
   Network,
   ShieldAlert,
+  Clock,
+  Plane,
+  ReceiptText,
 } from 'lucide-react';
-import { Navigate, Outlet, useLocation } from 'react-router';
+import { Navigate, Outlet, useLocation, useRouteError } from 'react-router';
 
 import { DashboardLayout, SideNavigationItem, SideNavigationGroup } from '@/components/layouts';
 import { paths } from '@/config/paths';
@@ -29,7 +32,27 @@ import { ROLES, useAuthorization } from '@/lib/authorization';
 import ExampleIcon from '@/assets/icons/example-icon.svg?react';
 
 export const ErrorBoundary = () => {
-  return <div>Something went wrong!</div>;
+  const error = useRouteError();
+  console.error('Route Error:', error);
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="rounded-lg border border-red-200 bg-white p-8 shadow-lg max-w-lg">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">Something went wrong!</h1>
+        <p className="text-gray-700 mb-4">
+          {error instanceof Error ? error.message : 'An unexpected error occurred'}
+        </p>
+        {error instanceof Error && error.stack && (
+          <details className="mt-4">
+            <summary className="cursor-pointer text-sm text-gray-600">Error details</summary>
+            <pre className="mt-2 text-xs bg-gray-100 p-4 rounded overflow-auto">
+              {error.stack}
+            </pre>
+          </details>
+        )}
+      </div>
+    </div>
+  );
 };
 
 const AppRoot = () => {
@@ -104,6 +127,12 @@ const AppRoot = () => {
         name: 'Plot Reports',
         to: paths.app.expert.reports.getHref(),
         icon: AlertTriangle,
+        end: true,
+      },
+      {
+        name: 'Late Management',
+        to: paths.app.expert.lateManagement.getHref(),
+        icon: Clock,
         end: true,
       },
       // Example: Uncomment to use a custom downloaded SVG icon
@@ -190,16 +219,28 @@ const AppRoot = () => {
         icon: Folder,
         end: true,
       },
-      // {
-      //   name: 'Reports',
-      //   to: paths.app.supervisor.reports.getHref(),
-      //   icon: TrendingUp,
-      //   end: true,
-      // },
+      {
+        name: 'Farmers',
+        to: paths.app.supervisor.farmers.getHref(),
+        icon: Users,
+        end: true,
+      },
+      {
+        name: 'Reports',
+        to: paths.app.supervisor.reports.getHref(),
+        icon: AlertTriangle,
+        end: true,
+      },
       {
         name: 'Maps',
         to: paths.app.supervisor.maps.getHref(),
         icon: Map,
+        end: true,
+      },
+      {
+        name: 'Late Management',
+        to: paths.app.supervisor.lateManagement.getHref(),
+        icon: Clock,
         end: true,
       },
     ];
@@ -235,6 +276,12 @@ const AppRoot = () => {
         name: 'Groups',
         to: paths.app.cluster.groups.getHref(),
         icon: Users,
+        end: true,
+      },
+      {
+        name: 'UAV Orders',
+        to: paths.app.cluster.uavOrders.getHref(),
+        icon: ReceiptText,
         end: true,
       },
       {

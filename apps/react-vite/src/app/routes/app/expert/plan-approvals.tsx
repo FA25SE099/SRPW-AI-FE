@@ -5,21 +5,20 @@ import { PendingApprovalsList, ProductionPlanDetail } from '@/features/productio
 const PlanApprovalsRoute = () => {
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
-  if (selectedPlanId) {
-    return (
-      <ContentLayout title="Review Production Plan">
-        <ProductionPlanDetail
-          planId={selectedPlanId}
-          onBack={() => setSelectedPlanId(null)}
-        />
-      </ContentLayout>
-    );
-  }
-
   return (
-    <ContentLayout title="Pending Approvals">
-      <PendingApprovalsList onViewPlan={(planId) => setSelectedPlanId(planId)} />
-    </ContentLayout>
+    <>
+      <ContentLayout title="Pending Approvals">
+        <PendingApprovalsList onViewPlan={(planId: string) => setSelectedPlanId(planId)} />
+      </ContentLayout>
+
+      {selectedPlanId && (
+        <ProductionPlanDetail
+          isOpen={true}
+          onClose={() => setSelectedPlanId(null)}
+          groupId={selectedPlanId}
+        />
+      )}
+    </>
   );
 };
 

@@ -38,7 +38,7 @@ export const getGroupBySeasonQueryOptions = (params?: GetGroupBySeasonParams) =>
 
 type UseGroupBySeasonOptions = {
   params?: GetGroupBySeasonParams;
-  queryConfig?: QueryConfig<typeof getGroupBySeason>;
+  queryConfig?: QueryConfig<typeof getGroupBySeasonQueryOptions>;
 };
 
 export const useGroupBySeason = ({
@@ -46,9 +46,8 @@ export const useGroupBySeason = ({
   queryConfig
 }: UseGroupBySeasonOptions = {}) => {
   return useQuery({
+    ...getGroupBySeasonQueryOptions(params),
     ...queryConfig,
-    queryKey: ['supervisor-group-by-season', params],
-    queryFn: () => getGroupBySeason(params),
-  });
+  } as any);
 };
 

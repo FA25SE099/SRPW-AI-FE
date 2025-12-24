@@ -15,6 +15,14 @@ export const paths = {
       getHref: (redirectTo?: string | null | undefined) =>
         `/auth/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`,
     },
+    forgotPassword: {
+      path: '/auth/forgot-password',
+      getHref: () => '/auth/forgot-password',
+    },
+    changePassword: {
+      path: '/auth/change-password',
+      getHref: () => '/auth/change-password',
+    },
   },
 
   unauthorized: {
@@ -92,6 +100,10 @@ export const paths = {
         path: 'expert/reports',
         getHref: () => '/app/expert/reports',
       },
+      lateManagement: {
+        path: 'expert/late-management',
+        getHref: () => '/app/expert/late-management',
+      },
     },
     admin: {
       root: {
@@ -157,6 +169,14 @@ export const paths = {
         path: 'supervisor/maps',
         getHref: () => '/app/supervisor/maps',
       },
+      lateManagement: {
+        path: 'supervisor/late-management',
+        getHref: () => '/app/supervisor/late-management',
+      },
+      farmers: {
+        path: 'supervisor/farmers',
+        getHref: () => '/app/supervisor/farmers',
+      },
     },
     cluster: {
       root: {
@@ -186,6 +206,10 @@ export const paths = {
       maps: {
         path: 'cluster/map',
         getHref: () => '/app/cluster/map',
+      },
+      uavOrders: {
+        path: 'cluster/uav-orders',
+        getHref: () => '/app/cluster/uav-orders',
       },
     },
   },

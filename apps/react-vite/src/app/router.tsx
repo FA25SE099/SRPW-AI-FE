@@ -25,7 +25,8 @@ export const createAppRouter = (queryClient: QueryClient) =>
   createBrowserRouter([
     {
       path: paths.home.path,
-      lazy: () => import('./routes/landing').then(convert(queryClient)),
+      // lazy: () => import('./routes/landing').then(convert(queryClient)),
+      lazy: () => import('./routes/auth/login').then(convert(queryClient)),
     },
     {
       path: paths.auth.register.path,
@@ -34,6 +35,14 @@ export const createAppRouter = (queryClient: QueryClient) =>
     {
       path: paths.auth.login.path,
       lazy: () => import('./routes/auth/login').then(convert(queryClient)),
+    },
+    {
+      path: paths.auth.forgotPassword.path,
+      lazy: () => import('./routes/auth/forgot-password').then(convert(queryClient)),
+    },
+    {
+      path: paths.auth.changePassword.path,
+      lazy: () => import('./routes/auth/change-password').then(convert(queryClient)),
     },
     {
       path: paths.unauthorized.path,
@@ -128,6 +137,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/expert/reports').then(convert(queryClient)),
             },
+            {
+              path: 'late-management',
+              lazy: () =>
+                import('./routes/app/expert/late-management').then(convert(queryClient)),
+            },
           ],
         },
         {
@@ -202,7 +216,17 @@ export const createAppRouter = (queryClient: QueryClient) =>
               path: 'maps',
               lazy: () =>
                 import('./routes/app/supervisor/maps').then(convert(queryClient))
-            }
+            },
+            {
+              path: 'late-management',
+              lazy: () =>
+                import('./routes/app/supervisor/late-management').then(convert(queryClient)),
+            },
+            {
+              path: 'farmers',
+              lazy: () =>
+                import('./routes/app/supervisor/farmers').then(convert(queryClient)),
+            },
           ],
         },
         {
@@ -232,6 +256,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               path: 'map',
               lazy: () =>
                 import('./routes/app/cluster/map').then(convert(queryClient)),
+            },
+            {
+              path: 'uav-orders',
+              lazy: () =>
+                import('./routes/app/cluster/uav-orders').then(convert(queryClient)),
             },
           ],
         },

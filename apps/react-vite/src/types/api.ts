@@ -196,6 +196,7 @@ export type PlanDetail = {
 export enum MaterialType {
   Fertilizer = 0,
   Pesticide = 1,
+  Seed = 2,
 }
 
 export type Material = {
@@ -209,6 +210,7 @@ export type Material = {
   description: string;
   manufacturer: string;
   isActive: boolean;
+  isPartition: boolean;
   imgUrls?: string[];
 };
 
@@ -298,6 +300,7 @@ export type CreateMaterialRequest = {
   description?: string;
   manufacturer?: string;
   isActive: boolean;
+  isPartition: boolean;
   priceValidFrom: string;
 };
 
@@ -311,6 +314,7 @@ export type UpdateMaterialRequest = {
   description?: string;
   manufacturer?: string;
   isActive: boolean;
+  isPartition: boolean;
   imgUrls?: string[];
 };
 
@@ -465,5 +469,51 @@ export type DownloadStandardPlansRequest = {
   inputDate: string;
   categoryId?: string;
   isActive?: boolean;
+};
+
+export type MaterialCostItem = {
+  materialId: string;
+  materialName: string;
+  unit: string;
+  quantityPerHa: number;
+  totalQuantityNeeded: number;
+  amountPerMaterial: number;
+  packagesNeeded: number;
+  actualQuantity: number;
+  pricePerMaterial: number;
+  totalCost: number;
+  costPerHa: number;
+  priceValidFrom: string;
+};
+
+export type TaskCostBreakdownMaterial = {
+  materialId: string;
+  materialName: string;
+  unit: string;
+  quantityPerHa: number;
+  totalQuantityNeeded: number;
+  amountPerMaterial: number;
+  packagesNeeded: number;
+  actualQuantity: number;
+  pricePerMaterial: number;
+  totalCost: number;
+  costPerHa: number;
+  priceValidFrom: string;
+};
+
+export type TaskCostBreakdown = {
+  taskName: string;
+  taskDescription: string;
+  totalTaskCost: number;
+  materials: TaskCostBreakdownMaterial[];
+};
+
+export type StandardPlanMaterialCost = {
+  area: number;
+  totalCostPerHa: number;
+  totalCostForArea: number;
+  materialCostItems: MaterialCostItem[];
+  taskCostBreakdowns: TaskCostBreakdown[];
+  priceWarnings: string[];
 };
 

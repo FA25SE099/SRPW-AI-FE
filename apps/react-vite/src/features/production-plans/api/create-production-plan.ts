@@ -54,6 +54,7 @@ export const useCreateProductionPlan = ({
   return useMutation({
     onSuccess: (...args) => {
       queryClient.invalidateQueries({ queryKey: ['production-plans'] });
+      queryClient.invalidateQueries({ queryKey: ['supervisor-group-by-season'] });
       onSuccess?.(...args);
     },
     ...restConfig,
