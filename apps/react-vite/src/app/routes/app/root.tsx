@@ -168,12 +168,12 @@ const AppRoot = () => {
             icon: FileText,
             end: true,
           },
-          {
-            name: 'Plan Monitoring',
-            to: paths.app.expert.planMonitoring.getHref(),
-            icon: ClipboardList,
-            end: true,
-          },
+          // {
+          //   name: 'Plan Monitoring',
+          //   to: paths.app.expert.planMonitoring.getHref(),
+          //   icon: ClipboardList,
+          //   end: true,
+          // },
         ],
         defaultOpen: true,
       },

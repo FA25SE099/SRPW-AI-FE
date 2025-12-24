@@ -125,22 +125,6 @@ export const SupervisorsPanel = () => {
                                     name="create-supervisor-telephone"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label>Max Farmer Capacity *</Label>
-                                <Input
-                                    type="number"
-                                    value={newSupervisor.maxFarmerCapacity}
-                                    onChange={(e) =>
-                                        setNewSupervisor({
-                                            ...newSupervisor,
-                                            maxFarmerCapacity: parseInt(e.target.value, 10) || 0,
-                                        })
-                                    }
-                                    placeholder="Enter max farmer capacity"
-                                    autoComplete="off"
-                                    name="create-supervisor-capacity"
-                                />
-                            </div>
                             <div className="flex justify-end gap-2 pt-4">
                                 <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
                                     Cancel

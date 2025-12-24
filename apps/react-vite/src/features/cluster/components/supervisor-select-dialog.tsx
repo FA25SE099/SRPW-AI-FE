@@ -99,9 +99,7 @@ export const SupervisorSelectDialog = ({
                                 <div key={supervisor.supervisorId} className="text-sm">
                                     <div className="font-medium">{supervisor.supervisorName}</div>
                                     <div className="text-gray-600">{supervisor.supervisorPhoneNumber}</div>
-                                    <div className="text-xs text-gray-500">
-                                        Capacity: {supervisor.currentFarmerCount}/{supervisor.maxFarmerCapacity}
-                                    </div>
+                                    <div className="text-gray-600">{supervisor.email}</div>
                                 </div>
                             ))}
                         </div>
@@ -196,19 +194,6 @@ export const SupervisorSelectDialog = ({
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="maxCapacity">Max Farmer Capacity</Label>
-                                    <Input
-                                        id="maxCapacity"
-                                        type="number"
-                                        min={1}
-                                        value={newSupervisor.maxFarmerCapacity}
-                                        onChange={(e) => onNewSupervisorChange('maxFarmerCapacity', parseInt(e.target.value) || 10)}
-                                    />
-                                    <p className="text-xs text-gray-500">
-                                        Maximum number of farmers this supervisor can manage
-                                    </p>
-                                </div>
                                 <Button type="submit" className="w-full" disabled={isCreating}>
                                     {isCreating ? 'Creating...' : 'Create Supervisor'}
                                 </Button>
@@ -251,10 +236,6 @@ export const SupervisorSelectDialog = ({
                                                         </div>
                                                         <div className="text-sm text-gray-400">
                                                             {supervisor.email}
-                                                        </div>
-                                                        <div className="text-xs text-gray-500 mt-1">
-                                                            Capacity: {supervisor.currentFarmerCount}/
-                                                            {supervisor.maxFarmerCapacity} farmers
                                                         </div>
                                                     </div>
                                                 </div>
@@ -320,7 +301,7 @@ export const SupervisorSelectDialog = ({
                                                     {supervisor.supervisorPhoneNumber}
                                                 </div>
                                                 <div className="text-xs text-gray-400">
-                                                    Capacity: {supervisor.currentFarmerCount}/{supervisor.maxFarmerCapacity}
+                                                    {supervisor.email}
                                                 </div>
                                             </div>
                                         </div>
