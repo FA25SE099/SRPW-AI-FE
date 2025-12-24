@@ -357,18 +357,24 @@ const AppRoot = () => {
         icon: Home,
         end: true,
       },
+      // {
+      //   name: 'Discussions',
+      //   to: paths.app.discussions.getHref(),
+      //   icon: Folder,
+      //   end: false,
+      // },
+      // checkAccess({ allowedRoles: [ROLES.Admin] }) && {
+      //   name: 'Users',
+      //   to: paths.app.users.getHref(),
+      //   icon: Users,
+      //   end: true,
+      // },
       {
-        name: 'Discussions',
-        to: paths.app.discussions.getHref(),
-        icon: Folder,
-        end: false,
-      },
-      checkAccess({ allowedRoles: [ROLES.Admin] }) && {
-        name: 'Users',
-        to: paths.app.users.getHref(),
-        icon: Users,
+        name: 'Profile',
+        to: paths.app.profile.getHref(),
+        icon: Home,
         end: true,
-      },
+      }
     ].filter(Boolean) as SideNavigationItem[];
   }
 
