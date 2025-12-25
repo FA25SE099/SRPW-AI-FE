@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Users, UserCheck, Search, Edit } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { ContentLayout } from '@/components/layouts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,7 @@ import { SupervisorSelectDialog } from '@/features/cluster/components/supervisor
 
 const AdminClustersRoute = () => {
   const { addNotification } = useNotifications();
+  const queryClient = useQueryClient();
 
   // Cluster list state
   const [clusterPage, setClusterPage] = useState(1);
@@ -306,6 +308,14 @@ const AdminClustersRoute = () => {
     setSelectedExpertName('');
     setSelectedSupervisorIds([]);
     setIsEditMode(false);
+  };
+
+  const handleSupervisorSelectOpen = (open: boolean) => {
+    if (open) {
+      // Invalidate and refetch supervisors list when dialog opens to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['supervisors'] });
+    }
+    setIsSupervisorSelectOpen(open);
   };
 
   const handleEditDialogClose = () => {
@@ -645,7 +655,7 @@ const AdminClustersRoute = () => {
 
                   <SupervisorSelectDialog
                     open={isSupervisorSelectOpen}
-                    onOpenChange={setIsSupervisorSelectOpen}
+                    onOpenChange={handleSupervisorSelectOpen}
                     selectedSupervisorIds={selectedSupervisorIds}
                     supervisors={supervisors}
                     allSupervisors={allSupervisors}
@@ -811,7 +821,7 @@ const AdminClustersRoute = () => {
 
                 <SupervisorSelectDialog
                   open={isSupervisorSelectOpen}
-                  onOpenChange={setIsSupervisorSelectOpen}
+                  onOpenChange={handleSupervisorSelectOpen}
                   selectedSupervisorIds={selectedSupervisorIds}
                   supervisors={supervisors}
                   allSupervisors={allSupervisors}
