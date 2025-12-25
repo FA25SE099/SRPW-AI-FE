@@ -73,7 +73,13 @@ export const EmergencyProtocolDetailDialog = ({
         calculateCostMutation.mutate(
           {
             area: 1,
-            materials: allMaterials,
+            tasks: [
+              {
+                "taskName": "Emergency Protocol Materials",
+                "taskDescription": "Materials required as per emergency protocol",
+                "materials": allMaterials,
+              }
+            ]
           },
           {
             onSuccess: (response) => {
@@ -323,10 +329,10 @@ export const EmergencyProtocolDetailDialog = ({
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-green-700">
-                          ${item.costPerHa.toFixed(2)}/ha
+                          {item.costPerHa.toFixed(0)} VND/ha
                         </p>
                         <p className="text-xs text-gray-500">
-                          ${item.pricePerMaterial}/package
+                          {item.pricePerMaterial} VND/package
                         </p>
                       </div>
                     </div>
@@ -334,7 +340,7 @@ export const EmergencyProtocolDetailDialog = ({
                   <div className="mt-3 flex items-center justify-between border-t pt-3">
                     <p className="text-lg font-bold text-gray-900">Total Cost</p>
                     <p className="text-2xl font-bold text-green-700">
-                      ${totalCostPerHa.toFixed(2)}/ha
+                      ${totalCostPerHa.toFixed(0)}/ha
                     </p>
                   </div>
                 </div>
@@ -410,7 +416,7 @@ export const EmergencyProtocolDetailDialog = ({
                                           <span className="font-medium text-green-700">
 
                                             {material.estimatedCostPerHa.toFixed(
-                                              2,
+                                              0,
                                             )} VND/ha
                                           </span>
                                         </div>

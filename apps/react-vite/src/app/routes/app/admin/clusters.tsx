@@ -221,11 +221,11 @@ const AdminClustersRoute = () => {
   const handleCreateCluster = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!clusterName || !selectedManagerId || !selectedExpertId) {
+    if (!clusterName || !selectedManagerId || !selectedExpertId || selectedSupervisorIds.length === 0) {
       addNotification({
         type: 'error',
         title: 'Validation Error',
-        message: 'Please fill in all required fields',
+        message: 'Please fill in all required fields (including at least one supervisor)',
       });
       return;
     }
@@ -261,11 +261,11 @@ const AdminClustersRoute = () => {
   const handleUpdateCluster = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!editingCluster || !clusterName || !selectedManagerId || !selectedExpertId) {
+    if (!editingCluster || !clusterName || !selectedManagerId || !selectedExpertId || selectedSupervisorIds.length === 0) {
       addNotification({
         type: 'error',
         title: 'Validation Error',
-        message: 'Please fill in all required fields',
+        message: 'Please fill in all required fields (including at least one supervisor)',
       });
       return;
     }
@@ -651,7 +651,7 @@ const AdminClustersRoute = () => {
 
                 {/* Supervisors */}
                 <div className="space-y-2">
-                  <Label>Supervisors (Optional)</Label>
+                  <Label>Supervisors *</Label>
 
                   <SupervisorSelectDialog
                     open={isSupervisorSelectOpen}
@@ -816,7 +816,7 @@ const AdminClustersRoute = () => {
               {/* Supervisors */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>Supervisors (Optional)</Label>
+                  <Label>Supervisors (At least 1)</Label>
                 </div>
 
                 <SupervisorSelectDialog

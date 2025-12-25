@@ -90,7 +90,7 @@ export const SupervisorSelectDialog = ({
                                 <span>{selectedSupervisorIds.length} supervisor(s) selected</span>
                             </div>
                         ) : (
-                            'Select supervisors (optional)'
+                            'Select supervisors'
                         )}
                     </Button>
                     {selectedSupervisors.length > 0 && (

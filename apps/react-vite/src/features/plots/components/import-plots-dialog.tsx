@@ -27,7 +27,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
     const [dragActive, setDragActive] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const { addNotification } = useNotifications()
-    
+
     const plotTemplate = usePlotImportTemplate()
 
     const importMutation = useImportPlotsExcel({
@@ -47,30 +47,30 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     })
 
                     setTimeout(() => {
-                    onOpenChange(false)
-                    resetForm()
-                }, 2000)
-            } else if (data.succeeded === true) {
-                // Backend returned wrapped response
-                setSuccessMessage(data.message || 'Plots imported successfully!')
-                setErrors([])
-                addNotification({
-                    type: 'success',
-                    title: 'Import Successful',
-                    message: data.message || 'Plots imported successfully!',
-                })
+                        onOpenChange(false)
+                        resetForm()
+                    }, 2000)
+                } else if (data.success === true) {
+                    // Backend returned wrapped response
+                    setSuccessMessage(data.message || 'Plots imported successfully!')
+                    setErrors([])
+                    addNotification({
+                        type: 'success',
+                        title: 'Import Successful',
+                        message: data.message || 'Plots imported successfully!',
+                    })
 
-                setTimeout(() => {
-                    onOpenChange(false)
-                    resetForm()
-                }, 2000)
-            } else if (data.succeeded === false) {
-                // Backend returned error in wrapped format
-                const errorMessages = data.errors && data.errors.length > 0
-                    ? data.errors
-                    : [data.message || 'Import failed']
+                    setTimeout(() => {
+                        onOpenChange(false)
+                        resetForm()
+                    }, 2000)
+                } else if (data.success === false) {
+                    // Backend returned error in wrapped format
+                    const errorMessages = data.errors && data.errors.length > 0
+                        ? data.errors
+                        : [data.message || 'Import failed']
 
-                setErrors(errorMessages)
+                    setErrors(errorMessages)
                     setSuccessMessage('')
                     addNotification({
                         type: 'error',
@@ -253,7 +253,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                         Download Personalized Plot Template
                                     </p>
                                     <p className="text-xs text-green-700">
-                                        Template will be pre-filled with your imported farmers and their plot counts. 
+                                        Template will be pre-filled with your imported farmers and their plot counts.
                                         Includes a reference sheet with rice varieties.
                                     </p>
                                 </div>
@@ -300,11 +300,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                 onDragOver={handleDrag}
                                 onDrop={handleDrop}
                                 onClick={() => fileInputRef.current?.click()}
-                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                                    dragActive
-                                        ? 'border-green-500 bg-green-50'
-                                        : 'border-gray-300 hover:border-green-500 hover:bg-green-50'
-                                }`}
+                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${dragActive
+                                    ? 'border-green-500 bg-green-50'
+                                    : 'border-gray-300 hover:border-green-500 hover:bg-green-50'
+                                    }`}
                             >
                                 <Upload className="size-6 text-gray-400" />
                                 <div className="text-center">
