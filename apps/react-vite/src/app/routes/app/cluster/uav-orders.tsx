@@ -554,9 +554,9 @@ const UavOrdersRoute = () => {
                                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Area / Plots
                                   </th>
-                                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                  {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Cost
-                                  </th>
+                                  </th> */}
                                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                     Progress
                                   </th>
@@ -610,7 +610,7 @@ const UavOrdersRoute = () => {
                                         {order.totalPlots} plot{order.totalPlots !== 1 ? 's' : ''}
                                       </div>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                    {/* <td className="px-6 py-4 whitespace-nowrap">
                                       <div className="text-sm text-gray-900">
                                         {order.estimatedCost ? (
                                           <>
@@ -625,7 +625,7 @@ const UavOrdersRoute = () => {
                                           <span className="text-gray-400">N/A</span>
                                         )}
                                       </div>
-                                    </td>
+                                    </td> */}
                                     <td className="px-6 py-4 whitespace-nowrap">
                                       <div className="flex items-center gap-2">
                                         <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-[100px]">
@@ -905,7 +905,7 @@ const UavOrdersRoute = () => {
           return (
             <>
               {/* Statistics Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
@@ -944,7 +944,7 @@ const UavOrdersRoute = () => {
                   </CardContent>
                 </Card>
                 
-                <Card>
+                {/* <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -956,7 +956,7 @@ const UavOrdersRoute = () => {
                       <Package className="h-8 w-8 text-purple-600" />
                     </div>
                   </CardContent>
-                </Card>
+                </Card> */}
               </div>
               
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -1217,7 +1217,7 @@ const UavOrdersRoute = () => {
                         {/* Selection Summary */}
                         {selectedTasks.size > 0 && (
                           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                            <div className="grid grid-cols-3 gap-4 text-sm">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
                                 <p className="text-gray-600 mb-1">Selected Tasks</p>
                                 <p className="font-bold text-gray-900">{selectedTasks.size} ({getSelectedPlotsCount()} plots)</p>
@@ -1228,12 +1228,12 @@ const UavOrdersRoute = () => {
                                   {calculateTotalArea().toFixed(2)} ha
                                 </p>
                               </div>
-                              <div>
+                              {/* <div>
                                 <p className="text-gray-600 mb-1">Estimated Cost</p>
                                 <p className="font-bold text-gray-900">
                                   {calculateTotalCost().toLocaleString()} đ
                                 </p>
-                              </div>
+                              </div> */}
                             </div>
                           </div>
                         )}
