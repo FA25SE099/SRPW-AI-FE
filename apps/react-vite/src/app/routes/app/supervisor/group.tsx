@@ -118,12 +118,19 @@ const SupervisorGroupPage = () => {
           <Head title="My Group Management" />
 
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight">My Group Management</h1>
-                <p className="text-muted-foreground">
-                  No groups assigned for the selected season
-                </p>
+            <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
+                  <Users className="size-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-neutral-900">
+                    My Group Management
+                  </h1>
+                  <p className="text-sm text-neutral-600 mt-1">
+                    List groups assigned for the selected season
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -231,32 +238,33 @@ const SupervisorGroupPage = () => {
 
   return (
     <>
-      <Head title="My Group Management" />
-
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              My Groups - {group.season?.seasonName} {group.season?.year || (group as any).seasonYear}
-            </h1>
-            <p className="text-muted-foreground">
-              {(group as any).isCurrentSeason ? 'Current Season' : `Past Season (${group.season?.year || (group as any).seasonYear})`}
-              {groups.length > 1 && ` • Managing ${groups.length} groups`}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {group.currentState === 'PrePlanning' && group.readiness?.isReady && !group.planOverview && (
-              <Button onClick={handleCreateProductionPlan}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Production Plan
-              </Button>
-            )}
-            {/* {group.currentState === 'PrePlanning' && !group.readiness?.isReady && (
-              // <Button variant="outline" onClick={handleFixPolygons}>
-              //   Fix {group.readiness?.plotsWithoutPolygon} Missing Polygons
-              // </Button>
-            )} */}
+        {/* Beautiful Header - nhất quán với các trang khác */}
+        <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
+                <Users className="size-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">
+                  My Groups - {group.season?.seasonName} {group.season?.year || (group as any).seasonYear}
+                </h1>
+                <p className="text-sm text-neutral-600 mt-1">
+                  {(group as any).isCurrentSeason ? 'Current Season' : `Past Season (${group.season?.year || (group as any).seasonYear})`}
+                  {groups.length > 1 && ` • Managing ${groups.length} groups`}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {group.currentState === 'PrePlanning' && group.readiness?.isReady && !group.planOverview && (
+                <Button onClick={handleCreateProductionPlan}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Production Plan
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
