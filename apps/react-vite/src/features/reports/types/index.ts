@@ -25,6 +25,10 @@ export type Report = {
     resolutionNotes?: string;
     farmerName?: string;
     clusterName?: string;
+    affectedCultivationTaskId?: string;
+    affectedTaskName?: string;
+    affectedTaskType?: string;
+    affectedTaskVersionName?: string;
 };
 
 export type ReportsResponse = {

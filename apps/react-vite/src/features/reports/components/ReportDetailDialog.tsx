@@ -1,4 +1,4 @@
-import { X, AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets } from 'lucide-react';
+import { X, AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets, ClipboardList } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { useReport } from '../api/get-report';
@@ -174,6 +174,36 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                         </dl>
                                     </div>
                                 </div>
+
+                                {/* Affected Task Information */}
+                                {(report.affectedTaskName || report.affectedTaskType || report.affectedTaskVersionName) && (
+                                    <div className="rounded-lg border bg-white p-4">
+                                        <h4 className="font-semibold text-gray-900 mb-3">Affected Cultivation Task</h4>
+                                        <dl className="space-y-2 text-sm">
+                                            {report.affectedTaskName && (
+                                                <div className="flex items-center gap-2">
+                                                    <ClipboardList className="h-4 w-4 text-gray-400" />
+                                                    <dt className="text-gray-600">Task Name:</dt>
+                                                    <dd className="font-medium text-gray-900">{report.affectedTaskName}</dd>
+                                                </div>
+                                            )}
+                                            {report.affectedTaskType && (
+                                                <div className="flex items-center gap-2">
+                                                    <ClipboardList className="h-4 w-4 text-gray-400" />
+                                                    <dt className="text-gray-600">Task Type:</dt>
+                                                    <dd className="font-medium text-gray-900">{report.affectedTaskType}</dd>
+                                                </div>
+                                            )}
+                                            {report.affectedTaskVersionName && (
+                                                <div className="flex items-center gap-2">
+                                                    <FileText className="h-4 w-4 text-gray-400" />
+                                                    <dt className="text-gray-600">Version:</dt>
+                                                    <dd className="font-medium text-gray-900">{report.affectedTaskVersionName}</dd>
+                                                </div>
+                                            )}
+                                        </dl>
+                                    </div>
+                                )}
 
                                 {/* Images */}
                                 {report.images && report.images.length > 0 && (
