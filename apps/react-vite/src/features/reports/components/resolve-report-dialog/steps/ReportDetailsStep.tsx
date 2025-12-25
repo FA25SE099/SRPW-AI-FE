@@ -1,5 +1,7 @@
-import { AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets } from 'lucide-react';
+import { useState } from 'react';
+import { AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets, ClipboardList } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Report, ReportType } from '@/features/reports/types';
 import { formatDate } from '@/utils/format';
 
@@ -40,6 +42,8 @@ export const ReportDetailsStep = ({
     report,
     isLoadingReport,
 }: ReportDetailsStepProps) => {
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
     if (isLoadingReport) {
         return (
             <div className="flex justify-center py-12">
@@ -132,19 +136,59 @@ export const ReportDetailsStep = ({
                     </div>
                 </div>
 
-                {/* Cultivation Plan Info */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                        <FileText className="h-4 w-4 text-blue-600" />
-                        <h4 className="font-semibold text-blue-900 text-sm">Cultivation Plan</h4>
+                {/* Cultivation Plan Info & Task Info*/}
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                            <FileText className="h-4 w-4 text-blue-600" />
+                            <h4 className="font-semibold text-blue-900 text-sm">Cultivation Plan</h4>
+                        </div>
+                        <p className="text-sm text-gray-900 font-medium">{report.cultivationPlanName}</p>
+                        {report.farmerName && (
+                            <div className="flex items-center gap-2">
+                                <User className="h-3.5 w-3.5 text-gray-400" />
+                                <dt className="text-xs text-gray-700">Farmer:</dt>
+                                <dd className="text-xs font-medium text-gray-700">{report.farmerName}</dd>
+                            </div>
+                        )}
+                        {report.clusterName && (
+                            <div className="flex items-center gap-2">
+                                <MapPin className="h-3.5 w-3.5 text-gray-400" />
+                                <dt className="text-xs text-gray-700">Cluster:</dt>
+                                <dd className="text-xs font-medium text-gray-700">{report.clusterName}</dd>
+                            </div>
+                        )}
                     </div>
-                    <p className="text-sm text-gray-900 font-medium">{report.cultivationPlanName}</p>
-                    {report.farmerName && (
-                        <p className="text-xs text-gray-700 mt-1">Farmer: {report.farmerName}</p>
-                    )}
-                    {report.clusterName && (
-                        <p className="text-xs text-gray-700">Cluster: {report.clusterName}</p>
-                    )}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                            <FileText className="h-4 w-4 text-blue-600" />
+                            <h4 className="font-semibold text-blue-900 text-sm">Task Details</h4>
+                        </div>
+                        <h4 className="font-semibold text-gray-900 mb-3">Affected Cultivation Task</h4>
+                        <dl className="space-y-2 text-sm">
+                            {report.affectedTaskName && (
+                                <div className="flex items-center gap-2">
+                                    <ClipboardList className="h-4 w-4 text-gray-400" />
+                                    <dt className="text-xs text-gray-600">Task Name:</dt>
+                                    <dd className="text-xs font-medium text-gray-900">{report.affectedTaskName}</dd>
+                                </div>
+                            )}
+                            {report.affectedTaskType && (
+                                <div className="flex items-center gap-2">
+                                    <ClipboardList className="h-4 w-4 text-gray-400" />
+                                    <dt className="text-xs text-gray-600">Task Type:</dt>
+                                    <dd className="text-xs font-medium text-gray-900">{report.affectedTaskType}</dd>
+                                </div>
+                            )}
+                            {report.affectedTaskVersionName && (
+                                <div className="flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-gray-400" />
+                                    <dt className="text-xs text-gray-600">Version:</dt>
+                                    <dd className="text-xs font-medium text-gray-900">{report.affectedTaskVersionName}</dd>
+                                </div>
+                            )}
+                        </dl>
+                    </div>
                 </div>
 
                 {/* Images */}
@@ -157,7 +201,8 @@ export const ReportDetailsStep = ({
                                     key={idx}
                                     src={image}
                                     alt={`Report ${idx + 1}`}
-                                    className="w-full h-20 rounded object-cover border border-gray-200"
+                                    className="w-full h-20 rounded object-cover border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                                    onClick={() => setSelectedImage(image)}
                                 />
                             ))}
                         </div>
@@ -168,7 +213,22 @@ export const ReportDetailsStep = ({
             {/* Right: Spacer */}
             <div className="col-span-1">
             </div>
+
+            <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+                <DialogContent
+                    className="max-w-4xl border-none bg-transparent shadow-none"
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <div className="flex items-center justify-center w-full">
+                        <img
+                            src={selectedImage || ''}
+                            alt="Report full size"
+                            className="max-h-[80vh] w-auto rounded-lg object-contain"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };
-
