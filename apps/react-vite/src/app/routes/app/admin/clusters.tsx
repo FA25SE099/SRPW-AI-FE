@@ -82,7 +82,7 @@ const AdminClustersRoute = () => {
   const [managerPhoneSearch, setManagerPhoneSearch] = useState('');
   const [managerPage, setManagerPage] = useState(1);
   const [managerPageSize] = useState(10);
-  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<boolean | null>(null);
+  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<boolean | null>(true);
 
   // Search and pagination for experts
   const [expertSearch, setExpertSearch] = useState('');

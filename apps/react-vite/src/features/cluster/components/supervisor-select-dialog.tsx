@@ -213,38 +213,40 @@ export const SupervisorSelectDialog = ({
                                 <div className="p-4 text-center text-gray-500">No supervisors found</div>
                             ) : (
                                 <div className="divide-y">
-                                    {supervisors.map((supervisor) => {
-                                        const isSelected = selectedSupervisorIds.includes(
-                                            supervisor.supervisorId
-                                        );
-                                        return (
-                                            <button
-                                                key={supervisor.supervisorId}
-                                                type="button"
-                                                onClick={() => onToggleSelect(supervisor)}
-                                                className={`w-full p-4 hover:bg-gray-50 transition-colors flex items-center justify-between ${isSelected ? 'bg-blue-50' : ''
-                                                    }`}
-                                            >
-                                                <div className="flex items-center gap-3 flex-1">
-                                                    <UserCheck className="h-5 w-5 text-gray-400 flex-shrink-0" />
-                                                    <div className="text-left flex-1">
-                                                        <div className="font-medium">
-                                                            {supervisor.supervisorName}
-                                                        </div>
-                                                        <div className="text-sm text-gray-500">
-                                                            {supervisor.supervisorPhoneNumber}
-                                                        </div>
-                                                        <div className="text-sm text-gray-400">
-                                                            {supervisor.email}
+                                    {supervisors
+                                        .filter((s) => !s.clusterId)
+                                        .map((supervisor) => {
+                                            const isSelected = selectedSupervisorIds.includes(
+                                                supervisor.supervisorId
+                                            );
+                                            return (
+                                                <button
+                                                    key={supervisor.supervisorId}
+                                                    type="button"
+                                                    onClick={() => onToggleSelect(supervisor)}
+                                                    className={`w-full p-4 hover:bg-gray-50 transition-colors flex items-center justify-between ${isSelected ? 'bg-blue-50' : ''
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center gap-3 flex-1">
+                                                        <UserCheck className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                                                        <div className="text-left flex-1">
+                                                            <div className="font-medium">
+                                                                {supervisor.supervisorName}
+                                                            </div>
+                                                            <div className="text-sm text-gray-500">
+                                                                {supervisor.supervisorPhoneNumber}
+                                                            </div>
+                                                            <div className="text-sm text-gray-400">
+                                                                {supervisor.email}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                {isSelected && (
-                                                    <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                                                )}
-                                            </button>
-                                        );
-                                    })}
+                                                    {isSelected && (
+                                                        <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
                                 </div>
                             )}
                         </div>

@@ -104,7 +104,7 @@ export const paths = {
       },
       dashboard: {
         path: 'admin',
-        getHref: () => '/app/admin',
+        getHref: () => '/app/admin/clusters',
       },
       users: {
         path: 'admin/users',
