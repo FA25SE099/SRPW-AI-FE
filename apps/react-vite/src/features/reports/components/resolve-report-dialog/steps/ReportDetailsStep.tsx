@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets, ClipboardList } from 'lucide-react';
+import { AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets, ClipboardList, Eye } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Report, ReportType } from '@/features/reports/types';
 import { formatDate } from '@/utils/format';
+import { CultivationPlanDetailDialog } from '@/features/supervisor/components/cultivation-plan-detail-dialog';
 
 type ReportDetailsStepProps = {
     report: Report | undefined;
@@ -43,6 +45,7 @@ export const ReportDetailsStep = ({
     isLoadingReport,
 }: ReportDetailsStepProps) => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [isCultivationPlanDialogOpen, setIsCultivationPlanDialogOpen] = useState(false);
 
     if (isLoadingReport) {
         return (
@@ -160,9 +163,22 @@ export const ReportDetailsStep = ({
                         )}
                     </div>
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <div className="flex items-center gap-2 mb-2">
-                            <FileText className="h-4 w-4 text-blue-600" />
-                            <h4 className="font-semibold text-blue-900 text-sm">Task Details</h4>
+                        <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-blue-600" />
+                                <h4 className="font-semibold text-blue-900 text-sm">Task Details</h4>
+                            </div>
+                            {report.plotId && report.groupId && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 text-xs"
+                                    onClick={() => setIsCultivationPlanDialogOpen(true)}
+                                >
+                                    <Eye className="h-3 w-3 mr-1" />
+                                    View Plan
+                                </Button>
+                            )}
                         </div>
                         <h4 className="font-semibold text-gray-900 mb-3">Affected Cultivation Task</h4>
                         <dl className="space-y-2 text-sm">
@@ -229,6 +245,18 @@ export const ReportDetailsStep = ({
                     </div>
                 </DialogContent>
             </Dialog>
+            {report && report.plotId && report.groupId && (
+                <CultivationPlanDetailDialog
+                    isOpen={isCultivationPlanDialogOpen}
+                    onClose={() => setIsCultivationPlanDialogOpen(false)}
+                    plotId={report.plotId}
+                    groupId={report.groupId}
+                    plotName={report.plotName}
+                    viewOnly={true}
+                    initialVersionId={report.affectedTaskVersionId || null}
+                    highlightTaskId={report.affectedCultivationTaskId}
+                />
+            )}
         </div>
     );
 };

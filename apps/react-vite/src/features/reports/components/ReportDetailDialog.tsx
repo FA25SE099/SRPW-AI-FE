@@ -1,9 +1,11 @@
-import { X, AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets, ClipboardList } from 'lucide-react';
+import { useState } from 'react';
+import { X, AlertTriangle, MapPin, Calendar, User, FileText, Bug, Cloud, Droplets, ClipboardList, Eye } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 import { useReport } from '../api/get-report';
 import { formatDate } from '@/utils/format';
 import { ReportType } from '../types';
+import { CultivationPlanDetailDialog } from '@/features/supervisor/components/cultivation-plan-detail-dialog';
 
 type ReportDetailDialogProps = {
     isOpen: boolean;
@@ -41,6 +43,8 @@ const getSeverityColor = (severity: string) => {
 };
 
 export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: ReportDetailDialogProps) => {
+    const [isCultivationPlanDialogOpen, setIsCultivationPlanDialogOpen] = useState(false);
+
     const { data: report, isLoading } = useReport({
         reportId,
         queryConfig: {
@@ -177,7 +181,19 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                 {/* Affected Task Information */}
                                 {(report.affectedTaskName || report.affectedTaskType || report.affectedTaskVersionName) && (
                                     <div className="rounded-lg border bg-white p-4">
-                                        <h4 className="font-semibold text-gray-900 mb-3">Affected Cultivation Task</h4>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <h4 className="font-semibold text-gray-900">Affected Cultivation Task</h4>
+                                            {report.plotId && report.groupId && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setIsCultivationPlanDialogOpen(true)}
+                                                >
+                                                    <Eye className="h-4 w-4 mr-2" />
+                                                    View In Cultivation Plan
+                                                </Button>
+                                            )}
+                                        </div>
                                         <dl className="space-y-2 text-sm">
                                             {report.affectedTaskName && (
                                                 <div className="flex items-center gap-2">
@@ -273,6 +289,18 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                     </div>
                 </div>
             </div>
+            {report && report.plotId && report.groupId && (
+                <CultivationPlanDetailDialog
+                    isOpen={isCultivationPlanDialogOpen}
+                    onClose={() => setIsCultivationPlanDialogOpen(false)}
+                    plotId={report.plotId}
+                    groupId={report.groupId}
+                    plotName={report.plotName}
+                    viewOnly={true}
+                    initialVersionId={report.affectedTaskVersionId || null}
+                    highlightTaskId={report.affectedCultivationTaskId}
+                />
+            )}
         </div>
     );
 };
