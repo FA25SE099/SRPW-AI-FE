@@ -41,8 +41,8 @@ export const TaskCard = ({
     onAddMaterial,
     onOpenAddTaskMenu,
 }: TaskCardProps) => {
-    // Disable editing for completed tasks
-    const isCompleted = task.status === 'Completed';
+    // Disable editing for completed tasks or EmergencyApproval tasks
+    const isCompleted = task.status === 'Completed' || task.status === 'EmergencyApproval';
     const isDisabled = isLoading || isCompleted;
 
     return (
@@ -131,7 +131,7 @@ export const TaskCard = ({
                         onClick={() => onRemoveTask(stageIndex, taskIndex)}
                         disabled={isDisabled}
                         className="p-0.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        title={isCompleted ? 'Cannot delete completed tasks' : 'Delete task'}
+                        title={isCompleted ? 'Cannot delete completed tasks or emergency approval tasks' : 'Delete task'}
                     >
                         <Trash2 className="h-3.5 w-3.5" />
                     </button>

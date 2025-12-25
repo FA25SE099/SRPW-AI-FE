@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Users, UserCheck, Search, Edit } from 'lucide-react';
 import { ContentLayout } from '@/components/layouts';
 import { Button } from '@/components/ui/button';
@@ -82,7 +82,7 @@ const AdminClustersRoute = () => {
   const [managerPhoneSearch, setManagerPhoneSearch] = useState('');
   const [managerPage, setManagerPage] = useState(1);
   const [managerPageSize] = useState(10);
-  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<boolean | null>(null);
+  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<boolean | null>(true);
 
   // Search and pagination for experts
   const [expertSearch, setExpertSearch] = useState('');
@@ -116,7 +116,7 @@ const AdminClustersRoute = () => {
     fullName: '',
     email: '',
     phoneNumber: '',
-    maxFarmerCapacity: 10,
+    maxFarmerCapacity: 100,
   });
 
   // Fetch clusters list
@@ -461,7 +461,7 @@ const AdminClustersRoute = () => {
 
         // Close dialog and reset form
         setIsSupervisorDialogOpen(false);
-        setNewSupervisor({ fullName: '', email: '', phoneNumber: '', maxFarmerCapacity: 10 });
+        setNewSupervisor({ fullName: '', email: '', phoneNumber: '', maxFarmerCapacity: 100 });
       },
       onError: (error: any) => {
         console.error('Create supervisor error:', error);
@@ -476,27 +476,29 @@ const AdminClustersRoute = () => {
 
   const managers: ClusterManager[] = managersData?.data || [];
   const experts: AgronomyExpert[] = expertsData?.data || [];
-  const supervisors: Supervisor[] = supervisorsData?.data || [];
+  const rawSupervisors = supervisorsData?.data || [];
+
+  const supervisors: Supervisor[] = useMemo(() => {
+    return rawSupervisors.map((s: any) => ({
+      supervisorId: s.supervisorId,
+      supervisorName: s.fullName || s.supervisorName || '',
+      supervisorPhoneNumber: s.phoneNumber || s.supervisorPhoneNumber || '',
+      email: s.email || '',
+      clusterId: s.clusterId || null,
+      assignedDate: s.assignedDate || null,
+      currentFarmerCount: s.currentFarmerCount || 0,
+      maxFarmerCapacity: s.maxFarmerCapacity || 10,
+    }));
+  }, [rawSupervisors]);
+
   const clusters: Cluster[] = clustersData?.data || [];
 
   // Track all supervisors including newly selected ones
   useEffect(() => {
     if (supervisors.length > 0) {
-      setAllSupervisors(prev => {
-        // Map API response to Supervisor type with correct property names
-        const mappedSupervisors = supervisors.map((s: any) => ({
-          supervisorId: s.supervisorId,
-          supervisorName: s.fullName || '',
-          supervisorPhoneNumber: s.phoneNumber || '',
-          email: s.email || '',
-          clusterId: null,
-          assignedDate: null,
-          currentFarmerCount: s.currentFarmerCount || 0,
-          maxFarmerCapacity: 10, // Default value, not in API response
-        }));
-
-        const newSupervisors = mappedSupervisors.filter(
-          s => !prev.some(existing => existing.supervisorId === s.supervisorId)
+      setAllSupervisors((prev) => {
+        const newSupervisors = supervisors.filter(
+          (s) => !prev.some((existing) => existing.supervisorId === s.supervisorId),
         );
         return [...prev, ...newSupervisors];
       });

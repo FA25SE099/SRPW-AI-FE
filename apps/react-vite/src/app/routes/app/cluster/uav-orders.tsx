@@ -13,7 +13,9 @@ import {
   List,
   Clock,
   DollarSign,
-  Percent
+  Percent,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 
 import { ContentLayout } from '@/components/layouts';
@@ -40,6 +42,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useNotifications } from '@/components/ui/notifications';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer';
 import { 
   useManagedGroups, 
   usePlotsReadyForUav,
@@ -48,9 +57,11 @@ import {
   useGroupStatuses,
   useUavVendors,
   useClusterManagerOrders,
+  useUavOrderDetail,
   type TaskPriority,
   type UavPlotReadinessResponse,
   type UavServiceOrderResponse,
+  type UavOrderDetail,
 } from '@/features/cluster/api';
 import { formatDate } from '@/utils/format';
 import { useUser } from '@/lib/auth';
@@ -74,8 +85,13 @@ const UavOrdersRoute = () => {
   // Selected group & plots
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [selectedTaskType, setSelectedTaskType] = useState<string>('PestControl');
-  const [daysBeforeScheduled, setDaysBeforeScheduled] = useState<number>(7);
+  const [daysBeforeScheduled, setDaysBeforeScheduled] = useState<number>(2);
   const [selectedTasks, setSelectedTasks] = useState<Set<string>>(new Set()); // Track selected cultivation tasks by plotCultivationId
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [isOrderDetailOpen, setIsOrderDetailOpen] = useState(false);
+  const [isProofViewerOpen, setIsProofViewerOpen] = useState(false);
+  const [currentProofUrls, setCurrentProofUrls] = useState<string[]>([]);
+  const [currentProofIndex, setCurrentProofIndex] = useState(0);
   
   // Order creation dialog
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
@@ -123,6 +139,49 @@ const UavOrdersRoute = () => {
       enabled: activeTab === 'orders',
     },
   });
+
+  // Order detail query (enabled only when a specific order is selected & dialog is open)
+  const {
+    data: orderDetail,
+    isLoading: isLoadingOrderDetail,
+  } = useUavOrderDetail({
+    orderId: selectedOrderId,
+    queryConfig: {
+      enabled: activeTab === 'orders' && !!selectedOrderId && isOrderDetailOpen,
+    },
+  });
+
+  const closeOrderDetail = () => {
+    setIsOrderDetailOpen(false);
+    setSelectedOrderId(null);
+  };
+
+  const openProofViewer = (urls: string[], index: number) => {
+    if (!urls || urls.length === 0) return;
+    setCurrentProofUrls(urls);
+    setCurrentProofIndex(index);
+    setIsProofViewerOpen(true);
+  };
+
+  const closeProofViewer = () => {
+    setIsProofViewerOpen(false);
+    setCurrentProofUrls([]);
+    setCurrentProofIndex(0);
+  };
+
+  const showPrevProof = () => {
+    if (!currentProofUrls.length) return;
+    setCurrentProofIndex((prev) =>
+      prev === 0 ? currentProofUrls.length - 1 : prev - 1
+    );
+  };
+
+  const showNextProof = () => {
+    if (!currentProofUrls.length) return;
+    setCurrentProofIndex((prev) =>
+      prev === currentProofUrls.length - 1 ? 0 : prev + 1
+    );
+  };
   
   // Debug logs
   console.log('🔍 Filter APIs Debug:');
@@ -167,7 +226,28 @@ const UavOrdersRoute = () => {
     setSelectedTasks(new Set());
   };
   
-  const handleTaskToggle = (cultivationTaskId: string) => {
+  // Helper function to check if a plot already has a selected task
+  const plotHasSelectedTask = (plotId: string, currentTaskId?: string): boolean => {
+    if (!readyPlots) return false;
+    return readyPlots.some(plot => 
+      plot.plotId === plotId && 
+      plot.cultivationTaskId && 
+      plot.cultivationTaskId !== currentTaskId &&
+      selectedTasks.has(plot.cultivationTaskId)
+    );
+  };
+
+  const handleTaskToggle = (cultivationTaskId: string, plotId: string) => {
+    // Prevent selection if another task in the same plot is already selected
+    if (!selectedTasks.has(cultivationTaskId) && plotHasSelectedTask(plotId, cultivationTaskId)) {
+      addNotification({
+        type: 'error',
+        title: 'Cannot Select Task',
+        message: 'Another task from the same plot is already selected. Only one task per plot can be selected.',
+      });
+      return;
+    }
+
     setSelectedTasks(prev => {
       const newSet = new Set(prev);
       if (newSet.has(cultivationTaskId)) {
@@ -183,10 +263,21 @@ const UavOrdersRoute = () => {
     if (!readyPlots) return;
     // Only select tasks that are ready and don't have active orders
     const selectableTasks = readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder && p.cultivationTaskId);
-    if (selectedTasks.size === selectableTasks.length) {
+    
+    // Check if all selectable tasks are already selected
+    const allSelected = selectableTasks.every(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId));
+    
+    if (allSelected) {
       setSelectedTasks(new Set());
     } else {
-      setSelectedTasks(new Set(selectableTasks.map(p => p.cultivationTaskId!)));
+      // Select only one task per plot (prefer the first one found for each plot)
+      const plotToTaskMap = new Map<string, string>();
+      selectableTasks.forEach(task => {
+        if (task.cultivationTaskId && !plotToTaskMap.has(task.plotId)) {
+          plotToTaskMap.set(task.plotId, task.cultivationTaskId);
+        }
+      });
+      setSelectedTasks(new Set(Array.from(plotToTaskMap.values())));
     }
   };
   
@@ -228,6 +319,24 @@ const UavOrdersRoute = () => {
       clusterManagerId: user.data?.id,
     });
   };
+
+  // Sort plots so ready tasks appear at the top of the list
+  const sortedReadyPlots = useMemo(() => {
+    if (!readyPlots) return [];
+
+    const score = (p: UavPlotReadinessResponse) => {
+      // 0: ready & no active order (most important)
+      // 1: ready but already has active order
+      // 2: not ready but has active order
+      // 3: not ready & no active order (least important)
+      if (p.isReady && !p.hasActiveUavOrder) return 0;
+      if (p.isReady && p.hasActiveUavOrder) return 1;
+      if (!p.isReady && p.hasActiveUavOrder) return 2;
+      return 3;
+    };
+
+    return [...readyPlots].sort((a, b) => score(a) - score(b));
+  }, [readyPlots]);
   
   const getStatusColor = (status: string) => {
     const statusMap: Record<string, string> = {
@@ -455,7 +564,14 @@ const UavOrdersRoute = () => {
                               </thead>
                               <tbody className="divide-y divide-gray-200 bg-white">
                                 {ordersData.data.map((order) => (
-                                  <tr key={order.orderId} className="hover:bg-gray-50">
+                                  <tr
+                                    key={order.orderId}
+                                    className="hover:bg-gray-50 cursor-pointer"
+                                    onClick={() => {
+                                      setSelectedOrderId(order.orderId);
+                                      setIsOrderDetailOpen(true);
+                                    }}
+                                  >
                                     <td className="px-6 py-4 whitespace-nowrap">
                                       <div className="text-sm font-medium text-gray-900">
                                         {order.orderName}
@@ -558,6 +674,229 @@ const UavOrdersRoute = () => {
                     )}
                   </CardContent>
                 </Card>
+
+                {/* Order Detail Dialog */}
+                <Dialog open={isOrderDetailOpen} onOpenChange={(open) => (open ? setIsOrderDetailOpen(true) : closeOrderDetail())}>
+                  <DialogContent className="max-w-4xl">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <Plane className="h-5 w-5 text-blue-600" />
+                        <span>UAV Order Detail</span>
+                      </DialogTitle>
+                      <DialogDescription>
+                        View detailed information and plot assignments for this UAV order.
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    {isLoadingOrderDetail || !orderDetail ? (
+                      <div className="flex items-center justify-center py-16">
+                        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                      </div>
+                    ) : (
+                      <div className="space-y-6 py-2">
+                        {/* Summary */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Order</p>
+                            <p className="text-lg font-bold text-gray-900">{orderDetail.orderName}</p>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              <Badge className={`text-xs ${getOrderStatusColor(orderDetail.status)}`}>
+                                {orderDetail.status}
+                              </Badge>
+                              <Badge className={`text-xs ${getPriorityColor(orderDetail.priority)}`}>
+                                {orderDetail.priority}
+                              </Badge>
+                            </div>
+                            {orderDetail.vendorName && (
+                              <p className="text-xs text-gray-600 mt-2">
+                                Vendor: <span className="font-medium">{orderDetail.vendorName}</span>
+                              </p>
+                            )}
+                            {orderDetail.creatorName && (
+                              <p className="text-xs text-gray-600">
+                                Created by: <span className="font-medium">{orderDetail.creatorName}</span>
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Schedule</p>
+                            <p className="text-sm text-gray-900 flex items-center gap-1">
+                              <Calendar className="h-4 w-4 text-gray-400" />
+                              {formatScheduledDateTime(orderDetail.scheduledDate, orderDetail.scheduledTime)}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Group: <span className="font-medium">{orderDetail.groupName}</span>
+                            </p>
+                            {orderDetail.startedAt && (
+                              <p className="text-xs text-gray-600">
+                                Started: <span className="font-medium">{formatDate(orderDetail.startedAt)}</span>
+                              </p>
+                            )}
+                            {orderDetail.completedAt && (
+                              <p className="text-xs text-gray-600">
+                                Completed: <span className="font-medium">{formatDate(orderDetail.completedAt)}</span>
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="space-y-2">
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Performance</p>
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-blue-600 h-2 rounded-full transition-all"
+                                  style={{ width: `${orderDetail.completionPercentage}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-gray-700">
+                                {orderDetail.completionPercentage}%
+                              </span>
+                            </div>
+                            <p className="text-xs text-gray-600">
+                              Area: <span className="font-medium">{orderDetail.totalArea.toFixed(2)} ha</span>
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              Plots: <span className="font-medium">{orderDetail.totalPlots}</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Plot Assignments */}
+                        {orderDetail.plotAssignments && orderDetail.plotAssignments.length > 0 && (
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-blue-600" />
+                              Plot Assignments
+                            </h3>
+                            <div className="space-y-2 max-h-64 overflow-y-auto">
+                              {orderDetail.plotAssignments.map((p) => (
+                                <div
+                                  key={p.plotId}
+                                  className="p-3 rounded-lg border border-gray-200 bg-gray-50"
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div>
+                                      <p className="text-sm font-semibold text-gray-900">
+                                        {p.plotName}
+                                      </p>
+                                      <p className="text-xs text-gray-600 mt-1">
+                                        Area: <span className="font-medium">{p.servicedArea.toFixed(2)} ha</span>
+                                      </p>
+                                      {p.completionDate && (
+                                        <p className="text-xs text-gray-600">
+                                          Completed:{' '}
+                                          <span className="font-medium">
+                                            {formatDate(p.completionDate)}
+                                          </span>
+                                        </p>
+                                      )}
+                                      {p.reportNotes && (
+                                        <p className="text-xs text-gray-600 mt-1">
+                                          Notes: <span className="italic">{p.reportNotes}</span>
+                                        </p>
+                                      )}
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1">
+                                      <Badge className="text-xs">
+                                        {p.status}
+                                      </Badge>
+                                      {p.proofUrls && p.proofUrls.length > 0 && (
+                                        <div className="flex flex-col items-end gap-1">
+                                          <span className="text-[10px] text-gray-500">
+                                            {p.proofUrls.length} proof image{p.proofUrls.length !== 1 ? 's' : ''}
+                                          </span>
+                                          <div className="mt-1 flex flex-wrap justify-end gap-1">
+                                            {p.proofUrls.slice(0, 4).map((url, idx) => (
+                                              <button
+                                                key={url + idx}
+                                                type="button"
+                                                onClick={() => openProofViewer(p.proofUrls, idx)}
+                                                className="h-10 w-10 overflow-hidden rounded border border-gray-300 bg-white hover:border-blue-400"
+                                              >
+                                                <img
+                                                  src={url}
+                                                  alt={`Proof ${idx + 1} for ${p.plotName}`}
+                                                  className="h-full w-full object-cover"
+                                                />
+                                              </button>
+                                            ))}
+                                            {p.proofUrls.length > 4 && (
+                                              <button
+                                                type="button"
+                                                onClick={() => openProofViewer(p.proofUrls, 4)}
+                                                className="flex h-10 w-10 items-center justify-center rounded border border-dashed border-gray-300 bg-white text-[10px] text-gray-600 hover:border-blue-400"
+                                              >
+                                                +{p.proofUrls.length - 4}
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </DialogContent>
+                </Dialog>
+
+                {/* Proof Image Viewer (slides up from bottom) */}
+                <Drawer
+                  open={isProofViewerOpen}
+                  onOpenChange={(open) => (open ? setIsProofViewerOpen(true) : closeProofViewer())}
+                >
+                  <DrawerContent side="bottom" className="max-h-[90vh] w-full sm:max-w-3xl mx-auto rounded-t-2xl">
+                    <DrawerHeader>
+                      <DrawerTitle>Proof Image</DrawerTitle>
+                      {currentProofUrls.length > 0 && (
+                        <DrawerDescription>
+                          Image {currentProofIndex + 1} of {currentProofUrls.length}
+                        </DrawerDescription>
+                      )}
+                    </DrawerHeader>
+                    <div className="flex flex-col items-center gap-4 pb-4">
+                      {currentProofUrls.length > 0 && (
+                        <div className="flex w-full flex-col items-center gap-3">
+                          <div className="flex items-center justify-center w-full">
+                            <img
+                              src={currentProofUrls[currentProofIndex]}
+                              alt={`Proof ${currentProofIndex + 1}`}
+                              className="max-h-[60vh] w-auto max-w-full rounded-lg border border-gray-200 bg-black object-contain"
+                            />
+                          </div>
+                          <div className="flex items-center justify-between w-full px-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={showPrevProof}
+                              disabled={currentProofUrls.length <= 1}
+                            >
+                              <ChevronLeft className="h-4 w-4 mr-1" />
+                              Prev
+                            </Button>
+                            <span className="text-xs text-gray-600">
+                              {currentProofIndex + 1} / {currentProofUrls.length}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={showNextProof}
+                              disabled={currentProofUrls.length <= 1}
+                            >
+                              Next
+                              <ChevronRight className="h-4 w-4 ml-1" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </DrawerContent>
+                </Drawer>
               </div>
             );
           }
@@ -833,10 +1172,15 @@ const UavOrdersRoute = () => {
                             onClick={handleSelectAll}
                           >
                             <CheckCircle2 className="h-4 w-4 mr-2" />
-                            {selectedTasks.size === readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder).length ? 'Deselect All' : 'Select All Ready'}
+                            {(() => {
+                              const selectableTasks = readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder && p.cultivationTaskId);
+                              const uniquePlots = new Set(selectableTasks.map(p => p.plotId));
+                              const allSelected = selectableTasks.every(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId));
+                              return allSelected ? 'Deselect All' : `Select One Per Plot (${uniquePlots.size} plots)`;
+                            })()}
                           </Button>
                             <span className="text-sm text-gray-600">
-                              {selectedTasks.size} of {readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder).length} ready tasks selected
+                              {selectedTasks.size} task{selectedTasks.size !== 1 ? 's' : ''} selected ({getSelectedPlotsCount()} plot{getSelectedPlotsCount() !== 1 ? 's' : ''})
                             </span>
                           </div>
                           
@@ -896,15 +1240,19 @@ const UavOrdersRoute = () => {
                         
                         {/* Tasks List */}
                         <div className="space-y-2 max-h-[500px] overflow-y-auto">
-                          {readyPlots.map((plot, index) => {
+                          {sortedReadyPlots.map((plot, index) => {
                             const taskKey = plot.cultivationTaskId || `${plot.plotId}-${index}`;
-                            const isSelectable = plot.isReady && !plot.hasActiveUavOrder && plot.cultivationTaskId;
                             const isSelected = plot.cultivationTaskId && selectedTasks.has(plot.cultivationTaskId);
+                            const plotHasOtherSelectedTask = plotHasSelectedTask(plot.plotId, plot.cultivationTaskId || undefined);
+                            const isSelectable = plot.isReady && 
+                                              !plot.hasActiveUavOrder && 
+                                              plot.cultivationTaskId && 
+                                              (!plotHasOtherSelectedTask || isSelected);
                             
                             return (
                             <div
                               key={taskKey}
-                              onClick={() => isSelectable ? handleTaskToggle(plot.cultivationTaskId!) : undefined}
+                              onClick={() => isSelectable ? handleTaskToggle(plot.cultivationTaskId!, plot.plotId) : undefined}
                               className={`p-4 rounded-lg border-2 transition-all ${
                                 !isSelectable
                                   ? 'opacity-60 cursor-not-allowed border-gray-200 bg-gray-50'
@@ -947,9 +1295,14 @@ const UavOrdersRoute = () => {
                                           {plot.readyStatus}
                                         </Badge>
                                       )}
-                                      {plot.isReady && !plot.hasActiveUavOrder && (
+                                      {plot.isReady && !plot.hasActiveUavOrder && !plotHasOtherSelectedTask && (
                                         <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 text-xs">
                                           ✓ Ready
+                                        </Badge>
+                                      )}
+                                      {plotHasOtherSelectedTask && !isSelected && (
+                                        <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200 text-xs">
+                                          Another task in this plot selected
                                         </Badge>
                                       )}
                                     </div>

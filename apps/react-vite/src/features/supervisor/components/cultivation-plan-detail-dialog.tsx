@@ -187,7 +187,7 @@ const TaskItemWithLogs = ({
                                 </div>
 
                                 <div className="flex items-center gap-3 flex-shrink-0">
-                                    {isLatestVersion && (
+                                    {isLatestVersion && task.status !== 'Completed' && task.status !== 'EmergencyApproval' && (
                                         <Button
                                             variant="outline"
                                             size="icon"
@@ -663,7 +663,7 @@ export const CultivationPlanDetailDialog = ({
                                             const isFirstInProgress = isInProgress && !cultivationPlan.stages
                                                 .slice(0, cultivationPlan.stages.indexOf(stage))
                                                 .some(s => s.tasks.some(t => t.status === 'InProgress'));
-                                            
+
                                             const isLatestVersion = !selectedVersionId;
                                             console.log('Rendering task:', { taskId: task.taskId, selectedVersionId, isLatestVersion });
 

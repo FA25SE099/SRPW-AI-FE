@@ -99,9 +99,7 @@ export const SupervisorSelectDialog = ({
                                 <div key={supervisor.supervisorId} className="text-sm">
                                     <div className="font-medium">{supervisor.supervisorName}</div>
                                     <div className="text-gray-600">{supervisor.supervisorPhoneNumber}</div>
-                                    <div className="text-xs text-gray-500">
-                                        Capacity: {supervisor.currentFarmerCount}/{supervisor.maxFarmerCapacity}
-                                    </div>
+                                    <div className="text-gray-600">{supervisor.email}</div>
                                 </div>
                             ))}
                         </div>
@@ -196,19 +194,6 @@ export const SupervisorSelectDialog = ({
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="maxCapacity">Max Farmer Capacity</Label>
-                                    <Input
-                                        id="maxCapacity"
-                                        type="number"
-                                        min={1}
-                                        value={newSupervisor.maxFarmerCapacity}
-                                        onChange={(e) => onNewSupervisorChange('maxFarmerCapacity', parseInt(e.target.value) || 10)}
-                                    />
-                                    <p className="text-xs text-gray-500">
-                                        Maximum number of farmers this supervisor can manage
-                                    </p>
-                                </div>
                                 <Button type="submit" className="w-full" disabled={isCreating}>
                                     {isCreating ? 'Creating...' : 'Create Supervisor'}
                                 </Button>
@@ -228,42 +213,40 @@ export const SupervisorSelectDialog = ({
                                 <div className="p-4 text-center text-gray-500">No supervisors found</div>
                             ) : (
                                 <div className="divide-y">
-                                    {supervisors.map((supervisor) => {
-                                        const isSelected = selectedSupervisorIds.includes(
-                                            supervisor.supervisorId
-                                        );
-                                        return (
-                                            <button
-                                                key={supervisor.supervisorId}
-                                                type="button"
-                                                onClick={() => onToggleSelect(supervisor)}
-                                                className={`w-full p-4 hover:bg-gray-50 transition-colors flex items-center justify-between ${isSelected ? 'bg-blue-50' : ''
-                                                    }`}
-                                            >
-                                                <div className="flex items-center gap-3 flex-1">
-                                                    <UserCheck className="h-5 w-5 text-gray-400 flex-shrink-0" />
-                                                    <div className="text-left flex-1">
-                                                        <div className="font-medium">
-                                                            {supervisor.supervisorName}
-                                                        </div>
-                                                        <div className="text-sm text-gray-500">
-                                                            {supervisor.supervisorPhoneNumber}
-                                                        </div>
-                                                        <div className="text-sm text-gray-400">
-                                                            {supervisor.email}
-                                                        </div>
-                                                        <div className="text-xs text-gray-500 mt-1">
-                                                            Capacity: {supervisor.currentFarmerCount}/
-                                                            {supervisor.maxFarmerCapacity} farmers
+                                    {supervisors
+                                        .filter((s) => !s.clusterId)
+                                        .map((supervisor) => {
+                                            const isSelected = selectedSupervisorIds.includes(
+                                                supervisor.supervisorId
+                                            );
+                                            return (
+                                                <button
+                                                    key={supervisor.supervisorId}
+                                                    type="button"
+                                                    onClick={() => onToggleSelect(supervisor)}
+                                                    className={`w-full p-4 hover:bg-gray-50 transition-colors flex items-center justify-between ${isSelected ? 'bg-blue-50' : ''
+                                                        }`}
+                                                >
+                                                    <div className="flex items-center gap-3 flex-1">
+                                                        <UserCheck className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                                                        <div className="text-left flex-1">
+                                                            <div className="font-medium">
+                                                                {supervisor.supervisorName}
+                                                            </div>
+                                                            <div className="text-sm text-gray-500">
+                                                                {supervisor.supervisorPhoneNumber}
+                                                            </div>
+                                                            <div className="text-sm text-gray-400">
+                                                                {supervisor.email}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                {isSelected && (
-                                                    <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                                                )}
-                                            </button>
-                                        );
-                                    })}
+                                                    {isSelected && (
+                                                        <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
                                 </div>
                             )}
                         </div>
@@ -320,7 +303,7 @@ export const SupervisorSelectDialog = ({
                                                     {supervisor.supervisorPhoneNumber}
                                                 </div>
                                                 <div className="text-xs text-gray-400">
-                                                    Capacity: {supervisor.currentFarmerCount}/{supervisor.maxFarmerCapacity}
+                                                    {supervisor.email}
                                                 </div>
                                             </div>
                                         </div>

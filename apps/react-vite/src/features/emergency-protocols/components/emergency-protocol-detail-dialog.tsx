@@ -401,18 +401,17 @@ export const EmergencyProtocolDetailDialog = ({
                                             •
                                           </span>
                                           <span>
-                                            ${material.pricePerUnit}/
+                                            {material.pricePerUnit} VND/
                                             {material.unit}
                                           </span>
                                           <span className="text-gray-400">
                                             •
                                           </span>
                                           <span className="font-medium text-green-700">
-                                            $
+
                                             {material.estimatedCostPerHa.toFixed(
                                               2,
-                                            )}
-                                            /ha
+                                            )} VND/ha
                                           </span>
                                         </div>
                                       </div>

@@ -348,7 +348,7 @@ export function DashboardLayout({
             "flex w-full border-t border-gray-800 pt-4",
             isSidebarCollapsed ? "flex-col gap-2 items-center" : "flex-col gap-2 px-2"
           )}>
-            {/* Notification Bell */}
+            {/* Notification Bell
             <Button
               variant="ghost"
               size={isSidebarCollapsed ? "icon" : "default"}
@@ -365,7 +365,7 @@ export function DashboardLayout({
                   5
                 </span>
               )}
-            </Button>
+            </Button> */}
 
 
 
