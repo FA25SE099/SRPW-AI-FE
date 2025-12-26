@@ -886,8 +886,8 @@ const SupervisorMap = () => {
     const completeDrawing = () => {
         if (selectedTask && !editingPlot) { // This is the task drawing flow
             if (!selectedTask || !drawnPolygon || !validationResult || !validationResult.isValid) {
-                 console.warn("Complete drawing called with invalid state", { selectedTask, drawnPolygon, validationResult });
-                 return;
+                console.warn("Complete drawing called with invalid state", { selectedTask, drawnPolygon, validationResult });
+                return;
             }
 
             const geoJsonString = JSON.stringify(drawnPolygon.geometry);
