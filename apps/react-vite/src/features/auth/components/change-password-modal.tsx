@@ -22,7 +22,13 @@ export const ChangePasswordModal = () => {
   });
 
   return (
-    <Dialog open={isOpen} onOpenChange={open}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(newOpenState) => {
+        if (newOpenState) open();
+        else close();
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline">Change Password</Button>
       </DialogTrigger>

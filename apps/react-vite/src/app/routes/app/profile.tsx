@@ -30,7 +30,7 @@ const ProfileRoute = () => {
               User Information
             </h3>
             <div className="flex gap-3">
-              <UpdateProfile />
+              {/* <UpdateProfile /> */}
               <ChangePasswordModal />
             </div>
           </div>
