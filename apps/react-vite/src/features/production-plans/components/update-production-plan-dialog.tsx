@@ -150,8 +150,8 @@ export const UpdateProductionPlanDialog = ({
           taskName: task.taskName,
           description: task.description,
           taskType: task.taskType,
-          scheduledDate: task.scheduledEndDate
-            ? new Date(task.scheduledEndDate).toISOString().slice(0, 16)
+          scheduledDate: task.scheduledDate
+            ? new Date(task.scheduledDate).toISOString().slice(0, 16)
             : '',
           scheduledEndDate: task.scheduledEndDate
             ? new Date(task.scheduledEndDate).toISOString().slice(0, 16)

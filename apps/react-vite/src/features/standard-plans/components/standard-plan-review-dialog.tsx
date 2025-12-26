@@ -216,7 +216,6 @@ export const StandardPlanReviewDialog = ({
             onClick={handleCalculateCost}
             disabled={areaInHectares <= 0 || costCalculationMutation.isPending}
             isLoading={costCalculationMutation.isPending}
-            icon={<DollarSign className="h-4 w-4" />}
           >
             Calculate Cost
           </Button>

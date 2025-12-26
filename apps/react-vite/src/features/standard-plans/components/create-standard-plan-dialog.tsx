@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, DollarSign } from 'lucide-react';
+import { Plus, Trash2, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, DollarSign, GripVertical } from 'lucide-react';
 
 import { SimpleDialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,7 @@ export const CreateStandardPlanDialog = ({
       tasks: [],
     },
   ]);
+  const [draggedTask, setDraggedTask] = useState<{ stageIndex: number; taskIndex: number } | null>(null);
 
   // Queries
   const categoriesQuery = useCategories();
@@ -402,6 +403,54 @@ export const CreateStandardPlanDialog = ({
     setStages(newStages);
   };
 
+  const handleDragStart = (e: React.DragEvent, stageIndex: number, taskIndex: number) => {
+    setDraggedTask({ stageIndex, taskIndex });
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDragEnd = () => {
+    setDraggedTask(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetStageIndex: number, targetTaskIndex: number) => {
+    e.preventDefault();
+    if (!draggedTask) return;
+
+    const sourceStageIndex = draggedTask.stageIndex;
+    const sourceTaskIndex = draggedTask.taskIndex;
+
+    if (sourceStageIndex === targetStageIndex && sourceTaskIndex === targetTaskIndex) {
+      setDraggedTask(null);
+      return;
+    }
+
+    const newStages = [...stages];
+    newStages[sourceStageIndex] = { ...newStages[sourceStageIndex], tasks: [...newStages[sourceStageIndex].tasks] };
+    if (sourceStageIndex !== targetStageIndex) {
+      newStages[targetStageIndex] = { ...newStages[targetStageIndex], tasks: [...newStages[targetStageIndex].tasks] };
+    }
+
+    const sourceStage = newStages[sourceStageIndex];
+    const targetStage = newStages[targetStageIndex];
+
+    const [movedTask] = sourceStage.tasks.splice(sourceTaskIndex, 1);
+    targetStage.tasks.splice(targetTaskIndex, 0, movedTask);
+
+    newStages.forEach((stage) => {
+      stage.tasks.forEach((task, i) => {
+        task.sequenceOrder = i;
+      });
+    });
+
+    setStages(newStages);
+    setDraggedTask(null);
+  };
+
   const handleToPreview = () => {
     // Validate before going to preview
     if (!planName || !categoryId) {
@@ -416,15 +465,21 @@ export const CreateStandardPlanDialog = ({
     setStep('preview');
 
     // Calculate material costs for all tasks
-    const allMaterials = stages.flatMap(stage =>
-      stage.tasks.flatMap(task => task.materials)
-    ).filter(m => m.materialId && m.quantityPerHa > 0);
+    const tasksForCostCalculation = stages.flatMap((stage) =>
+      stage.tasks
+        .filter((task) => task.materials.some((m) => m.materialId && m.quantityPerHa > 0))
+        .map((task) => ({
+          taskName: task.taskName,
+          taskDescription: task.description,
+          materials: task.materials.filter((m) => m.materialId && m.quantityPerHa > 0),
+        }))
+    );
 
-    if (allMaterials.length > 0) {
+    if (tasksForCostCalculation.length > 0) {
       calculateCostMutation.mutate(
         {
           area: 1, // Calculate per hectare
-          materials: allMaterials,
+          tasks: tasksForCostCalculation,
         },
         {
           onSuccess: (response) => {
@@ -700,7 +755,12 @@ export const CreateStandardPlanDialog = ({
 
                             <div className="grid grid-cols-3 gap-2.5">
                               {stage.tasks.map((task, taskIndex) => (
-                                <div key={taskIndex} className="relative">
+                                <div
+                                  key={taskIndex}
+                                  className={`relative ${draggedTask?.stageIndex === stageIndex && draggedTask?.taskIndex === taskIndex ? 'opacity-50' : ''}`}
+                                  onDragOver={handleDragOver}
+                                  onDrop={(e) => handleDrop(e, stageIndex, taskIndex)}
+                                >
                                   {/* Add task before button */}
                                   {taskIndex === 0 && (
                                     <button
@@ -717,6 +777,14 @@ export const CreateStandardPlanDialog = ({
                                   <div className="rounded-md border-2 border-blue-200 bg-white p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col">
                                     <div className="flex items-start justify-between mb-2">
                                       <div className="flex items-center gap-1">
+                                        <div
+                                          className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
+                                          draggable
+                                          onDragStart={(e) => handleDragStart(e, stageIndex, taskIndex)}
+                                          onDragEnd={handleDragEnd}
+                                        >
+                                          <GripVertical className="h-4 w-4" />
+                                        </div>
                                         <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
                                           {taskIndex + 1}
                                         </span>
@@ -1085,7 +1153,7 @@ export const CreateStandardPlanDialog = ({
                                             (c) => c.materialId === m.materialId
                                           );
                                           return mat
-                                            ? `${mat.name} (${m.quantityPerHa} ${mat.unit}/ha${costItem ? ` - $${costItem.costPerHa.toFixed(2)}/ha` : ''})`
+                                            ? `${mat.name} (${m.quantityPerHa} ${mat.unit}/ha${costItem ? ` - ${costItem.costPerHa.toFixed(0)} VND/ha` : ''})`
                                             : '';
                                         })
                                         .filter(Boolean)
@@ -1106,7 +1174,6 @@ export const CreateStandardPlanDialog = ({
                 {stages.some((s) => s.tasks.some((t) => t.materials.length > 0)) && (
                   <div className="rounded-lg border bg-gradient-to-r from-green-50 to-emerald-50 p-4">
                     <div className="mb-3 flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
                       <h4 className="font-semibold text-gray-900">
                         Cost Estimate (per hectare)
                       </h4>
@@ -1138,10 +1205,10 @@ export const CreateStandardPlanDialog = ({
                             </div>
                             <div className="text-right">
                               <p className="font-semibold text-green-700">
-                                ${item.costPerHa.toFixed(2)}/ha
+                                {item.costPerHa.toFixed(0)} VND/ha
                               </p>
                               <p className="text-xs text-gray-500">
-                                ${item.pricePerMaterial}/package
+                                {item.pricePerMaterial} VND/package
                               </p>
                             </div>
                           </div>
@@ -1149,7 +1216,7 @@ export const CreateStandardPlanDialog = ({
                         <div className="mt-3 flex items-center justify-between border-t pt-3">
                           <p className="text-lg font-bold text-gray-900">Total Cost</p>
                           <p className="text-2xl font-bold text-green-700">
-                            ${totalCostPerHa.toFixed(2)}/ha
+                            {totalCostPerHa.toFixed(0)} VND/ha
                           </p>
                         </div>
                       </div>

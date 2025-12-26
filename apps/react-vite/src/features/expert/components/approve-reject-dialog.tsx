@@ -573,7 +573,7 @@ export const ApproveRejectDialog = ({
                 >
                   Cancel
                 </Button>
-                <Button
+                {/* <Button
                   type="button"
                   variant="outline"
                   onClick={() => setAction('reject')}
@@ -581,7 +581,7 @@ export const ApproveRejectDialog = ({
                   className="border-red-300 text-red-600 hover:bg-red-50"
                 >
                   Reject
-                </Button>
+                </Button> */}
                 <Button
                   type="button"
                   onClick={() => setAction('approve')}

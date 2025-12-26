@@ -75,7 +75,7 @@ const AppRoot = () => {
       return <Navigate to={paths.app.supervisor.group.getHref()} replace />;
     }
     if (user.data?.role === ROLES.ClusterManager) {
-      return <Navigate to={paths.app.cluster.dashboard.getHref()} replace />;
+      return <Navigate to={paths.app.cluster.farmers.getHref()} replace />;
     }
     return <Navigate to={paths.app.dashboard.getHref()} replace />;
   }
@@ -176,12 +176,12 @@ const AppRoot = () => {
             icon: FileText,
             end: true,
           },
-          {
-            name: 'Plan Monitoring',
-            to: paths.app.expert.planMonitoring.getHref(),
-            icon: ClipboardList,
-            end: true,
-          },
+          // {
+          //   name: 'Plan Monitoring',
+          //   to: paths.app.expert.planMonitoring.getHref(),
+          //   icon: ClipboardList,
+          //   end: true,
+          // },
         ],
         defaultOpen: true,
       },
@@ -202,7 +202,7 @@ const AppRoot = () => {
             end: true,
           },
         ],
-        defaultOpen: false,
+        defaultOpen: true,
       },
     ];
   }
@@ -221,12 +221,12 @@ const AppRoot = () => {
         icon: Users,
         end: true,
       },
-      {
-        name: 'Production Plans',
-        to: paths.app.supervisor.plans.getHref(),
-        icon: Folder,
-        end: true,
-      },
+      // {
+      //   name: 'Production Plans',
+      //   to: paths.app.supervisor.plans.getHref(),
+      //   icon: Folder,
+      //   end: true,
+      // },
       {
         name: 'Material Distributions',
         to: paths.app.supervisor.materialDistributions.getHref(),
@@ -286,12 +286,12 @@ const AppRoot = () => {
       //   icon: ClipboardList,
       //   end: true,
       // },
-      {
-        name: 'Groups',
-        to: paths.app.cluster.groups.getHref(),
-        icon: Users,
-        end: true,
-      },
+      // {
+      //   name: 'Groups',
+      //   to: paths.app.cluster.groups.getHref(),
+      //   icon: Users,
+      //   end: true,
+      // },
       {
         name: 'UAV Orders',
         to: paths.app.cluster.uavOrders.getHref(),
@@ -336,18 +336,18 @@ const AppRoot = () => {
         icon: Users,
         end: true,
       },
-      {
-        name: 'System Settings',
-        to: paths.app.admin.settings.getHref(),
-        icon: Settings,
-        end: true,
-      },
-      {
-        name: 'Reports',
-        to: paths.app.admin.reports.getHref(),
-        icon: BarChart3,
-        end: true,
-      },
+      // {
+      //   name: 'System Settings',
+      //   to: paths.app.admin.settings.getHref(),
+      //   icon: Settings,
+      //   end: true,
+      // },
+      // {
+      //   name: 'Reports',
+      //   to: paths.app.admin.reports.getHref(),
+      //   icon: BarChart3,
+      //   end: true,
+      // },
     ];
   }
   // Default navigation (for other pages like Discussions, Users, Profile)
@@ -371,18 +371,24 @@ const AppRoot = () => {
         icon: Home,
         end: true,
       },
+      // {
+      //   name: 'Discussions',
+      //   to: paths.app.discussions.getHref(),
+      //   icon: Folder,
+      //   end: false,
+      // },
+      // checkAccess({ allowedRoles: [ROLES.Admin] }) && {
+      //   name: 'Users',
+      //   to: paths.app.users.getHref(),
+      //   icon: Users,
+      //   end: true,
+      // },
       {
-        name: 'Discussions',
-        to: paths.app.discussions.getHref(),
-        icon: Folder,
-        end: false,
-      },
-      checkAccess({ allowedRoles: [ROLES.Admin] }) && {
-        name: 'Users',
-        to: paths.app.users.getHref(),
-        icon: Users,
+        name: 'Profile',
+        to: paths.app.profile.getHref(),
+        icon: Home,
         end: true,
-      },
+      }
     ].filter(Boolean) as SideNavigationItem[];
   }
 

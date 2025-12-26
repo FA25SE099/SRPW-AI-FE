@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Users, UserCheck, Search, Edit } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { ContentLayout } from '@/components/layouts';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,7 @@ import { SupervisorSelectDialog } from '@/features/cluster/components/supervisor
 
 const AdminClustersRoute = () => {
   const { addNotification } = useNotifications();
+  const queryClient = useQueryClient();
 
   // Cluster list state
   const [clusterPage, setClusterPage] = useState(1);
@@ -82,7 +84,7 @@ const AdminClustersRoute = () => {
   const [managerPhoneSearch, setManagerPhoneSearch] = useState('');
   const [managerPage, setManagerPage] = useState(1);
   const [managerPageSize] = useState(10);
-  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<boolean | null>(null);
+  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<boolean | null>(true);
 
   // Search and pagination for experts
   const [expertSearch, setExpertSearch] = useState('');
@@ -116,7 +118,7 @@ const AdminClustersRoute = () => {
     fullName: '',
     email: '',
     phoneNumber: '',
-    maxFarmerCapacity: 10,
+    maxFarmerCapacity: 100,
   });
 
   // Fetch clusters list
@@ -219,11 +221,11 @@ const AdminClustersRoute = () => {
   const handleCreateCluster = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!clusterName || !selectedManagerId || !selectedExpertId) {
+    if (!clusterName || !selectedManagerId || !selectedExpertId || selectedSupervisorIds.length === 0) {
       addNotification({
         type: 'error',
         title: 'Validation Error',
-        message: 'Please fill in all required fields',
+        message: 'Please fill in all required fields (including at least one supervisor)',
       });
       return;
     }
@@ -259,11 +261,11 @@ const AdminClustersRoute = () => {
   const handleUpdateCluster = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!editingCluster || !clusterName || !selectedManagerId || !selectedExpertId) {
+    if (!editingCluster || !clusterName || !selectedManagerId || !selectedExpertId || selectedSupervisorIds.length === 0) {
       addNotification({
         type: 'error',
         title: 'Validation Error',
-        message: 'Please fill in all required fields',
+        message: 'Please fill in all required fields (including at least one supervisor)',
       });
       return;
     }
@@ -306,6 +308,14 @@ const AdminClustersRoute = () => {
     setSelectedExpertName('');
     setSelectedSupervisorIds([]);
     setIsEditMode(false);
+  };
+
+  const handleSupervisorSelectOpen = (open: boolean) => {
+    if (open) {
+      // Invalidate and refetch supervisors list when dialog opens to ensure fresh data
+      queryClient.invalidateQueries({ queryKey: ['supervisors'] });
+    }
+    setIsSupervisorSelectOpen(open);
   };
 
   const handleEditDialogClose = () => {
@@ -461,7 +471,7 @@ const AdminClustersRoute = () => {
 
         // Close dialog and reset form
         setIsSupervisorDialogOpen(false);
-        setNewSupervisor({ fullName: '', email: '', phoneNumber: '', maxFarmerCapacity: 10 });
+        setNewSupervisor({ fullName: '', email: '', phoneNumber: '', maxFarmerCapacity: 100 });
       },
       onError: (error: any) => {
         console.error('Create supervisor error:', error);
@@ -476,27 +486,29 @@ const AdminClustersRoute = () => {
 
   const managers: ClusterManager[] = managersData?.data || [];
   const experts: AgronomyExpert[] = expertsData?.data || [];
-  const supervisors: Supervisor[] = supervisorsData?.data || [];
+  const rawSupervisors = supervisorsData?.data || [];
+
+  const supervisors: Supervisor[] = useMemo(() => {
+    return rawSupervisors.map((s: any) => ({
+      supervisorId: s.supervisorId,
+      supervisorName: s.fullName || s.supervisorName || '',
+      supervisorPhoneNumber: s.phoneNumber || s.supervisorPhoneNumber || '',
+      email: s.email || '',
+      clusterId: s.clusterId || null,
+      assignedDate: s.assignedDate || null,
+      currentFarmerCount: s.currentFarmerCount || 0,
+      maxFarmerCapacity: s.maxFarmerCapacity || 10,
+    }));
+  }, [rawSupervisors]);
+
   const clusters: Cluster[] = clustersData?.data || [];
 
   // Track all supervisors including newly selected ones
   useEffect(() => {
     if (supervisors.length > 0) {
-      setAllSupervisors(prev => {
-        // Map API response to Supervisor type with correct property names
-        const mappedSupervisors = supervisors.map((s: any) => ({
-          supervisorId: s.supervisorId,
-          supervisorName: s.fullName || '',
-          supervisorPhoneNumber: s.phoneNumber || '',
-          email: s.email || '',
-          clusterId: null,
-          assignedDate: null,
-          currentFarmerCount: s.currentFarmerCount || 0,
-          maxFarmerCapacity: 10, // Default value, not in API response
-        }));
-
-        const newSupervisors = mappedSupervisors.filter(
-          s => !prev.some(existing => existing.supervisorId === s.supervisorId)
+      setAllSupervisors((prev) => {
+        const newSupervisors = supervisors.filter(
+          (s) => !prev.some((existing) => existing.supervisorId === s.supervisorId),
         );
         return [...prev, ...newSupervisors];
       });
@@ -639,11 +651,11 @@ const AdminClustersRoute = () => {
 
                 {/* Supervisors */}
                 <div className="space-y-2">
-                  <Label>Supervisors (Optional)</Label>
+                  <Label>Supervisors *</Label>
 
                   <SupervisorSelectDialog
                     open={isSupervisorSelectOpen}
-                    onOpenChange={setIsSupervisorSelectOpen}
+                    onOpenChange={handleSupervisorSelectOpen}
                     selectedSupervisorIds={selectedSupervisorIds}
                     supervisors={supervisors}
                     allSupervisors={allSupervisors}
@@ -804,12 +816,12 @@ const AdminClustersRoute = () => {
               {/* Supervisors */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>Supervisors (Optional)</Label>
+                  <Label>Supervisors (At least 1)</Label>
                 </div>
 
                 <SupervisorSelectDialog
                   open={isSupervisorSelectOpen}
-                  onOpenChange={setIsSupervisorSelectOpen}
+                  onOpenChange={handleSupervisorSelectOpen}
                   selectedSupervisorIds={selectedSupervisorIds}
                   supervisors={supervisors}
                   allSupervisors={allSupervisors}

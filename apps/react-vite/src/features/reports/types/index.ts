@@ -8,6 +8,8 @@ export type Report = {
     plotId: string;
     plotName: string;
     plotArea: number;
+    groupId: string;
+    groupName: string;
     cultivationPlanId: string;
     cultivationPlanName: string;
     reportType: ReportType;
@@ -25,6 +27,11 @@ export type Report = {
     resolutionNotes?: string;
     farmerName?: string;
     clusterName?: string;
+    affectedCultivationTaskId?: string;
+    affectedTaskName?: string;
+    affectedTaskType?: string;
+    affectedTaskVersionName?: string;
+    affectedTaskVersionId?: string;
 };
 
 export type ReportsResponse = {
