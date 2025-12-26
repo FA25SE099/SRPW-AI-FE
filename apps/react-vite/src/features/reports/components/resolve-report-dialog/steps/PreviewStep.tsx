@@ -13,6 +13,7 @@ type PreviewStepProps = {
     resolutionReason: string;
     fertilizers: any[];
     pesticides: any[];
+    seeds: any[];
 };
 
 export const PreviewStep = ({
@@ -23,6 +24,7 @@ export const PreviewStep = ({
     resolutionReason,
     fertilizers,
     pesticides,
+    seeds,
 }: PreviewStepProps) => {
     const [costData, setCostData] = useState<PlotMaterialCostWithTasksResponse | null>(null);
     const calculateCostMutation = useCalculatePlotMaterialCostWithTasks();
@@ -35,14 +37,17 @@ export const PreviewStep = ({
         const pesticide = pesticides.find((p: any) => p.materialId === materialId);
         if (pesticide) return pesticide.name;
 
+        const seed = seeds.find((s: any) => s.materialId === materialId);
+        if (seed) return seed.name;
+
         return materialId; // Fallback to ID if not found
     };
 
-    // Calculate costs for Emergency tasks only
+    // Calculate costs for NewEmergency tasks only
     useEffect(() => {
-        // Filter tasks with Emergency status
+        // Filter tasks with NewEmergency status
         const emergencyTasks = editableStages.flatMap(stage =>
-            stage.tasks.filter(task => task.status === 'Emergency')
+            stage.tasks.filter(task => task.status === 'NewEmergency')
         );
 
         if (emergencyTasks.length === 0) {
@@ -80,7 +85,7 @@ export const PreviewStep = ({
     }, [editableStages, cultivationPlan.plotId]);
 
     const emergencyTasksCount = editableStages.reduce(
-        (sum, stage) => sum + stage.tasks.filter(t => t.status === 'Emergency').length,
+        (sum, stage) => sum + stage.tasks.filter(t => t.status === 'NewEmergency').length,
         0
     );
 
@@ -267,7 +272,7 @@ export const PreviewStep = ({
                         <span className="font-medium text-blue-600">
                             {editableStages.reduce(
                                 (sum, stage) =>
-                                    sum + stage.tasks.filter((t) => t.originalTaskId && t.status !== 'Emergency').length,
+                                    sum + stage.tasks.filter((t) => t.originalTaskId && t.status !== 'NewEmergency').length,
                                 0
                             )}
                         </span>

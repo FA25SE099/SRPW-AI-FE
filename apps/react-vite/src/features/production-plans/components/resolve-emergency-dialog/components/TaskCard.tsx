@@ -11,6 +11,7 @@ type TaskCardProps = {
     hasTaskError: boolean;
     fertilizers: any[];
     pesticides: any[];
+    seeds: any[];
     isLoadingMaterials: boolean;
     onUpdateTask: (stageIndex: number, taskIndex: number, updates: Partial<EditableTask>) => void;
     onRemoveTask: (stageIndex: number, taskIndex: number) => void;
@@ -34,6 +35,7 @@ export const TaskCard = ({
     hasTaskError,
     fertilizers,
     pesticides,
+    seeds,
     isLoadingMaterials,
     onUpdateTask,
     onRemoveTask,
@@ -128,6 +130,11 @@ export const TaskCard = ({
                                 Emergency
                             </span>
                         )}
+                        {task.status === 'NewEmergency' && (
+                            <span className="inline-block text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                                New Emergency
+                            </span>
+                        )}
                         {task.status === 'EmergencyApproval' && (
                             <span className="inline-block text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">
                                 Emerg. Approval
@@ -208,9 +215,10 @@ export const TaskCard = ({
                                 value={formatDateForInput(task.scheduledEndDate)}
                                 onChange={(e) => onUpdateTask(stageIndex, taskIndex, { scheduledEndDate: e.target.value || null })}
                                 disabled={isDisabled || isScheduledEndDateDisabled}
+                                min={new Date().toISOString().slice(0, 16)}
                                 className={`block w-full rounded-md border ${hasScheduledEndDateError && !isDisabled
-                                        ? 'border-red-500 bg-red-50'
-                                        : 'border-gray-300 bg-white'
+                                    ? 'border-red-500 bg-red-50'
+                                    : 'border-gray-300 bg-white'
                                     } px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed`}
                             />
                             {hasScheduledEndDateError && !isDisabled && (
@@ -285,6 +293,7 @@ export const TaskCard = ({
                         isLoadingMaterials={isLoadingMaterials}
                         fertilizers={fertilizers}
                         pesticides={pesticides}
+                        seeds={seeds}
                         onUpdateMaterial={onUpdateMaterial}
                         onRemoveMaterial={onRemoveMaterial}
                         onAddMaterial={onAddMaterial}

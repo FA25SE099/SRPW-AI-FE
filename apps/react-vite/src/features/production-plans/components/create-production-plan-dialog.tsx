@@ -121,6 +121,13 @@ export const CreateProductionPlanDialog = ({
       type: 1
     }
   });
+  const seedsQuery = useMaterials({
+    params: {
+      currentPage: 1,
+      pageSize: 1000,
+      type: 2
+    }
+  });
 
   const calculateGroupCostMutation = useCalculateGroupMaterialCost();
 
@@ -479,7 +486,9 @@ export const CreateProductionPlanDialog = ({
   const standardPlans = standardPlansData || [];
   const fertilizers = fertilizersQuery.data?.data || [];
   const pesticides = pesticidesQuery.data?.data || [];
-  const isLoading = createPlanMutation.isPending || fertilizersQuery.isLoading || pesticidesQuery.isLoading;
+  const seeds = seedsQuery.data?.data || [];
+  const materials = [...fertilizers, ...pesticides, ...seeds];
+  const isLoading = createPlanMutation.isPending || fertilizersQuery.isLoading || pesticidesQuery.isLoading || seedsQuery.isLoading;
 
   const getTitle = () => {
     switch (step) {
@@ -633,8 +642,8 @@ export const CreateProductionPlanDialog = ({
                   <Button
                     type="submit"
                     disabled={
-                      !standardPlanId || 
-                      !basePlantingDate || 
+                      !standardPlanId ||
+                      !basePlantingDate ||
                       !planName ||
                       validatePlanMutation.isPending ||
                       (validationResult && !validationResult.isValid)
@@ -981,6 +990,15 @@ export const CreateProductionPlanDialog = ({
                                                       {pesticides.length > 0 && (
                                                         <optgroup label="Pesticides">
                                                           {pesticides.map((mat: any) => (
+                                                            <option key={mat.materialId} value={mat.materialId}>
+                                                              {mat.name} ({mat.unit})
+                                                            </option>
+                                                          ))}
+                                                        </optgroup>
+                                                      )}
+                                                      {seeds.length > 0 && (
+                                                        <optgroup label="Seeds">
+                                                          {seeds.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
                                                             </option>

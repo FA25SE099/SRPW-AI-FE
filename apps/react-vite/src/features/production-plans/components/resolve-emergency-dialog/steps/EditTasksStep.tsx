@@ -10,6 +10,7 @@ type EditTasksStepProps = {
     validationErrors: { [key: string]: boolean };
     fertilizers: any[];
     pesticides: any[];
+    seeds: any[];
     isLoadingMaterials: boolean;
     handleUpdateTask: (stageIndex: number, taskIndex: number, updates: Partial<EditableTask>) => void;
     handleRemoveTask: (stageIndex: number, taskIndex: number) => void;
@@ -32,6 +33,7 @@ export const EditTasksStep = ({
     validationErrors,
     fertilizers,
     pesticides,
+    seeds,
     isLoadingMaterials,
     handleUpdateTask,
     handleRemoveTask,
@@ -121,6 +123,7 @@ export const EditTasksStep = ({
                                                         hasTaskError={hasTaskError}
                                                         fertilizers={fertilizers}
                                                         pesticides={pesticides}
+                                                        seeds={seeds}
                                                         isLoadingMaterials={isLoadingMaterials}
                                                         onUpdateTask={handleUpdateTask}
                                                         onRemoveTask={handleRemoveTask}

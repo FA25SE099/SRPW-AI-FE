@@ -220,6 +220,9 @@ export const CreateEmergencyProtocolDialog = ({
   const pesticidesQuery = useMaterials({
     params: { currentPage: 1, pageSize: 1000, type: 1 },
   });
+  const seedsQuery = useMaterials({
+    params: { currentPage: 1, pageSize: 1000, type: 2 },
+  });
 
   const calculateCostMutation = useCalculateMaterialsCost();
 
@@ -905,12 +908,14 @@ export const CreateEmergencyProtocolDialog = ({
   const riceVarieties = riceVarietiesResponse?.data || [];
   const fertilizers = fertilizersQuery.data?.data || [];
   const pesticides = pesticidesQuery.data?.data || [];
+  const seeds = seedsQuery.data?.data || [];
   const isLoading =
     createProtocolMutation.isPending ||
     updateProtocolMutation.isPending ||
     isLoadingDetails ||
     fertilizersQuery.isLoading ||
-    pesticidesQuery.isLoading;
+    pesticidesQuery.isLoading ||
+    seedsQuery.isLoading;
 
   const getTitle = () => {
     const prefix = isEditMode ? 'Edit' : 'Create';
@@ -1413,6 +1418,18 @@ export const CreateEmergencyProtocolDialog = ({
                                         {pesticides.length > 0 && (
                                           <optgroup label="Pesticides">
                                             {pesticides.map((mat: any) => (
+                                              <option
+                                                key={mat.materialId}
+                                                value={mat.materialId}
+                                              >
+                                                {mat.name} ({mat.unit})
+                                              </option>
+                                            ))}
+                                          </optgroup>
+                                        )}
+                                        {seeds.length > 0 && (
+                                          <optgroup label="Seeds">
+                                            {seeds.map((mat: any) => (
                                               <option
                                                 key={mat.materialId}
                                                 value={mat.materialId}

@@ -43,7 +43,7 @@ export const ResolveEmergencyDialog = ({
     const { data: user } = useUser();
     const { addNotification } = useNotifications();
     const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormData>();
-    const { fertilizers, pesticides, isLoadingMaterials } = useMaterialsData();
+    const { fertilizers, pesticides, seeds, isLoadingMaterials } = useMaterialsData();
 
     const { data: protocolsResponse, isLoading: isLoadingProtocols } = useEmergencyProtocols({
         params: {
@@ -255,6 +255,7 @@ export const ResolveEmergencyDialog = ({
                                 validationErrors={validationErrors}
                                 fertilizers={fertilizers}
                                 pesticides={pesticides}
+                                seeds={seeds}
                                 isLoadingMaterials={isLoadingMaterials}
                                 handleUpdateTask={taskManagement.handleUpdateTask}
                                 handleRemoveTask={taskManagement.handleRemoveTask}
@@ -285,6 +286,7 @@ export const ResolveEmergencyDialog = ({
                                 resolutionReason={watch('resolutionReason')}
                                 fertilizers={fertilizers}
                                 pesticides={pesticides}
+                                seeds={seeds}
                             />
                         )}
                     </div>

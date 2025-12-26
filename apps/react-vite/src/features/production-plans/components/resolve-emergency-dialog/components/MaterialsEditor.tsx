@@ -13,6 +13,7 @@ type MaterialsEditorProps = {
     isLoadingMaterials: boolean;
     fertilizers: any[];
     pesticides: any[];
+    seeds: any[];
     onUpdateMaterial: (
         stageIndex: number,
         taskIndex: number,
@@ -32,6 +33,7 @@ export const MaterialsEditor = ({
     isLoadingMaterials,
     fertilizers,
     pesticides,
+    seeds,
     onUpdateMaterial,
     onRemoveMaterial,
     onAddMaterial,
@@ -88,6 +90,15 @@ export const MaterialsEditor = ({
                                     <optgroup label="Pesticides">
                                         {pesticides.map((mat) => (
                                             <option key={`pest-${mat.materialId}`} value={mat.materialId}>
+                                                {mat.name} ({mat.unit})
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                )}
+                                {seeds.length > 0 && (
+                                    <optgroup label="Seeds">
+                                        {seeds.map((mat) => (
+                                            <option key={`seed-${mat.materialId}`} value={mat.materialId}>
                                                 {mat.name} ({mat.unit})
                                             </option>
                                         ))}

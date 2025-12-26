@@ -62,6 +62,13 @@ export const CreateStandardPlanDialog = ({
       type: 1
     }
   });
+  const seedsQuery = useMaterials({
+    params: {
+      currentPage: 1,
+      pageSize: 1000,
+      type: 2
+    }
+  });
 
   const calculateCostMutation = useCalculateMaterialsCost();
 
@@ -316,8 +323,9 @@ export const CreateStandardPlanDialog = ({
 
   const fertilizers = fertilizersQuery.data?.data || [];
   const pesticides = pesticidesQuery.data?.data || [];
-  const materials = [...fertilizers, ...pesticides];
-  const isLoading = createMutation.isPending || fertilizersQuery.isLoading || pesticidesQuery.isLoading;
+  const seeds = seedsQuery.data?.data || [];
+  const materials = [...fertilizers, ...pesticides, ...seeds];
+  const isLoading = createMutation.isPending || fertilizersQuery.isLoading || pesticidesQuery.isLoading || seedsQuery.isLoading;
 
   const handleInsertStage = (position: number) => {
     const newStage: CreateStandardPlanStage = {
@@ -971,6 +979,15 @@ export const CreateStandardPlanDialog = ({
                                                   {pesticides.length > 0 && (
                                                     <optgroup label="Pesticides">
                                                       {pesticides.map((mat: Material) => (
+                                                        <option key={mat.materialId} value={mat.materialId}>
+                                                          {mat.name} ({mat.unit})
+                                                        </option>
+                                                      ))}
+                                                    </optgroup>
+                                                  )}
+                                                  {seeds.length > 0 && (
+                                                    <optgroup label="Seeds">
+                                                      {seeds.map((mat: Material) => (
                                                         <option key={mat.materialId} value={mat.materialId}>
                                                           {mat.name} ({mat.unit})
                                                         </option>
