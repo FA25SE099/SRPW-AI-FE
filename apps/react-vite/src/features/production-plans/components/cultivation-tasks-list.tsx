@@ -20,9 +20,16 @@ import {
   AlertCircle,
   RefreshCw,
   ChevronDown,
+  Camera,
 } from 'lucide-react';
 import { formatDate } from '@/utils/format';
 import { cn } from '@/utils/cn';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 type CultivationTasksListProps = {
   planId: string;
@@ -54,10 +61,36 @@ const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+const ImageViewer = ({ images, open, onClose }: { images: string[]; open: boolean; onClose: () => void }) => {
+  if (!open) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Farm Log Images</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto p-4">
+          {images.map((url, index) => (
+            <a href={url} target="_blank" rel="noopener noreferrer" key={index}>
+              <img
+                src={url}
+                alt={`Farm log image ${index + 1}`}
+                className="rounded-lg object-cover w-full h-full cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </a>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 // Task item component with farm logs
 const TaskItemWithLogs = ({ task }: { task: any }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [loadLogs, setLoadLogs] = useState(false);
+  const [viewingImages, setViewingImages] = useState<string[] | null>(null);
 
   const { data: logsData, isLoading: logsLoading, refetch } = useFarmLogsByCultivation({
     params: {
@@ -83,206 +116,229 @@ const TaskItemWithLogs = ({ task }: { task: any }) => {
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <Card className="hover:shadow-md transition-shadow">
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between gap-4">
-            {/* Main Info */}
-            <div className="flex-1 space-y-2">
-              <div className="flex items-start gap-3">
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 mt-1"
-                    onClick={handleToggle}
-                  >
-                    <ChevronDown
-                      className={cn(
-                        'h-4 w-4 transition-transform',
-                        isOpen && 'transform rotate-180'
-                      )}
-                    />
-                  </Button>
-                </CollapsibleTrigger>
-                <div className="flex-1">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-gray-900">{task.taskName}</h4>
-                      {task.description && (
-                        <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-                      )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Badge className={statusColors[task.status as CultivationTaskStatus]}>
-                        {task.status}
-                      </Badge>
-                      <Badge className={taskTypeColors[task.taskType] || 'bg-gray-100 text-gray-800'}>
-                        {task.taskType}
-                      </Badge>
-                      {isOpen && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                          onClick={handleRefresh}
-                          disabled={logsLoading}
-                        >
-                          <RefreshCw className={cn('h-3 w-3', logsLoading && 'animate-spin')} />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-4 w-4 text-gray-500" />
-                      <div>
-                        <p className="text-gray-500">Plot</p>
-                        <p className="font-medium">{task.plotName}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm">
-                      <User className="h-4 w-4 text-gray-500" />
-                      <div>
-                        <p className="text-gray-500">Farmer</p>
-                        <p className="font-medium">{task.farmerName}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-gray-500" />
-                      <div>
-                        <p className="text-gray-500">Scheduled</p>
-                        <p className="font-medium">
-                          {new Date(task.scheduledEndDate).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-sm">
-                      <DollarSign className="h-4 w-4 text-gray-500" />
-                      <div>
-                        <p className="text-gray-500">Cost</p>
-                        <p className="font-medium">
-                          {(task.actualMaterialCost + task.actualServiceCost).toLocaleString('vi-VN')} VND
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Dates Info */}
-                  {(task.actualStartDate || task.actualEndDate) && (
-                    <div className="flex gap-4 text-xs text-gray-600 pt-2 border-t">
-                      {task.actualStartDate && (
-                        <span>
-                          Started: {new Date(task.actualStartDate).toLocaleDateString()}
-                        </span>
-                      )}
-                      {task.actualEndDate && (
-                        <span>
-                          Completed: {new Date(task.actualEndDate).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Contingency Info */}
-                  {task.isContingency && (
-                    <div className="rounded bg-yellow-50 p-2 text-xs text-yellow-800">
-                      <span className="font-medium">Contingency Task:</span> {task.contingencyReason}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Farm Logs Collapsible Content */}
-          <CollapsibleContent>
-            <div className="mt-4 pt-4 border-t">
-              {logsLoading ? (
-                <div className="flex items-center justify-center py-4">
-                  <Spinner size="sm" />
-                  <span className="ml-2 text-sm text-muted-foreground">Loading farm logs...</span>
-                </div>
-              ) : logsData && logsData.data && logsData.data.length > 0 ? (
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-sm mb-3">
-                    Farm Logs ({logsData.totalCount})
-                  </h4>
-                  {logsData.data.map((log) => (
-                    <div
-                      key={log.farmLogId}
-                      className="border rounded-lg p-3 bg-muted/30"
+    <>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between gap-4">
+              {/* Main Info */}
+              <div className="flex-1 space-y-2">
+                <div className="flex items-start gap-3">
+                  <CollapsibleTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 mt-1"
+                      onClick={handleToggle}
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-medium text-sm">{log.plotName}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {log.completionPercentage}% Complete
-                            </Badge>
-                          </div>
-                          {log.workDescription && (
-                            <p className="text-sm text-muted-foreground mb-2">
-                              {log.workDescription}
-                            </p>
-                          )}
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                            <div>
-                              <span className="text-muted-foreground">Date:</span>{' '}
-                              {formatDate(log.loggedDate)}
-                            </div>
-                            {log.actualAreaCovered && (
-                              <div>
-                                <span className="text-muted-foreground">Area:</span>{' '}
-                                {log.actualAreaCovered} ha
-                              </div>
-                            )}
-                            {log.serviceCost && (
-                              <div>
-                                <span className="text-muted-foreground">Service Cost:</span>{' '}
-                                {formatCurrency(log.serviceCost)}
-                              </div>
-                            )}
-                            {log.weatherConditions && (
-                              <div>
-                                <span className="text-muted-foreground">Weather:</span>{' '}
-                                {log.weatherConditions}
-                              </div>
-                            )}
-                          </div>
-                          {log.materialsUsed && log.materialsUsed.length > 0 && (
-                            <div className="mt-2 pt-2 border-t">
-                              <p className="text-xs font-medium mb-1">Materials Used:</p>
-                              <div className="space-y-1">
-                                {log.materialsUsed.map((material, idx) => (
-                                  <div key={idx} className="text-xs text-muted-foreground">
-                                    {material.materialName}: {material.actualQuantityUsed} (
-                                    {formatCurrency(material.actualCost)})
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                      <ChevronDown
+                        className={cn(
+                          'h-4 w-4 transition-transform',
+                          isOpen && 'transform rotate-180'
+                        )}
+                      />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <div className="flex-1">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-900">{task.taskName}</h4>
+                        {task.description && (
+                          <p className="text-sm text-gray-600 mt-1">{task.description}</p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge className={statusColors[task.status as CultivationTaskStatus]}>
+                          {task.status}
+                        </Badge>
+                        <Badge className={taskTypeColors[task.taskType] || 'bg-gray-100 text-gray-800'}>
+                          {task.taskType}
+                        </Badge>
+                        {isOpen && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={handleRefresh}
+                            disabled={logsLoading}
+                          >
+                            <RefreshCw className={cn('h-3 w-3', logsLoading && 'animate-spin')} />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Details Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-4 w-4 text-gray-500" />
+                        <div>
+                          <p className="text-gray-500">Plot</p>
+                          <p className="font-medium">{task.plotName}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-sm">
+                        <User className="h-4 w-4 text-gray-500" />
+                        <div>
+                          <p className="text-gray-500">Farmer</p>
+                          <p className="font-medium">{task.farmerName}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="h-4 w-4 text-gray-500" />
+                        <div>
+                          <p className="text-gray-500">Scheduled</p>
+                          <p className="font-medium">
+                            {new Date(task.scheduledEndDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-sm">
+                        <DollarSign className="h-4 w-4 text-gray-500" />
+                        <div>
+                          <p className="text-gray-500">Cost</p>
+                          <p className="font-medium">
+                            {(task.actualMaterialCost + task.actualServiceCost).toLocaleString('vi-VN')} VND
+                          </p>
                         </div>
                       </div>
                     </div>
-                  ))}
+
+                    {/* Dates Info */}
+                    {(task.actualStartDate || task.actualEndDate) && (
+                      <div className="flex gap-4 text-xs text-gray-600 pt-2 border-t">
+                        {task.actualStartDate && (
+                          <span>
+                            Started: {new Date(task.actualStartDate).toLocaleDateString()}
+                          </span>
+                        )}
+                        {task.actualEndDate && (
+                          <span>
+                            Completed: {new Date(task.actualEndDate).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Contingency Info */}
+                    {task.isContingency && (
+                      <div className="rounded bg-yellow-50 p-2 text-xs text-yellow-800">
+                        <span className="font-medium">Contingency Task:</span> {task.contingencyReason}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No farm logs found for this cultivation
-                </p>
-              )}
+              </div>
             </div>
-          </CollapsibleContent>
-        </CardContent>
-      </Card>
-    </Collapsible>
+
+            {/* Farm Logs Collapsible Content */}
+            <CollapsibleContent>
+              <div className="mt-4 pt-4 border-t">
+                {logsLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Spinner size="sm" />
+                    <span className="ml-2 text-sm text-muted-foreground">Loading farm logs...</span>
+                  </div>
+                ) : logsData && logsData.data && logsData.data.length > 0 ? (
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-sm mb-3">
+                      Farm Logs ({logsData.totalCount})
+                    </h4>
+                    {logsData.data.map((log) => (
+                      <div
+                        key={log.farmLogId}
+                        className="border rounded-lg p-3 bg-muted/30"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="font-medium text-sm">{log.plotName}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {log.completionPercentage}% Complete
+                              </Badge>
+                            </div>
+                            {log.workDescription && (
+                              <p className="text-sm text-muted-foreground mb-2">
+                                {log.workDescription}
+                              </p>
+                            )}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                              <div>
+                                <span className="text-muted-foreground">Date:</span>{' '}
+                                {formatDate(log.loggedDate)}
+                              </div>
+                              {log.actualAreaCovered && (
+                                <div>
+                                  <span className="text-muted-foreground">Area:</span>{' '}
+                                  {log.actualAreaCovered} ha
+                                </div>
+                              )}
+                              {log.serviceCost && (
+                                <div>
+                                  <span className="text-muted-foreground">Service Cost:</span>{' '}
+                                  {formatCurrency(log.serviceCost)}
+                                </div>
+                              )}
+                              {log.weatherConditions && (
+                                <div>
+                                  <span className="text-muted-foreground">Weather:</span>{' '}
+                                  {log.weatherConditions}
+                                </div>
+                              )}
+                            </div>
+                            {log.photoUrls && log.photoUrls.length > 0 && (
+                              <div className="mt-2">
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="p-0 h-auto text-xs flex items-center gap-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setViewingImages(log.photoUrls || []);
+                                  }}
+                                >
+                                  <Camera className="h-3 w-3" />
+                                  View {log.photoUrls.length} image(s)
+                                </Button>
+                              </div>
+                            )}
+                            {log.materialsUsed && log.materialsUsed.length > 0 && (
+                              <div className="mt-2 pt-2 border-t">
+                                <p className="text-xs font-medium mb-1">Materials Used:</p>
+                                <div className="space-y-1">
+                                  {log.materialsUsed.map((material, idx) => (
+                                    <div key={idx} className="text-xs text-muted-foreground">
+                                      {material.materialName}: {material.actualQuantityUsed} (
+                                      {formatCurrency(material.actualCost)})
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No farm logs found for this cultivation
+                  </p>
+                )}
+              </div>
+            </CollapsibleContent>
+          </CardContent>
+        </Card>
+      </Collapsible>
+      <ImageViewer
+        images={viewingImages || []}
+        open={!!viewingImages}
+        onClose={() => setViewingImages(null)}
+      />
+    </>
   );
 };
 
@@ -388,4 +444,3 @@ export const CultivationTasksList = ({
     </div>
   );
 };
-

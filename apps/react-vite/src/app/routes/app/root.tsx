@@ -269,7 +269,7 @@ const AppRoot = () => {
         end: true,
       },
       {
-        name: 'Fields',
+        name: 'Plots',
         to: paths.app.cluster.plots.getHref(),
         icon: MapPin,
         end: true,
