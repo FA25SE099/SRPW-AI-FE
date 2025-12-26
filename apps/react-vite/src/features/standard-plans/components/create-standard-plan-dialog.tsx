@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Trash2, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, DollarSign } from 'lucide-react';
+import { Plus, Trash2, ChevronLeft, ChevronRight, ArrowLeft, ArrowRight, DollarSign, GripVertical } from 'lucide-react';
 
 import { SimpleDialog } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -44,6 +44,7 @@ export const CreateStandardPlanDialog = ({
       tasks: [],
     },
   ]);
+  const [draggedTask, setDraggedTask] = useState<{ stageIndex: number; taskIndex: number } | null>(null);
 
   // Queries
   const categoriesQuery = useCategories();
@@ -402,6 +403,54 @@ export const CreateStandardPlanDialog = ({
     setStages(newStages);
   };
 
+  const handleDragStart = (e: React.DragEvent, stageIndex: number, taskIndex: number) => {
+    setDraggedTask({ stageIndex, taskIndex });
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDragEnd = () => {
+    setDraggedTask(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, targetStageIndex: number, targetTaskIndex: number) => {
+    e.preventDefault();
+    if (!draggedTask) return;
+
+    const sourceStageIndex = draggedTask.stageIndex;
+    const sourceTaskIndex = draggedTask.taskIndex;
+
+    if (sourceStageIndex === targetStageIndex && sourceTaskIndex === targetTaskIndex) {
+      setDraggedTask(null);
+      return;
+    }
+
+    const newStages = [...stages];
+    newStages[sourceStageIndex] = { ...newStages[sourceStageIndex], tasks: [...newStages[sourceStageIndex].tasks] };
+    if (sourceStageIndex !== targetStageIndex) {
+      newStages[targetStageIndex] = { ...newStages[targetStageIndex], tasks: [...newStages[targetStageIndex].tasks] };
+    }
+
+    const sourceStage = newStages[sourceStageIndex];
+    const targetStage = newStages[targetStageIndex];
+
+    const [movedTask] = sourceStage.tasks.splice(sourceTaskIndex, 1);
+    targetStage.tasks.splice(targetTaskIndex, 0, movedTask);
+
+    newStages.forEach((stage) => {
+      stage.tasks.forEach((task, i) => {
+        task.sequenceOrder = i;
+      });
+    });
+
+    setStages(newStages);
+    setDraggedTask(null);
+  };
+
   const handleToPreview = () => {
     // Validate before going to preview
     if (!planName || !categoryId) {
@@ -706,7 +755,12 @@ export const CreateStandardPlanDialog = ({
 
                             <div className="grid grid-cols-3 gap-2.5">
                               {stage.tasks.map((task, taskIndex) => (
-                                <div key={taskIndex} className="relative">
+                                <div
+                                  key={taskIndex}
+                                  className={`relative ${draggedTask?.stageIndex === stageIndex && draggedTask?.taskIndex === taskIndex ? 'opacity-50' : ''}`}
+                                  onDragOver={handleDragOver}
+                                  onDrop={(e) => handleDrop(e, stageIndex, taskIndex)}
+                                >
                                   {/* Add task before button */}
                                   {taskIndex === 0 && (
                                     <button
@@ -723,6 +777,14 @@ export const CreateStandardPlanDialog = ({
                                   <div className="rounded-md border-2 border-blue-200 bg-white p-2.5 shadow-sm hover:shadow-md transition-shadow flex flex-col">
                                     <div className="flex items-start justify-between mb-2">
                                       <div className="flex items-center gap-1">
+                                        <div
+                                          className="cursor-grab active:cursor-grabbing p-1 text-gray-400 hover:text-gray-600"
+                                          draggable
+                                          onDragStart={(e) => handleDragStart(e, stageIndex, taskIndex)}
+                                          onDragEnd={handleDragEnd}
+                                        >
+                                          <GripVertical className="h-4 w-4" />
+                                        </div>
                                         <span className="inline-flex items-center justify-center h-5 w-5 rounded-full bg-blue-500 text-white text-xs font-bold">
                                           {taskIndex + 1}
                                         </span>
