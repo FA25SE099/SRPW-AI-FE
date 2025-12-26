@@ -127,33 +127,41 @@ const Plots = () => {
   }
 
   return (
-    <ContentLayout title="Plots Management">
+    <div>
       {/* Page Header */}
-      <div className="mb-6 flex flex-col gap-4 border-b border-gray-200 pb-5 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold leading-snug text-gray-900">
-            Plots
-          </h1>
-          <p className="mt-1 text-sm text-gray-600">
-            Manage and monitor all farm plots
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button
-            onClick={() => setShowBulkCreateDialog(true)}
-            className="items-center gap-2 bg-green-600 text-white hover:bg-green-700"
-          >
-            <Plus className="size-4" />
-            Add Plots
-          </Button>
-          <Button
-            onClick={() => setShowImportDialog(true)}
-            variant="outline"
-            className="items-center gap-2 border-green-600 text-green-600 hover:bg-green-50"
-          >
-            <Upload className="size-4" />
-            Import Excel
-          </Button>
+      <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm mb-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-gradient-to-br from-amber-600 to-amber-700 p-3 shadow-lg">
+              <MapPin className="size-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-neutral-900">
+                Plots Management
+              </h1>
+              <p className="text-sm text-neutral-600 mt-1">
+                Manage and monitor all farm plots in your cluster
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              onClick={() => setShowBulkCreateDialog(true)}
+              className="items-center gap-2 bg-green-600 text-white hover:bg-green-700"
+            >
+              <Plus className="size-4" />
+              Add Plots
+            </Button>
+            <Button
+              onClick={() => setShowImportDialog(true)}
+              variant="outline"
+              className="items-center gap-2 border-green-600 text-green-600 hover:bg-green-50"
+            >
+              <Upload className="size-4" />
+              Import Excel
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -663,8 +671,8 @@ const Plots = () => {
                         <td className="whitespace-nowrap px-6 py-4">
                           <Badge
                             className={`border ${plot.status === 'PendingPolygon'
-                                ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                                : 'bg-green-100 text-green-800 border-green-200'
+                              ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                              : 'bg-green-100 text-green-800 border-green-200'
                               }`}
                           >
                             {plot.status}
@@ -674,10 +682,10 @@ const Plots = () => {
                           <div className="flex items-center gap-2">
                             <Calendar className="size-4 text-gray-400" />
                             <span className={`text-sm font-medium ${plot.daysAwaitingPolygon > 7
-                                ? 'text-red-600'
-                                : plot.daysAwaitingPolygon > 3
-                                  ? 'text-yellow-600'
-                                  : 'text-gray-900'
+                              ? 'text-red-600'
+                              : plot.daysAwaitingPolygon > 3
+                                ? 'text-yellow-600'
+                                : 'text-gray-900'
                               }`}>
                               {plot.daysAwaitingPolygon} days
                             </span>
@@ -693,10 +701,10 @@ const Plots = () => {
                                 <Badge
                                   variant="outline"
                                   className={`text-xs ${plot.taskStatus === 'InProgress'
-                                      ? 'border-blue-200 bg-blue-50 text-blue-700'
-                                      : plot.taskStatus === 'Completed'
-                                        ? 'border-green-200 bg-green-50 text-green-700'
-                                        : 'border-gray-200 bg-gray-50 text-gray-700'
+                                    ? 'border-blue-200 bg-blue-50 text-blue-700'
+                                    : plot.taskStatus === 'Completed'
+                                      ? 'border-green-200 bg-green-50 text-green-700'
+                                      : 'border-gray-200 bg-gray-50 text-gray-700'
                                     }`}
                                 >
                                   {plot.taskStatus}
@@ -763,7 +771,7 @@ const Plots = () => {
         open={showImportDialog}
         onOpenChange={setShowImportDialog}
       />
-    </ContentLayout>
+    </div>
   );
 };
 

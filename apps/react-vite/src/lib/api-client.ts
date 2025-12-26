@@ -57,15 +57,6 @@ api.interceptors.response.use(
           errors?: string[];
         };
         error.errors = data.errors;
-
-        // Show notification for errors
-        const errorMessage = data.errors?.join(', ') || data.message || 'Request failed';
-        useNotifications.getState().addNotification({
-          type: 'error',
-          title: 'Error',
-          message: errorMessage,
-        });
-
         return Promise.reject(error);
       }
 
@@ -85,8 +76,8 @@ api.interceptors.response.use(
         return data;
       }
 
-      // Return the unwrapped data for successful results
-      return data.data;
+      // Return the unwrapped data if it exists, otherwise return the whole result
+      return 'data' in data ? data.data : data;
     }
 
     // For responses without Result<T> wrapper, return as-is

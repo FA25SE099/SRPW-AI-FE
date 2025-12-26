@@ -64,7 +64,7 @@ const SupervisorFarmersPage = () => {
     }
 
     return (
-        <ContentLayout title="My Farmers">
+        <div>
             <Head title="My Farmers" />
             <div className="space-y-6">
                 {/* Header */}
@@ -355,7 +355,7 @@ const SupervisorFarmersPage = () => {
                 open={detailDialogOpen}
                 onOpenChange={setDetailDialogOpen}
             />
-        </ContentLayout>
+        </div>
     );
 };
 

@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react';
-import { 
-  Plane, 
-  Calendar, 
-  MapPin, 
-  Loader2, 
-  CheckCircle2, 
+import {
+  Plane,
+  Calendar,
+  MapPin,
+  Loader2,
+  CheckCircle2,
   AlertCircle,
   Users,
   TrendingUp,
@@ -49,8 +49,8 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer';
-import { 
-  useManagedGroups, 
+import {
+  useManagedGroups,
   usePlotsReadyForUav,
   useCreateUavOrder,
   useTaskTypes,
@@ -69,19 +69,19 @@ import { useUser } from '@/lib/auth';
 const UavOrdersRoute = () => {
   const { addNotification } = useNotifications();
   const user = useUser();
-  
+
   // Tab state
   const [activeTab, setActiveTab] = useState('create');
-  
+
   // Pagination & filters
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
-  
+
   // Orders pagination
   const [ordersPage, setOrdersPage] = useState(1);
   const [ordersPageSize] = useState(10);
-  
+
   // Selected group & plots
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [selectedTaskType, setSelectedTaskType] = useState<string>('PestControl');
@@ -92,23 +92,23 @@ const UavOrdersRoute = () => {
   const [isProofViewerOpen, setIsProofViewerOpen] = useState(false);
   const [currentProofUrls, setCurrentProofUrls] = useState<string[]>([]);
   const [currentProofIndex, setCurrentProofIndex] = useState(0);
-  
+
   // Order creation dialog
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false);
   const [scheduledDate, setScheduledDate] = useState('');
   const [uavVendorId, setUavVendorId] = useState('');
   const [priority, setPriority] = useState<TaskPriority>('Normal');
   const [orderName, setOrderName] = useState('');
-  
+
   // Queries
   const { data: groupsData, isLoading: isLoadingGroups } = useManagedGroups({
-    params: { 
-      currentPage, 
+    params: {
+      currentPage,
       pageSize,
-      statusFilter 
+      statusFilter
     },
   });
-  
+
   const { data: readyPlots, isLoading: isLoadingPlots } = usePlotsReadyForUav({
     params: {
       groupId: selectedGroupId || '',
@@ -119,16 +119,16 @@ const UavOrdersRoute = () => {
       enabled: !!selectedGroupId,
     },
   });
-  
+
   console.log('🔍 Tasks Data:');
   console.log('- Total tasks available:', readyPlots?.length || 0);
   console.log('- Tasks data:', readyPlots);
-  
+
   // Filter options from APIs
   const { data: taskTypesData, isLoading: isLoadingTaskTypes, error: taskTypesError } = useTaskTypes();
   const { data: groupStatusesData, isLoading: isLoadingStatuses, error: statusesError } = useGroupStatuses();
   const { data: uavVendorsData, isLoading: isLoadingVendors } = useUavVendors();
-  
+
   // Orders query
   const { data: ordersData, isLoading: isLoadingOrders } = useClusterManagerOrders({
     params: {
@@ -182,7 +182,7 @@ const UavOrdersRoute = () => {
       prev === currentProofUrls.length - 1 ? 0 : prev + 1
     );
   };
-  
+
   // Debug logs
   console.log('🔍 Filter APIs Debug:');
   console.log('- Task Types Data:', taskTypesData);
@@ -192,7 +192,7 @@ const UavOrdersRoute = () => {
   console.log('- Statuses Loading:', isLoadingStatuses);
   console.log('- Statuses Error:', statusesError);
   console.log('- Selected Task Type:', selectedTaskType);
-  
+
   // Mutations
   const createOrderMutation = useCreateUavOrder({
     mutationConfig: {
@@ -217,21 +217,21 @@ const UavOrdersRoute = () => {
       },
     },
   });
-  
+
   const groups = groupsData?.data || [];
   const selectedGroup = groups.find(g => g.groupId === selectedGroupId);
-  
+
   const handleGroupSelect = (groupId: string) => {
     setSelectedGroupId(groupId);
     setSelectedTasks(new Set());
   };
-  
+
   // Helper function to check if a plot already has a selected task
   const plotHasSelectedTask = (plotId: string, currentTaskId?: string): boolean => {
     if (!readyPlots) return false;
-    return readyPlots.some(plot => 
-      plot.plotId === plotId && 
-      plot.cultivationTaskId && 
+    return readyPlots.some(plot =>
+      plot.plotId === plotId &&
+      plot.cultivationTaskId &&
       plot.cultivationTaskId !== currentTaskId &&
       selectedTasks.has(plot.cultivationTaskId)
     );
@@ -258,15 +258,15 @@ const UavOrdersRoute = () => {
       return newSet;
     });
   };
-  
+
   const handleSelectAll = () => {
     if (!readyPlots) return;
     // Only select tasks that are ready and don't have active orders
     const selectableTasks = readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder && p.cultivationTaskId);
-    
+
     // Check if all selectable tasks are already selected
     const allSelected = selectableTasks.every(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId));
-    
+
     if (allSelected) {
       setSelectedTasks(new Set());
     } else {
@@ -280,7 +280,7 @@ const UavOrdersRoute = () => {
       setSelectedTasks(new Set(Array.from(plotToTaskMap.values())));
     }
   };
-  
+
   const handleCreateOrder = () => {
     if (!selectedGroupId || selectedTasks.size === 0) {
       addNotification({
@@ -292,7 +292,7 @@ const UavOrdersRoute = () => {
     }
     setIsOrderDialogOpen(true);
   };
-  
+
   const handleSubmitOrder = () => {
     if (!selectedGroupId || !uavVendorId || !scheduledDate) {
       addNotification({
@@ -302,12 +302,12 @@ const UavOrdersRoute = () => {
       });
       return;
     }
-    
+
     // Get unique plot IDs and cultivation task IDs from selected tasks
     const selectedTasksData = readyPlots?.filter(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId)) || [];
     const uniquePlotIds = [...new Set(selectedTasksData.map(t => t.plotId))];
     const cultivationTaskIds = selectedTasksData.map(t => t.cultivationTaskId).filter((id): id is string => !!id);
-    
+
     createOrderMutation.mutate({
       groupId: selectedGroupId,
       uavVendorId,
@@ -337,7 +337,7 @@ const UavOrdersRoute = () => {
 
     return [...readyPlots].sort((a, b) => score(a) - score(b));
   }, [readyPlots]);
-  
+
   const getStatusColor = (status: string) => {
     const statusMap: Record<string, string> = {
       Draft: 'bg-gray-100 text-gray-800 border-gray-200',
@@ -349,7 +349,7 @@ const UavOrdersRoute = () => {
     };
     return statusMap[status] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
-  
+
   const getOrderStatusColor = (status: string) => {
     const statusMap: Record<string, string> = {
       PendingApproval: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -361,7 +361,7 @@ const UavOrdersRoute = () => {
     };
     return statusMap[status] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
-  
+
   const getPriorityColor = (priority: string) => {
     const priorityMap: Record<string, string> = {
       Low: 'bg-gray-100 text-gray-800 border-gray-200',
@@ -371,7 +371,7 @@ const UavOrdersRoute = () => {
     };
     return priorityMap[priority] || 'bg-gray-100 text-gray-800 border-gray-200';
   };
-  
+
   const formatScheduledDateTime = (date: string, time: string | null) => {
     const dateObj = new Date(date);
     const dateStr = formatDate(date);
@@ -382,14 +382,14 @@ const UavOrdersRoute = () => {
     }
     return dateStr;
   };
-  
+
   const calculateTotalCost = () => {
     if (!readyPlots) return 0;
     return readyPlots
       .filter(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId))
       .reduce((sum, p) => sum + p.estimatedMaterialCost, 0);
   };
-  
+
   const calculateTotalArea = () => {
     if (!readyPlots) return 0;
     // Get unique plots only to avoid counting same plot multiple times
@@ -402,13 +402,13 @@ const UavOrdersRoute = () => {
     });
     return Array.from(uniquePlots.values()).reduce((sum, area) => sum + area, 0);
   };
-  
+
   const getSelectedPlotsCount = () => {
     if (!readyPlots) return 0;
     const selectedTasksData = readyPlots.filter(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId));
     return new Set(selectedTasksData.map(t => t.plotId)).size;
   };
-  
+
   if (isLoadingGroups) {
     return (
       <ContentLayout title="UAV Order Management">
@@ -418,9 +418,9 @@ const UavOrdersRoute = () => {
       </ContentLayout>
     );
   }
-  
+
   return (
-    <ContentLayout title="UAV Order Management">
+    <div>
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
@@ -435,7 +435,7 @@ const UavOrdersRoute = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Tabs */}
       <Tabs
         tabs={[
@@ -462,7 +462,7 @@ const UavOrdersRoute = () => {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
@@ -476,7 +476,7 @@ const UavOrdersRoute = () => {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
@@ -490,7 +490,7 @@ const UavOrdersRoute = () => {
                       </div>
                     </CardContent>
                   </Card>
-                  
+
                   <Card>
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
@@ -505,7 +505,7 @@ const UavOrdersRoute = () => {
                     </CardContent>
                   </Card>
                 </div>
-                
+
                 {/* Orders Table */}
                 <Card>
                   <CardHeader>
@@ -645,7 +645,7 @@ const UavOrdersRoute = () => {
                             </table>
                           </div>
                         </div>
-                        
+
                         {/* Pagination */}
                         {ordersData && ordersData.totalPages > 1 && (
                           <div className="flex items-center justify-between mt-4 pt-4 border-t">
@@ -900,7 +900,7 @@ const UavOrdersRoute = () => {
               </div>
             );
           }
-          
+
           // Create Order Tab Content (existing content)
           return (
             <>
@@ -917,7 +917,7 @@ const UavOrdersRoute = () => {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
@@ -931,7 +931,7 @@ const UavOrdersRoute = () => {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
@@ -943,7 +943,7 @@ const UavOrdersRoute = () => {
                     </div>
                   </CardContent>
                 </Card>
-                
+
                 <Card>
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
@@ -958,7 +958,7 @@ const UavOrdersRoute = () => {
                   </CardContent>
                 </Card>
               </div>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Groups List */}
                 <Card className="lg:col-span-1">
@@ -970,7 +970,7 @@ const UavOrdersRoute = () => {
                       </CardTitle>
                       <Select
                         value={statusFilter || 'all'}
-                        onValueChange={(value) => 
+                        onValueChange={(value) =>
                           setStatusFilter(value === 'all' ? undefined : value)
                         }
                       >
@@ -1006,11 +1006,10 @@ const UavOrdersRoute = () => {
                           <button
                             key={group.groupId}
                             onClick={() => handleGroupSelect(group.groupId)}
-                            className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                              selectedGroupId === group.groupId
+                            className={`w-full text-left p-3 rounded-lg border-2 transition-all ${selectedGroupId === group.groupId
                                 ? 'border-blue-500 bg-blue-50 shadow-md'
                                 : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex-1">
@@ -1025,7 +1024,7 @@ const UavOrdersRoute = () => {
                                 {group.status}
                               </Badge>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
                               <div className="flex items-center gap-1">
                                 <MapPin className="h-3 w-3" />
@@ -1036,7 +1035,7 @@ const UavOrdersRoute = () => {
                                 <span>{group.totalPlots} plots</span>
                               </div>
                             </div>
-                            
+
                             {group.riceVarietyName && (
                               <p className="text-xs text-gray-500 mt-2">
                                 🌾 {group.riceVarietyName}
@@ -1046,7 +1045,7 @@ const UavOrdersRoute = () => {
                         ))
                       )}
                     </div>
-                    
+
                     {/* Pagination */}
                     {groupsData && groupsData.totalPages > 1 && (
                       <div className="flex items-center justify-between mt-4 pt-4 border-t">
@@ -1073,15 +1072,15 @@ const UavOrdersRoute = () => {
                     )}
                   </CardContent>
                 </Card>
-                
+
                 {/* Ready Plots - Keep existing content */}
                 <Card className="lg:col-span-2">
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Plane className="h-5 w-5" />
-                      Plots Ready for UAV Service
-                    </CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <Plane className="h-5 w-5" />
+                        Plots Ready for UAV Service
+                      </CardTitle>
                       {selectedGroupId && (
                         <div className="flex items-center gap-3">
                           <Select
@@ -1108,7 +1107,7 @@ const UavOrdersRoute = () => {
                               )}
                             </SelectContent>
                           </Select>
-                          
+
                           <div className="flex items-center gap-2">
                             <Label htmlFor="daysFilter" className="text-xs text-gray-600 whitespace-nowrap">
                               Days ahead:
@@ -1166,24 +1165,24 @@ const UavOrdersRoute = () => {
                         {/* Action Bar */}
                         <div className="flex items-center justify-between mb-4 pb-4 border-b">
                           <div className="flex items-center gap-3">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleSelectAll}
-                          >
-                            <CheckCircle2 className="h-4 w-4 mr-2" />
-                            {(() => {
-                              const selectableTasks = readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder && p.cultivationTaskId);
-                              const uniquePlots = new Set(selectableTasks.map(p => p.plotId));
-                              const allSelected = selectableTasks.every(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId));
-                              return allSelected ? 'Deselect All' : `Select One Per Plot (${uniquePlots.size} plots)`;
-                            })()}
-                          </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={handleSelectAll}
+                            >
+                              <CheckCircle2 className="h-4 w-4 mr-2" />
+                              {(() => {
+                                const selectableTasks = readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder && p.cultivationTaskId);
+                                const uniquePlots = new Set(selectableTasks.map(p => p.plotId));
+                                const allSelected = selectableTasks.every(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId));
+                                return allSelected ? 'Deselect All' : `Select One Per Plot (${uniquePlots.size} plots)`;
+                              })()}
+                            </Button>
                             <span className="text-sm text-gray-600">
                               {selectedTasks.size} task{selectedTasks.size !== 1 ? 's' : ''} selected ({getSelectedPlotsCount()} plot{getSelectedPlotsCount() !== 1 ? 's' : ''})
                             </span>
                           </div>
-                          
+
                           <Button
                             onClick={handleCreateOrder}
                             disabled={selectedTasks.size === 0}
@@ -1193,7 +1192,7 @@ const UavOrdersRoute = () => {
                             Create UAV Order
                           </Button>
                         </div>
-                        
+
                         {/* Plot Status Summary */}
                         {readyPlots.length > 0 && (
                           <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
@@ -1213,7 +1212,7 @@ const UavOrdersRoute = () => {
                             </div>
                           </div>
                         )}
-                        
+
                         {/* Selection Summary */}
                         {selectedTasks.size > 0 && (
                           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
@@ -1237,100 +1236,98 @@ const UavOrdersRoute = () => {
                             </div>
                           </div>
                         )}
-                        
+
                         {/* Tasks List */}
                         <div className="space-y-2 max-h-[500px] overflow-y-auto">
                           {sortedReadyPlots.map((plot, index) => {
                             const taskKey = plot.cultivationTaskId || `${plot.plotId}-${index}`;
                             const isSelected = plot.cultivationTaskId && selectedTasks.has(plot.cultivationTaskId);
                             const plotHasOtherSelectedTask = plotHasSelectedTask(plot.plotId, plot.cultivationTaskId || undefined);
-                            const isSelectable = plot.isReady && 
-                                              !plot.hasActiveUavOrder && 
-                                              plot.cultivationTaskId && 
-                                              (!plotHasOtherSelectedTask || isSelected);
-                            
+                            const isSelectable = plot.isReady &&
+                              !plot.hasActiveUavOrder &&
+                              plot.cultivationTaskId &&
+                              (!plotHasOtherSelectedTask || isSelected);
+
                             return (
-                            <div
-                              key={taskKey}
-                              onClick={() => isSelectable ? handleTaskToggle(plot.cultivationTaskId!, plot.plotId) : undefined}
-                              className={`p-4 rounded-lg border-2 transition-all ${
-                                !isSelectable
-                                  ? 'opacity-60 cursor-not-allowed border-gray-200 bg-gray-50'
-                                  : isSelected
-                                  ? 'border-blue-500 bg-blue-50 shadow-md cursor-pointer'
-                                  : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50 cursor-pointer'
-                              }`}
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex items-start gap-3 flex-1">
-                                  {isSelectable && (
-                                    <div className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${
-                                      isSelected
-                                        ? 'border-blue-600 bg-blue-600'
-                                        : 'border-gray-300'
-                                    }`}>
-                                      {isSelected && (
-                                        <CheckCircle2 className="h-4 w-4 text-white" />
-                                      )}
-                                    </div>
-                                  )}
-                                  
-                                  <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                      <h4 className="font-semibold text-gray-900">
-                                        {plot.plotName}
-                                      </h4>
-                                      {plot.taskType && (
-                                        <Badge variant="outline" className="text-xs">
-                                          {plot.taskType}
-                                        </Badge>
-                                      )}
-                                      {plot.hasActiveUavOrder && (
-                                        <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
-                                          Has Active Order
-                                        </Badge>
-                                      )}
-                                      {!plot.isReady && (
-                                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs">
-                                          {plot.readyStatus}
-                                        </Badge>
-                                      )}
-                                      {plot.isReady && !plot.hasActiveUavOrder && !plotHasOtherSelectedTask && (
-                                        <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 text-xs">
-                                          ✓ Ready
-                                        </Badge>
-                                      )}
-                                      {plotHasOtherSelectedTask && !isSelected && (
-                                        <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200 text-xs">
-                                          Another task in this plot selected
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    
-                                    <p className="text-sm text-gray-600 mt-1">
-                                      {plot.cultivationTaskName}
-                                    </p>
-                                    
-                                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-600">
-                                      <div className="flex items-center gap-1">
-                                        <MapPin className="h-3 w-3" />
-                                        <span>{plot.plotArea.toFixed(2)} ha</span>
+                              <div
+                                key={taskKey}
+                                onClick={() => isSelectable ? handleTaskToggle(plot.cultivationTaskId!, plot.plotId) : undefined}
+                                className={`p-4 rounded-lg border-2 transition-all ${!isSelectable
+                                    ? 'opacity-60 cursor-not-allowed border-gray-200 bg-gray-50'
+                                    : isSelected
+                                      ? 'border-blue-500 bg-blue-50 shadow-md cursor-pointer'
+                                      : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50 cursor-pointer'
+                                  }`}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex items-start gap-3 flex-1">
+                                    {isSelectable && (
+                                      <div className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${isSelected
+                                          ? 'border-blue-600 bg-blue-600'
+                                          : 'border-gray-300'
+                                        }`}>
+                                        {isSelected && (
+                                          <CheckCircle2 className="h-4 w-4 text-white" />
+                                        )}
                                       </div>
-                                      {plot.readyDate && (
+                                    )}
+
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-2 mb-1">
+                                        <h4 className="font-semibold text-gray-900">
+                                          {plot.plotName}
+                                        </h4>
+                                        {plot.taskType && (
+                                          <Badge variant="outline" className="text-xs">
+                                            {plot.taskType}
+                                          </Badge>
+                                        )}
+                                        {plot.hasActiveUavOrder && (
+                                          <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
+                                            Has Active Order
+                                          </Badge>
+                                        )}
+                                        {!plot.isReady && (
+                                          <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200 text-xs">
+                                            {plot.readyStatus}
+                                          </Badge>
+                                        )}
+                                        {plot.isReady && !plot.hasActiveUavOrder && !plotHasOtherSelectedTask && (
+                                          <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 text-xs">
+                                            ✓ Ready
+                                          </Badge>
+                                        )}
+                                        {plotHasOtherSelectedTask && !isSelected && (
+                                          <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200 text-xs">
+                                            Another task in this plot selected
+                                          </Badge>
+                                        )}
+                                      </div>
+
+                                      <p className="text-sm text-gray-600 mt-1">
+                                        {plot.cultivationTaskName}
+                                      </p>
+
+                                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-600">
                                         <div className="flex items-center gap-1">
-                                          <Calendar className="h-3 w-3" />
-                                          <span>Ready: {formatDate(plot.readyDate)}</span>
+                                          <MapPin className="h-3 w-3" />
+                                          <span>{plot.plotArea.toFixed(2)} ha</span>
                                         </div>
-                                      )}
-                                      <div className="flex items-center gap-1">
-                                        <Package className="h-3 w-3" />
-                                        <span>{plot.estimatedMaterialCost.toLocaleString()} đ</span>
+                                        {plot.readyDate && (
+                                          <div className="flex items-center gap-1">
+                                            <Calendar className="h-3 w-3" />
+                                            <span>Ready: {formatDate(plot.readyDate)}</span>
+                                          </div>
+                                        )}
+                                        <div className="flex items-center gap-1">
+                                          <Package className="h-3 w-3" />
+                                          <span>{plot.estimatedMaterialCost.toLocaleString()} đ</span>
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
                                 </div>
                               </div>
-                            </div>
                             );
                           })}
                         </div>
@@ -1339,7 +1336,7 @@ const UavOrdersRoute = () => {
                   </CardContent>
                 </Card>
               </div>
-              
+
               {/* Create Order Dialog */}
               <Dialog open={isOrderDialogOpen} onOpenChange={setIsOrderDialogOpen}>
                 <DialogContent className="max-w-lg">
@@ -1352,7 +1349,7 @@ const UavOrdersRoute = () => {
                       Configure and submit a new UAV service order for {selectedTasks.size} task{selectedTasks.size !== 1 ? 's' : ''} across {getSelectedPlotsCount()} plot{getSelectedPlotsCount() !== 1 ? 's' : ''}
                     </DialogDescription>
                   </DialogHeader>
-                  
+
                   <div className="space-y-4 py-4">
                     {/* Order Summary */}
                     <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
@@ -1383,12 +1380,12 @@ const UavOrdersRoute = () => {
                         </span>
                       </div>
                     </div>
-                    
+
                     {/* Form Fields */}
                     <div className="space-y-2">
                       <Label htmlFor="uavVendorId">UAV Vendor *</Label>
-                      <Select 
-                        value={uavVendorId} 
+                      <Select
+                        value={uavVendorId}
                         onValueChange={setUavVendorId}
                       >
                         <SelectTrigger>
@@ -1417,7 +1414,7 @@ const UavOrdersRoute = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="scheduledDate">Scheduled Date *</Label>
                       <Input
@@ -1429,7 +1426,7 @@ const UavOrdersRoute = () => {
                         required
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="priority">Priority</Label>
                       <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
@@ -1444,7 +1441,7 @@ const UavOrdersRoute = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="orderName">Order Name (Optional)</Label>
                       <Input
@@ -1456,7 +1453,7 @@ const UavOrdersRoute = () => {
                       />
                     </div>
                   </div>
-                  
+
                   <DialogFooter>
                     <Button
                       variant="outline"
@@ -1489,7 +1486,7 @@ const UavOrdersRoute = () => {
           );
         }}
       </Tabs>
-    </ContentLayout>
+    </div>
   );
 };
 

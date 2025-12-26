@@ -32,6 +32,7 @@ import {
   Sprout,
   TrendingUp,
   Calendar,
+  Building2,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -500,8 +501,23 @@ const ClusterDashboard = () => {
   // ================== MAIN RENDER ==================
 
   return (
-    <ContentLayout title="Cluster Manager Dashboard">
+    <div>
       <div className="space-y-6">
+        <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm mb-6">
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
+              <Building2 className="size-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-neutral-900">
+                Cluster Manager Dashboard
+              </h1>
+              <p className="text-sm text-neutral-600 mt-1">
+                Monitor and manage your cluster: farmers, plots, groups, and production plans
+              </p>
+            </div>
+          </div>
+        </div>
         {/* Header Section */}
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -677,7 +693,7 @@ const ClusterDashboard = () => {
           />
         )}
       </div>
-    </ContentLayout>
+    </div>
   );
 };
 
