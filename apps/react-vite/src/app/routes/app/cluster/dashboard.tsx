@@ -688,7 +688,7 @@ const ClusterDashboard = () => {
     );
   }
 
-  if (!clusterId || !currentSeason) {
+  if (!clusterId) {
     return (
       <ContentLayout title="Cluster Manager Dashboard">
         <Card>
@@ -709,7 +709,7 @@ const ClusterDashboard = () => {
 
   // ================== QUICK STATS ==================
 
-  const stats = [
+  const stats = currentSeason ? [
     {
       label: 'Farmers',
       value: currentSeason?.riceVarietySelection?.totalFarmers || 0,
@@ -730,7 +730,7 @@ const ClusterDashboard = () => {
       color: 'text-purple-600',
       bgColor: 'bg-purple-50 dark:bg-purple-950',
     },
-  ];
+  ] : [];
 
   // ================== MAIN RENDER ==================
 
@@ -758,51 +758,63 @@ const ClusterDashboard = () => {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold text-foreground">
-                  {currentSeason?.clusterName}
+                  {currentSeason?.clusterName || yearSeasonsData?.clusterName || 'Cluster Dashboard'}
                 </h1>
-                <Badge
-                  variant={currentSeason.hasGroups ? 'default' : 'secondary'}
-                  className="text-xs"
-                >
-                  {currentSeason.hasGroups ? 'Groups Active' : 'Forming Stage'}
-                </Badge>
+                {currentSeason && (
+                  <Badge
+                    variant={currentSeason.hasGroups ? 'default' : 'secondary'}
+                    className="text-xs"
+                  >
+                    {currentSeason.hasGroups ? 'Groups Active' : 'Forming Stage'}
+                  </Badge>
+                )}
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="h-4 w-4" />
-                <span className="font-medium">
-                  {selectedSeasonData?.displayName ||
-                    `${currentSeason.currentSeason.seasonName} ${currentSeason.currentSeason.year}`}
-                </span>
-                {selectedSeasonData && (
+                {currentSeason ? (
                   <>
-                    <span>•</span>
-                    <span>Year {selectedSeasonData.year}</span>
-                  </>
-                )}
-                {/* Show global season info only if viewing the actual current season */}
-                {globalSeason && activeYearSeasonId === currentYearSeasonId && (
-                  <>
-                    <span>•</span>
-                    <span>Day {globalSeason?.daysIntoSeason}</span>
-                    <span>•</span>
-                    <span>
-                      {globalSeason.startDate} - {globalSeason.endDate}
+                    <span className="font-medium">
+                      {selectedSeasonData?.displayName ||
+                        `${currentSeason.currentSeason.seasonName} ${currentSeason.currentSeason.year}`}
                     </span>
+                    {selectedSeasonData && (
+                      <>
+                        <span>•</span>
+                        <span>Year {selectedSeasonData.year}</span>
+                      </>
+                    )}
+                    {/* Show global season info only if viewing the actual current season */}
+                    {globalSeason && activeYearSeasonId === currentYearSeasonId && (
+                      <>
+                        <span>•</span>
+                        <span>Day {globalSeason?.daysIntoSeason}</span>
+                        <span>•</span>
+                        <span>
+                          {globalSeason.startDate} - {globalSeason.endDate}
+                        </span>
+                      </>
+                    )}
                   </>
+                ) : (
+                  <span className="font-medium text-muted-foreground">
+                    No season selected
+                  </span>
                 )}
               </div>
             </div>
-            <SeasonSelectorV0
-              seasons={seasonsData || null}
-              currentClusterId={clusterId}
-              selectedYearSeasonId={selectedYearSeasonId || undefined}
-              onSeasonChange={handleSeasonChange}
-            />
+            {seasonsData && (
+              <SeasonSelectorV0
+                seasons={seasonsData}
+                currentClusterId={clusterId}
+                selectedYearSeasonId={selectedYearSeasonId || undefined}
+                onSeasonChange={handleSeasonChange}
+              />
+            )}
           </div>
         </div>
 
         {/* Quick Stats Grid */}
-        {!currentSeason.hasGroups && (
+        {currentSeason && !currentSeason.hasGroups && stats.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
@@ -832,11 +844,11 @@ const ClusterDashboard = () => {
           {/* Left: Main Content (2/3) */}
           <div className="lg:col-span-2 space-y-6">
             {/* Commented out Rice Variety Selection Progress UI */}
-            {/* {!currentSeason.hasGroups && (
+            {/* {currentSeason && !currentSeason.hasGroups && (
               <CurrentSeasonCardV0 data={currentSeason} />
             )} */}
 
-            {!currentSeason.hasGroups && currentSeason.readiness && (
+            {currentSeason && !currentSeason.hasGroups && currentSeason.readiness && (
               <>
                 <PlotsOverviewCard
                   key={`plots-${activeYearSeasonId}-${plotsDataUpdatedAt}`}
@@ -860,6 +872,23 @@ const ClusterDashboard = () => {
               </>
             )}
 
+            {!currentSeason && (
+              <Card>
+                <CardContent className="p-8 text-center space-y-4">
+                  <Calendar className="h-12 w-12 text-muted-foreground mx-auto" />
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">No Season Available</h3>
+                    <p className="text-muted-foreground">
+                      There are no seasons configured for this cluster yet.
+                      {allSeasons.length > 0
+                        ? ' Please select a season from the dropdown above.'
+                        : ' Please contact your administrator to set up seasons.'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {historyData &&
               historyData.seasons &&
               historyData.seasons.length > 0 && (
@@ -868,7 +897,7 @@ const ClusterDashboard = () => {
           </div>
 
           {/* Right: Readiness Panel (1/3) – chỉ hiện khi CHƯA form groups */}
-          {!currentSeason.hasGroups && (
+          {currentSeason && !currentSeason.hasGroups && (
             <div className="lg:col-span-1">
               <ReadinessPanelV0
                 readiness={currentSeason.readiness}
@@ -883,7 +912,8 @@ const ClusterDashboard = () => {
         </div>
 
         {/* ================== ACTIVE GROUPS SECTION (UPDATED) ================== */}
-        {currentSeason.hasGroups &&
+        {currentSeason &&
+          currentSeason.hasGroups &&
           currentSeason.groups &&
           currentSeason.groups.length > 0 && (
             <div className="space-y-6">
