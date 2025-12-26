@@ -140,7 +140,7 @@ export const PreviewStep = ({
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <h4 className="font-semibold">
-                            Group {index + 1} - {group.riceVariety}
+                            Group {index + 1} - {group.groupName || group.riceVariety}
                           </h4>
                           {group.isReadyForUAV && (
                             <Badge variant="default" className="bg-green-600">

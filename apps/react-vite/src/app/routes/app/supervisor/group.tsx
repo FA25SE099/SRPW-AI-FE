@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { AlertCircle, Calendar, Plus, Users } from 'lucide-react';
+import { AlertCircle, Calendar, Plus, Users, Package } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -21,6 +21,7 @@ import { PlanProgressCard } from '@/features/supervisor/components/plan-progress
 import { EconomicsCard } from '@/features/supervisor/components/economics-card';
 import { CultivationPlanDetailDialog } from '@/features/supervisor/components/cultivation-plan-detail-dialog';
 import { CreateProductionPlanDialog } from '@/features/production-plans/components';
+import { YearSeasonInfoPanel, useYearSeasonDetail } from '@/features/yearseason';
 import { paths } from '@/config/paths';
 import { Head } from '@/components/seo/head';
 import { PlotDetail } from '@/types/group';
@@ -52,6 +53,14 @@ const SupervisorGroupPage = () => {
 
   // Get selected group from array
   const group = groups.find((g: any) => g.groupId === selectedGroupId);
+
+  // Fetch YearSeason info if group has yearSeasonId
+  const { data: yearSeasonData } = useYearSeasonDetail({
+    id: (group as any)?.yearSeasonId || '',
+    queryConfig: {
+      enabled: !!((group as any)?.yearSeasonId),
+    },
+  });
 
   // Auto-select first group when groups are loaded
   useEffect(() => {
@@ -246,6 +255,16 @@ const SupervisorGroupPage = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            {/* Material Distributions Button - Show if group has production plan */}
+            {group.planOverview && (
+              <Button
+                variant="outline"
+                onClick={() => navigate(paths.app.supervisor.materialDistributions.getHref(group.groupId))}
+              >
+                <Package className="mr-2 h-4 w-4" />
+                Material Distributions
+              </Button>
+            )}
             {group.currentState === 'PrePlanning' && group.readiness?.isReady && !group.planOverview && (
               <Button onClick={handleCreateProductionPlan}>
                 <Plus className="mr-2 h-4 w-4" />
@@ -310,6 +329,35 @@ const SupervisorGroupPage = () => {
             </>
           )}
         </div>
+
+        {/* YearSeason Info Panel */}
+        {yearSeasonData && (
+          <YearSeasonInfoPanel
+            yearSeasonId={yearSeasonData.id}
+            seasonName={(group as any)?.season?.seasonName || ''}
+            year={yearSeasonData.year}
+            status={yearSeasonData.status}
+            startDate={yearSeasonData.startDate}
+            endDate={yearSeasonData.endDate}
+            planningWindowStart={yearSeasonData.planningWindowStart}
+            planningWindowEnd={yearSeasonData.planningWindowEnd}
+            isPlanningWindowOpen={
+              new Date() >= new Date(yearSeasonData.planningWindowStart) &&
+              new Date() <= new Date(yearSeasonData.planningWindowEnd)
+            }
+            daysUntilPlanningWindowEnd={
+              Math.max(
+                0,
+                Math.ceil(
+                  (new Date(yearSeasonData.planningWindowEnd).getTime() - new Date().getTime()) /
+                    (1000 * 60 * 60 * 24)
+                )
+              )
+            }
+            allowedPlantingFlexibilityDays={yearSeasonData.allowedPlantingFlexibilityDays}
+            riceVarietyName={yearSeasonData.riceVarietyName}
+          />
+        )}
 
         {/* State-based Content */}
         <div className="space-y-6">

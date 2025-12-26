@@ -388,7 +388,7 @@ export const PreviewStepWithParams = ({
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: GROUP_COLORS[index % GROUP_COLORS.length] }}
                   ></div>
-                  <span className="text-xs font-medium">{group.riceVariety.split(' ')[0]}</span>
+                  <span className="text-xs font-medium">{(group.groupName || group.riceVariety).split(' ')[0]}</span>
                 </div>
               ))}
             </div>
@@ -431,7 +431,7 @@ export const PreviewStepWithParams = ({
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: GROUP_COLORS[index % GROUP_COLORS.length] }}
                       />
-                      <span className="font-semibold">{group.riceVariety}</span>
+                      <span className="font-semibold">{group.groupName || group.riceVariety}</span>
                       <span className="text-sm text-muted-foreground">
                         {group.plotCount} plots • {group.totalArea.toFixed(1)} ha
                       </span>

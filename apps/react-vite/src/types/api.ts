@@ -267,6 +267,12 @@ export type Season = {
   seasonType: string; // e.g., "Winter-Spring", "Summer-Autumn"
   isActive: boolean;
   createdAt: string;
+  
+  // ✨ NEW: Farmer Selection Fields (for YearSeason compatibility)
+  riceVarietyId?: string | null;
+  allowFarmerSelection?: boolean;
+  farmerSelectionWindowStart?: string | null;
+  farmerSelectionWindowEnd?: string | null;
 };
 
 // Rice Variety Season Association Types
@@ -347,6 +353,12 @@ export type CreateSeasonRequest = {
   endDate: string; // MM/DD format
   seasonType: string;
   isActive: boolean;
+  
+  // ✨ NEW: Farmer Selection Fields
+  riceVarietyId?: string | null;
+  allowFarmerSelection?: boolean;
+  farmerSelectionWindowStart?: string | null;
+  farmerSelectionWindowEnd?: string | null;
 };
 
 export type UpdateSeasonRequest = {
@@ -356,6 +368,12 @@ export type UpdateSeasonRequest = {
   endDate: string; // MM/DD format
   seasonType: string;
   isActive: boolean;
+  
+  // ✨ NEW: Farmer Selection Fields
+  riceVarietyId?: string | null;
+  allowFarmerSelection?: boolean;
+  farmerSelectionWindowStart?: string | null;
+  farmerSelectionWindowEnd?: string | null;
 };
 
 // Rice Variety Season Association CRUD Types

@@ -3,6 +3,7 @@ import { MapboxMap } from '@/components/ui/mapbox-map';
 import { GroupPreviewResult } from '../../types';
 import mapboxgl from 'mapbox-gl';
 import * as turf from '@turf/turf';
+import { Layers } from 'lucide-react';
 
 type GroupMapPreviewProps = {
   preview: GroupPreviewResult;
@@ -185,7 +186,7 @@ export const GroupMapPreview = ({
                       <div class="p-3">
                         <div class="font-semibold text-sm">${plot.farmerName}</div>
                         <div class="text-xs text-gray-600 mt-1">
-                          ${group.riceVariety}
+                          ${group.groupName || group.riceVariety}
                         </div>
                         <div class="text-xs text-gray-600">
                           ${plot.area.toFixed(2)} ha
@@ -320,12 +321,18 @@ export const GroupMapPreview = ({
                     .setLngLat(e.lngLat)
                     .setHTML(`
                       <div class="p-3 max-w-xs">
-                        <div class="font-semibold text-orange-600 mb-1">⚠️ Ungrouped Plot</div>
+                        <div class="font-semibold text-orange-600 mb-1 flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                          Ungrouped Plot
+                        </div>
                         <div class="text-sm font-medium">${plot.farmerName}</div>
                         <div class="text-xs text-gray-600 mb-2">${plot.riceVarietyName} • ${plot.area.toFixed(2)}ha</div>
                         <div class="text-xs text-gray-700 mb-2">${plot.reasonDescription}</div>
                         ${plot.suggestions && plot.suggestions.length > 0
-                        ? `<div class="text-xs text-blue-600 bg-blue-50 p-2 rounded mt-2">💡 ${plot.suggestions[0]}</div>`
+                        ? `<div class="text-xs text-blue-600 bg-blue-50 p-2 rounded mt-2 flex items-start gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block flex-shrink-0 mt-0.5"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+                            <span>${plot.suggestions[0]}</span>
+                          </div>`
                         : ''
                       }
                       </div>
@@ -521,7 +528,7 @@ export const GroupMapPreview = ({
         {/* Legend Overlay */}
         <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-lg max-w-xs">
           <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-            <span>📍</span> Groups Legend
+            <Layers className="w-4 h-4" /> Groups Legend
           </h4>
           <div className="space-y-1">
             {preview.proposedGroups?.map((group, index) => {
@@ -536,7 +543,7 @@ export const GroupMapPreview = ({
                     className="w-3 h-3 rounded-sm border border-white shadow-sm flex-shrink-0"
                     style={{ backgroundColor: color }}
                   />
-                  <span className="font-medium">{group.riceVariety}</span>
+                  <span className="font-medium">{group.groupName || group.riceVariety}</span>
                   <span className="text-gray-500">({group.plotCount})</span>
                 </div>
               );

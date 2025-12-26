@@ -30,16 +30,23 @@ export const getClusterSupervisors = async ({
 }: GetClusterSupervisorsParams): Promise<ClusterSupervisor[]> => {
     const response = await api.get(`/Supervisor/by-cluster/${clusterId}`);
 
-    // API returns array of supervisors
+    // Handle null or undefined response
+    if (!response) {
+        return [];
+    }
+
+    // API returns array of supervisors (after Result<T> unwrapping by interceptor)
     if (Array.isArray(response)) {
-        return response as unknown as ClusterSupervisor[];
+        return response as ClusterSupervisor[];
     }
 
     // Fallback if single object is returned
-    if (response && typeof response === 'object' && 'supervisorId' in response) {
-        return [response as unknown as ClusterSupervisor];
+    if (typeof response === 'object' && 'supervisorId' in response) {
+        return [response as ClusterSupervisor];
     }
 
+    // Log unexpected response format for debugging
+    console.warn('Unexpected supervisor API response format:', response);
     return [];
 };
 

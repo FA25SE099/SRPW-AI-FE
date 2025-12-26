@@ -20,6 +20,7 @@ export type ClusterCurrentSeason = {
     plotsWithPolygon: number;
     plotsWithoutPolygon: number;
     availableSupervisors: number;
+    farmersWithSelection?: number; // NEW: Number of farmers who completed selection
     blockingIssues: string[];
     recommendations: string[];
     readinessScore: number;
@@ -50,6 +51,7 @@ export type ClusterCurrentSeason = {
   // Active Groups (when hasGroups = true)
   groups?: Array<{
     groupId: string;
+    groupName?: string; // e.g., "DC-DX25-ST2-G01"
     supervisorId: string;
     supervisorName: string;
     riceVarietyId: string;
@@ -85,6 +87,7 @@ export type GroupPreviewResult = {
   proposedGroups?: Array<{
     tempGroupId?: string;
     groupNumber?: number;
+    groupName?: string;
     riceVariety: string;
     riceVarietyId?: string;
     riceVarietyName?: string;
@@ -184,6 +187,7 @@ export type ClusterHistory = {
 // Cluster Seasons List
 export type ClusterSeasonsList = {
   currentSeason?: {
+    id: string; // YearSeason ID
     seasonId: string;
     seasonName: string;
     year: number;
@@ -196,6 +200,7 @@ export type ClusterSeasonsList = {
     canFormGroups: boolean;
   };
   pastSeasons: Array<{
+    id: string; // YearSeason ID
     seasonId: string;
     seasonName: string;
     year: number;
@@ -206,6 +211,7 @@ export type ClusterSeasonsList = {
     totalArea?: number;
   }>;
   upcomingSeasons: Array<{
+    id: string; // YearSeason ID
     seasonId: string;
     seasonName: string;
     year: number;
@@ -336,5 +342,175 @@ export type UpdateClusterDto = {
   clusterManagerId?: string | null;
   agronomyExpertId?: string | null;
   supervisorIds?: string[] | null;
+};
+
+// ========================================
+// NEW GROUP FORMATION WORKFLOW TYPES
+// ========================================
+
+// Supervisor for assignment (available supervisors in preview)
+export type SupervisorForAssignment = {
+  supervisorId: string;
+  fullName: string;
+  phoneNumber?: string;
+  clusterId?: string;
+  clusterName?: string;
+
+  // Current workload
+  currentFarmerCount?: number; // Optional - not used for availability
+  maxFarmerCapacity?: number; // Optional - not used for availability
+  currentGroupCount: number;
+  currentTotalArea: number;
+
+  // Area capacity (from system settings) - PRIMARY CONSTRAINT
+  maxAreaCapacity?: number; // Optional - main constraint for availability (if provided)
+  remainingAreaCapacity?: number; // Optional - calculated remaining capacity (if maxAreaCapacity provided)
+
+  // Availability (based on area capacity only, if available)
+  isAvailable: boolean;
+  unavailableReason?: string; // e.g., "Area capacity reached", "No remaining capacity"
+};
+
+// Enhanced Preview Response with supervisors and auto-generated names
+export type PreviewGroupsResponse = {
+  clusterId: string;
+  seasonId: string;
+  year: number;
+  parameters: GroupingParameters;
+
+  // List of available supervisors
+  availableSupervisors: SupervisorForAssignment[];
+
+  summary: PreviewSummary;
+  previewGroups: PreviewGroup[];
+  ungroupedPlots: UngroupedPlot[];
+};
+
+export type GroupingParameters = {
+  proximityThreshold: number;
+  plantingDateTolerance: number;
+  minGroupArea: number;
+  maxGroupArea: number;
+  minPlotsPerGroup: number;
+  maxPlotsPerGroup: number;
+};
+
+export type PreviewSummary = {
+  totalEligiblePlots: number;
+  plotsGrouped: number;
+  ungroupedPlots: number;
+  groupsToBeFormed: number;
+  estimatedTotalArea: number;
+
+  // Supervisor statistics
+  supervisorsNeeded: number;
+  supervisorsAvailable: number;
+  groupsWithoutSupervisor: number;
+  hasSufficientSupervisors: boolean;
+};
+
+export type PreviewGroup = {
+  groupNumber: number;
+
+  // Auto-generated group name
+  groupName: string; // e.g., "CLS-W24-JAS-G01"
+
+  riceVarietyId: string;
+  riceVarietyName: string;
+
+  // Auto-assigned supervisor
+  supervisorId?: string;
+  supervisorName?: string;
+
+  plantingWindowStart: string;
+  plantingWindowEnd: string;
+  medianPlantingDate: string;
+  plotCount: number;
+  totalArea: number;
+  centroidLat: number;
+  centroidLng: number;
+  groupBoundaryGeoJson?: string;
+  plotIds: string[];
+  plots: PlotInGroup[];
+};
+
+export type PlotInGroup = {
+  plotId: string;
+  farmerId?: string;
+  farmerName: string;
+  farmerPhone?: string;
+  area: number;
+  plantingDate?: string;
+  boundaryWkt?: string;
+  boundaryGeoJson?: string;
+  soilType?: string;
+  soThua?: number;
+  soTo?: number;
+};
+
+export type UngroupedPlot = {
+  plotId: string;
+  farmerId: string;
+  farmerName: string;
+  farmerPhone: string;
+  riceVarietyId: string;
+  riceVarietyName: string;
+  plantingDate: string;
+  area: number;
+  coordinate?: {
+    lat: number;
+    lng: number;
+  };
+  boundaryWkt?: string;
+  boundaryGeoJson?: string;
+  soilType?: string;
+  soThua?: number;
+  soTo?: number;
+  ungroupReason: string;
+  reasonDescription: string;
+  distanceToNearestGroup: number;
+  nearestGroupNumber: number | null;
+  suggestions: string[];
+  nearbyGroups: Array<{
+    groupId?: string;
+    groupNumber?: number;
+    distance?: number;
+  }>;
+};
+
+// Form Groups From Preview Request
+export type FormGroupsFromPreviewRequest = {
+  clusterId: string;
+  seasonId: string;
+  year: number;
+  createGroupsImmediately: boolean; // true = Active, false = Draft
+  groups: PreviewGroupInput[];
+};
+
+export type PreviewGroupInput = {
+  groupName?: string; // User can edit this
+  riceVarietyId: string;
+  plantingWindowStart: string; // ISO date string
+  plantingWindowEnd: string; // ISO date string
+  medianPlantingDate: string; // ISO date string
+  plotIds: string[]; // Can be edited (add/remove plots)
+  supervisorId?: string; // User can change this
+};
+
+// Form Groups Response (for both old and new endpoints)
+// Note: API client unwraps Result<T> responses, so this is the inner data object
+export type FormGroupsResponse = {
+  groupsCreated: number;
+  plotsAssigned: number;
+  ungroupedPlots: number;
+  createdGroups: Array<{
+    groupId: string;
+    groupName: string;
+    riceVariety: string;
+    supervisorId?: string;
+    plotCount: number;
+    totalArea: number;
+  }>;
+  warnings: string[];
 };
 

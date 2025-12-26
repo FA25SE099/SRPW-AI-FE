@@ -20,6 +20,8 @@ import {
   Clock,
   Plane,
   ReceiptText,
+  Package,
+  Calendar,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation, useRouteError } from 'react-router';
 
@@ -135,6 +137,12 @@ const AppRoot = () => {
         icon: Clock,
         end: true,
       },
+      {
+        name: 'YearSeasons',
+        to: paths.app.expert.yearseasons.getHref(),
+        icon: Calendar,
+        end: true,
+      },
       // Example: Uncomment to use a custom downloaded SVG icon
       // {
       //   name: 'Custom Page',
@@ -217,6 +225,12 @@ const AppRoot = () => {
         name: 'Production Plans',
         to: paths.app.supervisor.plans.getHref(),
         icon: Folder,
+        end: true,
+      },
+      {
+        name: 'Material Distributions',
+        to: paths.app.supervisor.materialDistributions.getHref(),
+        icon: Package,
         end: true,
       },
       {
