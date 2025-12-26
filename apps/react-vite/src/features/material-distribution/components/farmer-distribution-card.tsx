@@ -1,5 +1,5 @@
 import { format, differenceInDays } from 'date-fns';
-import { Calendar, Clock, Package, Phone, User, MapPin, AlertCircle, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, Package, Phone, User, AlertCircle, CheckCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
@@ -41,10 +41,6 @@ export const FarmerDistributionCard = ({
               <h3 className="font-semibold text-lg">{distribution.farmerName}</h3>
             </div>
             <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-              <div className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                <span>{distribution.plotName}</span>
-              </div>
               <div className="flex items-center gap-1">
                 <Phone className="h-3 w-3" />
                 <span>{distribution.farmerPhone}</span>

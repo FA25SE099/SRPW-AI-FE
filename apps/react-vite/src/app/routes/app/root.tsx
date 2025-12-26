@@ -336,12 +336,12 @@ const AppRoot = () => {
         icon: Users,
         end: true,
       },
-      // {
-      //   name: 'System Settings',
-      //   to: paths.app.admin.settings.getHref(),
-      //   icon: Settings,
-      //   end: true,
-      // },
+      {
+        name: 'System Settings',
+        to: paths.app.admin.settings.getHref(),
+        icon: Settings,
+        end: true,
+      },
       // {
       //   name: 'Reports',
       //   to: paths.app.admin.reports.getHref(),

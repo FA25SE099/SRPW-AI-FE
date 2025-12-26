@@ -492,7 +492,7 @@ const ClusterDashboard = () => {
   const plotsParams = useMemo(() => ({
     yearSeasonId: activeYearSeasonId,
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 99,
     clusterManagerId,
   }), [activeYearSeasonId, clusterManagerId]);
 
@@ -505,7 +505,7 @@ const ClusterDashboard = () => {
       'by-year-season',
       activeYearSeasonId,
       1,
-      10,
+      99,
       undefined,
       clusterManagerId,
       undefined,
@@ -515,7 +515,7 @@ const ClusterDashboard = () => {
     console.log('🔑 Params object:', {
       yearSeasonId: activeYearSeasonId,
       pageNumber: 1,
-      pageSize: 10,
+      pageSize: 99,
       clusterManagerId,
     });
   }, [activeYearSeasonId, clusterManagerId]);
@@ -526,7 +526,7 @@ const ClusterDashboard = () => {
       enabled: !!activeYearSeasonId && !!clusterManagerId,
     },
   });
-  
+
   const typedPlotsData = plotsData as import('@/features/plots/api/get-plots-by-yearseason').YearSeasonPlotsResponse | undefined;
 
   // ================== SUPERVISORS DATA ==================
