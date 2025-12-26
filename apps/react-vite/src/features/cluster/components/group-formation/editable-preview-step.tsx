@@ -621,7 +621,7 @@ export const EditablePreviewStep = ({
               ungroupedPlotsList: preview.ungroupedPlots,
             }}
             hoveredGroupId={null}
-            expandedGroups={expandedGroups}
+            expandedGroups={new Set(Array.from(expandedGroups).map(n => `group-${n}`))}
             onGroupClick={(groupId) => {
               const groupNum = parseInt(groupId.split('-')[1]);
               toggleGroup(groupNum);

@@ -42,7 +42,7 @@ export const getClusterSupervisors = async ({
 
     // Fallback if single object is returned
     if (typeof response === 'object' && 'supervisorId' in response) {
-        return [response as ClusterSupervisor];
+        return [response as unknown as ClusterSupervisor];
     }
 
     // Log unexpected response format for debugging

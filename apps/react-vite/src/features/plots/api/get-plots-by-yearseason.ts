@@ -110,7 +110,7 @@ export const usePlotsByYearSeason = ({
 }: UsePlotsByYearSeasonOptions) => {
   return useQuery({
     ...getPlotsByYearSeasonQueryOptions(params),
-    ...queryConfig,
+    ...(queryConfig as any),
   });
 };
 

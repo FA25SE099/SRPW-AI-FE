@@ -24,8 +24,9 @@ const YearSeasonsManagementRoute = () => {
   // Fetch expert's profile to get their assigned cluster
   const { data: expertProfile, isLoading: isLoadingProfile, error: profileError } = useExpertProfile();
   
-  const clusterId = expertProfile?.clusterId || '';
-  const clusterName = expertProfile?.clusterName || '';
+  const typedExpertProfile = expertProfile as import('@/features/expert/api/get-expert-profile').ExpertProfile | undefined;
+  const clusterId = typedExpertProfile?.clusterId || '';
+  const clusterName = typedExpertProfile?.clusterName || '';
 
   // Fetch seasons from API
   const { data: seasonsData, isLoading: isLoadingSeasons } = useSeasons({
@@ -44,6 +45,8 @@ const YearSeasonsManagementRoute = () => {
       enabled: !!clusterId,
     },
   });
+  
+  const typedYearSeasons = yearSeasons as import('@/features/yearseason/types').YearSeasonsByClusterResponse | undefined;
 
   // Create mutation
   const createMutation = useCreateYearSeason({
@@ -189,7 +192,7 @@ const YearSeasonsManagementRoute = () => {
 
       {/* YearSeason List */}
       <YearSeasonList
-        yearSeasons={yearSeasons?.allSeasons || []}
+        yearSeasons={typedYearSeasons?.allSeasons || []}
         clusterName={clusterName}
         isLoading={isLoading}
         onView={handleView}

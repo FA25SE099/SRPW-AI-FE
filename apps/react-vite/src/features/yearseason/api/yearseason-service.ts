@@ -48,7 +48,7 @@ export const useYearSeasonsByCluster = ({
 }) => {
   return useQuery({
     ...getYearSeasonsByClusterQueryOptions(clusterId, year),
-    ...queryConfig,
+    ...(queryConfig as any),
   });
 };
 
@@ -74,7 +74,7 @@ export const useYearSeasonDetail = ({
 }) => {
   return useQuery({
     ...getYearSeasonDetailQueryOptions(id),
-    ...queryConfig,
+    ...(queryConfig as any),
   });
 };
 
@@ -102,7 +102,7 @@ export const useYearSeasonDashboard = ({
 }) => {
   return useQuery({
     ...getYearSeasonDashboardQueryOptions(id),
-    ...queryConfig,
+    ...(queryConfig as any),
   });
 };
 
@@ -132,7 +132,7 @@ export const useYearSeasonReadiness = ({
 }) => {
   return useQuery({
     ...getYearSeasonReadinessQueryOptions(id),
-    ...queryConfig,
+    ...(queryConfig as any),
   });
 };
 
@@ -162,7 +162,7 @@ export const useYearSeasonFarmerSelections = ({
 }) => {
   return useQuery({
     ...getYearSeasonFarmerSelectionsQueryOptions(id),
-    ...queryConfig,
+    ...(queryConfig as any),
   });
 };
 

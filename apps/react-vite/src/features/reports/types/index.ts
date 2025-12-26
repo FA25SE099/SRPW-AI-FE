@@ -78,6 +78,8 @@ export type CultivationTask = {
     taskType: string;
     scheduledDate: string;
     scheduledEndDate: string | null;
+    actualStartDate?: string | null;
+    actualEndDate?: string | null;
     priority: string;
     sequenceOrder: number;
     taskStatus?: string; // Task status from API: Draft, Approved, InProgress, Completed, etc.

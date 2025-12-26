@@ -20,7 +20,7 @@ export const getDistributionsByGroupQueryOptions = (groupId: string) => {
 
 type UseDistributionsByGroupOptions = {
   groupId: string;
-  queryConfig?: QueryConfig<typeof getDistributionsByGroupQueryOptions>;
+  queryConfig?: QueryConfig<typeof getDistributionsByGroup>;
 };
 
 export const useDistributionsByGroup = ({
@@ -29,7 +29,7 @@ export const useDistributionsByGroup = ({
 }: UseDistributionsByGroupOptions) => {
   return useQuery({
     ...getDistributionsByGroupQueryOptions(groupId),
-    ...queryConfig,
-  } as any);
+    ...(queryConfig as any),
+  });
 };
 

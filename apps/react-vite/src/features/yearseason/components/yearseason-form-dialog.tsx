@@ -116,7 +116,7 @@ export const YearSeasonFormDialog = ({
   };
 
   // Helper function to convert date to YYYY-MM-DD format for HTML date input
-  const formatDateForInput = (dateString: string | undefined): string => {
+  const formatDateForInput = (dateString: string | null | undefined): string => {
     if (!dateString) return '';
     
     // If already in YYYY-MM-DD format, return as is

@@ -15,11 +15,16 @@ export type EditableTask = {
     taskType: string;
     daysAfter: number;
     durationDays: number;
+    scheduledDate?: string | null;
+    scheduledEndDate?: string | null;
+    actualStartDate?: string | null;
+    actualEndDate?: string | null;
     priority: string;
     sequenceOrder: number;
     isFromProtocol: boolean;
     originalTaskId?: string; // This is ProductionPlanTask.Id
     originalProtocolTaskId?: string;
+    originalTaskStatus?: string; // Original status from the task
     status: string; // Task status: Draft, Emergency, etc.
     materials: {
         materialId: string;

@@ -4,6 +4,7 @@ import { Package, Clock, CheckCircle, AlertTriangle, Users } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { useGroupedDistributions } from '../api';
+import { GroupedDistributionsResponse } from '../types';
 import { FarmerDistribution, MaterialDistributionFilter } from '../types';
 import { FarmerDistributionCard } from './farmer-distribution-card';
 import { BulkConfirmModal } from './bulk-confirm-modal';
@@ -25,10 +26,12 @@ export const GroupedDistributionDashboard = ({
   const { data, isLoading, error } = useGroupedDistributions({
     groupId,
   });
+  
+  const typedData = data as GroupedDistributionsResponse | undefined;
 
   // Calculate summary counts
   const summary = useMemo(() => {
-    if (!data?.farmerDistributions) {
+    if (!typedData?.farmerDistributions) {
       return {
         totalFarmers: 0,
         totalMaterials: 0,
@@ -39,16 +42,16 @@ export const GroupedDistributionDashboard = ({
       };
     }
 
-    const pending = data.farmerDistributions.filter((d) => d.status === 'Pending').length;
-    const partiallyConfirmed = data.farmerDistributions.filter(
+    const pending = typedData.farmerDistributions.filter((d) => d.status === 'Pending').length;
+    const partiallyConfirmed = typedData.farmerDistributions.filter(
       (d) => d.status === 'PartiallyConfirmed'
     ).length;
-    const completed = data.farmerDistributions.filter((d) => d.status === 'Completed').length;
-    const overdue = data.farmerDistributions.filter((d) => d.isSupervisorOverdue).length;
+    const completed = typedData.farmerDistributions.filter((d) => d.status === 'Completed').length;
+    const overdue = typedData.farmerDistributions.filter((d) => d.isSupervisorOverdue).length;
 
     return {
-      totalFarmers: data.totalFarmers,
-      totalMaterials: data.totalMaterials,
+      totalFarmers: typedData.totalFarmers,
+      totalMaterials: typedData.totalMaterials,
       pendingCount: pending,
       partiallyConfirmedCount: partiallyConfirmed,
       completedCount: completed,
@@ -57,22 +60,22 @@ export const GroupedDistributionDashboard = ({
   }, [data]);
 
   const filteredDistributions = useMemo(() => {
-    if (!data?.farmerDistributions) return [];
+    if (!typedData?.farmerDistributions) return [];
 
     switch (filter) {
       case 'pending':
-        return data.farmerDistributions.filter((d) => d.status === 'Pending');
+        return typedData.farmerDistributions.filter((d) => d.status === 'Pending');
       case 'overdue':
-        return data.farmerDistributions.filter((d) => d.isSupervisorOverdue);
+        return typedData.farmerDistributions.filter((d) => d.isSupervisorOverdue);
       case 'completed':
-        return data.farmerDistributions.filter((d) => d.status === 'Completed');
+        return typedData.farmerDistributions.filter((d) => d.status === 'Completed');
       default:
-        return data.farmerDistributions;
+        return typedData.farmerDistributions;
     }
   }, [data, filter]);
 
   const handleBulkConfirm = (plotCultivationId: string) => {
-    const distribution = data?.farmerDistributions.find(
+    const distribution = typedData?.farmerDistributions.find(
       (d) => d.plotCultivationId === plotCultivationId
     );
     if (distribution) {

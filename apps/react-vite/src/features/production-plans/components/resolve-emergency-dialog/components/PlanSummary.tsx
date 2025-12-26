@@ -40,7 +40,7 @@ export const PlanSummary = ({
         <div>
           <dt className="font-medium text-yellow-700">Cluster:</dt>
           <dd className="text-gray-900">
-            {planDetails.clusterName || 'N/A'}
+            {planDetails.groupDetails?.clusterName || 'N/A'}
           </dd>
         </div>
         <div>
