@@ -91,7 +91,7 @@ export const useTaskManagement = (
             priority: 'Normal',
             sequenceOrder: 0,
             isFromProtocol: false,
-            status: 'Emergency', // New tasks get Emergency status
+            status: 'NewEmergency', // New tasks get NewEmergency status
             materials: [],
         };
 
@@ -165,7 +165,7 @@ export const useTaskManagement = (
                 priority: task.priority,
                 sequenceOrder: 0,
                 isFromProtocol: false,
-                status: 'Emergency', // Re-added old tasks get Emergency status
+                status: 'NewEmergency', // Re-added old tasks get NewEmergency status
                 originalTaskId: task.taskId || task.id, // Keep reference to original task
                 materials: task.materials.map((m: any) => ({
                     materialId: m.materialId,

@@ -125,7 +125,7 @@ const TaskItemWithLogs = ({
     viewOnly?: boolean;
     isHighlighted?: boolean;
 }) => {
-    const [isOpen, setIsOpen] = useState(isInProgress);
+    const [isOpen, setIsOpen] = useState(isInProgress || isHighlighted);
     const [loadLogs, setLoadLogs] = useState(false);
     const [viewingImages, setViewingImages] = useState<string[] | null>(null);
     const [isReportingLate, setIsReportingLate] = useState(false);
@@ -233,14 +233,14 @@ const TaskItemWithLogs = ({
                                     {task.plannedStartDate && (
                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
-                                            <span>Start: {formatDate(task.plannedStartDate)}</span>
+                                            <span>Schedule Start: {formatDate(task.plannedStartDate)}</span>
                                         </div>
                                     )}
 
                                     {task.plannedEndDate && (
                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
-                                            <span>End: {formatDate(task.plannedEndDate)}</span>
+                                            <span>Schedule End: {formatDate(task.plannedEndDate)}</span>
                                         </div>
                                     )}
 
@@ -636,7 +636,7 @@ export const CultivationPlanDetailDialog = ({
                         {/* Progress Stats */}
                         <Card className="p-4">
                             <h3 className="font-semibold mb-4">Task Progress</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-2xl font-bold">{cultivationPlan.progress.totalTasks}</p>
                                     <p className="text-sm text-muted-foreground">Total Tasks</p>
@@ -658,12 +658,6 @@ export const CultivationPlanDetailDialog = ({
                                         {cultivationPlan.progress.pendingTasks}
                                     </p>
                                     <p className="text-sm text-muted-foreground">Pending</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-orange-600">
-                                        {cultivationPlan.progress.estimatedDaysRemaining}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">Days Remaining</p>
                                 </div>
                             </div>
                         </Card>

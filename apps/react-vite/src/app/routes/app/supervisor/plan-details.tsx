@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router';
-import { ArrowLeft, CheckCircle2, Clock, AlertTriangle, DollarSign, RefreshCw, ChevronDown } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock, AlertTriangle, DollarSign, RefreshCw, ChevronDown, Camera } from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,12 @@ import {
   TabsTrigger as RadixTabsTrigger,
   TabsContent as RadixTabsContent,
 } from '@/components/ui/tabs/radix-tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { usePlanDetails } from '@/features/supervisor/api/get-plan-details';
 import { useFarmLogsByProductionPlanTask } from '@/features/production-plans/api/get-farm-logs-by-task';
 import { Head } from '@/components/seo/head';
@@ -46,10 +52,36 @@ const getStatusIcon = (status: string) => {
   }
 };
 
+const ImageViewer = ({ images, open, onClose }: { images: string[]; open: boolean; onClose: () => void }) => {
+  if (!open) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>Farm Log Images</DialogTitle>
+        </DialogHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto p-4">
+          {images.map((url, index) => (
+            <a href={url} target="_blank" rel="noopener noreferrer" key={index}>
+              <img
+                src={url}
+                alt={`Farm log image ${index + 1}`}
+                className="rounded-lg object-cover w-full h-full cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </a>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 // Task row component with farm logs
 const TaskRowWithLogs = ({ task }: { task: any }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [loadLogs, setLoadLogs] = useState(false);
+  const [viewingImages, setViewingImages] = useState<string[] | null>(null);
 
   const { data: logsData, isLoading: logsLoading, refetch } = useFarmLogsByProductionPlanTask({
     params: {
@@ -178,6 +210,22 @@ const TaskRowWithLogs = ({ task }: { task: any }) => {
                             </div>
                           )}
                         </div>
+                        {log.photoUrls && log.photoUrls.length > 0 && (
+                          <div className="mt-2">
+                            <Button
+                              variant="link"
+                              size="sm"
+                              className="p-0 h-auto text-xs flex items-center gap-1"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewingImages(log.photoUrls || []);
+                              }}
+                            >
+                              <Camera className="h-3 w-3" />
+                              View {log.photoUrls.length} image(s)
+                            </Button>
+                          </div>
+                        )}
                         {log.materialsUsed && log.materialsUsed.length > 0 && (
                           <div className="mt-2 pt-2 border-t">
                             <p className="text-xs font-medium mb-1">Materials Used:</p>
@@ -204,6 +252,11 @@ const TaskRowWithLogs = ({ task }: { task: any }) => {
           </TableCell>
         </TableRow>
       )}
+      <ImageViewer
+        images={viewingImages || []}
+        open={!!viewingImages}
+        onClose={() => setViewingImages(null)}
+      />
     </>
   );
 };
@@ -541,4 +594,3 @@ const SupervisorPlanDetailsPage = () => {
 };
 
 export default SupervisorPlanDetailsPage;
-

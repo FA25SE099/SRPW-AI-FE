@@ -125,7 +125,7 @@ export const PlanProgressCard = ({ progress }: PlanProgressCardProps) => {
         </div>
 
         {/* Cost Tracking */}
-        <div className="space-y-3">
+        {/* <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Cost Tracking</span>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -144,7 +144,7 @@ export const PlanProgressCard = ({ progress }: PlanProgressCardProps) => {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Additional Info */}
         {(progress.contingencyTasksCount > 0 || (progress.tasksWithInterruptions || 0) > 0) && (

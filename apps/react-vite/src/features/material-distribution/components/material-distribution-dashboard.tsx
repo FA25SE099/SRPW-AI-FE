@@ -4,6 +4,7 @@ import { Package, Clock, CheckCircle, AlertTriangle, TrendingUp } from 'lucide-r
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { useDistributionsByGroup } from '../api';
+import { MaterialDistributionsResponse } from '../types';
 import { MaterialDistribution, MaterialDistributionFilter } from '../types';
 import { DistributionCard } from './distribution-card';
 import { ConfirmDistributionModal } from './confirm-distribution-modal';
@@ -25,24 +26,26 @@ export const MaterialDistributionDashboard = ({
   const { data, isLoading, error } = useDistributionsByGroup({
     groupId,
   });
+  
+  const typedData = data as MaterialDistributionsResponse | undefined;
 
   const filteredDistributions = useMemo(() => {
-    if (!data?.distributions) return [];
+    if (!typedData?.distributions) return [];
 
     switch (filter) {
       case 'pending':
-        return data.distributions.filter((d) => d.status === 'Pending');
+        return typedData.distributions.filter((d) => d.status === 'Pending');
       case 'overdue':
-        return data.distributions.filter((d) => d.isSupervisorOverdue);
+        return typedData.distributions.filter((d) => d.isSupervisorOverdue);
       case 'completed':
-        return data.distributions.filter((d) => d.status === 'Completed');
+        return typedData.distributions.filter((d) => d.status === 'Completed');
       default:
-        return data.distributions;
+        return typedData.distributions;
     }
   }, [data, filter]);
 
   const handleConfirm = (distributionId: string) => {
-    const distribution = data?.distributions.find((d) => d.id === distributionId);
+    const distribution = typedData?.distributions.find((d) => d.id === distributionId);
     if (distribution) {
       setSelectedDistribution(distribution);
       setIsModalOpen(true);
@@ -87,7 +90,7 @@ export const MaterialDistributionDashboard = ({
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.totalDistributions}</div>
+            <div className="text-2xl font-bold">{typedData?.totalDistributions ?? 0}</div>
           </CardContent>
         </Card>
 
@@ -98,7 +101,7 @@ export const MaterialDistributionDashboard = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {data.pendingCount}
+              {typedData?.pendingCount ?? 0}
             </div>
           </CardContent>
         </Card>
@@ -112,7 +115,7 @@ export const MaterialDistributionDashboard = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {data.partiallyConfirmedCount}
+              {typedData?.partiallyConfirmedCount ?? 0}
             </div>
           </CardContent>
         </Card>
@@ -124,19 +127,19 @@ export const MaterialDistributionDashboard = ({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {data.completedCount}
+              {typedData?.completedCount ?? 0}
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Overdue Alert */}
-      {data.overdueCount > 0 && (
+      {(typedData?.overdueCount ?? 0) > 0 && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
           <AlertTriangle className="h-5 w-5 text-red-600 flex-shrink-0" />
           <div>
             <p className="font-medium text-red-900">
-              You have {data.overdueCount} overdue distribution(s)
+              You have {typedData?.overdueCount ?? 0} overdue distribution(s)
             </p>
             <p className="text-sm text-red-700">
               Please confirm these distributions as soon as possible.
@@ -155,7 +158,7 @@ export const MaterialDistributionDashboard = ({
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          All ({data.totalDistributions})
+          All ({typedData?.totalDistributions ?? 0})
         </button>
         <button
           onClick={() => setFilter('pending')}
@@ -165,7 +168,7 @@ export const MaterialDistributionDashboard = ({
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Pending ({data.pendingCount})
+          Pending ({typedData?.pendingCount ?? 0})
         </button>
         <button
           onClick={() => setFilter('overdue')}
@@ -175,7 +178,7 @@ export const MaterialDistributionDashboard = ({
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Overdue ({data.overdueCount})
+          Overdue ({typedData?.overdueCount ?? 0})
         </button>
         <button
           onClick={() => setFilter('completed')}
@@ -185,7 +188,7 @@ export const MaterialDistributionDashboard = ({
               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
           }`}
         >
-          Completed ({data.completedCount})
+          Completed ({typedData?.completedCount ?? 0})
         </button>
       </div>
 

@@ -195,7 +195,7 @@ export const BulkCreatePlotsDialog = ({
                   {/* Sở Thửa */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Sở Thửa <span className="text-red-500">*</span>
+                      So Thua <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
@@ -213,7 +213,7 @@ export const BulkCreatePlotsDialog = ({
                   {/* Sở Tờ */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Sở Tờ <span className="text-red-500">*</span>
+                      So To <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"

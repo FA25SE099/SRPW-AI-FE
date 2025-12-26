@@ -28,7 +28,7 @@ type UseExpertProfileOptions = {
 export const useExpertProfile = ({ queryConfig }: UseExpertProfileOptions = {}) => {
   return useQuery({
     ...getExpertProfileQueryOptions(),
-    ...queryConfig,
+    ...(queryConfig as any),
   });
 };
 

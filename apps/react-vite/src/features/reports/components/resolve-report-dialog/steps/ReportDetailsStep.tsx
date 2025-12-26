@@ -176,7 +176,7 @@ export const ReportDetailsStep = ({
                                     onClick={() => setIsCultivationPlanDialogOpen(true)}
                                 >
                                     <Eye className="h-3 w-3 mr-1" />
-                                    View Plan
+                                    View in Cultivation Plan
                                 </Button>
                             )}
                         </div>

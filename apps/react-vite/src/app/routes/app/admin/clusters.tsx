@@ -84,14 +84,18 @@ const AdminClustersRoute = () => {
   const [managerPhoneSearch, setManagerPhoneSearch] = useState('');
   const [managerPage, setManagerPage] = useState(1);
   const [managerPageSize] = useState(10);
-  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<boolean | null>(true);
+  const [managerFreeOrAssigned, setManagerFreeOrAssigned] = useState<
+    boolean | null
+  >(true);
 
   // Search and pagination for experts
   const [expertSearch, setExpertSearch] = useState('');
   const [expertPhoneSearch, setExpertPhoneSearch] = useState('');
   const [expertPage, setExpertPage] = useState(1);
   const [expertPageSize] = useState(10);
-  const [expertFreeOrAssigned, setExpertFreeOrAssigned] = useState<boolean | null>(true);
+  const [expertFreeOrAssigned, setExpertFreeOrAssigned] = useState<
+    boolean | null
+  >(true);
 
   // Search and pagination for supervisors
   const [supervisorSearch, setSupervisorSearch] = useState('');
@@ -99,7 +103,9 @@ const AdminClustersRoute = () => {
   const [supervisorAdvancedSearch, setSupervisorAdvancedSearch] = useState('');
   const [supervisorPage, setSupervisorPage] = useState(1);
   const [supervisorPageSize] = useState(10);
-  const [selectedSupervisorIds, setSelectedSupervisorIds] = useState<string[]>([]);
+  const [selectedSupervisorIds, setSelectedSupervisorIds] = useState<string[]>(
+    [],
+  );
   const [allSupervisors, setAllSupervisors] = useState<Supervisor[]>([]);
 
   const [newManager, setNewManager] = useState({
@@ -132,14 +138,15 @@ const AdminClustersRoute = () => {
   );
 
   // Fetch cluster managers
-  const { data: managersData, isLoading: isLoadingManagers } = useClusterManagers(
-    managerPage,
-    managerPageSize,
-    managerSearch,
-    managerPhoneSearch,
-    managerFreeOrAssigned,
-    isManagerSelectOpen,
-  );
+  const { data: managersData, isLoading: isLoadingManagers } =
+    useClusterManagers(
+      managerPage,
+      managerPageSize,
+      managerSearch,
+      managerPhoneSearch,
+      managerFreeOrAssigned,
+      isManagerSelectOpen,
+    );
 
   // Fetch agronomy experts
   const { data: expertsData, isLoading: isLoadingExperts } = useAgronomyExperts(
@@ -152,14 +159,15 @@ const AdminClustersRoute = () => {
   );
 
   // Fetch supervisors
-  const { data: supervisorsData, isLoading: isLoadingSupervisors } = useSupervisors(
-    supervisorPage,
-    supervisorPageSize,
-    supervisorSearch,
-    supervisorPhoneSearch,
-    supervisorAdvancedSearch,
-    isSupervisorSelectOpen,
-  );
+  const { data: supervisorsData, isLoading: isLoadingSupervisors } =
+    useSupervisors(
+      supervisorPage,
+      supervisorPageSize,
+      supervisorSearch,
+      supervisorPhoneSearch,
+      supervisorAdvancedSearch,
+      isSupervisorSelectOpen,
+    );
 
   // Create cluster mutation
   const createClusterMutation = useCreateCluster();
@@ -190,25 +198,29 @@ const AdminClustersRoute = () => {
         : '',
     );
     // Set selected supervisors from cluster and add them to allSupervisors
-    const clusterSupervisorIds = cluster.supervisors?.map((s) => s.supervisorId) || [];
+    const clusterSupervisorIds =
+      cluster.supervisors?.map((s) => s.supervisorId) || [];
     setSelectedSupervisorIds(clusterSupervisorIds);
 
     // Add cluster supervisors to allSupervisors if they exist
     if (cluster.supervisors && cluster.supervisors.length > 0) {
-      const clusterSupervisorsData: Supervisor[] = cluster.supervisors.map(s => ({
-        supervisorId: s.supervisorId,
-        supervisorName: s.fullName || 'Unknown',
-        supervisorPhoneNumber: s.phoneNumber || '',
-        email: s.email || '',
-        clusterId: cluster.clusterId,
-        assignedDate: s.assignedDate,
-        currentFarmerCount: s.currentFarmerCount,
-        maxFarmerCapacity: s.maxFarmerCapacity,
-      }));
+      const clusterSupervisorsData: Supervisor[] = cluster.supervisors.map(
+        (s) => ({
+          supervisorId: s.supervisorId,
+          supervisorName: s.fullName || 'Unknown',
+          supervisorPhoneNumber: s.phoneNumber || '',
+          email: s.email || '',
+          clusterId: cluster.clusterId,
+          assignedDate: s.assignedDate,
+          currentFarmerCount: s.currentFarmerCount,
+          maxFarmerCapacity: s.maxFarmerCapacity,
+        }),
+      );
 
-      setAllSupervisors(prev => {
+      setAllSupervisors((prev) => {
         const newSupervisors = clusterSupervisorsData.filter(
-          s => !prev.some(existing => existing.supervisorId === s.supervisorId)
+          (s) =>
+            !prev.some((existing) => existing.supervisorId === s.supervisorId),
         );
         return [...prev, ...newSupervisors];
       });
@@ -221,11 +233,17 @@ const AdminClustersRoute = () => {
   const handleCreateCluster = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!clusterName || !selectedManagerId || !selectedExpertId || selectedSupervisorIds.length === 0) {
+    if (
+      !clusterName ||
+      !selectedManagerId ||
+      !selectedExpertId ||
+      selectedSupervisorIds.length === 0
+    ) {
       addNotification({
         type: 'error',
         title: 'Validation Error',
-        message: 'Please fill in all required fields (including at least one supervisor)',
+        message:
+          'Please fill in all required fields (including at least one supervisor)',
       });
       return;
     }
@@ -235,7 +253,8 @@ const AdminClustersRoute = () => {
         clusterName,
         clusterManagerId: selectedManagerId,
         agronomyExpertId: selectedExpertId,
-        supervisorIds: selectedSupervisorIds.length > 0 ? selectedSupervisorIds : null,
+        supervisorIds:
+          selectedSupervisorIds.length > 0 ? selectedSupervisorIds : null,
       },
       {
         onSuccess: () => {
@@ -251,7 +270,8 @@ const AdminClustersRoute = () => {
           addNotification({
             type: 'error',
             title: 'Error',
-            message: error?.response?.data?.message || 'Failed to create cluster',
+            message:
+              error?.response?.data?.message || 'Failed to create cluster',
           });
         },
       },
@@ -261,11 +281,18 @@ const AdminClustersRoute = () => {
   const handleUpdateCluster = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!editingCluster || !clusterName || !selectedManagerId || !selectedExpertId || selectedSupervisorIds.length === 0) {
+    if (
+      !editingCluster ||
+      !clusterName ||
+      !selectedManagerId ||
+      !selectedExpertId ||
+      selectedSupervisorIds.length === 0
+    ) {
       addNotification({
         type: 'error',
         title: 'Validation Error',
-        message: 'Please fill in all required fields (including at least one supervisor)',
+        message:
+          'Please fill in all required fields (including at least one supervisor)',
       });
       return;
     }
@@ -276,7 +303,8 @@ const AdminClustersRoute = () => {
         clusterName: clusterName,
         clusterManagerId: selectedManagerId,
         agronomyExpertId: selectedExpertId,
-        supervisorIds: selectedSupervisorIds.length > 0 ? selectedSupervisorIds : null,
+        supervisorIds:
+          selectedSupervisorIds.length > 0 ? selectedSupervisorIds : null,
       },
       {
         onSuccess: () => {
@@ -292,7 +320,8 @@ const AdminClustersRoute = () => {
           addNotification({
             type: 'error',
             title: 'Error',
-            message: error?.response?.data?.message || 'Failed to update cluster',
+            message:
+              error?.response?.data?.message || 'Failed to update cluster',
           });
         },
       },
@@ -363,9 +392,16 @@ const AdminClustersRoute = () => {
 
         // Set the newly created manager as selected
         setSelectedManagerId(newManagerId);
-        setSelectedManagerName(`${newManager.fullName} (${newManager.phoneNumber})`);
+        setSelectedManagerName(
+          `${newManager.fullName} (${newManager.phoneNumber})`,
+        );
 
-        console.log('Manager set - ID:', newManagerId, 'Name:', `${newManager.fullName} (${newManager.phoneNumber})`);
+        console.log(
+          'Manager set - ID:',
+          newManagerId,
+          'Name:',
+          `${newManager.fullName} (${newManager.phoneNumber})`,
+        );
 
         // Close dialog and reset form
         setIsManagerDialogOpen(false);
@@ -376,7 +412,9 @@ const AdminClustersRoute = () => {
         addNotification({
           type: 'error',
           title: 'Error',
-          message: error?.response?.data?.message || 'Failed to create cluster manager',
+          message:
+            error?.response?.data?.message ||
+            'Failed to create cluster manager',
         });
       },
     });
@@ -401,9 +439,16 @@ const AdminClustersRoute = () => {
 
         // Set the newly created expert as selected
         setSelectedExpertId(newExpertId);
-        setSelectedExpertName(`${newExpert.fullName} (${newExpert.phoneNumber})`);
+        setSelectedExpertName(
+          `${newExpert.fullName} (${newExpert.phoneNumber})`,
+        );
 
-        console.log('Expert set - ID:', newExpertId, 'Name:', `${newExpert.fullName} (${newExpert.phoneNumber})`);
+        console.log(
+          'Expert set - ID:',
+          newExpertId,
+          'Name:',
+          `${newExpert.fullName} (${newExpert.phoneNumber})`,
+        );
 
         // Close dialog and reset form
         setIsExpertDialogOpen(false);
@@ -414,7 +459,9 @@ const AdminClustersRoute = () => {
         addNotification({
           type: 'error',
           title: 'Error',
-          message: error?.response?.data?.message || 'Failed to create agronomy expert',
+          message:
+            error?.response?.data?.message ||
+            'Failed to create agronomy expert',
         });
       },
     });
@@ -471,14 +518,20 @@ const AdminClustersRoute = () => {
 
         // Close dialog and reset form
         setIsSupervisorDialogOpen(false);
-        setNewSupervisor({ fullName: '', email: '', phoneNumber: '', maxFarmerCapacity: 100 });
+        setNewSupervisor({
+          fullName: '',
+          email: '',
+          phoneNumber: '',
+          maxFarmerCapacity: 100,
+        });
       },
       onError: (error: any) => {
         console.error('Create supervisor error:', error);
         addNotification({
           type: 'error',
           title: 'Error',
-          message: error?.response?.data?.message || 'Failed to create supervisor',
+          message:
+            error?.response?.data?.message || 'Failed to create supervisor',
         });
       },
     });
@@ -508,12 +561,14 @@ const AdminClustersRoute = () => {
     if (supervisors.length > 0) {
       setAllSupervisors((prev) => {
         const newSupervisors = supervisors.filter(
-          (s) => !prev.some((existing) => existing.supervisorId === s.supervisorId),
+          (s) =>
+            !prev.some((existing) => existing.supervisorId === s.supervisorId),
         );
         return [...prev, ...newSupervisors];
       });
     }
-  }, [supervisors]); const managerHasNext = managersData?.data.hasNext || false;
+  }, [supervisors]);
+  const managerHasNext = managersData?.data.hasNext || false;
   const managerHasPrevious = managersData?.data.hasPrevious || false;
   const expertHasNext = expertsData?.data.hasNext || false;
   const expertHasPrevious = expertsData?.data.hasPrevious || false;
@@ -533,9 +588,14 @@ const AdminClustersRoute = () => {
               Manage clusters, assign managers and agronomy experts
             </p>
           </div>
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
-              <Button onClick={() => setIsEditMode(false)}>Create Cluster</Button>
+              <Button onClick={() => setIsEditMode(false)}>
+                Create Cluster
+              </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
@@ -687,11 +747,20 @@ const AdminClustersRoute = () => {
 
                 {/* Submit Buttons */}
                 <div className="flex justify-end gap-3 pt-4 border-t">
-                  <Button type="button" variant="outline" onClick={handleCreateDialogClose}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCreateDialogClose}
+                  >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={createClusterMutation.isPending}>
-                    {createClusterMutation.isPending ? 'Creating...' : 'Create Cluster'}
+                  <Button
+                    type="submit"
+                    disabled={createClusterMutation.isPending}
+                  >
+                    {createClusterMutation.isPending
+                      ? 'Creating...'
+                      : 'Create Cluster'}
                   </Button>
                 </div>
               </form>
@@ -853,11 +922,20 @@ const AdminClustersRoute = () => {
 
               {/* Submit Buttons */}
               <div className="flex justify-end gap-3 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={handleEditDialogClose}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleEditDialogClose}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={updateClusterMutation.isPending}>
-                  {updateClusterMutation.isPending ? 'Updating...' : 'Update Cluster'}
+                <Button
+                  type="submit"
+                  disabled={updateClusterMutation.isPending}
+                >
+                  {updateClusterMutation.isPending
+                    ? 'Updating...'
+                    : 'Update Cluster'}
                 </Button>
               </div>
             </form>
@@ -915,9 +993,15 @@ const AdminClustersRoute = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={SortBy.NameAscending}>Name (A-Z)</SelectItem>
-                <SelectItem value={SortBy.NameDescending}>Name (Z-A)</SelectItem>
-                <SelectItem value={SortBy.DateCreatedAscending}>Date (Oldest)</SelectItem>
-                <SelectItem value={SortBy.DateCreatedDescending}>Date (Newest)</SelectItem>
+                <SelectItem value={SortBy.NameDescending}>
+                  Name (Z-A)
+                </SelectItem>
+                <SelectItem value={SortBy.DateCreatedAscending}>
+                  Date (Oldest)
+                </SelectItem>
+                <SelectItem value={SortBy.DateCreatedDescending}>
+                  Date (Newest)
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -926,11 +1010,15 @@ const AdminClustersRoute = () => {
         {/* Clusters List */}
         <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
           {isLoadingClusters ? (
-            <div className="p-8 text-center text-gray-500">Loading clusters...</div>
+            <div className="p-8 text-center text-gray-500">
+              Loading clusters...
+            </div>
           ) : clusters.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               <p className="text-lg font-medium">No clusters found</p>
-              <p className="text-sm mt-2">Create your first cluster to get started</p>
+              <p className="text-sm mt-2">
+                Create your first cluster to get started
+              </p>
             </div>
           ) : (
             <>
@@ -949,9 +1037,6 @@ const AdminClustersRoute = () => {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Supervisors
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Area (ha)
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Actions
@@ -999,25 +1084,26 @@ const AdminClustersRoute = () => {
                               </div>
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-500">Not assigned</span>
+                            <span className="text-sm text-gray-500">
+                              Not assigned
+                            </span>
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {cluster.supervisors && cluster.supervisors.length > 0 ? (
+                          {cluster.supervisors &&
+                          cluster.supervisors.length > 0 ? (
                             <div className="flex items-center gap-2">
                               <UserCheck className="h-4 w-4 text-blue-500" />
                               <span className="text-sm font-medium text-gray-900">
-                                {cluster.supervisors.length} supervisor{cluster.supervisors.length !== 1 ? 's' : ''}
+                                {cluster.supervisors.length} supervisor
+                                {cluster.supervisors.length !== 1 ? 's' : ''}
                               </span>
                             </div>
                           ) : (
-                            <span className="text-sm text-gray-500">No supervisors</span>
+                            <span className="text-sm text-gray-500">
+                              No supervisors
+                            </span>
                           )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {cluster.area ? cluster.area.toFixed(2) : '-'}
-                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end gap-2">
@@ -1039,7 +1125,8 @@ const AdminClustersRoute = () => {
               {/* Pagination */}
               <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                 <div className="text-sm text-gray-600">
-                  Showing page {clusterPage} of {clustersData?.data?.totalPages || 1} (
+                  Showing page {clusterPage} of{' '}
+                  {clustersData?.data?.totalPages || 1} (
                   {clustersData?.data?.totalCount || 0} total clusters)
                 </div>
                 <div className="flex gap-2">

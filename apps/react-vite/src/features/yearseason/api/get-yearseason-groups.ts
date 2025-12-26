@@ -72,7 +72,7 @@ export const useYearSeasonGroups = ({
 }) => {
   return useQuery({
     ...getYearSeasonGroupsQueryOptions(yearSeasonId),
-    ...queryConfig,
+    ...(queryConfig as any),
   });
 };
 

@@ -61,6 +61,8 @@ const SupervisorGroupPage = () => {
       enabled: !!((group as any)?.yearSeasonId),
     },
   });
+  
+  const typedYearSeasonData = yearSeasonData as import('@/features/yearseason/types').YearSeason | undefined;
 
   // Auto-select first group when groups are loaded
   useEffect(() => {
@@ -339,31 +341,31 @@ const SupervisorGroupPage = () => {
         </div>
 
         {/* YearSeason Info Panel */}
-        {yearSeasonData && (
+        {typedYearSeasonData && (
           <YearSeasonInfoPanel
-            yearSeasonId={yearSeasonData.id}
+            yearSeasonId={typedYearSeasonData.id}
             seasonName={(group as any)?.season?.seasonName || ''}
-            year={yearSeasonData.year}
-            status={yearSeasonData.status}
-            startDate={yearSeasonData.startDate}
-            endDate={yearSeasonData.endDate}
-            planningWindowStart={yearSeasonData.planningWindowStart}
-            planningWindowEnd={yearSeasonData.planningWindowEnd}
+            year={typedYearSeasonData.year}
+            status={typedYearSeasonData.status}
+            startDate={typedYearSeasonData.startDate}
+            endDate={typedYearSeasonData.endDate}
+            planningWindowStart={typedYearSeasonData.planningWindowStart}
+            planningWindowEnd={typedYearSeasonData.planningWindowEnd}
             isPlanningWindowOpen={
-              new Date() >= new Date(yearSeasonData.planningWindowStart) &&
-              new Date() <= new Date(yearSeasonData.planningWindowEnd)
+              new Date() >= new Date(typedYearSeasonData.planningWindowStart) &&
+              new Date() <= new Date(typedYearSeasonData.planningWindowEnd)
             }
             daysUntilPlanningWindowEnd={
               Math.max(
                 0,
                 Math.ceil(
-                  (new Date(yearSeasonData.planningWindowEnd).getTime() - new Date().getTime()) /
+                  (new Date(typedYearSeasonData.planningWindowEnd).getTime() - new Date().getTime()) /
                     (1000 * 60 * 60 * 24)
                 )
               )
             }
-            allowedPlantingFlexibilityDays={yearSeasonData.allowedPlantingFlexibilityDays}
-            riceVarietyName={yearSeasonData.riceVarietyName}
+            allowedPlantingFlexibilityDays={typedYearSeasonData.allowedPlantingFlexibilityDays}
+            riceVarietyName={typedYearSeasonData.riceVarietyName || ''}
           />
         )}
 

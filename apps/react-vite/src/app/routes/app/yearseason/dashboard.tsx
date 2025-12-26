@@ -20,6 +20,8 @@ const YearSeasonDashboardRoute = () => {
   const { data: dashboard, isLoading, error, refetch } = useYearSeasonDashboard({
     id: yearSeasonId!,
   });
+  
+  const typedDashboard = dashboard as import('@/features/yearseason/types').YearSeasonDashboard | undefined;
 
   const updateStatusMutation = useUpdateYearSeasonStatus({
     mutationConfig: {
@@ -118,18 +120,18 @@ const YearSeasonDashboardRoute = () => {
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <h1 className="text-3xl font-bold">
-              {dashboard.season.seasonName} {dashboard.season.year}
+              {typedDashboard?.season.seasonName} {typedDashboard?.season.year}
             </h1>
-            <Badge className={`${getStatusColor(dashboard.season.status)} text-white`}>
-              {dashboard.season.status}
+            <Badge className={`${getStatusColor(typedDashboard?.season.status || 'Draft')} text-white`}>
+              {typedDashboard?.season.status}
             </Badge>
           </div>
           <div className="flex items-center gap-4 text-sm text-muted-foreground ml-11">
-            <span>{dashboard.season.clusterName}</span>
+            <span>{typedDashboard?.season.clusterName}</span>
             <span>•</span>
-            <span>Rice Variety: {dashboard.season.riceVarietyName}</span>
+            <span>Rice Variety: {typedDashboard?.season.riceVarietyName}</span>
             <span>•</span>
-            <span>Expert: {dashboard.season.expertName}</span>
+            <span>Expert: {typedDashboard?.season.expertName}</span>
           </div>
         </div>
         
@@ -145,12 +147,12 @@ const YearSeasonDashboardRoute = () => {
       </div>
 
       {/* Alerts */}
-      {dashboard.alerts && dashboard.alerts.length > 0 && (
-        <AlertBanner alerts={dashboard.alerts} />
+      {typedDashboard?.alerts && typedDashboard.alerts.length > 0 && (
+        <AlertBanner alerts={typedDashboard.alerts} />
       )}
 
       {/* Timeline */}
-      <TimelineVisualization timeline={dashboard.timeline} />
+      <TimelineVisualization timeline={typedDashboard?.timeline!} />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -161,29 +163,29 @@ const YearSeasonDashboardRoute = () => {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboard.groupStatus.totalGroups}</div>
+              <div className="text-2xl font-bold">{typedDashboard?.groupStatus.totalGroups ?? 0}</div>
             <p className="text-xs text-muted-foreground">Total groups formed</p>
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Active Groups</span>
-                <span className="font-medium">{dashboard.groupStatus.activeGroups}</span>
+                <span className="font-medium">{typedDashboard?.groupStatus.activeGroups ?? 0}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">With Supervisor</span>
                 <span className="font-medium">
-                  {dashboard.groupStatus.groupsWithSupervisor}
+                  {typedDashboard?.groupStatus.groupsWithSupervisor ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Farmers</span>
                 <span className="font-medium">
-                  {dashboard.groupStatus.totalFarmersInGroups}
+                  {typedDashboard?.groupStatus.totalFarmersInGroups ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Area</span>
                 <span className="font-medium">
-                  {dashboard.groupStatus.totalAreaHectares.toFixed(1)} ha
+                  {(typedDashboard?.groupStatus.totalAreaHectares ?? 0).toFixed(1)} ha
                 </span>
               </div>
             </div>
@@ -198,39 +200,39 @@ const YearSeasonDashboardRoute = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dashboard.planningStatus.planningCompletionRate.toFixed(0)}%
+              {(typedDashboard?.planningStatus.planningCompletionRate ?? 0).toFixed(0)}%
             </div>
             <p className="text-xs text-muted-foreground">Planning completion rate</p>
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Plans</span>
                 <span className="font-medium">
-                  {dashboard.planningStatus.totalPlans}
+                  {typedDashboard?.planningStatus.totalPlans ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Approved</span>
                 <span className="font-medium text-green-600">
-                  {dashboard.planningStatus.plansApproved}
+                  {typedDashboard?.planningStatus.plansApproved ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Pending</span>
                 <span className="font-medium text-orange-600">
-                  {dashboard.planningStatus.plansPendingApproval}
+                  {typedDashboard?.planningStatus.plansPendingApproval ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Groups with Plans</span>
                 <span className="font-medium">
-                  {dashboard.planningStatus.groupsWithPlans} /{' '}
-                  {dashboard.groupStatus.totalGroups}
+                  {typedDashboard?.planningStatus.groupsWithPlans ?? 0} /{' '}
+                  {typedDashboard?.groupStatus.totalGroups ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Without Plans</span>
                 <span className="font-medium text-red-600">
-                  {dashboard.planningStatus.groupsWithoutPlans}
+                  {typedDashboard?.planningStatus.groupsWithoutPlans ?? 0}
                 </span>
               </div>
             </div>
@@ -245,32 +247,32 @@ const YearSeasonDashboardRoute = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {dashboard.materialStatus.materialCompletionRate.toFixed(0)}%
+              {(typedDashboard?.materialStatus.materialCompletionRate ?? 0).toFixed(0)}%
             </div>
             <p className="text-xs text-muted-foreground">Material completion rate</p>
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Total Distributions</span>
                 <span className="font-medium">
-                  {dashboard.materialStatus.totalDistributions}
+                  {typedDashboard?.materialStatus.totalDistributions ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Completed</span>
                 <span className="font-medium text-green-600">
-                  {dashboard.materialStatus.distributionsCompleted}
+                  {typedDashboard?.materialStatus.distributionsCompleted ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Pending</span>
                 <span className="font-medium text-orange-600">
-                  {dashboard.materialStatus.distributionsPending}
+                  {typedDashboard?.materialStatus.distributionsPending ?? 0}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Overdue</span>
                 <span className="font-medium text-red-600">
-                  {dashboard.materialStatus.distributionsOverdue}
+                  {typedDashboard?.materialStatus.distributionsOverdue ?? 0}
                 </span>
               </div>
             </div>
@@ -287,20 +289,20 @@ const YearSeasonDashboardRoute = () => {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Season Status</span>
-              <Badge className={getStatusColor(dashboard.season.status)}>
-                {dashboard.season.status}
+              <Badge className={getStatusColor(typedDashboard?.season.status || 'Draft')}>
+                {typedDashboard?.season.status}
               </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Planning Window</span>
-              <Badge variant={dashboard.timeline.isPlanningWindowOpen ? 'default' : 'secondary'}>
-                {dashboard.timeline.isPlanningWindowOpen ? 'Open' : 'Closed'}
+              <Badge variant={typedDashboard?.timeline.isPlanningWindowOpen ? 'default' : 'secondary'}>
+                {typedDashboard?.timeline.isPlanningWindowOpen ? 'Open' : 'Closed'}
               </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Season Started</span>
-              <Badge variant={dashboard.timeline.hasSeasonStarted ? 'default' : 'secondary'}>
-                {dashboard.timeline.hasSeasonStarted ? 'Yes' : 'No'}
+              <Badge variant={typedDashboard?.timeline.hasSeasonStarted ? 'default' : 'secondary'}>
+                {typedDashboard?.timeline.hasSeasonStarted ? 'Yes' : 'No'}
               </Badge>
             </div>
           </CardContent>
@@ -314,10 +316,10 @@ const YearSeasonDashboardRoute = () => {
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Groups per Supervisor</span>
               <span className="font-medium">
-                {dashboard.groupStatus.groupsWithSupervisor > 0
+                {(typedDashboard?.groupStatus.groupsWithSupervisor ?? 0) > 0
                   ? (
-                      dashboard.groupStatus.totalGroups /
-                      dashboard.groupStatus.groupsWithSupervisor
+                      (typedDashboard?.groupStatus.totalGroups ?? 0) /
+                      (typedDashboard?.groupStatus.groupsWithSupervisor ?? 1)
                     ).toFixed(1)
                   : '0'}
               </span>
@@ -325,10 +327,10 @@ const YearSeasonDashboardRoute = () => {
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Farmers per Group</span>
               <span className="font-medium">
-                {dashboard.groupStatus.totalGroups > 0
+                {(typedDashboard?.groupStatus.totalGroups ?? 0) > 0
                   ? (
-                      dashboard.groupStatus.totalFarmersInGroups /
-                      dashboard.groupStatus.totalGroups
+                      (typedDashboard?.groupStatus.totalFarmersInGroups ?? 0) /
+                      (typedDashboard?.groupStatus.totalGroups ?? 1)
                     ).toFixed(1)
                   : '0'}
               </span>
@@ -336,10 +338,10 @@ const YearSeasonDashboardRoute = () => {
             <div className="flex justify-between items-center">
               <span className="text-sm text-muted-foreground">Avg Area per Group</span>
               <span className="font-medium">
-                {dashboard.groupStatus.totalGroups > 0
+                {(typedDashboard?.groupStatus.totalGroups ?? 0) > 0
                   ? (
-                      dashboard.groupStatus.totalAreaHectares /
-                      dashboard.groupStatus.totalGroups
+                      (typedDashboard?.groupStatus.totalAreaHectares ?? 0) /
+                      (typedDashboard?.groupStatus.totalGroups ?? 1)
                     ).toFixed(1)
                   : '0'}{' '}
                 ha
@@ -354,9 +356,9 @@ const YearSeasonDashboardRoute = () => {
         <UpdateStatusDialog
           isOpen={isStatusDialogOpen}
           onClose={() => setIsStatusDialogOpen(false)}
-          currentStatus={dashboard.season.status}
+          currentStatus={typedDashboard?.season.status || 'Draft'}
           yearSeasonId={yearSeasonId!}
-          yearSeasonName={`${dashboard.season.seasonName} ${dashboard.season.year}`}
+          yearSeasonName={`${typedDashboard?.season.seasonName} ${typedDashboard?.season.year}`}
           onStatusUpdate={handleStatusUpdate}
           isUpdating={updateStatusMutation.isPending}
         />

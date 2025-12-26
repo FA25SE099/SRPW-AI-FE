@@ -279,7 +279,7 @@ const ClusterDashboard = () => {
     },
   });
 
-  const yearSeasonsData = yearSeasonsQuery.data;
+  const yearSeasonsData = yearSeasonsQuery.data as import('@/features/yearseason/types').YearSeasonsByClusterResponse | undefined;
   const currentYearSeasonId = yearSeasonsData?.currentSeason?.id || '';
 
   // Use selected yearSeasonId if set, otherwise use current
@@ -308,6 +308,7 @@ const ClusterDashboard = () => {
       enabled: !!activeYearSeasonId,
     },
   });
+  const typedReadinessData = readinessQuery.data as import('@/features/yearseason/types').YearSeasonReadinessResponse | undefined;
 
   // Step 3: Get farmer selections for active YearSeason
   const farmerSelectionsQuery = useYearSeasonFarmerSelections({
@@ -316,6 +317,7 @@ const ClusterDashboard = () => {
       enabled: !!activeYearSeasonId,
     },
   });
+  const typedFarmerSelectionsData = farmerSelectionsQuery.data as import('@/features/yearseason/types').YearSeasonFarmerSelectionsResponse | undefined;
 
   // Step 4: Get groups for active YearSeason (when groups exist)
   const groupsQuery = useYearSeasonGroups({
@@ -324,6 +326,7 @@ const ClusterDashboard = () => {
       enabled: !!activeYearSeasonId,
     },
   });
+  const typedGroupsData = groupsQuery.data as import('@/features/yearseason/api/get-yearseason-groups').YearSeasonGroupsResponse | undefined;
 
   // Transform to legacy format for compatibility
   // Find the selected season's data to pass to transform
@@ -343,20 +346,20 @@ const ClusterDashboard = () => {
 
   const currentSeasonData = transformToClusterCurrentSeason(
     modifiedYearSeasonsData as any,
-    readinessQuery.data,
-    farmerSelectionsQuery.data
+    typedReadinessData,
+    typedFarmerSelectionsData
   );
 
   // Override groups with data from groups API if available
-  if (currentSeasonData && groupsQuery.data?.groups) {
-    currentSeasonData.groups = groupsQuery.data.groups.map((g: any) => ({
+  if (currentSeasonData && typedGroupsData?.groups) {
+    currentSeasonData.groups = typedGroupsData.groups.map((g: any) => ({
       groupId: g.groupId,
       groupName: g.groupName || undefined,
       supervisorId: g.supervisorId || '',
       supervisorName: g.supervisorName || 'Unassigned',
       supervisorEmail: undefined,
-      riceVarietyId: groupsQuery.data.riceVarietyId,
-      riceVarietyName: groupsQuery.data.riceVarietyName,
+      riceVarietyId: typedGroupsData.riceVarietyId,
+      riceVarietyName: typedGroupsData.riceVarietyName,
       plantingDate: g.plantingDate || '',
       status: g.status,
       plotCount: g.plotCount,
@@ -417,9 +420,9 @@ const ClusterDashboard = () => {
     hasGroups: currentSeasonData?.hasGroups,
     groupsCount: currentSeasonData?.groups?.length,
     groups: currentSeasonData?.groups,
-    readinessHasGroups: readinessQuery.data?.hasGroups,
-    groupsApiData: groupsQuery.data?.groups?.length,
-    groupsApiTotal: groupsQuery.data?.totalGroupCount,
+    readinessHasGroups: typedReadinessData?.hasGroups,
+    groupsApiData: typedGroupsData?.groups?.length,
+    groupsApiTotal: typedGroupsData?.totalGroupCount,
     'Readiness Query State': {
       isFetching: readinessQuery.isFetching,
       isLoading: readinessQuery.isLoading,
@@ -523,6 +526,8 @@ const ClusterDashboard = () => {
       enabled: !!activeYearSeasonId && !!clusterManagerId,
     },
   });
+  
+  const typedPlotsData = plotsData as import('@/features/plots/api/get-plots-by-yearseason').YearSeasonPlotsResponse | undefined;
 
   // ================== SUPERVISORS DATA ==================
   const { data: supervisorsData, isLoading: isLoadingSupervisors, error: supervisorsError } = useClusterSupervisors({
@@ -538,7 +543,7 @@ const ClusterDashboard = () => {
   console.log('Supervisors Error:', supervisorsError);
 
   const overviewPlots =
-    plotsData?.data?.map((plot) => {
+    typedPlotsData?.data?.map((plot) => {
       // Format planting date safely
       let plantingDateDisplay = 'Not Selected';
       if (plot.selectedPlantingDate) {
@@ -574,14 +579,14 @@ const ClusterDashboard = () => {
     console.log('📊 Plots Query State:', {
       isFetching: isFetchingPlots,
       dataUpdatedAt: plotsDataUpdatedAt,
-      totalPlots: plotsData?.totalCount,
-      plotsLength: plotsData?.data?.length,
+      totalPlots: typedPlotsData?.totalCount,
+      plotsLength: typedPlotsData?.data?.length,
       overviewPlotsLength: overviewPlots.length,
       yearSeasonId: activeYearSeasonId,
     });
-  }, [isFetchingPlots, plotsDataUpdatedAt, plotsData?.totalCount, plotsData?.data?.length, overviewPlots.length, activeYearSeasonId]);
+  }, [isFetchingPlots, plotsDataUpdatedAt, typedPlotsData?.totalCount, typedPlotsData?.data?.length, overviewPlots.length, activeYearSeasonId]);
 
-  const totalPlotsFromApi = plotsData?.totalCount;
+  const totalPlotsFromApi = typedPlotsData?.totalCount;
 
   // Transform supervisor data for SupervisorOverviewCard
   const supervisors = supervisorsData?.map((supervisor) => {

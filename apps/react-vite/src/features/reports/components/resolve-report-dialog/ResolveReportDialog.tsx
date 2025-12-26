@@ -44,7 +44,7 @@ export const ResolveReportDialog = ({
     const { data: user } = useUser();
     const { addNotification } = useNotifications();
     const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormData>();
-    const { fertilizers, pesticides, isLoadingMaterials } = useMaterialsData();
+    const { fertilizers, pesticides, seeds, isLoadingMaterials } = useMaterialsData();
 
     const { data: report, isLoading: isLoadingReport } = useReport({
         reportId,
@@ -266,6 +266,7 @@ export const ResolveReportDialog = ({
                                 validationErrors={validationErrors}
                                 fertilizers={fertilizers}
                                 pesticides={pesticides}
+                                seeds={seeds}
                                 isLoadingMaterials={isLoadingMaterials}
                                 handleUpdateTask={taskManagement.handleUpdateTask}
                                 handleRemoveTask={taskManagement.handleRemoveTask}
@@ -295,6 +296,7 @@ export const ResolveReportDialog = ({
                                 resolutionReason={watch('resolutionReason')}
                                 fertilizers={fertilizers}
                                 pesticides={pesticides}
+                                seeds={seeds}
                             />
                         )}
                     </div>

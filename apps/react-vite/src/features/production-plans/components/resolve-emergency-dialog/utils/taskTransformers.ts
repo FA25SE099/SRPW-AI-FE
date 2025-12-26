@@ -60,8 +60,8 @@ export const convertEditableTasksToPayload = (
                 ? (stage.cultivationPlanTaskId || null)
                 : (task.originalTaskId || null);
             
-            // Emergency tasks get 'Emergency' status, original tasks keep their status
-            const taskStatus = isEmergencyTask ? 'Emergency' : task.status;
+            // Emergency tasks get 'NewEmergency' status, original tasks keep their status
+            const taskStatus = isEmergencyTask ? 'NewEmergency' : task.status;
 
             baseCultivationTasks.push({
                 productionPlanTaskId,
