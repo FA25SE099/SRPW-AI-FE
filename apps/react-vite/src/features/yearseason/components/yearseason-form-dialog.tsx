@@ -46,7 +46,7 @@ type FormData = {
   planningWindowEnd: string;
   allowedPlantingFlexibilityDays: number;
   materialConfirmationDaysBeforePlanting: number;
-  
+
   // ✨ NEW: Farmer Selection Fields
   allowFarmerSelection: boolean;
   farmerSelectionWindowStart?: string;
@@ -118,17 +118,17 @@ export const YearSeasonFormDialog = ({
   // Helper function to convert date to YYYY-MM-DD format for HTML date input
   const formatDateForInput = (dateString: string | null | undefined): string => {
     if (!dateString) return '';
-    
+
     // If already in YYYY-MM-DD format, return as is
     if (/^\d{4}-\d{2}-\d{2}/.test(dateString)) {
       return dateString.split('T')[0];
     }
-    
+
     // If in ISO format with time, extract date part
     if (dateString.includes('T')) {
       return dateString.split('T')[0];
     }
-    
+
     // If in MM/DD/YYYY format (from backend calculate-dates API), convert to YYYY-MM-DD
     if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(dateString)) {
       const parts = dateString.split('/');
@@ -137,7 +137,7 @@ export const YearSeasonFormDialog = ({
       const year = parts[2];
       return `${year}-${month}-${day}`;
     }
-    
+
     return dateString;
   };
 
@@ -145,21 +145,21 @@ export const YearSeasonFormDialog = ({
   useEffect(() => {
     if (calculatedDates && !yearSeason) {
       console.log('📅 Calculated dates received:', calculatedDates);
-      
+
       // Convert to YYYY-MM-DD format for date inputs
       const startDateFormatted = formatDateForInput(calculatedDates.startDate);
       const endDateFormatted = formatDateForInput(calculatedDates.endDate);
-      
+
       console.log('📅 Formatted dates:', {
         startDate: startDateFormatted,
         endDate: endDateFormatted,
         planningStart: formatDateForInput(calculatedDates.suggestedPlanningWindowStart),
         planningEnd: formatDateForInput(calculatedDates.suggestedPlanningWindowEnd),
       });
-      
+
       setValue('startDate', startDateFormatted);
       setValue('endDate', endDateFormatted);
-      
+
       // ✨ BONUS: Auto-fill suggested planning window
       if (calculatedDates.suggestedPlanningWindowStart) {
         setValue('planningWindowStart', formatDateForInput(calculatedDates.suggestedPlanningWindowStart));
@@ -167,7 +167,7 @@ export const YearSeasonFormDialog = ({
       if (calculatedDates.suggestedPlanningWindowEnd) {
         setValue('planningWindowEnd', formatDateForInput(calculatedDates.suggestedPlanningWindowEnd));
       }
-      
+
       // ✨ Auto-fill farmer selection window if farmer selection is enabled
       if (watch('allowFarmerSelection')) {
         if (calculatedDates.suggestedFarmerSelectionWindowStart) {
@@ -313,8 +313,8 @@ export const YearSeasonFormDialog = ({
                   {isLoadingRiceVarieties
                     ? 'Loading varieties...'
                     : watch('allowFarmerSelection')
-                    ? 'N/A - Farmers will select varieties'
-                    : 'Select rice variety...'}
+                      ? 'N/A - Farmers will select varieties'
+                      : 'Select rice variety...'}
                 </option>
                 {riceVarieties.map((variety) => (
                   <option key={variety.id} value={variety.id}>
@@ -358,7 +358,7 @@ export const YearSeasonFormDialog = ({
                       const today = new Date();
                       today.setHours(0, 0, 0, 0); // Reset time to start of day
                       const selectedDate = new Date(value);
-                      
+
                       if (selectedDate < today) {
                         return 'Start date cannot be in the past';
                       }
@@ -383,15 +383,15 @@ export const YearSeasonFormDialog = ({
                       if (start && new Date(value) <= new Date(start)) {
                         return 'End date must be after start date';
                       }
-                      
+
                       const today = new Date();
                       today.setHours(0, 0, 0, 0);
                       const selectedDate = new Date(value);
-                      
+
                       if (selectedDate < today) {
                         return 'End date cannot be in the past';
                       }
-                      
+
                       return true;
                     },
                   })}
@@ -425,7 +425,7 @@ export const YearSeasonFormDialog = ({
                       const today = new Date();
                       today.setHours(0, 0, 0, 0);
                       const selectedDate = new Date(value);
-                      
+
                       if (selectedDate < today) {
                         return 'Planning window start cannot be in the past';
                       }
@@ -458,15 +458,15 @@ export const YearSeasonFormDialog = ({
                       ) {
                         return 'Planning window must end before season starts';
                       }
-                      
+
                       const today = new Date();
                       today.setHours(0, 0, 0, 0);
                       const selectedDate = new Date(value);
-                      
+
                       if (selectedDate < today) {
                         return 'Planning window end cannot be in the past';
                       }
-                      
+
                       return true;
                     },
                   })}
@@ -516,19 +516,11 @@ export const YearSeasonFormDialog = ({
                       required: watch('allowFarmerSelection') && 'Selection window start is required',
                       validate: (value) => {
                         if (!watch('allowFarmerSelection')) return true;
-                        
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const selectedDate = new Date(value || '');
-                        
-                        if (value && selectedDate < today) {
-                          return 'Selection window start cannot be in the past';
-                        }
-                        
+
                         const seasonStart = watch('startDate');
-                        if (seasonStart && value && new Date(value) >= new Date(seasonStart)) {
-                          return 'Selection window must start before season starts';
-                        }
+                        // if (seasonStart && value && new Date(value) >= new Date(seasonStart)) {
+                        //   return 'Selection window must start before season starts';
+                        // }
                         return true;
                       },
                     })}
@@ -551,15 +543,7 @@ export const YearSeasonFormDialog = ({
                       required: watch('allowFarmerSelection') && 'Selection window end is required',
                       validate: (value) => {
                         if (!watch('allowFarmerSelection')) return true;
-                        
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const selectedDate = new Date(value || '');
-                        
-                        if (value && selectedDate < today) {
-                          return 'Selection window end cannot be in the past';
-                        }
-                        
+
                         const start = watch('farmerSelectionWindowStart');
                         if (start && value && new Date(value) <= new Date(start)) {
                           return 'Selection window end must be after start';

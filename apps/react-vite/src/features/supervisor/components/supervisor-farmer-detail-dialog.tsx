@@ -141,7 +141,7 @@ export const SupervisorFarmerDetailDialog = ({ farmerId, open, onOpenChange }: S
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-3">
+                                    {/* <div className="flex items-center gap-3">
                                         <Mail className="h-5 w-5 text-muted-foreground" />
                                         <div>
                                             <p className="text-sm text-muted-foreground">Last Activity</p>
@@ -153,7 +153,7 @@ export const SupervisorFarmerDetailDialog = ({ farmerId, open, onOpenChange }: S
                                                 })}
                                             </p>
                                         </div>
-                                    </div>
+                                    </div> */}
 
                                     <div className="flex items-center gap-3">
                                         <Grid className="h-5 w-5 text-muted-foreground" />

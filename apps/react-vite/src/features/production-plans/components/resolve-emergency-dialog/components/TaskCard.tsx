@@ -1,4 +1,4 @@
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Clock } from 'lucide-react';
 import { EditableTask } from '../types';
 import { formatDateForInput } from '@/utils/format-date';
 import { MaterialsEditor } from './MaterialsEditor';
@@ -25,6 +25,7 @@ type TaskCardProps = {
     onRemoveMaterial: (stageIndex: number, taskIndex: number, materialIndex: number) => void;
     onAddMaterial: (stageIndex: number, taskIndex: number) => void;
     onOpenAddTaskMenu: (stageIndex: number, position: number) => void;
+    onPushScheduledDates: (stageIndex: number, taskIndex: number) => void;
 };
 
 export const TaskCard = ({
@@ -43,6 +44,7 @@ export const TaskCard = ({
     onRemoveMaterial,
     onAddMaterial,
     onOpenAddTaskMenu,
+    onPushScheduledDates,
 }: TaskCardProps) => {
     // Disable editing for completed tasks or EmergencyApproval tasks
     const isCompleted = task.status === 'Completed' || task.status === 'EmergencyApproval';
@@ -225,6 +227,17 @@ export const TaskCard = ({
                                 <p className="text-[10px] text-red-600 mt-0.5">Scheduled end date is required</p>
                             )}
                         </div>
+                        {!isDisabled && (
+                            <button
+                                type="button"
+                                onClick={() => onPushScheduledDates(stageIndex, taskIndex)}
+                                className="flex items-center justify-center gap-1 w-full px-2 py-1 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 text-[10px] font-medium transition-colors border border-purple-200"
+                                title="Push all tasks after this one by X days"
+                            >
+                                <Clock className="h-3 w-3" />
+                                Push Dates Forward
+                            </button>
+                        )}
                     </div>
 
                     {(showActualStartDate || showActualEndDate) && (

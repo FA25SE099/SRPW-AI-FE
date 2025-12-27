@@ -212,7 +212,7 @@ const TaskItemWithLogs = ({
                                 </div>
 
                                 <div className="flex items-center gap-3 flex-shrink-0">
-                                    {!viewOnly && isLatestVersion && task.status !== 'Completed' && task.status !== 'EmergencyApproval' && (
+                                    {!viewOnly && isLatestVersion && task.status !== 'Completed' && task.status !== 'EmergencyApproval' && task.plannedEndDate && new Date() > new Date(task.plannedEndDate) && (
                                         <Button
                                             variant="outline"
                                             size="icon"
@@ -230,7 +230,7 @@ const TaskItemWithLogs = ({
                                         {task.status}
                                     </Badge>
 
-                                    {task.plannedStartDate && (
+                                    {task.plannedStartDate && task.status !== 'Emergency' && task.status !== 'EmergencyApproval' && (
                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
                                             <span>Schedule Start: {formatDate(task.plannedStartDate)}</span>

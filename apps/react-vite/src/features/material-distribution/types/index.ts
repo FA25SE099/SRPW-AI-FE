@@ -119,7 +119,8 @@ export interface BulkConfirmDistributionRequest {
   supervisorId: string;
   actualDistributionDate: string;
   notes?: string;
-  imageUrls?: string[];
+  imageUrls?: string[]; // Shared images for all distributions (backward compatible)
+  distributionImages?: Record<string, string[]>; // Individual images per distribution (NEW)
 }
 
 export interface BulkConfirmDistributionResponse {

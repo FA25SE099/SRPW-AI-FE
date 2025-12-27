@@ -210,6 +210,50 @@ export const ResolveReportDialog = ({
         });
     };
 
+    const handlePushScheduledDates = (stageIndex: number, taskIndex: number) => {
+        const daysInput = prompt('Enter the number of days to push all tasks after this one:');
+        if (!daysInput) return;
+
+        const days = parseInt(daysInput);
+        if (isNaN(days) || days <= 0) {
+            addNotification({
+                type: 'error',
+                title: 'Invalid Input',
+                message: 'Please enter a valid positive number.',
+            });
+            return;
+        }
+
+        const updatedStages = editableStages.map((stage, sIndex) => {
+            return {
+                ...stage,
+                tasks: stage.tasks.map((task, tIndex) => {
+                    // Check if this task comes after the specified task
+                    const isAfter =
+                        sIndex > stageIndex ||
+                        (sIndex === stageIndex && tIndex > taskIndex);
+
+                    if (isAfter && task.scheduledEndDate) {
+                        const currentDate = new Date(task.scheduledEndDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        return {
+                            ...task,
+                            scheduledEndDate: currentDate.toISOString(),
+                        };
+                    }
+                    return task;
+                }),
+            };
+        });
+
+        setEditableStages(updatedStages);
+        addNotification({
+            type: 'success',
+            title: 'Dates Updated',
+            message: `All tasks after this one have been pushed by ${days} day${days !== 1 ? 's' : ''}.`,
+        });
+    };
+
     const isLoading = resolveMutation.isPending || isLoadingPlan;
 
     if (!isOpen) return null;
@@ -274,6 +318,7 @@ export const ResolveReportDialog = ({
                                 handleRemoveMaterial={taskManagement.handleRemoveMaterial}
                                 handleAddMaterial={taskManagement.handleAddMaterial}
                                 handleOpenAddTaskMenu={handleOpenAddTaskMenu}
+                                handlePushScheduledDates={handlePushScheduledDates}
                             />
                         )}
 

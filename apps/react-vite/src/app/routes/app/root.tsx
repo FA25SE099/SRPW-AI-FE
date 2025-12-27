@@ -246,15 +246,15 @@ const AppRoot = () => {
         end: true,
       },
       {
-        name: 'Maps',
-        to: paths.app.supervisor.maps.getHref(),
-        icon: Map,
-        end: true,
-      },
-      {
         name: 'Late Management',
         to: paths.app.supervisor.lateManagement.getHref(),
         icon: Clock,
+        end: true,
+      },
+      {
+        name: 'Maps',
+        to: paths.app.supervisor.maps.getHref(),
+        icon: Map,
         end: true,
       },
     ];
@@ -336,12 +336,12 @@ const AppRoot = () => {
         icon: Users,
         end: true,
       },
-      // {
-      //   name: 'System Settings',
-      //   to: paths.app.admin.settings.getHref(),
-      //   icon: Settings,
-      //   end: true,
-      // },
+      {
+        name: 'System Settings',
+        to: paths.app.admin.settings.getHref(),
+        icon: Settings,
+        end: true,
+      },
       // {
       //   name: 'Reports',
       //   to: paths.app.admin.reports.getHref(),

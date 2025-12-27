@@ -58,7 +58,7 @@ const ProfileRoute = () => {
               </p>
             </div>
             <div className="flex gap-3">
-              <UpdateProfile />
+              {/* <UpdateProfile /> */}
               <ChangePasswordModal />
             </div>
           </div>
