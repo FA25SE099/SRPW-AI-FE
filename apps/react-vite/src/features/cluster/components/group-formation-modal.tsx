@@ -8,6 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { Map, CheckCircle } from 'lucide-react';
 import { GroupFormationParams, GroupPreviewResult } from '../types';
 import { usePreviewGroupFormation, useCreateGroups } from '../api';
 import { PreviewStepWithParams } from './group-formation/preview-step-with-params';
@@ -110,7 +111,7 @@ export const GroupFormationModal = ({
           message: `${data.groupsCreated} groups created successfully`,
         });
 
-        // ✅ báo cho Dashboard biết là đã tạo group xong
+        // Notify Dashboard that groups have been created
         onGroupsCreated?.();
       },
       onError: (error: any) => {
@@ -132,9 +133,19 @@ export const GroupFormationModal = ({
   const getTitle = () => {
     switch (step) {
       case 'preview':
-        return '🗺️ Group Formation Preview';
+        return (
+          <div className="flex items-center gap-2">
+            <Map className="w-5 h-5" />
+            Group Formation Preview
+          </div>
+        );
       case 'success':
-        return '✅ Groups Created Successfully';
+        return (
+          <div className="flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            Groups Created Successfully
+          </div>
+        );
       default:
         return 'Group Formation';
     }

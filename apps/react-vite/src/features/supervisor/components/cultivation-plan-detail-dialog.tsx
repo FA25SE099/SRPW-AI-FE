@@ -40,6 +40,9 @@ interface CultivationPlanDetailDialogProps {
     plotId: string;
     groupId: string;
     plotName?: string;
+    viewOnly?: boolean;
+    initialVersionId?: string | null;
+    highlightTaskId?: string;
 }
 
 const ImageViewer = ({ images, open, onClose }: { images: string[]; open: boolean; onClose: () => void }) => {
@@ -112,13 +115,17 @@ const TaskItemWithLogs = ({
     isInProgress,
     inProgressTaskRef,
     isLatestVersion,
+    viewOnly = false,
+    isHighlighted = false,
 }: {
     task: CultivationPlanTask;
     isInProgress: boolean;
     inProgressTaskRef: React.RefObject<HTMLDivElement> | null;
     isLatestVersion: boolean;
+    viewOnly?: boolean;
+    isHighlighted?: boolean;
 }) => {
-    const [isOpen, setIsOpen] = useState(isInProgress);
+    const [isOpen, setIsOpen] = useState(isInProgress || isHighlighted);
     const [loadLogs, setLoadLogs] = useState(false);
     const [viewingImages, setViewingImages] = useState<string[] | null>(null);
     const [isReportingLate, setIsReportingLate] = useState(false);
@@ -165,10 +172,28 @@ const TaskItemWithLogs = ({
                 <div
                     ref={inProgressTaskRef}
                     className={cn(
-                        'border rounded-lg transition-colors',
-                        isInProgress && 'border-blue-500 bg-blue-50 dark:bg-blue-950/20'
+                        'border rounded-lg transition-all duration-300 relative',
+                        isInProgress && 'border-blue-500 bg-blue-50 dark:bg-blue-950/20',
+                        isHighlighted && 'bg-amber-50 dark:bg-amber-950/20'
                     )}
+                    style={isHighlighted ? {
+                        animation: 'pulse-border 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    } : undefined}
                 >
+                    {isHighlighted && (
+                        <style>{`
+                            @keyframes pulse-border {
+                                0%, 100% {
+                                    border-color: rgb(251, 191, 36);
+                                    box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.5);
+                                }
+                                50% {
+                                    border-color: rgb(245, 158, 11);
+                                    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.3);
+                                }
+                            }
+                        `}</style>
+                    )}
                     <CollapsibleTrigger asChild>
                         <div className="w-full p-3 flex items-center justify-between hover:bg-muted/50 rounded-lg cursor-pointer">
                             <div className="flex items-center gap-3 flex-1 text-left">
@@ -187,7 +212,7 @@ const TaskItemWithLogs = ({
                                 </div>
 
                                 <div className="flex items-center gap-3 flex-shrink-0">
-                                    {isLatestVersion && (
+                                    {!viewOnly && isLatestVersion && task.status !== 'Completed' && task.status !== 'EmergencyApproval' && task.plannedEndDate && new Date() > new Date(task.plannedEndDate) && (
                                         <Button
                                             variant="outline"
                                             size="icon"
@@ -205,17 +230,17 @@ const TaskItemWithLogs = ({
                                         {task.status}
                                     </Badge>
 
-                                    {task.plannedStartDate && (
+                                    {task.plannedStartDate && task.status !== 'Emergency' && task.status !== 'EmergencyApproval' && (
                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
-                                            <span>Start: {formatDate(task.plannedStartDate)}</span>
+                                            <span>Schedule Start: {formatDate(task.plannedStartDate)}</span>
                                         </div>
                                     )}
 
                                     {task.plannedEndDate && (
                                         <div className="flex items-center gap-1 text-xs text-muted-foreground">
                                             <Clock className="h-3 w-3" />
-                                            <span>End: {formatDate(task.plannedEndDate)}</span>
+                                            <span>Schedule End: {formatDate(task.plannedEndDate)}</span>
                                         </div>
                                     )}
 
@@ -435,9 +460,13 @@ export const CultivationPlanDetailDialog = ({
     plotId,
     groupId,
     plotName,
+    viewOnly = false,
+    initialVersionId = null,
+    highlightTaskId,
 }: CultivationPlanDetailDialogProps) => {
     const inProgressTaskRef = useRef<HTMLDivElement>(null);
-    const [selectedVersionId, setSelectedVersionId] = useState<string | null>(null);
+    const highlightedTaskRef = useRef<HTMLDivElement>(null);
+    const [selectedVersionId, setSelectedVersionId] = useState<string | null>(initialVersionId);
 
     const { data: cultivationPlan, isLoading, error, refetch } = useCultivationPlanByGroupPlot({
         params: { plotId, groupId, versionId: selectedVersionId },
@@ -461,18 +490,26 @@ export const CultivationPlanDetailDialog = ({
         if (isOpen && plotId && groupId) {
             refetch();
         } else if (!isOpen) {
-            setSelectedVersionId(null);
+            setSelectedVersionId(initialVersionId);
         }
-    }, [isOpen, plotId, groupId, refetch]);
+    }, [isOpen, plotId, groupId, refetch, initialVersionId]);
 
-    // Auto-scroll to first InProgress task
+    // Auto-scroll to highlighted task or first InProgress task
     useEffect(() => {
         if (cultivationPlan?.stages) {
             setTimeout(() => {
-                inProgressTaskRef.current?.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center',
-                });
+                // Prioritize scrolling to highlighted task
+                if (highlightedTaskRef.current) {
+                    highlightedTaskRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                    });
+                } else if (inProgressTaskRef.current) {
+                    inProgressTaskRef.current.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                    });
+                }
             }, 100);
         }
     }, [cultivationPlan]);
@@ -481,40 +518,35 @@ export const CultivationPlanDetailDialog = ({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <DialogTitle className="text-2xl">
-                                {plotName || cultivationPlan?.plotName || 'Cultivation Plan Details'}
-                            </DialogTitle>
-                            {(isVersionsLoading || versions.length > 0) && (
-                                <div className="w-[200px]">
-                                    <Select
-                                        value={selectedVersionId || "latest"}
-                                        onValueChange={(value) => {
-                                            const newVersionId = value === "latest" ? null : value;
-                                            console.log('Version changed:', { value, newVersionId });
-                                            setSelectedVersionId(newVersionId);
-                                        }}
-                                        disabled={isVersionsLoading}
-                                    >
-                                        <SelectTrigger className="h-8">
-                                            <SelectValue placeholder={isVersionsLoading ? "Loading..." : "Select version"} />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="latest">Latest Version</SelectItem>
-                                            {versions.map((version: any) => (
-                                                <SelectItem key={version.id} value={version.id}>
-                                                    {version.versionName} {version.isActive ? '(Active)' : ''}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            )}
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={onClose}>
-                            <X className="h-4 w-4" />
-                        </Button>
+                    <div className="flex items-center gap-4">
+                        <DialogTitle className="text-2xl">
+                            {plotName || cultivationPlan?.plotName || 'Cultivation Plan Details'}
+                        </DialogTitle>
+                        {(isVersionsLoading || versions.length > 0) && (
+                            <div className="w-[200px]">
+                                <Select
+                                    value={selectedVersionId || "latest"}
+                                    onValueChange={(value) => {
+                                        const newVersionId = value === "latest" ? null : value;
+                                        console.log('Version changed:', { value, newVersionId });
+                                        setSelectedVersionId(newVersionId);
+                                    }}
+                                    disabled={isVersionsLoading}
+                                >
+                                    <SelectTrigger className="h-8">
+                                        <SelectValue placeholder={isVersionsLoading ? "Loading..." : "Select version"} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="latest">Latest Version</SelectItem>
+                                        {versions.map((version: any) => (
+                                            <SelectItem key={version.id} value={version.id}>
+                                                {version.versionName} {version.isActive ? '(Active)' : ''}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                     </div>
                 </DialogHeader>
 
@@ -604,7 +636,7 @@ export const CultivationPlanDetailDialog = ({
                         {/* Progress Stats */}
                         <Card className="p-4">
                             <h3 className="font-semibold mb-4">Task Progress</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-2xl font-bold">{cultivationPlan.progress.totalTasks}</p>
                                     <p className="text-sm text-muted-foreground">Total Tasks</p>
@@ -626,12 +658,6 @@ export const CultivationPlanDetailDialog = ({
                                         {cultivationPlan.progress.pendingTasks}
                                     </p>
                                     <p className="text-sm text-muted-foreground">Pending</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-orange-600">
-                                        {cultivationPlan.progress.estimatedDaysRemaining}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground">Days Remaining</p>
                                 </div>
                             </div>
                         </Card>
@@ -663,9 +689,10 @@ export const CultivationPlanDetailDialog = ({
                                             const isFirstInProgress = isInProgress && !cultivationPlan.stages
                                                 .slice(0, cultivationPlan.stages.indexOf(stage))
                                                 .some(s => s.tasks.some(t => t.status === 'InProgress'));
-                                            
+
                                             const isLatestVersion = !selectedVersionId;
-                                            console.log('Rendering task:', { taskId: task.taskId, selectedVersionId, isLatestVersion });
+                                            const isHighlighted = highlightTaskId === task.taskId;
+                                            console.log('Rendering task:', { taskId: task.taskId, selectedVersionId, isLatestVersion, isHighlighted });
 
                                             return (
                                                 <TaskItemWithLogs
@@ -673,7 +700,9 @@ export const CultivationPlanDetailDialog = ({
                                                     task={task}
                                                     isInProgress={isInProgress}
                                                     isLatestVersion={isLatestVersion}
-                                                    inProgressTaskRef={isFirstInProgress ? inProgressTaskRef : null}
+                                                    viewOnly={viewOnly}
+                                                    isHighlighted={isHighlighted}
+                                                    inProgressTaskRef={isFirstInProgress && !isHighlighted ? inProgressTaskRef : isHighlighted ? highlightedTaskRef : null}
                                                 />
                                             );
                                         })}

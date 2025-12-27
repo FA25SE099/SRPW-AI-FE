@@ -13,6 +13,7 @@ import { riceVarietySeasonsHandlers } from './rice-variety-seasons';
 import { seasonsHandlers } from './seasons';
 import { teamsHandlers } from './teams';
 import { usersHandlers } from './users';
+import { yearseasonHandlers } from './yearseason';
 
 export const handlers = [
   ...authHandlers,
@@ -24,6 +25,7 @@ export const handlers = [
   ...seasonsHandlers,
   ...teamsHandlers,
   ...usersHandlers,
+  ...yearseasonHandlers,
   http.get(`${env.API_URL}/healthcheck`, async () => {
     await networkDelay();
     return HttpResponse.json({ ok: true });

@@ -38,7 +38,9 @@ jobs:
           port: ${{ secrets.VPS_PORT || 22 }}
           script: |
             cd ~/frontend/SRPW-AI-FE
-            git pull origin main  
+            git fetch origin
+            git checkout frontendDeployment
+            git pull origin frontendDeployment  
             docker compose up --build -d frontend
             docker image prune -f
             echo "Frontend deploy successfully!"

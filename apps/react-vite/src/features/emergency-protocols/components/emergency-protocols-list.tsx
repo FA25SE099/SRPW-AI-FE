@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ContentLayout } from '@/components/layouts';
 import { Button } from '@/components/ui/button';
-import { Plus, Search, Edit, Eye, Calendar, Activity } from 'lucide-react';
+import { Plus, Search, Edit, Eye, Calendar, Activity, AlertTriangle, AlertTriangleIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { useEmergencyProtocols } from '../api/get-emergency-protocols';
@@ -28,8 +28,23 @@ export const EmergencyProtocolsList = () => {
     const protocols = protocolsQuery.data?.data || [];
 
     return (
-        <ContentLayout title="Emergency Center">
+        <div>
             <div className="space-y-6">
+                <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm mb-6">
+                    <div className="flex items-center gap-4">
+                        <div className="rounded-xl bg-gradient-to-br from-red-500 to-red-600 p-3 shadow-lg">
+                            <AlertTriangleIcon className="size-8 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-neutral-900">
+                                Emergency Center
+                            </h1>
+                            <p className="text-sm text-neutral-600 mt-1">
+                                Manage emergency protocols and response procedures for critical crop issues
+                            </p>
+                        </div>
+                    </div>
+                </div>
                 {/* Main Tabs */}
                 <div className="border-b border-gray-200">
                     <nav className="flex gap-4">
@@ -196,6 +211,6 @@ export const EmergencyProtocolsList = () => {
                 onClose={() => setDetailProtocol(null)}
                 protocolId={detailProtocol?.id}
             />
-        </ContentLayout>
+        </div>
     );
 };

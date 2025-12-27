@@ -10,6 +10,7 @@ type EditTasksStepProps = {
     validationErrors: { [key: string]: boolean };
     fertilizers: any[];
     pesticides: any[];
+    seeds: any[];
     isLoadingMaterials: boolean;
     handleUpdateTask: (stageIndex: number, taskIndex: number, updates: Partial<EditableTask>) => void;
     handleRemoveTask: (stageIndex: number, taskIndex: number) => void;
@@ -23,6 +24,7 @@ type EditTasksStepProps = {
     handleRemoveMaterial: (stageIndex: number, taskIndex: number, materialIndex: number) => void;
     handleAddMaterial: (stageIndex: number, taskIndex: number) => void;
     handleOpenAddTaskMenu: (stageIndex: number, position: number) => void;
+    handlePushScheduledDates: (stageIndex: number, taskIndex: number) => void;
 };
 
 export const EditTasksStep = ({
@@ -32,6 +34,7 @@ export const EditTasksStep = ({
     validationErrors,
     fertilizers,
     pesticides,
+    seeds,
     isLoadingMaterials,
     handleUpdateTask,
     handleRemoveTask,
@@ -39,6 +42,7 @@ export const EditTasksStep = ({
     handleRemoveMaterial,
     handleAddMaterial,
     handleOpenAddTaskMenu,
+    handlePushScheduledDates,
 }: EditTasksStepProps) => {
     if (isLoadingPlan) {
         return (
@@ -121,6 +125,7 @@ export const EditTasksStep = ({
                                                         hasTaskError={hasTaskError}
                                                         fertilizers={fertilizers}
                                                         pesticides={pesticides}
+                                                        seeds={seeds}
                                                         isLoadingMaterials={isLoadingMaterials}
                                                         onUpdateTask={handleUpdateTask}
                                                         onRemoveTask={handleRemoveTask}
@@ -128,6 +133,7 @@ export const EditTasksStep = ({
                                                         onRemoveMaterial={handleRemoveMaterial}
                                                         onAddMaterial={handleAddMaterial}
                                                         onOpenAddTaskMenu={handleOpenAddTaskMenu}
+                                                        onPushScheduledDates={handlePushScheduledDates}
                                                     />
                                                 );
                                             })}

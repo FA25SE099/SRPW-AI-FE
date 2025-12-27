@@ -20,6 +20,8 @@ import {
   Clock,
   Plane,
   ReceiptText,
+  Package,
+  Calendar,
 } from 'lucide-react';
 import { Navigate, Outlet, useLocation, useRouteError } from 'react-router';
 
@@ -135,6 +137,12 @@ const AppRoot = () => {
         icon: Clock,
         end: true,
       },
+      {
+        name: 'YearSeasons',
+        to: paths.app.expert.yearseasons.getHref(),
+        icon: Calendar,
+        end: true,
+      },
       // Example: Uncomment to use a custom downloaded SVG icon
       // {
       //   name: 'Custom Page',
@@ -168,12 +176,12 @@ const AppRoot = () => {
             icon: FileText,
             end: true,
           },
-          {
-            name: 'Plan Monitoring',
-            to: paths.app.expert.planMonitoring.getHref(),
-            icon: ClipboardList,
-            end: true,
-          },
+          // {
+          //   name: 'Plan Monitoring',
+          //   to: paths.app.expert.planMonitoring.getHref(),
+          //   icon: ClipboardList,
+          //   end: true,
+          // },
         ],
         defaultOpen: true,
       },
@@ -220,6 +228,12 @@ const AppRoot = () => {
       //   end: true,
       // },
       {
+        name: 'Material Distributions',
+        to: paths.app.supervisor.materialDistributions.getHref(),
+        icon: Package,
+        end: true,
+      },
+      {
         name: 'Farmers',
         to: paths.app.supervisor.farmers.getHref(),
         icon: Users,
@@ -232,15 +246,15 @@ const AppRoot = () => {
         end: true,
       },
       {
-        name: 'Maps',
-        to: paths.app.supervisor.maps.getHref(),
-        icon: Map,
-        end: true,
-      },
-      {
         name: 'Late Management',
         to: paths.app.supervisor.lateManagement.getHref(),
         icon: Clock,
+        end: true,
+      },
+      {
+        name: 'Maps',
+        to: paths.app.supervisor.maps.getHref(),
+        icon: Map,
         end: true,
       },
     ];
@@ -255,7 +269,7 @@ const AppRoot = () => {
         end: true,
       },
       {
-        name: 'Fields',
+        name: 'Plots',
         to: paths.app.cluster.plots.getHref(),
         icon: MapPin,
         end: true,
@@ -322,12 +336,12 @@ const AppRoot = () => {
         icon: Users,
         end: true,
       },
-      // {
-      //   name: 'System Settings',
-      //   to: paths.app.admin.settings.getHref(),
-      //   icon: Settings,
-      //   end: true,
-      // },
+      {
+        name: 'System Settings',
+        to: paths.app.admin.settings.getHref(),
+        icon: Settings,
+        end: true,
+      },
       // {
       //   name: 'Reports',
       //   to: paths.app.admin.reports.getHref(),
@@ -357,18 +371,24 @@ const AppRoot = () => {
         icon: Home,
         end: true,
       },
+      // {
+      //   name: 'Discussions',
+      //   to: paths.app.discussions.getHref(),
+      //   icon: Folder,
+      //   end: false,
+      // },
+      // checkAccess({ allowedRoles: [ROLES.Admin] }) && {
+      //   name: 'Users',
+      //   to: paths.app.users.getHref(),
+      //   icon: Users,
+      //   end: true,
+      // },
       {
-        name: 'Discussions',
-        to: paths.app.discussions.getHref(),
-        icon: Folder,
-        end: false,
-      },
-      checkAccess({ allowedRoles: [ROLES.Admin] }) && {
-        name: 'Users',
-        to: paths.app.users.getHref(),
-        icon: Users,
+        name: 'Profile',
+        to: paths.app.profile.getHref(),
+        icon: Home,
         end: true,
-      },
+      }
     ].filter(Boolean) as SideNavigationItem[];
   }
 

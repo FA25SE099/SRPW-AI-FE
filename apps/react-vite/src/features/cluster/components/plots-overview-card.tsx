@@ -185,10 +185,7 @@ export const PlotsOverviewCard = ({ plots, totalPlots, onViewAll }: PlotsOvervie
                                                     {plot.area} ha
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-muted-foreground">
-                                                    <div className="flex items-center gap-1">
-                                                        <span className="text-muted-foreground"></span>
-                                                        {new Date(plot.plantingDate).toLocaleDateString()}
-                                                    </div>
+                                                    {plot.plantingDate}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-foreground">
                                                     {plot.owner}

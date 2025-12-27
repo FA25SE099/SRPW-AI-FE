@@ -125,22 +125,6 @@ export const SupervisorsPanel = () => {
                                     name="create-supervisor-telephone"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label>Max Farmer Capacity *</Label>
-                                <Input
-                                    type="number"
-                                    value={newSupervisor.maxFarmerCapacity}
-                                    onChange={(e) =>
-                                        setNewSupervisor({
-                                            ...newSupervisor,
-                                            maxFarmerCapacity: parseInt(e.target.value, 10) || 0,
-                                        })
-                                    }
-                                    placeholder="Enter max farmer capacity"
-                                    autoComplete="off"
-                                    name="create-supervisor-capacity"
-                                />
-                            </div>
                             <div className="flex justify-end gap-2 pt-4">
                                 <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
                                     Cancel
@@ -222,8 +206,7 @@ export const SupervisorsPanel = () => {
                                 <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
                                 <th className="px-4 py-3 text-left text-sm font-semibold">Email</th>
                                 <th className="px-4 py-3 text-left text-sm font-semibold">Phone</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Farmer Count</th>
-                                <th className="px-4 py-3 text-left text-sm font-semibold">Last Activity</th>
+                                <th className="px-4 py-3 text-left text-sm font-semibold">Cluster</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -232,12 +215,7 @@ export const SupervisorsPanel = () => {
                                     <td className="px-4 py-3 text-sm">{supervisor.fullName}</td>
                                     <td className="px-4 py-3 text-sm">{supervisor.email}</td>
                                     <td className="px-4 py-3 text-sm">{supervisor.phoneNumber}</td>
-                                    <td className="px-4 py-3 text-sm">{supervisor.currentFarmerCount || 0}</td>
-                                    <td className="px-4 py-3 text-sm">
-                                        {supervisor.lastActivityAt
-                                            ? new Date(supervisor.lastActivityAt).toLocaleDateString()
-                                            : 'N/A'}
-                                    </td>
+                                    <td className="px-4 py-3 text-sm">{supervisor.clusterName}</td>
                                 </tr>
                             ))}
                         </tbody>

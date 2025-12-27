@@ -220,6 +220,9 @@ export const CreateEmergencyProtocolDialog = ({
   const pesticidesQuery = useMaterials({
     params: { currentPage: 1, pageSize: 1000, type: 1 },
   });
+  const seedsQuery = useMaterials({
+    params: { currentPage: 1, pageSize: 1000, type: 2 },
+  });
 
   const calculateCostMutation = useCalculateMaterialsCost();
 
@@ -547,7 +550,12 @@ export const CreateEmergencyProtocolDialog = ({
       calculateCostMutation.mutate(
         {
           area: 1, // Calculate per hectare
-          materials: allMaterials,
+          tasks: [
+            {
+              taskName: 'Emergency Protocol Tasks',
+              materials: allMaterials,
+            },
+          ],
         },
         {
           onSuccess: (response) => {
@@ -900,12 +908,14 @@ export const CreateEmergencyProtocolDialog = ({
   const riceVarieties = riceVarietiesResponse?.data || [];
   const fertilizers = fertilizersQuery.data?.data || [];
   const pesticides = pesticidesQuery.data?.data || [];
+  const seeds = seedsQuery.data?.data || [];
   const isLoading =
     createProtocolMutation.isPending ||
     updateProtocolMutation.isPending ||
     isLoadingDetails ||
     fertilizersQuery.isLoading ||
-    pesticidesQuery.isLoading;
+    pesticidesQuery.isLoading ||
+    seedsQuery.isLoading;
 
   const getTitle = () => {
     const prefix = isEditMode ? 'Edit' : 'Create';
@@ -1417,6 +1427,18 @@ export const CreateEmergencyProtocolDialog = ({
                                             ))}
                                           </optgroup>
                                         )}
+                                        {seeds.length > 0 && (
+                                          <optgroup label="Seeds">
+                                            {seeds.map((mat: any) => (
+                                              <option
+                                                key={mat.materialId}
+                                                value={mat.materialId}
+                                              >
+                                                {mat.name} ({mat.unit})
+                                              </option>
+                                            ))}
+                                          </optgroup>
+                                        )}
                                       </select>
                                       <div className="flex items-center gap-1">
                                         <input
@@ -1777,7 +1799,7 @@ export const CreateEmergencyProtocolDialog = ({
                                             (c) => c.materialId === m.materialId
                                           );
                                           return mat
-                                            ? `${mat.name} (${m.quantityPerHa} ${mat.unit}/ha${costItem ? ` - $${costItem.costPerHa.toFixed(2)}/ha` : ''})`
+                                            ? `${mat.name} (${m.quantityPerHa} ${mat.unit}/ha${costItem ? ` - ${costItem.costPerHa.toFixed(0)} VND/ha` : ''})`
                                             : '';
                                         })
                                         .filter(Boolean)
@@ -1798,7 +1820,6 @@ export const CreateEmergencyProtocolDialog = ({
                 {editableStages.some(s => s.tasks.some(t => t.materials.length > 0)) && (
                   <div className="rounded-lg border bg-gradient-to-r from-green-50 to-emerald-50 p-4">
                     <div className="mb-3 flex items-center gap-2">
-                      <DollarSign className="size-5 text-green-600" />
                       <h4 className="font-semibold text-gray-900">Cost Estimate (per hectare)</h4>
                       {calculateCostMutation.isPending && <Spinner size="sm" />}
                     </div>
@@ -1822,10 +1843,10 @@ export const CreateEmergencyProtocolDialog = ({
                             </div>
                             <div className="text-right">
                               <p className="font-semibold text-green-700">
-                                ${item.costPerHa.toFixed(2)}/ha
+                                {item.costPerHa.toFixed(0)} VND/ha
                               </p>
                               <p className="text-xs text-gray-500">
-                                ${item.pricePerMaterial}/package
+                                {item.pricePerMaterial} VND/package
                               </p>
                             </div>
                           </div>
@@ -1833,7 +1854,7 @@ export const CreateEmergencyProtocolDialog = ({
                         <div className="mt-3 flex items-center justify-between border-t pt-3">
                           <p className="text-lg font-bold text-gray-900">Total Cost</p>
                           <p className="text-2xl font-bold text-green-700">
-                            ${totalCostPerHa.toFixed(2)}/ha
+                            {totalCostPerHa.toFixed(0)} VND/ha
                           </p>
                         </div>
                       </div>

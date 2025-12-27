@@ -104,6 +104,16 @@ export const paths = {
         path: 'expert/late-management',
         getHref: () => '/app/expert/late-management',
       },
+      yearseasons: {
+        path: 'expert/yearseasons',
+        getHref: () => '/app/expert/yearseasons',
+      },
+    },
+    yearseason: {
+      dashboard: {
+        path: 'yearseason/:yearSeasonId/dashboard',
+        getHref: (yearSeasonId: string) => `/app/yearseason/${yearSeasonId}/dashboard`,
+      },
     },
     admin: {
       root: {
@@ -112,7 +122,7 @@ export const paths = {
       },
       dashboard: {
         path: 'admin',
-        getHref: () => '/app/admin',
+        getHref: () => '/app/admin/clusters',
       },
       users: {
         path: 'admin/users',
@@ -176,6 +186,13 @@ export const paths = {
       farmers: {
         path: 'supervisor/farmers',
         getHref: () => '/app/supervisor/farmers',
+      },
+      materialDistributions: {
+        path: 'supervisor/material-distributions',
+        getHref: (groupId?: string) =>
+          groupId
+            ? `/app/supervisor/material-distributions?groupId=${groupId}`
+            : '/app/supervisor/material-distributions',
       },
     },
     cluster: {

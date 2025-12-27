@@ -142,6 +142,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/expert/late-management').then(convert(queryClient)),
             },
+            {
+              path: 'yearseasons',
+              lazy: () =>
+                import('./routes/app/expert/yearseasons').then(convert(queryClient)),
+            },
           ],
         },
         {
@@ -227,6 +232,11 @@ export const createAppRouter = (queryClient: QueryClient) =>
               lazy: () =>
                 import('./routes/app/supervisor/farmers').then(convert(queryClient)),
             },
+            {
+              path: 'material-distributions',
+              lazy: () =>
+                import('./routes/app/supervisor/material-distributions').then(convert(queryClient)),
+            },
           ],
         },
         {
@@ -261,6 +271,16 @@ export const createAppRouter = (queryClient: QueryClient) =>
               path: 'uav-orders',
               lazy: () =>
                 import('./routes/app/cluster/uav-orders').then(convert(queryClient)),
+            },
+          ],
+        },
+        {
+          path: 'yearseason',
+          children: [
+            {
+              path: ':yearSeasonId/dashboard',
+              lazy: () =>
+                import('./routes/app/yearseason/dashboard').then(convert(queryClient)),
             },
           ],
         },

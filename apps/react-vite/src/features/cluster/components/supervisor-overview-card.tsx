@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Users, Phone, Mail, MapPin } from 'lucide-react';
+import { ChevronDown, ChevronUp, Users, Phone, Mail, MapPin, AlertCircle, Bell } from 'lucide-react';
 
 type Supervisor = {
   supervisorId: string;
@@ -60,8 +60,48 @@ export const SupervisorOverviewCard = ({
 }: SupervisorOverviewCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Show empty state UI when no supervisors
   if (!supervisors || supervisors.length === 0) {
-    return null;
+    return (
+      <Card className="border-border">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-muted-foreground" />
+            <div>
+              <CardTitle>Supervisors</CardTitle>
+              <CardDescription>No supervisors assigned yet</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="rounded-full bg-orange-50 p-3 mb-4">
+              <AlertCircle className="h-8 w-8 text-orange-600" />
+            </div>
+            <h3 className="text-base font-semibold text-foreground mb-2">
+              No Supervisors Assigned
+            </h3>
+            <p className="text-sm text-muted-foreground max-w-sm mb-4">
+              This cluster doesn't have any supervisors assigned yet. 
+              Supervisors are needed to manage groups and coordinate farming activities.
+            </p>
+            <Button 
+              variant="default" 
+              onClick={() => {
+                // Alert admin functionality
+                if (onViewAll) {
+                  onViewAll();
+                }
+              }}
+              className="gap-2 bg-orange-600 hover:bg-orange-700"
+            >
+              <Bell className="w-4 h-4" />
+              Alert Admin
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   // Group supervisors by status

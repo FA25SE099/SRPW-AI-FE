@@ -70,34 +70,20 @@ const ApprovalsRoute = () => {
   const pendingCount = data?.totalCount || 0;
 
   return (
-    <ContentLayout title="Approvals">
+    <div>
       <div className="space-y-6">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="rounded-lg border bg-white p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold">{pendingCount}</p>
-              </div>
-              <Clock className="h-8 w-8 text-yellow-500" />
+        <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
+              <CheckCircle className="size-8 text-white" />
             </div>
-          </div>
-          <div className="rounded-lg border bg-white p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Approved Today</p>
-                <p className="text-2xl font-bold">-</p>
-              </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
-            </div>
-          </div>
-          <div className="rounded-lg border bg-white p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Rejected Today</p>
-                <p className="text-2xl font-bold">-</p>
-              </div>
-              <XCircle className="h-8 w-8 text-red-500" />
+            <div>
+              <h1 className="text-3xl font-bold text-neutral-900">
+                Approvals
+              </h1>
+              <p className="text-sm text-neutral-600 mt-1">
+                Review and approve/reject production plans submitted by supervisors
+              </p>
             </div>
           </div>
         </div>
@@ -218,7 +204,7 @@ const ApprovalsRoute = () => {
           planId={selectedApproval.id}
         />
       )}
-    </ContentLayout>
+    </div>
   );
 };
 

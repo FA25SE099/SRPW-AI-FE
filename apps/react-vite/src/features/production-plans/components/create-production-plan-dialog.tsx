@@ -9,6 +9,8 @@ import { useCreateProductionPlan, CreateProductionPlanDTO } from '../api/create-
 import { useStandardPlans, useStandardPlan } from '@/features/standard-plans/api/get-standard-plans';
 import { useMaterials } from '@/features/materials/api/get-materials';
 import { useCalculateGroupMaterialCost, GroupMaterialCostResponse } from '@/features/materials/api/calculate-group-material-cost';
+import { useValidateProductionPlan, YearSeasonContextCard } from '@/features/yearseason';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Calendar,
   DollarSign,
@@ -20,6 +22,7 @@ import {
   Trash2,
   ArrowLeft,
   ArrowRight,
+  AlertCircle,
 } from 'lucide-react';
 
 type CreateProductionPlanDialogProps = {
@@ -82,6 +85,10 @@ export const CreateProductionPlanDialog = ({
   const basePlantingDate = watch('basePlantingDate');
   const planName = watch('planName'); // Add this line to watch planName
 
+  // YearSeason validation
+  const validatePlanMutation = useValidateProductionPlan();
+  const validationResult = validatePlanMutation.data;
+
   // Fetch standard plans list
   const standardPlansQuery = useStandardPlans({
     params: { isActive: true },
@@ -114,6 +121,13 @@ export const CreateProductionPlanDialog = ({
       type: 1
     }
   });
+  const seedsQuery = useMaterials({
+    params: {
+      currentPage: 1,
+      pageSize: 1000,
+      type: 2
+    }
+  });
 
   const calculateGroupCostMutation = useCalculateGroupMaterialCost();
 
@@ -137,6 +151,17 @@ export const CreateProductionPlanDialog = ({
       },
     },
   });
+
+  // Validate production plan against YearSeason when date changes
+  useEffect(() => {
+    if (groupId && basePlantingDate && step === 'select') {
+      validatePlanMutation.mutate({
+        groupId,
+        basePlantingDate,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [groupId, basePlantingDate]);
 
   const handleSelectPlan = (data: FormData) => {
     setFormData(data);
@@ -461,7 +486,9 @@ export const CreateProductionPlanDialog = ({
   const standardPlans = standardPlansData || [];
   const fertilizers = fertilizersQuery.data?.data || [];
   const pesticides = pesticidesQuery.data?.data || [];
-  const isLoading = createPlanMutation.isPending || fertilizersQuery.isLoading || pesticidesQuery.isLoading;
+  const seeds = seedsQuery.data?.data || [];
+  const materials = [...fertilizers, ...pesticides, ...seeds];
+  const isLoading = createPlanMutation.isPending || fertilizersQuery.isLoading || pesticidesQuery.isLoading || seedsQuery.isLoading;
 
   const getTitle = () => {
     switch (step) {
@@ -512,6 +539,35 @@ export const CreateProductionPlanDialog = ({
                     </div>
                   </div>
                 </div>
+
+                {/* YearSeason Context Display */}
+                {validationResult?.yearSeasonContext && (
+                  <YearSeasonContextCard context={validationResult.yearSeasonContext} />
+                )}
+
+                {/* Validation Errors */}
+                {validationResult?.errors && validationResult.errors.length > 0 && (
+                  <div className="space-y-2">
+                    {validationResult.errors.map((error, idx) => (
+                      <Alert key={idx} variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>{error.message}</AlertDescription>
+                      </Alert>
+                    ))}
+                  </div>
+                )}
+
+                {/* Validation Warnings */}
+                {validationResult?.warnings && validationResult.warnings.length > 0 && (
+                  <div className="space-y-2">
+                    {validationResult.warnings.map((warning, idx) => (
+                      <Alert key={idx}>
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>{warning.message}</AlertDescription>
+                      </Alert>
+                    ))}
+                  </div>
+                )}
 
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -585,10 +641,16 @@ export const CreateProductionPlanDialog = ({
                   </Button>
                   <Button
                     type="submit"
-                    disabled={!standardPlanId || !basePlantingDate || !planName} // Add planName check
+                    disabled={
+                      !standardPlanId ||
+                      !basePlantingDate ||
+                      !planName ||
+                      validatePlanMutation.isPending ||
+                      (validationResult && !validationResult.isValid)
+                    }
                     icon={<ArrowRight className="h-4 w-4" />}
                   >
-                    Next: Adapt Plan
+                    {validatePlanMutation.isPending ? 'Validating...' : 'Next: Adapt Plan'}
                   </Button>
                 </div>
               </form>
@@ -928,6 +990,15 @@ export const CreateProductionPlanDialog = ({
                                                       {pesticides.length > 0 && (
                                                         <optgroup label="Pesticides">
                                                           {pesticides.map((mat: any) => (
+                                                            <option key={mat.materialId} value={mat.materialId}>
+                                                              {mat.name} ({mat.unit})
+                                                            </option>
+                                                          ))}
+                                                        </optgroup>
+                                                      )}
+                                                      {seeds.length > 0 && (
+                                                        <optgroup label="Seeds">
+                                                          {seeds.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
                                                             </option>

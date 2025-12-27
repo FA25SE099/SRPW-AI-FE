@@ -108,43 +108,51 @@ const ClusterFarmers = () => {
   }
 
   return (
-    <ContentLayout title="Farmers Management">
+    <div>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold leading-snug text-gray-900">
-              Farmers
-            </h1>
-            <p className="mt-1 text-sm text-gray-600">
-              Manage all farmers in your cluster
-            </p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              onClick={() => setCreateDialogOpen(true)}
-              className="gap-2 bg-green-600 text-white hover:bg-green-700"
-              icon={<UserPlus className="size-4" />}
-            >
-              Create Farmer
-            </Button>
-            <Button
-              onClick={() => setImportDialogOpen(true)}
-              variant="outline"
-              className="gap-2 border-green-600 text-green-600 hover:bg-green-50"
-            >
-              Import Farmers
-            </Button>
-            <Button
-              onClick={handleExport}
-              disabled={exportMutation.isPending}
-              isLoading={exportMutation.isPending}
-              variant="outline"
-              icon={<Download className="size-4" />}
-              className="gap-2"
-            >
-              Export
-            </Button>
+        <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
+                <Users className="size-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">
+                  Farmers Management
+                </h1>
+                <p className="text-sm text-neutral-600 mt-1">
+                  Manage all farmers in your cluster
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setCreateDialogOpen(true)}
+                className="gap-2 bg-green-600 text-white hover:bg-green-700"
+              >
+                <UserPlus className="size-4" />
+                Create Farmer
+              </Button>
+              <Button
+                onClick={() => setImportDialogOpen(true)}
+                variant="outline"
+                className="gap-2 border-green-600 text-green-600 hover:bg-green-50"
+              >
+                Import Farmers
+              </Button>
+              <Button
+                onClick={handleExport}
+                disabled={exportMutation.isPending}
+                isLoading={exportMutation.isPending}
+                variant="outline"
+                className="gap-2"
+              >
+                <Download className="size-4" />
+                Export
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -266,9 +274,9 @@ const ClusterFarmers = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Plots
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                    {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Last Activity
-                    </th>
+                    </th> */}
                     <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                       Actions
                     </th>
@@ -320,7 +328,7 @@ const ClusterFarmers = () => {
                           {farmer.plotCount}
                         </div>
                       </td>
-                      <td className="whitespace-nowrap px-6 py-4">
+                      {/* <td className="whitespace-nowrap px-6 py-4">
                         <div className="text-sm text-gray-900">
                           {new Date(farmer.lastActivityAt).toLocaleDateString(
                             'en-US',
@@ -331,7 +339,7 @@ const ClusterFarmers = () => {
                             },
                           )}
                         </div>
-                      </td>
+                      </td> */}
                       <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                         <Button
                           variant="ghost"
@@ -398,7 +406,7 @@ const ClusterFarmers = () => {
         open={importDialogOpen}
         onOpenChange={setImportDialogOpen}
       />
-    </ContentLayout>
+    </div>
   );
 };
 

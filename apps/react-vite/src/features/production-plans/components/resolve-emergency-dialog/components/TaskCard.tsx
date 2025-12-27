@@ -1,5 +1,6 @@
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, Clock } from 'lucide-react';
 import { EditableTask } from '../types';
+import { formatDateForInput } from '@/utils/format-date';
 import { MaterialsEditor } from './MaterialsEditor';
 
 type TaskCardProps = {
@@ -10,6 +11,7 @@ type TaskCardProps = {
     hasTaskError: boolean;
     fertilizers: any[];
     pesticides: any[];
+    seeds: any[];
     isLoadingMaterials: boolean;
     onUpdateTask: (stageIndex: number, taskIndex: number, updates: Partial<EditableTask>) => void;
     onRemoveTask: (stageIndex: number, taskIndex: number) => void;
@@ -23,6 +25,7 @@ type TaskCardProps = {
     onRemoveMaterial: (stageIndex: number, taskIndex: number, materialIndex: number) => void;
     onAddMaterial: (stageIndex: number, taskIndex: number) => void;
     onOpenAddTaskMenu: (stageIndex: number, position: number) => void;
+    onPushScheduledDates: (stageIndex: number, taskIndex: number) => void;
 };
 
 export const TaskCard = ({
@@ -33,6 +36,7 @@ export const TaskCard = ({
     hasTaskError,
     fertilizers,
     pesticides,
+    seeds,
     isLoadingMaterials,
     onUpdateTask,
     onRemoveTask,
@@ -40,21 +44,29 @@ export const TaskCard = ({
     onRemoveMaterial,
     onAddMaterial,
     onOpenAddTaskMenu,
+    onPushScheduledDates,
 }: TaskCardProps) => {
-    // Disable editing for completed tasks
-    const isCompleted = task.status === 'Completed';
+    // Disable editing for completed tasks or EmergencyApproval tasks
+    const isCompleted = task.status === 'Completed' || task.status === 'EmergencyApproval';
     const isDisabled = isLoading || isCompleted;
+
+    const showActualStartDate = isCompleted || task.status === 'InProgress';
+    const showActualEndDate = isCompleted;
+    const isScheduledEndDateDisabled = isCompleted;
+
+    // Simple validation for required fields within the card
+    const hasScheduledEndDateError = !task.scheduledEndDate;
 
     return (
         <div className="relative">
             {/* Add task before this task - small icon button */}
-            {taskIndex === 0 && (
+            {taskIndex === 0 && !isCompleted && (
                 <button
                     type="button"
                     onClick={() => onOpenAddTaskMenu(stageIndex, 0)}
-                    disabled={isLoading}
+                    disabled={isDisabled}
                     className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
-                    title="Add task before"
+                    title={isCompleted ? 'Cannot add task before a completed/approved task' : 'Add task before'}
                 >
                     <Plus className="h-3.5 w-3.5" />
                 </button>
@@ -120,6 +132,11 @@ export const TaskCard = ({
                                 Emergency
                             </span>
                         )}
+                        {task.status === 'NewEmergency' && (
+                            <span className="inline-block text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded">
+                                New Emergency
+                            </span>
+                        )}
                         {task.status === 'EmergencyApproval' && (
                             <span className="inline-block text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">
                                 Emerg. Approval
@@ -131,7 +148,7 @@ export const TaskCard = ({
                         onClick={() => onRemoveTask(stageIndex, taskIndex)}
                         disabled={isDisabled}
                         className="p-0.5 text-red-600 hover:bg-red-50 rounded hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                        title={isCompleted ? 'Cannot delete completed tasks' : 'Delete task'}
+                        title={isCompleted ? 'Cannot delete completed tasks or emergency approval tasks' : 'Delete task'}
                     >
                         <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -192,6 +209,64 @@ export const TaskCard = ({
                         </div>
                     </div>
 
+                    <div className="grid grid-cols-1 gap-1.5">
+                        <div className="space-y-0.5">
+                            <label className="block text-[10px] font-medium text-gray-600">Scheduled End Date *</label>
+                            <input
+                                type="datetime-local"
+                                value={formatDateForInput(task.scheduledEndDate)}
+                                onChange={(e) => onUpdateTask(stageIndex, taskIndex, { scheduledEndDate: e.target.value || null })}
+                                disabled={isDisabled || isScheduledEndDateDisabled}
+                                min={new Date().toISOString().slice(0, 16)}
+                                className={`block w-full rounded-md border ${hasScheduledEndDateError && !isDisabled
+                                    ? 'border-red-500 bg-red-50'
+                                    : 'border-gray-300 bg-white'
+                                    } px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed`}
+                            />
+                            {hasScheduledEndDateError && !isDisabled && (
+                                <p className="text-[10px] text-red-600 mt-0.5">Scheduled end date is required</p>
+                            )}
+                        </div>
+                        {!isDisabled && (
+                            <button
+                                type="button"
+                                onClick={() => onPushScheduledDates(stageIndex, taskIndex)}
+                                className="flex items-center justify-center gap-1 w-full px-2 py-1 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 text-[10px] font-medium transition-colors border border-purple-200"
+                                title="Push all tasks after this one by X days"
+                            >
+                                <Clock className="h-3 w-3" />
+                                Push Dates Forward
+                            </button>
+                        )}
+                    </div>
+
+                    {(showActualStartDate || showActualEndDate) && (
+                        <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+                            {showActualStartDate && (
+                                <div className="space-y-0.5">
+                                    <label className="block text-[10px] font-medium text-gray-600">Actual Start Date</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={formatDateForInput(task.actualStartDate)}
+                                        disabled={true}
+                                        className="block w-full rounded-md border border-gray-300 bg-gray-100 px-1.5 py-0.5 text-xs cursor-not-allowed"
+                                    />
+                                </div>
+                            )}
+                            {showActualEndDate && (
+                                <div className="space-y-0.5">
+                                    <label className="block text-[10px] font-medium text-gray-600">Actual End Date</label>
+                                    <input
+                                        type="datetime-local"
+                                        value={formatDateForInput(task.actualEndDate)}
+                                        disabled={true}
+                                        className="block w-full rounded-md border border-gray-300 bg-gray-100 px-1.5 py-0.5 text-xs cursor-not-allowed"
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                     <div className="space-y-0.5">
                         <label className="block text-[10px] font-medium text-gray-600">Task Type</label>
                         <select
@@ -231,6 +306,7 @@ export const TaskCard = ({
                         isLoadingMaterials={isLoadingMaterials}
                         fertilizers={fertilizers}
                         pesticides={pesticides}
+                        seeds={seeds}
                         onUpdateMaterial={onUpdateMaterial}
                         onRemoveMaterial={onRemoveMaterial}
                         onAddMaterial={onAddMaterial}
@@ -251,4 +327,3 @@ export const TaskCard = ({
         </div>
     );
 };
-

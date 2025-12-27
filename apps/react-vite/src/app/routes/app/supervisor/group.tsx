@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { AlertCircle, Calendar, Plus, Users } from 'lucide-react';
+import { AlertCircle, Calendar, Plus, Users, Package } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
@@ -21,6 +21,7 @@ import { PlanProgressCard } from '@/features/supervisor/components/plan-progress
 import { EconomicsCard } from '@/features/supervisor/components/economics-card';
 import { CultivationPlanDetailDialog } from '@/features/supervisor/components/cultivation-plan-detail-dialog';
 import { CreateProductionPlanDialog } from '@/features/production-plans/components';
+import { YearSeasonInfoPanel, useYearSeasonDetail } from '@/features/yearseason';
 import { paths } from '@/config/paths';
 import { Head } from '@/components/seo/head';
 import { PlotDetail } from '@/types/group';
@@ -52,6 +53,16 @@ const SupervisorGroupPage = () => {
 
   // Get selected group from array
   const group = groups.find((g: any) => g.groupId === selectedGroupId);
+
+  // Fetch YearSeason info if group has yearSeasonId
+  const { data: yearSeasonData } = useYearSeasonDetail({
+    id: (group as any)?.yearSeasonId || '',
+    queryConfig: {
+      enabled: !!((group as any)?.yearSeasonId),
+    },
+  });
+  
+  const typedYearSeasonData = yearSeasonData as import('@/features/yearseason/types').YearSeason | undefined;
 
   // Auto-select first group when groups are loaded
   useEffect(() => {
@@ -118,12 +129,19 @@ const SupervisorGroupPage = () => {
           <Head title="My Group Management" />
 
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight">My Group Management</h1>
-                <p className="text-muted-foreground">
-                  No groups assigned for the selected season
-                </p>
+            <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
+                  <Users className="size-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-neutral-900">
+                    My Group Management
+                  </h1>
+                  <p className="text-sm text-neutral-600 mt-1">
+                    List groups assigned for the selected season
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -231,32 +249,43 @@ const SupervisorGroupPage = () => {
 
   return (
     <>
-      <Head title="My Group Management" />
-
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              My Groups - {group.season?.seasonName} {group.season?.year || (group as any).seasonYear}
-            </h1>
-            <p className="text-muted-foreground">
-              {(group as any).isCurrentSeason ? 'Current Season' : `Past Season (${group.season?.year || (group as any).seasonYear})`}
-              {groups.length > 1 && ` • Managing ${groups.length} groups`}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {group.currentState === 'PrePlanning' && group.readiness?.isReady && !group.planOverview && (
-              <Button onClick={handleCreateProductionPlan}>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Production Plan
-              </Button>
-            )}
-            {/* {group.currentState === 'PrePlanning' && !group.readiness?.isReady && (
-              // <Button variant="outline" onClick={handleFixPolygons}>
-              //   Fix {group.readiness?.plotsWithoutPolygon} Missing Polygons
-              // </Button>
-            )} */}
+        {/* Beautiful Header - nhất quán với các trang khác */}
+        <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
+                <Users className="size-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold text-neutral-900">
+                  My Groups - {group.season?.seasonName} {group.season?.year || (group as any).seasonYear}
+                </h1>
+                <p className="text-sm text-neutral-600 mt-1">
+                  {(group as any).isCurrentSeason ? 'Current Season' : `Past Season (${group.season?.year || (group as any).seasonYear})`}
+                  {groups.length > 1 && ` • Managing ${groups.length} groups`}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {/* Material Distributions Button - Show if group has production plan */}
+              {group.planOverview && (
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(paths.app.supervisor.materialDistributions.getHref(group.groupId))}
+                >
+                  <Package className="mr-2 h-4 w-4" />
+                  Material Distributions
+                </Button>
+              )}
+              {group.currentState === 'PrePlanning' && group.readiness?.isReady && !group.planOverview && (
+                <Button onClick={handleCreateProductionPlan}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Production Plan
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -310,6 +339,35 @@ const SupervisorGroupPage = () => {
             </>
           )}
         </div>
+
+        {/* YearSeason Info Panel */}
+        {typedYearSeasonData && (
+          <YearSeasonInfoPanel
+            yearSeasonId={typedYearSeasonData.id}
+            seasonName={(group as any)?.season?.seasonName || ''}
+            year={typedYearSeasonData.year}
+            status={typedYearSeasonData.status}
+            startDate={typedYearSeasonData.startDate}
+            endDate={typedYearSeasonData.endDate}
+            planningWindowStart={typedYearSeasonData.planningWindowStart}
+            planningWindowEnd={typedYearSeasonData.planningWindowEnd}
+            isPlanningWindowOpen={
+              new Date() >= new Date(typedYearSeasonData.planningWindowStart) &&
+              new Date() <= new Date(typedYearSeasonData.planningWindowEnd)
+            }
+            daysUntilPlanningWindowEnd={
+              Math.max(
+                0,
+                Math.ceil(
+                  (new Date(typedYearSeasonData.planningWindowEnd).getTime() - new Date().getTime()) /
+                    (1000 * 60 * 60 * 24)
+                )
+              )
+            }
+            allowedPlantingFlexibilityDays={typedYearSeasonData.allowedPlantingFlexibilityDays}
+            riceVarietyName={typedYearSeasonData.riceVarietyName || ''}
+          />
+        )}
 
         {/* State-based Content */}
         <div className="space-y-6">

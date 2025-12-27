@@ -2,6 +2,7 @@ export * from './current-season-card';
 export * from './readiness-panel';
 export * from './rice-variety-selection-card';
 export * from './group-formation-modal';
+export * from './group-formation-modal-v2';
 export * from './ungrouped-plots-manager';
 export * from './groups-dashboard';
 export * from './manager-select-dialog';

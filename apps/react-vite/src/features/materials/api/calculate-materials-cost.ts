@@ -4,9 +4,13 @@ import { MutationConfig } from '@/lib/react-query';
 
 export type MaterialCostCalculationRequest = {
   area: number;
-  materials: Array<{
-    materialId: string;
-    quantityPerHa: number;
+  tasks: Array<{
+    taskName: string;
+    taskDescription?: string;
+    materials: Array<{
+      materialId: string;
+      quantityPerHa: number;
+    }>;
   }>;
 };
 

@@ -2,8 +2,33 @@ import { useMutation } from '@tanstack/react-query';
 
 import { api } from '@/lib/api-client';
 import { MutationConfig } from '@/lib/react-query';
-import { GroupFormationParams, GroupPreviewResult } from '../types';
+import { 
+  GroupFormationParams, 
+  GroupPreviewResult,
+  PreviewGroupsResponse 
+} from '../types';
 
+// New preview API that returns enhanced response with supervisors
+export const previewGroupFormationV2 = async (
+  params: GroupFormationParams,
+): Promise<PreviewGroupsResponse> => {
+  const queryParams = new URLSearchParams({
+    clusterId: params.clusterId,
+    seasonId: params.seasonId,
+    year: params.year.toString(),
+    proximityThreshold: params.proximityThresholdMeters.toString(),
+    plantingDateTolerance: params.plantingDateToleranceDays.toString(),
+    minGroupArea: params.minGroupAreaHa.toString(),
+    maxGroupArea: params.maxGroupAreaHa.toString(),
+    minPlotsPerGroup: params.minPlots.toString(),
+    maxPlotsPerGroup: params.maxPlots.toString(),
+  });
+
+  const response: PreviewGroupsResponse = await api.get(`/Group/preview?${queryParams.toString()}`);
+  return response;
+};
+
+// Legacy preview API for backward compatibility
 export const previewGroupFormation = async (
   params: GroupFormationParams,
 ): Promise<GroupPreviewResult> => {
@@ -29,6 +54,7 @@ export const previewGroupFormation = async (
     proposedGroups: response.previewGroups?.map((group: any) => ({
       tempGroupId: `group-${group.groupNumber}`,
       groupNumber: group.groupNumber,
+      groupName: group.groupName,
       riceVariety: group.riceVarietyName,
       riceVarietyId: group.riceVarietyId,
       riceVarietyName: group.riceVarietyName,
@@ -81,6 +107,19 @@ export const usePreviewGroupFormation = ({
 }: UsePreviewGroupFormationOptions = {}) => {
   return useMutation({
     mutationFn: previewGroupFormation,
+    ...mutationConfig,
+  });
+};
+
+type UsePreviewGroupFormationV2Options = {
+  mutationConfig?: MutationConfig<typeof previewGroupFormationV2>;
+};
+
+export const usePreviewGroupFormationV2 = ({
+  mutationConfig,
+}: UsePreviewGroupFormationV2Options = {}) => {
+  return useMutation({
+    mutationFn: previewGroupFormationV2,
     ...mutationConfig,
   });
 };

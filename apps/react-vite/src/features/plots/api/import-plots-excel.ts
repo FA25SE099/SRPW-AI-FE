@@ -23,7 +23,7 @@ export type PlotImportData = {
 }
 
 export type ImportPlotsExcelResponse = {
-    succeeded: boolean;
+    success: boolean;
     message: string;
     data?: PlotImportData[];
     errors?: string[];

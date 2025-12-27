@@ -44,7 +44,7 @@ export const ResolveReportDialog = ({
     const { data: user } = useUser();
     const { addNotification } = useNotifications();
     const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm<FormData>();
-    const { fertilizers, pesticides, isLoadingMaterials } = useMaterialsData();
+    const { fertilizers, pesticides, seeds, isLoadingMaterials } = useMaterialsData();
 
     const { data: report, isLoading: isLoadingReport } = useReport({
         reportId,
@@ -210,6 +210,50 @@ export const ResolveReportDialog = ({
         });
     };
 
+    const handlePushScheduledDates = (stageIndex: number, taskIndex: number) => {
+        const daysInput = prompt('Enter the number of days to push all tasks after this one:');
+        if (!daysInput) return;
+
+        const days = parseInt(daysInput);
+        if (isNaN(days) || days <= 0) {
+            addNotification({
+                type: 'error',
+                title: 'Invalid Input',
+                message: 'Please enter a valid positive number.',
+            });
+            return;
+        }
+
+        const updatedStages = editableStages.map((stage, sIndex) => {
+            return {
+                ...stage,
+                tasks: stage.tasks.map((task, tIndex) => {
+                    // Check if this task comes after the specified task
+                    const isAfter =
+                        sIndex > stageIndex ||
+                        (sIndex === stageIndex && tIndex > taskIndex);
+
+                    if (isAfter && task.scheduledEndDate) {
+                        const currentDate = new Date(task.scheduledEndDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        return {
+                            ...task,
+                            scheduledEndDate: currentDate.toISOString(),
+                        };
+                    }
+                    return task;
+                }),
+            };
+        });
+
+        setEditableStages(updatedStages);
+        addNotification({
+            type: 'success',
+            title: 'Dates Updated',
+            message: `All tasks after this one have been pushed by ${days} day${days !== 1 ? 's' : ''}.`,
+        });
+    };
+
     const isLoading = resolveMutation.isPending || isLoadingPlan;
 
     if (!isOpen) return null;
@@ -266,6 +310,7 @@ export const ResolveReportDialog = ({
                                 validationErrors={validationErrors}
                                 fertilizers={fertilizers}
                                 pesticides={pesticides}
+                                seeds={seeds}
                                 isLoadingMaterials={isLoadingMaterials}
                                 handleUpdateTask={taskManagement.handleUpdateTask}
                                 handleRemoveTask={taskManagement.handleRemoveTask}
@@ -273,6 +318,7 @@ export const ResolveReportDialog = ({
                                 handleRemoveMaterial={taskManagement.handleRemoveMaterial}
                                 handleAddMaterial={taskManagement.handleAddMaterial}
                                 handleOpenAddTaskMenu={handleOpenAddTaskMenu}
+                                handlePushScheduledDates={handlePushScheduledDates}
                             />
                         )}
 
@@ -295,6 +341,7 @@ export const ResolveReportDialog = ({
                                 resolutionReason={watch('resolutionReason')}
                                 fertilizers={fertilizers}
                                 pesticides={pesticides}
+                                seeds={seeds}
                             />
                         )}
                     </div>

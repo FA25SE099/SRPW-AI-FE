@@ -17,6 +17,10 @@ export const convertCultivationPlanToEditableStages = (cultivationPlan: Cultivat
                 taskType: task.taskType,
                 daysAfter: calculateDaysAfter(cultivationPlan.basePlantingDate, task.scheduledDate),
                 durationDays: calculateDuration(task.scheduledDate, task.scheduledEndDate),
+                scheduledDate: task.scheduledDate || null,
+                scheduledEndDate: task.scheduledEndDate || null,
+                actualStartDate: task.actualStartDate || null,
+                actualEndDate: task.actualEndDate || null,
                 priority: task.priority,
                 sequenceOrder: task.sequenceOrder,
                 isFromProtocol: false,
@@ -56,15 +60,17 @@ export const convertEditableTasksToPayload = (
                 ? (stage.cultivationPlanTaskId || null)
                 : (task.originalTaskId || null);
             
-            // Emergency tasks get 'Emergency' status, original tasks keep their original status
-            const taskStatus = isEmergencyTask ? 'Emergency' : task.status;
+            // Emergency tasks get 'NewEmergency' status, original tasks keep their original status
+            const taskStatus = isEmergencyTask ? 'NewEmergency' : task.status;
             
             baseCultivationTasks.push({
                 cultivationPlanTaskId,
                 taskName: task.taskName,
                 description: task.description,
                 taskType: task.taskType,
-                scheduledEndDate: scheduledEndDate.toISOString(),
+                scheduledEndDate: task.scheduledEndDate || scheduledEndDate.toISOString(),
+                actualStartDate: task.actualStartDate || null,
+                actualEndDate: task.actualEndDate || null,
                 status: taskStatus,
                 executionOrder: task.sequenceOrder,
                 isContingency: isEmergencyTask,

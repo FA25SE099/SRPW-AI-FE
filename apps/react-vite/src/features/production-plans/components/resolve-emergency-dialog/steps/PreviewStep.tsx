@@ -11,6 +11,7 @@ type PreviewStepProps = {
     resolutionReason: string;
     fertilizers: any[];
     pesticides: any[];
+    seeds: any[];
 };
 
 export const PreviewStep = ({
@@ -22,6 +23,7 @@ export const PreviewStep = ({
     resolutionReason,
     fertilizers,
     pesticides,
+    seeds,
 }: PreviewStepProps) => {
     // Helper function to get material name by ID
     const getMaterialName = (materialId: string): string => {
@@ -30,6 +32,9 @@ export const PreviewStep = ({
 
         const pesticide = pesticides.find((p: any) => p.materialId === materialId);
         if (pesticide) return pesticide.name;
+
+        const seed = seeds.find((s: any) => s.materialId === materialId);
+        if (seed) return seed.name;
 
         return materialId; // Fallback to ID if not found
     };

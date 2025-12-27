@@ -59,7 +59,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
     return (
         <div className="space-y-4">
             {/* Header Stats */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <div className="rounded-lg border bg-white p-4 shadow-sm">
                     <div className="flex items-center justify-between">
                         <div>
@@ -87,7 +87,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                         <AlertTriangle className="h-8 w-8 text-red-500" />
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Search and Filters */}
             <div className="space-y-3">

@@ -64,19 +64,28 @@ const SupervisorFarmersPage = () => {
     }
 
     return (
-        <ContentLayout title="My Farmers">
+        <div>
             <Head title="My Farmers" />
             <div className="space-y-6">
                 {/* Header */}
-                <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold leading-snug text-gray-900">
-                            My Farmers
-                        </h1>
-                        <p className="mt-1 text-sm text-gray-600">
-                            View and manage farmers under your supervision
-                        </p>
+                <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
+                    <div className="flex items-center gap-4">
+                        <div className="rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 p-3 shadow-lg">
+                            <Users className="size-8 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-neutral-900">
+                                My Farmers
+                            </h1>
+                            <p className="text-sm text-neutral-600 mt-1">
+                                View and manage farmers under your supervision
+                            </p>
+                        </div>
                     </div>
+                </div>
+
+
+                <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 md:flex-row md:items-center md:justify-between">
                     <div className="flex gap-3">
                         <Button
                             onClick={() => {
@@ -84,9 +93,9 @@ const SupervisorFarmersPage = () => {
                                 setPageNumber(1);
                             }}
                             variant={onlyAssigned ? 'default' : 'outline'}
-                            icon={<Filter className="size-4" />}
                             className="gap-2"
                         >
+                            <Filter className="size-4" />
                             {onlyAssigned ? 'Assigned Only' : 'All in Cluster'}
                         </Button>
                     </div>
@@ -212,9 +221,9 @@ const SupervisorFarmersPage = () => {
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Plots
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Last Activity
-                                        </th>
+                                        </th> */}
                                         <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Actions
                                         </th>
@@ -274,7 +283,7 @@ const SupervisorFarmersPage = () => {
                                                     {farmer.plotCount}
                                                 </div>
                                             </td>
-                                            <td className="whitespace-nowrap px-6 py-4">
+                                            {/* <td className="whitespace-nowrap px-6 py-4">
                                                 <div className="text-sm text-gray-900">
                                                     {farmer.lastActivityAt
                                                         ? new Date(farmer.lastActivityAt).toLocaleDateString(
@@ -287,7 +296,7 @@ const SupervisorFarmersPage = () => {
                                                         )
                                                         : 'N/A'}
                                                 </div>
-                                            </td>
+                                            </td> */}
                                             <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                                 <Button
                                                     variant="ghost"
@@ -346,7 +355,7 @@ const SupervisorFarmersPage = () => {
                 open={detailDialogOpen}
                 onOpenChange={setDetailDialogOpen}
             />
-        </ContentLayout>
+        </div>
     );
 };
 

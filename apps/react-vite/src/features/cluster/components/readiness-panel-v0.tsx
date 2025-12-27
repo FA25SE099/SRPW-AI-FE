@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, AlertCircle, Info } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { ClusterCurrentSeason } from '../types';
 
 type ReadinessPanelV0Props = {
@@ -41,7 +41,7 @@ export const ReadinessPanelV0 = ({
               )}
               <div>
                 <p className="font-semibold text-foreground">
-                  {readiness.isReadyToFormGroups ? '✓ Ready to Form Groups' : '⚠ Not Ready'}
+                  {readiness.isReadyToFormGroups ? 'Ready to Form Groups' : 'Not Ready'}
                 </p>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   Readiness Score: {readiness.readinessScore}%
@@ -56,10 +56,6 @@ export const ReadinessPanelV0 = ({
               <span className="font-semibold text-foreground">{readiness.availableFarmers}</span>
             </div>
             <div className="flex items-start justify-between text-sm">
-              <span className="text-muted-foreground">Available Plots</span>
-              <span className="font-semibold text-foreground">{readiness.availablePlots}</span>
-            </div>
-            <div className="flex items-start justify-between text-sm">
               <span className="text-muted-foreground">Plots with Polygon</span>
               <span className="font-semibold text-foreground">{readiness.plotsWithPolygon}</span>
             </div>
@@ -67,9 +63,17 @@ export const ReadinessPanelV0 = ({
               <span className="text-muted-foreground">Missing Polygons</span>
               <span className="font-semibold text-destructive">{readiness.plotsWithoutPolygon}</span>
             </div>
-            <div className="flex items-start justify-between text-sm border-t border-border pt-3">
-              <span className="text-muted-foreground">Available Supervisors</span>
-              <span className="font-semibold text-foreground">{readiness.availableSupervisors}</span>
+            <div className={`flex items-start justify-between text-sm border-t border-border pt-3 p-2 rounded ${
+              readiness.availableSupervisors === 0 ? 'bg-red-50 border border-red-200' : ''
+            }`}>
+              <span className={`flex items-center gap-1 ${readiness.availableSupervisors === 0 ? 'text-red-700 font-medium' : 'text-muted-foreground'}`}>
+                Available Supervisors {readiness.availableSupervisors === 0 && <AlertTriangle className="w-4 h-4" />}
+              </span>
+              <span className={`font-semibold ${
+                readiness.availableSupervisors === 0 ? 'text-red-600' : 'text-foreground'
+              }`}>
+                {readiness.availableSupervisors}
+              </span>
             </div>
           </div>
 
@@ -101,18 +105,26 @@ export const ReadinessPanelV0 = ({
             </div>
           )}
 
-          {readiness.isReadyToFormGroups && !hasGroups && (
-            <div className="space-y-2 pt-4 border-t border-border">
-              {onViewDetails && (
-                <Button variant="outline" className="w-full" onClick={onViewDetails}>
-                  View Readiness Details
-                </Button>
-              )}
-              {onFormGroups && (
-                <Button className="w-full" onClick={onFormGroups}>
-                  Form Groups
-                </Button>
-              )}
+          {!hasGroups && onFormGroups && (
+            <div className="pt-4 border-t border-border">
+              <Button 
+                className="w-full" 
+                onClick={onFormGroups}
+                disabled={
+                  !readiness.isReadyToFormGroups || 
+                  readiness.availablePlots === 0 || 
+                  readiness.availableSupervisors === 0
+                }
+              >
+                {readiness.availablePlots === 0 
+                  ? 'No Plots Available'
+                  : readiness.availableSupervisors === 0
+                  ? 'No Supervisors Available'
+                  : !readiness.isReadyToFormGroups
+                  ? 'Not Ready to Form Groups'
+                  : 'Form Groups'
+                }
+              </Button>
             </div>
           )}
         </CardContent>

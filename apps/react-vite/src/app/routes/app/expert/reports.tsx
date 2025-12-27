@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ContentLayout } from '@/components/layouts';
 import { ReportsList, ReportDetailDialog } from '@/features/reports/components';
 import { ResolveReportDialog } from '@/features/reports/components/resolve-report-dialog';
+import { AlertCircle } from 'lucide-react';
 
 const ExpertReportsRoute = () => {
     const [selectedReportId, setSelectedReportId] = useState<string | null>(null);
@@ -13,18 +14,28 @@ const ExpertReportsRoute = () => {
 
     return (
         <>
-            <ContentLayout title="Plot Reports">
-                <div className="mb-4">
-                    <p className="text-sm text-gray-600">
-                        Review and resolve plot-level reports from farmers and supervisors
-                    </p>
+            <div>
+                <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm mb-6">
+                    <div className="flex items-center gap-4">
+                        <div className="rounded-xl bg-gradient-to-br from-red-500 to-red-600 p-3 shadow-lg">
+                            <AlertCircle className="size-8 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-neutral-900">
+                                Plot Reports
+                            </h1>
+                            <p className="text-sm text-neutral-600 mt-1">
+                                Review and resolve plot-level reports from farmers and supervisors
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <ReportsList
                     onViewDetails={(reportId) => setSelectedReportId(reportId)}
                     onResolve={handleResolve}
                 />
-            </ContentLayout>
+            </div>
 
             {/* Report Detail Dialog */}
             {selectedReportId && (
