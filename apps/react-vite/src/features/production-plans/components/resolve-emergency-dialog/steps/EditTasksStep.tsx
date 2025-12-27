@@ -24,6 +24,7 @@ type EditTasksStepProps = {
     handleRemoveMaterial: (stageIndex: number, taskIndex: number, materialIndex: number) => void;
     handleAddMaterial: (stageIndex: number, taskIndex: number) => void;
     handleOpenAddTaskMenu: (stageIndex: number, position: number) => void;
+    handlePushScheduledDates: (stageIndex: number, taskIndex: number) => void;
 };
 
 export const EditTasksStep = ({
@@ -41,6 +42,7 @@ export const EditTasksStep = ({
     handleRemoveMaterial,
     handleAddMaterial,
     handleOpenAddTaskMenu,
+    handlePushScheduledDates,
 }: EditTasksStepProps) => {
     if (isLoadingPlan) {
         return (
@@ -131,6 +133,7 @@ export const EditTasksStep = ({
                                                         onRemoveMaterial={handleRemoveMaterial}
                                                         onAddMaterial={handleAddMaterial}
                                                         onOpenAddTaskMenu={handleOpenAddTaskMenu}
+                                                        onPushScheduledDates={handlePushScheduledDates}
                                                     />
                                                 );
                                             })}
