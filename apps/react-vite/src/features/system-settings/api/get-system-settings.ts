@@ -19,7 +19,7 @@ export const getSystemSettingsQueryOptions = (params: GetSystemSettingsParams) =
 
 type UseSystemSettingsOptions = {
   params: GetSystemSettingsParams;
-  queryConfig?: QueryConfig<typeof getSystemSettingsQueryOptions>;
+  queryConfig?: Omit<ReturnType<typeof getSystemSettingsQueryOptions>, 'queryKey' | 'queryFn'>;
 };
 
 export const useSystemSettings = ({

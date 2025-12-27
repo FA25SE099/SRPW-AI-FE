@@ -18,7 +18,7 @@ export const getSystemSettingQueryOptions = (id: string) => {
 
 type UseSystemSettingOptions = {
   id: string;
-  queryConfig?: QueryConfig<typeof getSystemSettingQueryOptions>;
+  queryConfig?: Omit<ReturnType<typeof getSystemSettingQueryOptions>, 'queryKey' | 'queryFn'>;
 };
 
 export const useSystemSetting = ({
