@@ -517,14 +517,6 @@ export const YearSeasonFormDialog = ({
                       validate: (value) => {
                         if (!watch('allowFarmerSelection')) return true;
 
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const selectedDate = new Date(value || '');
-
-                        if (value && selectedDate < today) {
-                          return 'Selection window start cannot be in the past';
-                        }
-
                         const seasonStart = watch('startDate');
                         // if (seasonStart && value && new Date(value) >= new Date(seasonStart)) {
                         //   return 'Selection window must start before season starts';
@@ -551,14 +543,6 @@ export const YearSeasonFormDialog = ({
                       required: watch('allowFarmerSelection') && 'Selection window end is required',
                       validate: (value) => {
                         if (!watch('allowFarmerSelection')) return true;
-
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const selectedDate = new Date(value || '');
-
-                        if (value && selectedDate < today) {
-                          return 'Selection window end cannot be in the past';
-                        }
 
                         const start = watch('farmerSelectionWindowStart');
                         if (start && value && new Date(value) <= new Date(start)) {
