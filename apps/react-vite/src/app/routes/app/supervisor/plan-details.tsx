@@ -139,9 +139,9 @@ const TaskRowWithLogs = ({ task }: { task: any }) => {
         </TableCell>
         <TableCell>
           <div className="flex items-center gap-2">
-            <Badge variant={task.status === 'Completed' ? 'default' : 'outline'}>
+            {/* <Badge variant={task.status === 'Completed' ? 'default' : 'outline'}>
               {task.status}
-            </Badge>
+            </Badge> */}
             {isOpen && (
               <Button
                 variant="ghost"
@@ -454,7 +454,7 @@ const SupervisorPlanDetailsPage = () => {
                           <TableHead>Scheduled</TableHead>
                           <TableHead>Actual</TableHead>
                           <TableHead>Cost</TableHead>
-                          <TableHead>Status</TableHead>
+                          {/* <TableHead>Status</TableHead> */}
                         </TableRow>
                       </TableHeader>
                       <TableBody>
