@@ -16,7 +16,7 @@ export const getSystemSettingCategoriesQueryOptions = () => {
 };
 
 type UseSystemSettingCategoriesOptions = {
-  queryConfig?: QueryConfig<typeof getSystemSettingCategoriesQueryOptions>;
+  queryConfig?: Omit<ReturnType<typeof getSystemSettingCategoriesQueryOptions>, 'queryKey' | 'queryFn'>;
 };
 
 export const useSystemSettingCategories = ({

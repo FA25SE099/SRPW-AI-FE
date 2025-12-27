@@ -28,7 +28,7 @@ export const SystemSettingsList = () => {
 
   // Debounced search
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  
+
   useMemo(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchKey);
@@ -137,7 +137,7 @@ export const SystemSettingsList = () => {
                   >
                     All
                   </Button>
-                  {categories.map((category) => (
+                  {categories.map((category: string) => (
                     <Button
                       key={category}
                       variant={selectedCategory === category ? 'default' : 'outline'}
@@ -190,7 +190,7 @@ export const SystemSettingsList = () => {
         </Card>
       ) : (
         <div className="space-y-4">
-          {settings.map((setting) => (
+          {settings.map((setting: any) => (
             <Card key={setting.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
