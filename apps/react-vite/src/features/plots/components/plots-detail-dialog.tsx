@@ -175,7 +175,7 @@ export const PlotsDetailDialog = ({
             onValueChange={(v) => setActiveTab(v as typeof activeTab)}
             className="flex flex-col"
           >
-            <TabsList className="grid h-auto w-full grid-cols-4 gap-0 rounded-none border-b border-neutral-200 bg-white px-8 py-0">
+            <TabsList className="grid h-auto w-full grid-cols-3 gap-0 rounded-none border-b border-neutral-200 bg-white px-8 py-0">
               <TabsTrigger
                 value="overview"
                 className="gap-2 rounded-none border-b-2 border-transparent px-0 py-4 text-sm font-medium text-neutral-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600"
@@ -190,13 +190,13 @@ export const PlotsDetailDialog = ({
                 <Calendar className="size-4" />
                 Seasons ({plot.seasons?.length || 0})
               </TabsTrigger>
-              <TabsTrigger
+              {/* <TabsTrigger
                 value="plans"
                 className="gap-2 rounded-none border-b-2 border-transparent px-0 py-4 text-sm font-medium text-neutral-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600"
               >
                 <TrendingUp className="size-4" />
                 Plans ({plot.productionPlans?.length || 0})
-              </TabsTrigger>
+              </TabsTrigger> */}
               <TabsTrigger
                 value="cultivations"
                 className="gap-2 rounded-none border-b-2 border-transparent px-0 py-4 text-sm font-medium text-neutral-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600"
@@ -364,11 +364,10 @@ export const PlotsDetailDialog = ({
                     {plot.seasons.map((season) => (
                       <div
                         key={season.seasonId}
-                        className={`rounded-lg border p-5 transition-all ${
-                          season.isActive
-                            ? 'border-emerald-200 bg-emerald-50 shadow-sm'
-                            : 'border-neutral-200 bg-white hover:shadow-sm'
-                        }`}
+                        className={`rounded-lg border p-5 transition-all ${season.isActive
+                          ? 'border-emerald-200 bg-emerald-50 shadow-sm'
+                          : 'border-neutral-200 bg-white hover:shadow-sm'
+                          }`}
                       >
                         <div className="mb-4 flex items-start justify-between">
                           <div className="flex-1">
@@ -463,8 +462,8 @@ export const PlotsDetailDialog = ({
                             <p className="text-sm font-semibold text-neutral-900">
                               {plan.submittedAt
                                 ? new Date(
-                                    plan.submittedAt,
-                                  ).toLocaleDateString()
+                                  plan.submittedAt,
+                                ).toLocaleDateString()
                                 : 'Pending'}
                             </p>
                           </div>
@@ -492,11 +491,10 @@ export const PlotsDetailDialog = ({
                                 {plan.currentProductionStages.map((stage) => (
                                   <div
                                     key={stage.productionStageId}
-                                    className={`flex items-center justify-between rounded-lg border p-3 transition-colors ${
-                                      stage.isActive
-                                        ? 'border-emerald-200 bg-emerald-50'
-                                        : 'border-neutral-200 bg-neutral-50'
-                                    }`}
+                                    className={`flex items-center justify-between rounded-lg border p-3 transition-colors ${stage.isActive
+                                      ? 'border-emerald-200 bg-emerald-50'
+                                      : 'border-neutral-200 bg-neutral-50'
+                                      }`}
                                   >
                                     <div className="flex items-center gap-3">
                                       <div className="flex size-8 items-center justify-center rounded-full border-2 border-emerald-500 bg-white text-xs font-bold text-emerald-700">
@@ -523,19 +521,18 @@ export const PlotsDetailDialog = ({
                                         <div
                                           className="h-full rounded-full bg-emerald-500 transition-all"
                                           style={{
-                                            width: `${
-                                              stage.productionPlanTasks &&
+                                            width: `${stage.productionPlanTasks &&
                                               stage.productionPlanTasks.length >
-                                                0
-                                                ? (stage.productionPlanTasks.filter(
-                                                    (t) =>
-                                                      t.status === 'Completed',
-                                                  ).length /
-                                                    stage.productionPlanTasks
-                                                      .length) *
-                                                  100
-                                                : 0
-                                            }%`,
+                                              0
+                                              ? (stage.productionPlanTasks.filter(
+                                                (t) =>
+                                                  t.status === 'Completed',
+                                              ).length /
+                                                stage.productionPlanTasks
+                                                  .length) *
+                                              100
+                                              : 0
+                                              }%`,
                                           }}
                                         />
                                       </div>
@@ -562,7 +559,7 @@ export const PlotsDetailDialog = ({
 
               <TabsContent value="cultivations" className="mt-0 space-y-4">
                 {!plot.plotCultivations ||
-                plot.plotCultivations.length === 0 ? (
+                  plot.plotCultivations.length === 0 ? (
                   <div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 py-16 text-center">
                     <Leaf className="mx-auto mb-3 size-12 text-neutral-300" />
                     <p className="font-medium text-neutral-600">
@@ -621,7 +618,7 @@ export const PlotsDetailDialog = ({
                         </div>
 
                         {cultivation.cultivationTasks &&
-                        cultivation.cultivationTasks.length > 0 ? (
+                          cultivation.cultivationTasks.length > 0 ? (
                           <div>
                             <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-neutral-900">
                               <FileText className="size-4 text-emerald-600" />
@@ -666,13 +663,12 @@ export const PlotsDetailDialog = ({
                                       </div>
                                       <Badge
                                         variant="outline"
-                                        className={`ml-3 whitespace-nowrap text-xs ${
-                                          taskStatus === 'Completed'
-                                            ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
-                                            : taskStatus === 'InProgress'
-                                              ? 'border-amber-300 bg-amber-50 text-amber-700'
-                                              : 'border-neutral-300 text-neutral-700'
-                                        }`}
+                                        className={`ml-3 whitespace-nowrap text-xs ${taskStatus === 'Completed'
+                                          ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                                          : taskStatus === 'InProgress'
+                                            ? 'border-amber-300 bg-amber-50 text-amber-700'
+                                            : 'border-neutral-300 text-neutral-700'
+                                          }`}
                                       >
                                         {taskStatus}
                                       </Badge>
@@ -692,8 +688,8 @@ export const PlotsDetailDialog = ({
                                         <p className="text-sm font-medium text-neutral-900">
                                           {task.actualStartDate
                                             ? new Date(
-                                                task.actualStartDate,
-                                              ).toLocaleDateString()
+                                              task.actualStartDate,
+                                            ).toLocaleDateString()
                                             : 'Not started'}
                                         </p>
                                       </div>
@@ -704,8 +700,8 @@ export const PlotsDetailDialog = ({
                                         <p className="text-sm font-medium text-neutral-900">
                                           {task.actualEndDate
                                             ? new Date(
-                                                task.actualEndDate,
-                                              ).toLocaleDateString()
+                                              task.actualEndDate,
+                                            ).toLocaleDateString()
                                             : 'In progress'}
                                         </p>
                                       </div>

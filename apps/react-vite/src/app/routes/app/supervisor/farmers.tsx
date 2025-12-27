@@ -221,9 +221,9 @@ const SupervisorFarmersPage = () => {
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Plots
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                                        {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Last Activity
-                                        </th>
+                                        </th> */}
                                         <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Actions
                                         </th>
@@ -283,7 +283,7 @@ const SupervisorFarmersPage = () => {
                                                     {farmer.plotCount}
                                                 </div>
                                             </td>
-                                            <td className="whitespace-nowrap px-6 py-4">
+                                            {/* <td className="whitespace-nowrap px-6 py-4">
                                                 <div className="text-sm text-gray-900">
                                                     {farmer.lastActivityAt
                                                         ? new Date(farmer.lastActivityAt).toLocaleDateString(
@@ -296,7 +296,7 @@ const SupervisorFarmersPage = () => {
                                                         )
                                                         : 'N/A'}
                                                 </div>
-                                            </td>
+                                            </td> */}
                                             <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                                                 <Button
                                                     variant="ghost"

@@ -375,6 +375,7 @@ const AdminClustersRoute = () => {
 
   const handleCreateManager = (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     createManagerMutation.mutate(newManager, {
       onSuccess: (response) => {
@@ -422,6 +423,7 @@ const AdminClustersRoute = () => {
 
   const handleCreateExpert = (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     createExpertMutation.mutate(newExpert, {
       onSuccess: (response) => {
@@ -483,6 +485,7 @@ const AdminClustersRoute = () => {
 
   const handleCreateSupervisor = (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
 
     createSupervisorMutation.mutate(newSupervisor, {
       onSuccess: (response) => {
@@ -1091,7 +1094,7 @@ const AdminClustersRoute = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {cluster.supervisors &&
-                          cluster.supervisors.length > 0 ? (
+                            cluster.supervisors.length > 0 ? (
                             <div className="flex items-center gap-2">
                               <UserCheck className="h-4 w-4 text-blue-500" />
                               <span className="text-sm font-medium text-gray-900">

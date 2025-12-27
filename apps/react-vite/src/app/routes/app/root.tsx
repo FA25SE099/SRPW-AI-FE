@@ -246,15 +246,15 @@ const AppRoot = () => {
         end: true,
       },
       {
-        name: 'Maps',
-        to: paths.app.supervisor.maps.getHref(),
-        icon: Map,
-        end: true,
-      },
-      {
         name: 'Late Management',
         to: paths.app.supervisor.lateManagement.getHref(),
         icon: Clock,
+        end: true,
+      },
+      {
+        name: 'Maps',
+        to: paths.app.supervisor.maps.getHref(),
+        icon: Map,
         end: true,
       },
     ];
