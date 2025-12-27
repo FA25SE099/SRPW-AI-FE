@@ -72,7 +72,7 @@ export const RiceVarietiesList = () => {
       </div>
     );
   }
-  
+
   // Group by category
   const groupedVarieties = riceVarieties.reduce((acc: Record<string, RiceVarietyWithSeasons[]>, variety: RiceVarietyWithSeasons) => {
     if (!acc[variety.categoryName]) {
@@ -88,7 +88,11 @@ export const RiceVarietiesList = () => {
     if (!existing) {
       acc.push({
         id: variety.categoryId,
-        name: variety.categoryName,
+        categoryName: variety.categoryName,
+        categoryCode: '',
+        minGrowthDays: 0,
+        maxGrowthDays: 0,
+        isActive: true,
       });
     }
     return acc;
@@ -163,7 +167,7 @@ export const RiceVarietiesList = () => {
                 <h2 className="text-lg font-semibold text-gray-900">{categoryName}</h2>
                 <p className="text-sm text-gray-500">{varieties.length} varieties</p>
               </div>
-              
+
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
                 {varieties.map((variety: RiceVarietyWithSeasons) => (
                   <div
@@ -183,11 +187,10 @@ export const RiceVarietiesList = () => {
                         </div>
                       </div>
                       <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${
-                          variety.isActive
+                        className={`rounded-full px-2 py-1 text-xs font-medium ${variety.isActive
                             ? 'bg-green-100 text-green-700'
                             : 'bg-gray-100 text-gray-700'
-                        }`}
+                          }`}
                       >
                         {variety.isActive ? 'Active' : 'Inactive'}
                       </span>
@@ -259,7 +262,7 @@ export const RiceVarietiesList = () => {
                           Add Season
                         </Button>
                       </div>
-                      
+
                       {variety.associatedSeasons && variety.associatedSeasons.length > 0 ? (
                         <div className="space-y-2">
                           {variety.associatedSeasons.map((association) => (
@@ -275,13 +278,12 @@ export const RiceVarietiesList = () => {
                                         Recommended
                                       </span>
                                     )}
-                                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                                      association.riskLevel === 0 ? 'bg-green-100 text-green-700' :
-                                      association.riskLevel === 1 ? 'bg-yellow-100 text-yellow-700' :
-                                      'bg-red-100 text-red-700'
-                                    }`}>
+                                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${association.riskLevel === 0 ? 'bg-green-100 text-green-700' :
+                                        association.riskLevel === 1 ? 'bg-yellow-100 text-yellow-700' :
+                                          'bg-red-100 text-red-700'
+                                      }`}>
                                       {association.riskLevel === 0 ? 'Low Risk' :
-                                       association.riskLevel === 1 ? 'Medium Risk' : 'High Risk'}
+                                        association.riskLevel === 1 ? 'Medium Risk' : 'High Risk'}
                                     </span>
                                   </div>
                                   <div className="mt-1 text-xs text-blue-700">
