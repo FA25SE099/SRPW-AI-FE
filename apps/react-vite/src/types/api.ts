@@ -231,8 +231,12 @@ export type PagedResult<T> = {
 // Rice Variety Management Types
 export type RiceVarietyCategory = {
   id: string;
-  name: string;
+  categoryName: string;
+  categoryCode: string;
   description?: string;
+  minGrowthDays: number;
+  maxGrowthDays: number;
+  isActive: boolean;
 };
 
 export type RiceVariety = {
