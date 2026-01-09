@@ -260,8 +260,8 @@ const AdminClustersRoute = () => {
         onSuccess: () => {
           addNotification({
             type: 'success',
-            title: 'Success',
-            message: 'Cluster created successfully',
+            title: 'Thành công',
+            message: 'Tạo cụm thành công',
           });
           handleCreateDialogClose();
         },
@@ -269,9 +269,8 @@ const AdminClustersRoute = () => {
           console.error('Create cluster error:', error);
           addNotification({
             type: 'error',
-            title: 'Error',
-            message:
-              error?.response?.data?.message || 'Failed to create cluster',
+            title: 'Lỗi',
+            message: error?.response?.data?.message || 'Không thể tạo cụm',
           });
         },
       },
@@ -310,8 +309,8 @@ const AdminClustersRoute = () => {
         onSuccess: () => {
           addNotification({
             type: 'success',
-            title: 'Success',
-            message: 'Cluster updated successfully',
+            title: 'Thành công',
+            message: 'Cập nhật cụm thành công',
           });
           handleEditDialogClose();
         },
@@ -319,9 +318,8 @@ const AdminClustersRoute = () => {
           console.error('Update cluster error:', error);
           addNotification({
             type: 'error',
-            title: 'Error',
-            message:
-              error?.response?.data?.message || 'Failed to update cluster',
+            title: 'Lỗi',
+            message: error?.response?.data?.message || 'Không thể cập nhật cụm',
           });
         },
       },
@@ -383,8 +381,8 @@ const AdminClustersRoute = () => {
 
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Cluster Manager created successfully',
+          title: 'Thành công',
+          message: 'Tạo quản lý cụm thành công',
         });
 
         // Extract the new manager ID from response
@@ -431,8 +429,8 @@ const AdminClustersRoute = () => {
 
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Agronomy Expert created successfully',
+          title: 'Thành công',
+          message: 'Tạo chuyên gia nông học thành công',
         });
 
         // Extract the new expert ID from response
@@ -493,8 +491,8 @@ const AdminClustersRoute = () => {
 
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Supervisor created successfully',
+          title: 'Thành công',
+          message: 'Tạo giám sát viên thành công',
         });
 
         // Extract the new supervisor ID from response
@@ -532,9 +530,9 @@ const AdminClustersRoute = () => {
         console.error('Create supervisor error:', error);
         addNotification({
           type: 'error',
-          title: 'Error',
+          title: 'Lỗi',
           message:
-            error?.response?.data?.message || 'Failed to create supervisor',
+            error?.response?.data?.message || 'Không thể tạo giám sát viên',
         });
       },
     });
@@ -581,14 +579,14 @@ const AdminClustersRoute = () => {
   const clusterHasPrevious = clustersData?.data.hasPrevious || false;
 
   return (
-    <ContentLayout title="Cluster Management">
+    <ContentLayout title="Quản lý cụm">
       <div className="space-y-6">
         {/* Header with Create Button */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-gray-900">Clusters</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">Các cụm</h2>
             <p className="mt-1 text-sm text-gray-600">
-              Manage clusters, assign managers and agronomy experts
+              Quản lý cụm, phân công quản lý và chuyên gia nông học
             </p>
           </div>
           <Dialog
@@ -596,24 +594,22 @@ const AdminClustersRoute = () => {
             onOpenChange={setIsCreateDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button onClick={() => setIsEditMode(false)}>
-                Create Cluster
-              </Button>
+              <Button onClick={() => setIsEditMode(false)}>Tạo cụm</Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
-                <DialogTitle>Create New Cluster</DialogTitle>
+                <DialogTitle>Tạo cụm mới</DialogTitle>
               </DialogHeader>
 
               <form onSubmit={handleCreateCluster} className="space-y-6">
                 {/* Cluster Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="clusterName">Cluster Name *</Label>
+                  <Label htmlFor="clusterName">Tên cụm *</Label>
                   <Input
                     id="clusterName"
                     value={clusterName}
                     onChange={(e) => setClusterName(e.target.value)}
-                    placeholder="Enter cluster name"
+                    placeholder="Nhập tên cụm"
                     required
                   />
                 </div>
@@ -621,7 +617,7 @@ const AdminClustersRoute = () => {
                 {/* Cluster Manager */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>Cluster Manager *</Label>
+                    <Label>Quản lý cụm *</Label>
                     <CreateManagerDialog
                       open={isManagerDialogOpen}
                       onOpenChange={setIsManagerDialogOpen}
@@ -668,7 +664,7 @@ const AdminClustersRoute = () => {
                 {/* Agronomy Expert */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>Agronomy Expert *</Label>
+                    <Label>Chuyên gia nông học *</Label>
                     <CreateExpertDialog
                       open={isExpertDialogOpen}
                       onOpenChange={setIsExpertDialogOpen}
@@ -714,7 +710,7 @@ const AdminClustersRoute = () => {
 
                 {/* Supervisors */}
                 <div className="space-y-2">
-                  <Label>Supervisors *</Label>
+                  <Label>Giám sát viên *</Label>
 
                   <SupervisorSelectDialog
                     open={isSupervisorSelectOpen}
@@ -755,15 +751,15 @@ const AdminClustersRoute = () => {
                     variant="outline"
                     onClick={handleCreateDialogClose}
                   >
-                    Cancel
+                    Hủy
                   </Button>
                   <Button
                     type="submit"
                     disabled={createClusterMutation.isPending}
                   >
                     {createClusterMutation.isPending
-                      ? 'Creating...'
-                      : 'Create Cluster'}
+                      ? 'Đang tạo...'
+                      : 'Tạo cụm'}
                   </Button>
                 </div>
               </form>
@@ -775,18 +771,18 @@ const AdminClustersRoute = () => {
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Edit Cluster</DialogTitle>
+              <DialogTitle>Chỉnh sửa cụm</DialogTitle>
             </DialogHeader>
 
             <form onSubmit={handleUpdateCluster} className="space-y-6">
               {/* Cluster Name */}
               <div className="space-y-2">
-                <Label htmlFor="editClusterName">Cluster Name *</Label>
+                <Label htmlFor="editClusterName">Tên cụm *</Label>
                 <Input
                   id="editClusterName"
                   value={clusterName}
                   onChange={(e) => setClusterName(e.target.value)}
-                  placeholder="Enter cluster name"
+                  placeholder="Nhập tên cụm"
                   required
                 />
               </div>
@@ -794,7 +790,7 @@ const AdminClustersRoute = () => {
               {/* Cluster Manager */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>Cluster Manager *</Label>
+                  <Label>Quản lý cụm *</Label>
                   <CreateManagerDialog
                     open={isManagerDialogOpen}
                     onOpenChange={setIsManagerDialogOpen}
@@ -841,7 +837,7 @@ const AdminClustersRoute = () => {
               {/* Agronomy Expert */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>Agronomy Expert *</Label>
+                  <Label>Chuyên gia nông học *</Label>
                   <CreateExpertDialog
                     open={isExpertDialogOpen}
                     onOpenChange={setIsExpertDialogOpen}
@@ -888,7 +884,7 @@ const AdminClustersRoute = () => {
               {/* Supervisors */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label>Supervisors (At least 1)</Label>
+                  <Label>Giám sát viên (Ít nhất 1)</Label>
                 </div>
 
                 <SupervisorSelectDialog
@@ -930,15 +926,15 @@ const AdminClustersRoute = () => {
                   variant="outline"
                   onClick={handleEditDialogClose}
                 >
-                  Cancel
+                  Hủy
                 </Button>
                 <Button
                   type="submit"
                   disabled={updateClusterMutation.isPending}
                 >
                   {updateClusterMutation.isPending
-                    ? 'Updating...'
-                    : 'Update Cluster'}
+                    ? 'Đang cập nhật...'
+                    : 'Cập nhật cụm'}
                 </Button>
               </div>
             </form>
@@ -951,7 +947,7 @@ const AdminClustersRoute = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search by cluster name"
+                placeholder="Tìm theo tên cụm"
                 value={clusterNameSearch}
                 onChange={(e) => {
                   setClusterNameSearch(e.target.value);
@@ -963,7 +959,7 @@ const AdminClustersRoute = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search by manager/expert name/email"
+                placeholder="Tìm theo tên/email quản lý/chuyên gia"
                 value={managerExpertNameSearch}
                 onChange={(e) => {
                   setManagerExpertNameSearch(e.target.value);
@@ -975,7 +971,7 @@ const AdminClustersRoute = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search by phone number"
+                placeholder="Tìm theo số điện thoại"
                 value={phoneNumberSearch}
                 onChange={(e) => {
                   setPhoneNumberSearch(e.target.value);
@@ -992,18 +988,16 @@ const AdminClustersRoute = () => {
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Sort by" />
+                <SelectValue placeholder="Sắp xếp theo" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={SortBy.NameAscending}>Name (A-Z)</SelectItem>
-                <SelectItem value={SortBy.NameDescending}>
-                  Name (Z-A)
-                </SelectItem>
+                <SelectItem value={SortBy.NameAscending}>Tên (A-Z)</SelectItem>
+                <SelectItem value={SortBy.NameDescending}>Tên (Z-A)</SelectItem>
                 <SelectItem value={SortBy.DateCreatedAscending}>
-                  Date (Oldest)
+                  Ngày (Cũ nhất)
                 </SelectItem>
                 <SelectItem value={SortBy.DateCreatedDescending}>
-                  Date (Newest)
+                  Ngày (Mới nhất)
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -1013,15 +1007,11 @@ const AdminClustersRoute = () => {
         {/* Clusters List */}
         <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
           {isLoadingClusters ? (
-            <div className="p-8 text-center text-gray-500">
-              Loading clusters...
-            </div>
+            <div className="p-8 text-center text-gray-500">Đang tải cụm...</div>
           ) : clusters.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
-              <p className="text-lg font-medium">No clusters found</p>
-              <p className="text-sm mt-2">
-                Create your first cluster to get started
-              </p>
+              <p className="text-lg font-medium">Không tìm thấy cụm nào</p>
+              <p className="text-sm mt-2">Tạo cụm đầu tiên để bắt đầu</p>
             </div>
           ) : (
             <>
@@ -1030,19 +1020,19 @@ const AdminClustersRoute = () => {
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cluster Name
+                        Tên cụm
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Manager
+                        Quản lý
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Agronomy Expert
+                        Chuyên gia nông học
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Supervisors
+                        Giám sát viên
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
+                        Thao tác
                       </th>
                     </tr>
                   </thead>
@@ -1094,17 +1084,16 @@ const AdminClustersRoute = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           {cluster.supervisors &&
-                            cluster.supervisors.length > 0 ? (
+                          cluster.supervisors.length > 0 ? (
                             <div className="flex items-center gap-2">
                               <UserCheck className="h-4 w-4 text-blue-500" />
                               <span className="text-sm font-medium text-gray-900">
-                                {cluster.supervisors.length} supervisor
-                                {cluster.supervisors.length !== 1 ? 's' : ''}
+                                {cluster.supervisors.length} giám sát viên
                               </span>
                             </div>
                           ) : (
                             <span className="text-sm text-gray-500">
-                              No supervisors
+                              Không có giám sát viên
                             </span>
                           )}
                         </td>
@@ -1128,9 +1117,8 @@ const AdminClustersRoute = () => {
               {/* Pagination */}
               <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                 <div className="text-sm text-gray-600">
-                  Showing page {clusterPage} of{' '}
-                  {clustersData?.data?.totalPages || 1} (
-                  {clustersData?.data?.totalCount || 0} total clusters)
+                  Trang {clusterPage} / {clustersData?.data?.totalPages || 1} (
+                  {clustersData?.data?.totalCount || 0} tổng số cụm)
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -1139,7 +1127,7 @@ const AdminClustersRoute = () => {
                     onClick={() => setClusterPage((p) => Math.max(1, p - 1))}
                     disabled={!clusterHasPrevious}
                   >
-                    Previous
+                    Trước
                   </Button>
                   <Button
                     variant="outline"
@@ -1147,7 +1135,7 @@ const AdminClustersRoute = () => {
                     onClick={() => setClusterPage((p) => p + 1)}
                     disabled={!clusterHasNext}
                   >
-                    Next
+                    Sau
                   </Button>
                 </div>
               </div>
