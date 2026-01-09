@@ -28,13 +28,13 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
           <>
             <Input
               type="email"
-              label="Email Address"
+              label="Địa chỉ email hoặc số điện thoại"
               error={formState.errors['email']}
               registration={register('email')}
             />
             <Input
               type="password"
-              label="Password"
+              label="Mật khẩu"
               error={formState.errors['password']}
               registration={register('password')}
             />
@@ -44,15 +44,13 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 type="submit"
                 className="w-full"
               >
-                Log in
+                Đăng nhập
               </Button>
             </div>
           </>
         )}
       </Form>
-      <div className="mt-2 flex items-center justify-end">
-
-      </div>
+      <div className="mt-2 flex items-center justify-end"></div>
     </div>
   );
 };
