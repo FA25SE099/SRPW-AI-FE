@@ -72,11 +72,11 @@ export const AssociateSeasonDialog = ({
     <SimpleDialog
       isOpen={isOpen}
       onClose={onClose}
-      title={`Associate ${riceVariety?.varietyName} with Season`}
+      title={`Liên Kết ${riceVariety?.varietyName} với Mùa Vụ`}
     >
       <div className="space-y-6">
         <p className="text-sm text-gray-600">
-          Create a detailed association between this rice variety and a season with specific growing parameters.
+          Tạo liên kết chi tiết giữa giống lúa này và mùa vụ với các thông số trồng trọt cụ thể.
         </p>
 
         {riceVariety && (
@@ -89,7 +89,7 @@ export const AssociateSeasonDialog = ({
                 <h3 className="font-semibold text-gray-900">{riceVariety.varietyName}</h3>
                 <p className="text-sm text-gray-500">{riceVariety.categoryName}</p>
                 <p className="text-xs text-gray-400">
-                  Base: {riceVariety.baseGrowthDurationDays} days, {riceVariety.baseYieldPerHectare} tons/ha
+                  Cơ bản: {riceVariety.baseGrowthDurationDays} ngày, {riceVariety.baseYieldPerHectare} tấn/ha
                 </p>
               </div>
             </div>
@@ -99,7 +99,7 @@ export const AssociateSeasonDialog = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Select Season *
+              Chọn Mùa Vụ *
             </label>
             {seasonsLoading ? (
               <div className="flex items-center justify-center py-4">
@@ -112,7 +112,7 @@ export const AssociateSeasonDialog = ({
                 disabled={isLoading}
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
               >
-                <option value="">Choose a season...</option>
+                <option value="">Chọn mùa vụ...</option>
                 {seasons.map((season: Season) => (
                   <option key={season.id} value={season.id}>
                     {season.seasonName} ({season.startDate} - {season.endDate})
@@ -124,7 +124,7 @@ export const AssociateSeasonDialog = ({
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Risk Level
+              Mức Độ Rủi Ro
             </label>
             <select
               value={riskLevel}
@@ -132,9 +132,9 @@ export const AssociateSeasonDialog = ({
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
             >
-              <option value={0}>Low Risk</option>
-              <option value={1}>Medium Risk</option>
-              <option value={2}>High Risk</option>
+              <option value={0}>Rủi Ro Thấp</option>
+              <option value={1}>Rủi Ro Trung Bình</option>
+              <option value={2}>Rủi Ro Cao</option>
             </select>
           </div>
         </div>
@@ -143,10 +143,10 @@ export const AssociateSeasonDialog = ({
           <div className="rounded-md bg-blue-50 p-3">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Selected Season</span>
+              <span className="text-sm font-medium text-blue-900">Mùa Vụ Đã Chọn</span>
             </div>
             <p className="mt-1 text-sm text-blue-700">
-              {selectedSeason.seasonName} ({selectedSeason.seasonType}) - {selectedSeason.startDate} to {selectedSeason.endDate}
+              {selectedSeason.seasonName} ({selectedSeason.seasonType}) - {selectedSeason.startDate} đến {selectedSeason.endDate}
             </p>
           </div>
         )}
@@ -154,7 +154,7 @@ export const AssociateSeasonDialog = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Growth Duration (Days) *
+              Thời Gian Sinh Trưởng (Ngày) *
             </label>
             <input
               type="number"
@@ -162,13 +162,13 @@ export const AssociateSeasonDialog = ({
               onChange={(e) => setGrowthDurationDays(Number(e.target.value))}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 95"
+              placeholder="VD: 95"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Expected Yield (tons/ha) *
+              Năng Suất Dự Kiến (Tấn/ha) *
             </label>
             <input
               type="number"
@@ -177,7 +177,7 @@ export const AssociateSeasonDialog = ({
               onChange={(e) => setExpectedYieldPerHectare(Number(e.target.value))}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 6.5"
+              placeholder="VD: 6.5"
             />
           </div>
         </div>
@@ -185,7 +185,7 @@ export const AssociateSeasonDialog = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Optimal Planting Start (MM/DD) *
+              Bắt Đầu Gieo Trồng Tối Ưu (MM/DD) *
             </label>
             <input
               type="text"
@@ -193,13 +193,13 @@ export const AssociateSeasonDialog = ({
               onChange={(e) => setOptimalPlantingStart(e.target.value)}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 12/01"
+              placeholder="VD: 12/01"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Optimal Planting End (MM/DD) *
+              Kết Thúc Gieo Trồng Tối Ưu (MM/DD) *
             </label>
             <input
               type="text"
@@ -207,14 +207,14 @@ export const AssociateSeasonDialog = ({
               onChange={(e) => setOptimalPlantingEnd(e.target.value)}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 01/15"
+              placeholder="VD: 01/15"
             />
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Seasonal Notes
+            Ghi Chú Mùa Vụ
           </label>
           <textarea
             value={seasonalNotes}
@@ -222,7 +222,7 @@ export const AssociateSeasonDialog = ({
             disabled={isLoading}
             rows={3}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            placeholder="Additional notes about growing this variety in this season..."
+            placeholder="Ghi chú bổ sung về việc trồng giống này trong mùa vụ này..."
           />
         </div>
 
@@ -236,7 +236,7 @@ export const AssociateSeasonDialog = ({
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <label htmlFor="isRecommended" className="text-sm font-medium text-gray-700">
-            Mark as recommended for this season
+            Đánh dấu là được khuyến nghị cho mùa vụ này
           </label>
         </div>
 
@@ -245,7 +245,7 @@ export const AssociateSeasonDialog = ({
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-yellow-600" />
               <p className="text-sm text-yellow-700">
-                No seasons available. Please create seasons first.
+                Không có mùa vụ nào. Vui lòng tạo mùa vụ trước.
               </p>
             </div>
           </div>
@@ -253,7 +253,7 @@ export const AssociateSeasonDialog = ({
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleAssociate}
@@ -261,7 +261,7 @@ export const AssociateSeasonDialog = ({
             isLoading={isLoading}
             icon={<Plus className="h-4 w-4" />}
           >
-            Create Association
+            Tạo Liên Kết
           </Button>
         </div>
       </div>

@@ -5,38 +5,38 @@ const StandardsRoute = () => {
     const standardPlans = [
         {
             id: 1,
-            name: 'Rice Cultivation Standard - Short Duration',
-            crop: 'Rice (Short Duration)',
+            name: 'Tiêu chuẩn canh tác lúa - Thời gian ngắn',
+            crop: 'Lúa (Thời gian ngắn)',
             version: '2.1',
             lastUpdated: '2024-01-15',
             status: 'active',
             farms: 28,
-            duration: '90-110 days',
+            duration: '90-110 ngày',
         },
         {
             id: 2,
-            name: 'Rice Cultivation Standard - Medium Duration',
-            crop: 'Rice (Medium Duration)',
+            name: 'Tiêu chuẩn canh tác lúa - Thời gian trung bình',
+            crop: 'Lúa (Thời gian trung bình)',
             version: '2.1',
             lastUpdated: '2024-01-15',
             status: 'active',
             farms: 17,
-            duration: '120-140 days',
+            duration: '120-140 ngày',
         },
     ];
 
     return (
-        <ContentLayout title="Standard Plans">
+        <ContentLayout title="Kế hoạch tiêu chuẩn">
             <div className="space-y-6">
                 {/* Header Actions */}
                 <div className="flex items-center justify-between">
                     <div>
                         <p className="text-sm text-gray-600">
-                            Manage standard rice cultivation plans and protocols
+                            Quản lý kế hoạch canh tác lúa tiêu chuẩn và giao thức
                         </p>
                     </div>
                     <button className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">
-                        Create New Standard
+                        Tạo tiêu chuẩn mới
                     </button>
                 </div>
 
@@ -55,38 +55,38 @@ const StandardsRoute = () => {
                                     </div>
                                 </div>
                                 <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                                    {plan.status}
+                                    {plan.status === 'active' ? 'đang hoạt động' : plan.status}
                                 </span>
                             </div>
 
                             <div className="mt-4 grid grid-cols-3 gap-4 border-t pt-4">
                                 <div>
-                                    <p className="text-xs text-gray-500">Version</p>
+                                    <p className="text-xs text-gray-500">Phiên bản</p>
                                     <p className="mt-1 font-medium">{plan.version}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-gray-500">Duration</p>
+                                    <p className="text-xs text-gray-500">Thời gian</p>
                                     <p className="mt-1 font-medium">{plan.duration}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-gray-500">Active Farms</p>
+                                    <p className="text-xs text-gray-500">Trang trại hoạt động</p>
                                     <p className="mt-1 font-medium">{plan.farms}</p>
                                 </div>
                             </div>
 
                             <div className="mt-2">
-                                <p className="text-xs text-gray-500">Last Updated</p>
+                                <p className="text-xs text-gray-500">Cập nhật lần cuối</p>
                                 <p className="mt-1 text-sm">{plan.lastUpdated}</p>
                             </div>
 
                             <div className="mt-4 flex gap-2">
                                 <button className="flex flex-1 items-center justify-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                                     <Download className="h-4 w-4" />
-                                    Download
+                                    Tải xuống
                                 </button>
                                 <button className="flex flex-1 items-center justify-center gap-2 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                                     <Edit className="h-4 w-4" />
-                                    Edit
+                                    Chỉnh sửa
                                 </button>
                             </div>
                         </div>

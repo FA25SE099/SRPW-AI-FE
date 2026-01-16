@@ -54,8 +54,8 @@ const YearSeasonsManagementRoute = () => {
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'YearSeason created successfully',
+          title: 'Thành công',
+          message: 'Năm vụ đã được tạo thành công',
         });
         setIsCreateDialogOpen(false);
         refetch();
@@ -63,8 +63,8 @@ const YearSeasonsManagementRoute = () => {
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error?.message || 'Failed to create YearSeason',
+          title: 'Lỗi',
+          message: error?.message || 'Không thể tạo Năm vụ',
         });
       },
     },
@@ -76,16 +76,16 @@ const YearSeasonsManagementRoute = () => {
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'YearSeason deleted successfully',
+          title: 'Thành công',
+          message: 'Năm vụ đã được xóa thành công',
         });
         refetch();
       },
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error?.message || 'Failed to delete YearSeason',
+          title: 'Lỗi',
+          message: error?.message || 'Không thể xóa Năm vụ',
         });
       },
     },
@@ -102,7 +102,7 @@ const YearSeasonsManagementRoute = () => {
   const handleDelete = (yearSeasonId: string) => {
     if (
       window.confirm(
-        'Are you sure you want to delete this YearSeason? This action cannot be undone.'
+        'Bạn có chắc chắn muốn xóa Năm vụ này không? Hành động này không thể hoàn tác.'
       )
     ) {
       deleteMutation.mutate(yearSeasonId);
@@ -115,7 +115,7 @@ const YearSeasonsManagementRoute = () => {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading your profile...</p>
+          <p className="mt-4 text-muted-foreground">Đang tải hồ sơ của bạn...</p>
         </div>
       </div>
     );
@@ -128,7 +128,7 @@ const YearSeasonsManagementRoute = () => {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Failed to load your profile. Please try refreshing the page.
+            Không thể tải hồ sơ của bạn. Vui lòng thử làm mới trang.
           </AlertDescription>
         </Alert>
       </div>
@@ -148,12 +148,12 @@ const YearSeasonsManagementRoute = () => {
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-3xl font-bold">YearSeason Management</h1>
+          <h1 className="text-3xl font-bold">Quản lý Năm vụ</h1>
         </div>
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            You are not assigned to any cluster yet. Please contact an administrator to assign you to a cluster.
+            Bạn chưa được phân công vào cụm nào. Vui lòng liên hệ quản trị viên để được phân công vào một cụm.
           </AlertDescription>
         </Alert>
       </div>
@@ -174,10 +174,10 @@ const YearSeasonsManagementRoute = () => {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-3xl font-bold">YearSeason Management</h1>
+            <h1 className="text-3xl font-bold">Quản lý Năm vụ</h1>
           </div>
           <p className="text-muted-foreground ml-11">
-            Manage seasonal rice production cycles for {clusterName}
+            Quản lý chu kỳ sản xuất lúa theo mùa cho {clusterName}
           </p>
         </div>
       </div>
@@ -185,7 +185,7 @@ const YearSeasonsManagementRoute = () => {
       {/* Cluster Info Display (Read-only) */}
       <div className="flex items-center gap-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
         <div className="flex-1">
-          <label className="text-sm font-medium text-blue-900">Your Assigned Cluster:</label>
+          <label className="text-sm font-medium text-blue-900">Cụm được phân công của bạn:</label>
           <p className="text-lg font-semibold text-blue-700 mt-1">{clusterName}</p>
         </div>
       </div>

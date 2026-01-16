@@ -82,15 +82,24 @@ export const ReportCard = ({ report, onViewDetails, onResolve }: ReportCardProps
                             <div className="flex items-center gap-2 mb-1">
                                 <h3 className="text-lg font-semibold text-gray-900">{report.title}</h3>
                                 <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusBadge(report.status)}`}>
-                                    {report.status}
+                                    {report.status === 'Pending' ? 'Chờ Xử Lý' :
+                                     report.status === 'UnderReview' ? 'Đang Xem Xét' :
+                                     report.status === 'Resolved' ? 'Đã Giải Quyết' :
+                                     report.status === 'Rejected' ? 'Đã Từ Chối' : report.status}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${severityColor}`}>
-                                    {report.severity} Severity
+                                    {report.severity === 'Critical' ? 'Khẩn Cấp' :
+                                     report.severity === 'High' ? 'Cao' :
+                                     report.severity === 'Medium' ? 'Trung Bình' :
+                                     report.severity === 'Low' ? 'Thấp' : report.severity} Mức Độ
                                 </span>
                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
-                                    {report.reportType}
+                                    {report.reportType === 'Pest' ? 'Sâu Bệnh' :
+                                     report.reportType === 'Weather' ? 'Thời Tiết' :
+                                     report.reportType === 'Disease' ? 'Bệnh' :
+                                     report.reportType === 'Other' ? 'Khác' : report.reportType}
                                 </span>
                             </div>
                         </div>
@@ -102,34 +111,34 @@ export const ReportCard = ({ report, onViewDetails, onResolve }: ReportCardProps
                         <div className="flex items-center gap-1.5 text-gray-600">
                             <MapPin className="h-4 w-4" />
                             <span>
-                                Plot: <span className="font-medium text-gray-900">{report.plotName}</span>
+                                Lô: <span className="font-medium text-gray-900">{report.plotName}</span>
                                 <span className="text-xs ml-1">({report.plotArea} ha)</span>
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-gray-600">
                             <FileText className="h-4 w-4" />
                             <span>
-                                Plan: <span className="font-medium text-gray-900">{report.cultivationPlanName}</span>
+                                Kế Hoạch: <span className="font-medium text-gray-900">{report.cultivationPlanName}</span>
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-gray-600">
                             <User className="h-4 w-4" />
                             <span>
-                                By: <span className="font-medium text-gray-900">{report.reportedBy}</span>
+                                Bởi: <span className="font-medium text-gray-900">{report.reportedBy}</span>
                                 <span className="text-xs ml-1">({report.reportedByRole})</span>
                             </span>
                         </div>
                         <div className="flex items-center gap-1.5 text-gray-600">
                             <Calendar className="h-4 w-4" />
                             <span>
-                                Reported: <span className="font-medium text-gray-900">{formatDate(report.reportedAt)}</span>
+                                Báo Cáo: <span className="font-medium text-gray-900">{formatDate(report.reportedAt)}</span>
                             </span>
                         </div>
                         {report.farmerName && (
                             <div className="flex items-center gap-1.5 text-gray-600 col-span-2">
                                 <User className="h-4 w-4" />
                                 <span>
-                                    Farmer: <span className="font-medium text-gray-900">{report.farmerName}</span>
+                                    Nông Dân: <span className="font-medium text-gray-900">{report.farmerName}</span>
                                     {report.clusterName && <span className="text-xs ml-1">• {report.clusterName}</span>}
                                 </span>
                             </div>
@@ -164,7 +173,7 @@ export const ReportCard = ({ report, onViewDetails, onResolve }: ReportCardProps
                             className="bg-green-600 hover:bg-green-700 text-white whitespace-nowrap"
                         >
                             <AlertTriangle className="h-4 w-4 mr-1" />
-                            Resolve
+                            Giải Quyết
                         </Button>
                     ) : null}
                     <Button
@@ -173,7 +182,7 @@ export const ReportCard = ({ report, onViewDetails, onResolve }: ReportCardProps
                         size="sm"
                         className="whitespace-nowrap"
                     >
-                        View Details
+                        Xem Chi Tiết
                     </Button>
                 </div>
             </div>

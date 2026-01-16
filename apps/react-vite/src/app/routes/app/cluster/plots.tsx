@@ -770,6 +770,7 @@ const Plots = () => {
       <ImportPlotsDialog
         open={showImportDialog}
         onOpenChange={setShowImportDialog}
+        clusterManagerId={user.data?.id}
       />
     </div>
   );

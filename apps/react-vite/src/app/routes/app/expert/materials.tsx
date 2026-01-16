@@ -12,10 +12,10 @@ const MaterialsRoute = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-neutral-900">
-              Material & Treatment Library
+              Thư viện vật liệu & xử lý
             </h1>
             <p className="text-sm text-neutral-600 mt-1">
-              Manage pesticides, fertilizers, and treatment materials
+              Quản lý thuốc trừ sâu, phân bón và vật liệu xử lý
             </p>
           </div>
         </div>

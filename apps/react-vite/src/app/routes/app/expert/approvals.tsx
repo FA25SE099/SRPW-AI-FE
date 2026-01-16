@@ -32,10 +32,10 @@ const formatDate = (dateString: string) => {
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
 
-    if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-    return date.toLocaleDateString();
+    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffHours < 24) return `${diffHours} giờ trước`;
+    if (diffDays < 7) return `${diffDays} ngày trước`;
+    return date.toLocaleDateString('vi-VN');
   } catch {
     return dateString;
   }
@@ -79,10 +79,10 @@ const ApprovalsRoute = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-neutral-900">
-                Approvals
+                Phê duyệt
               </h1>
               <p className="text-sm text-neutral-600 mt-1">
-                Review and approve/reject production plans submitted by supervisors
+                Xem xét và phê duyệt/từ chối kế hoạch sản xuất do giám sát viên gửi
               </p>
             </div>
           </div>
@@ -90,7 +90,7 @@ const ApprovalsRoute = () => {
 
         <div className="rounded-lg border bg-white">
           <div className="border-b p-4">
-            <h2 className="text-lg font-semibold">Pending Approvals</h2>
+            <h2 className="text-lg font-semibold">Phê duyệt đang chờ</h2>
           </div>
 
           {isLoading && (
@@ -101,7 +101,7 @@ const ApprovalsRoute = () => {
 
           {error && (
             <div className="p-4 text-center text-red-600">
-              Failed to load pending approvals. Please try again later.
+              Không thể tải phê duyệt đang chờ. Vui lòng thử lại sau.
             </div>
           )}
 
@@ -109,7 +109,7 @@ const ApprovalsRoute = () => {
             <>
               {data.data && data.data.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
-                  No pending approvals at this time.
+                  Hiện tại không có phê duyệt nào đang chờ.
                 </div>
               ) : (
                 <>
@@ -122,13 +122,13 @@ const ApprovalsRoute = () => {
                               <h3 className="font-medium">{approval.planName}</h3>
                             </div>
                             <p className="mt-1 text-sm text-gray-600">
-                              Area: {approval.groupArea} | Group ID: {approval.groupId}
+                              Khu vực: {approval.groupArea} | Mã nhóm: {approval.groupId}
                             </p>
                             <p className="mt-1 text-sm text-gray-500">
-                              {approval.submitterName} - Submitted {approval.submittedAt ? formatDate(approval.submittedAt) : 'N/A'}
+                              {approval.submitterName} - Đã gửi {approval.submittedAt ? formatDate(approval.submittedAt) : 'N/A'}
                             </p>
                             <p className="mt-1 text-xs text-gray-400">
-                              Base Planting Date: {formatDate(approval.basePlantingDate)}
+                              Ngày trồng cơ bản: {formatDate(approval.basePlantingDate)}
                             </p>
                           </div>
                           <div className="flex gap-2">
@@ -144,7 +144,7 @@ const ApprovalsRoute = () => {
                               className="bg-green-500 hover:bg-green-600"
                               size="sm"
                             >
-                              Review
+                              Xem xét
                             </Button>
                           </div>
                         </div>
@@ -156,7 +156,7 @@ const ApprovalsRoute = () => {
                     <div className="border-t p-4">
                       <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600">
-                          Showing page {data.currentPage} of {data.totalPages} ({data.totalCount} total)
+                          Trang {data.currentPage} trong {data.totalPages} ({data.totalCount} tổng cộng)
                         </div>
                         <div className="flex gap-2">
                           <Button
@@ -165,7 +165,7 @@ const ApprovalsRoute = () => {
                             size="sm"
                             variant="outline"
                           >
-                            Previous
+                            Trước
                           </Button>
                           <Button
                             onClick={() => setPage(page + 1)}
@@ -173,7 +173,7 @@ const ApprovalsRoute = () => {
                             size="sm"
                             variant="outline"
                           >
-                            Next
+                            Tiếp
                           </Button>
                         </div>
                       </div>

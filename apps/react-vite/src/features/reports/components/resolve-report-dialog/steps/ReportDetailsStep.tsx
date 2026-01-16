@@ -58,7 +58,7 @@ export const ReportDetailsStep = ({
     if (!report) {
         return (
             <div className="text-center py-12 text-gray-600">
-                Report not found
+                Không tìm thấy báo cáo
             </div>
         );
     }
@@ -77,17 +77,23 @@ export const ReportDetailsStep = ({
                             <h3 className="text-xl font-bold text-gray-900">{report.title}</h3>
                             <div className="flex items-center gap-2 mt-2">
                                 <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getSeverityColor(report.severity)}`}>
-                                    {report.severity} Severity
+                                    {report.severity === 'Critical' ? 'Khẩn Cấp' :
+                                     report.severity === 'High' ? 'Cao' :
+                                     report.severity === 'Medium' ? 'Trung Bình' :
+                                     report.severity === 'Low' ? 'Thấp' : report.severity} Mức Độ
                                 </span>
                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700">
-                                    {report.reportType}
+                                    {report.reportType === 'Pest' ? 'Sâu Bệnh' :
+                                     report.reportType === 'Weather' ? 'Thời Tiết' :
+                                     report.reportType === 'Disease' ? 'Bệnh' :
+                                     report.reportType === 'Other' ? 'Khác' : report.reportType}
                                 </span>
                             </div>
                         </div>
                     </div>
 
                     <div className="bg-gray-50 rounded-lg p-3">
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Description</h4>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Mô Tả</h4>
                         <p className="text-sm text-gray-700 whitespace-pre-wrap">{report.description}</p>
                     </div>
                 </div>
@@ -95,22 +101,22 @@ export const ReportDetailsStep = ({
                 {/* Plot & Plan Info */}
                 <div className="grid grid-cols-2 gap-3">
                     <div className="bg-white border rounded-lg p-3">
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Plot Information</h4>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Thông Tin Lô</h4>
                         <dl className="space-y-1.5 text-xs">
                             <div className="flex items-center gap-2">
                                 <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                                <dt className="text-gray-600">Plot:</dt>
+                                <dt className="text-gray-600">Lô:</dt>
                                 <dd className="font-medium text-gray-900">{report.plotName}</dd>
                             </div>
                             <div className="flex items-center gap-2">
                                 <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                                <dt className="text-gray-600">Area:</dt>
+                                <dt className="text-gray-600">Diện Tích:</dt>
                                 <dd className="font-medium text-gray-900">{report.plotArea} ha</dd>
                             </div>
                             {report.coordinates && (
                                 <div className="flex items-center gap-2">
                                     <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                                    <dt className="text-gray-600">Location:</dt>
+                                    <dt className="text-gray-600">Vị Trí:</dt>
                                     <dd className="font-medium text-gray-900 text-[10px]">{report.coordinates}</dd>
                                 </div>
                             )}
@@ -118,21 +124,21 @@ export const ReportDetailsStep = ({
                     </div>
 
                     <div className="bg-white border rounded-lg p-3">
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Reporter Info</h4>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Thông Tin Người Báo Cáo</h4>
                         <dl className="space-y-1.5 text-xs">
                             <div className="flex items-center gap-2">
                                 <User className="h-3.5 w-3.5 text-gray-400" />
-                                <dt className="text-gray-600">Name:</dt>
+                                <dt className="text-gray-600">Tên:</dt>
                                 <dd className="font-medium text-gray-900">{report.reportedBy}</dd>
                             </div>
                             <div className="flex items-center gap-2">
                                 <User className="h-3.5 w-3.5 text-gray-400" />
-                                <dt className="text-gray-600">Role:</dt>
+                                <dt className="text-gray-600">Vai Trò:</dt>
                                 <dd className="font-medium text-gray-900">{report.reportedByRole}</dd>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Calendar className="h-3.5 w-3.5 text-gray-400" />
-                                <dt className="text-gray-600">Date:</dt>
+                                <dt className="text-gray-600">Ngày:</dt>
                                 <dd className="font-medium text-gray-900">{formatDate(report.reportedAt)}</dd>
                             </div>
                         </dl>
@@ -144,20 +150,20 @@ export const ReportDetailsStep = ({
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                         <div className="flex items-center gap-2 mb-2">
                             <FileText className="h-4 w-4 text-blue-600" />
-                            <h4 className="font-semibold text-blue-900 text-sm">Cultivation Plan</h4>
+                            <h4 className="font-semibold text-blue-900 text-sm">Kế Hoạch Canh Tác</h4>
                         </div>
                         <p className="text-sm text-gray-900 font-medium">{report.cultivationPlanName}</p>
                         {report.farmerName && (
                             <div className="flex items-center gap-2">
                                 <User className="h-3.5 w-3.5 text-gray-400" />
-                                <dt className="text-xs text-gray-700">Farmer:</dt>
+                                <dt className="text-xs text-gray-700">Nông Dân:</dt>
                                 <dd className="text-xs font-medium text-gray-700">{report.farmerName}</dd>
                             </div>
                         )}
                         {report.clusterName && (
                             <div className="flex items-center gap-2">
                                 <MapPin className="h-3.5 w-3.5 text-gray-400" />
-                                <dt className="text-xs text-gray-700">Cluster:</dt>
+                                <dt className="text-xs text-gray-700">Cụm:</dt>
                                 <dd className="text-xs font-medium text-gray-700">{report.clusterName}</dd>
                             </div>
                         )}
@@ -166,7 +172,7 @@ export const ReportDetailsStep = ({
                         <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                                 <FileText className="h-4 w-4 text-blue-600" />
-                                <h4 className="font-semibold text-blue-900 text-sm">Task Details</h4>
+                                <h4 className="font-semibold text-blue-900 text-sm">Chi Tiết Nhiệm Vụ</h4>
                             </div>
                             {report.plotId && report.groupId && (
                                 <Button
@@ -176,30 +182,30 @@ export const ReportDetailsStep = ({
                                     onClick={() => setIsCultivationPlanDialogOpen(true)}
                                 >
                                     <Eye className="h-3 w-3 mr-1" />
-                                    View in Cultivation Plan
+                                    Xem Trong Kế Hoạch Canh Tác
                                 </Button>
                             )}
                         </div>
-                        <h4 className="font-semibold text-gray-900 mb-3">Affected Cultivation Task</h4>
+                        <h4 className="font-semibold text-gray-900 mb-3">Nhiệm Vụ Canh Tác Bị Ảnh Hưởng</h4>
                         <dl className="space-y-2 text-sm">
                             {report.affectedTaskName && (
                                 <div className="flex items-center gap-2">
                                     <ClipboardList className="h-4 w-4 text-gray-400" />
-                                    <dt className="text-xs text-gray-600">Task Name:</dt>
+                                    <dt className="text-xs text-gray-600">Tên Nhiệm Vụ:</dt>
                                     <dd className="text-xs font-medium text-gray-900">{report.affectedTaskName}</dd>
                                 </div>
                             )}
                             {report.affectedTaskType && (
                                 <div className="flex items-center gap-2">
                                     <ClipboardList className="h-4 w-4 text-gray-400" />
-                                    <dt className="text-xs text-gray-600">Task Type:</dt>
+                                    <dt className="text-xs text-gray-600">Loại Nhiệm Vụ:</dt>
                                     <dd className="text-xs font-medium text-gray-900">{report.affectedTaskType}</dd>
                                 </div>
                             )}
                             {report.affectedTaskVersionName && (
                                 <div className="flex items-center gap-2">
                                     <FileText className="h-4 w-4 text-gray-400" />
-                                    <dt className="text-xs text-gray-600">Version:</dt>
+                                    <dt className="text-xs text-gray-600">Phiên Bản:</dt>
                                     <dd className="text-xs font-medium text-gray-900">{report.affectedTaskVersionName}</dd>
                                 </div>
                             )}
@@ -210,7 +216,7 @@ export const ReportDetailsStep = ({
                 {/* Images */}
                 {report.images && report.images.length > 0 && (
                     <div className="bg-white border rounded-lg p-3">
-                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Attached Images</h4>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm">Hình Ảnh Đính Kèm</h4>
                         <div className="grid grid-cols-4 gap-2">
                             {report.images.map((image, idx) => (
                                 <img

@@ -20,7 +20,7 @@ export const StandardPlanDetailDialog = ({
   });
 
   return (
-    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Standard Plan Details" maxWidth="4xl">
+    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Chi Tiết Kế Hoạch Chuẩn" maxWidth="4xl">
       <div className="max-h-[80vh] overflow-y-auto">
         {isLoading ? (
           <div className="flex h-48 items-center justify-center">
@@ -37,18 +37,18 @@ export const StandardPlanDetailDialog = ({
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">
                   <Clock className="h-3 w-3" />
-                  {plan.totalDurationDays} days
+                  {plan.totalDurationDays} ngày
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700">
                   <ListChecks className="h-3 w-3" />
-                  {plan.totalStages} stages
+                  {plan.totalStages} giai đoạn
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-medium text-green-700">
                   <Calendar className="h-3 w-3" />
-                  {plan.totalTasks} tasks
+                  {plan.totalTasks} nhiệm vụ
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2.5 py-1 text-xs font-medium text-orange-700">
-                  {plan.totalMaterialTypes} materials
+                  {plan.totalMaterialTypes} vật liệu
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
@@ -58,7 +58,7 @@ export const StandardPlanDetailDialog = ({
                   }`}
                 >
                   {plan.isActive ? <CheckCircle2 className="h-3 w-3" /> : <AlertCircle className="h-3 w-3" />}
-                  {plan.isActive ? 'Active' : 'Inactive'}
+                  {plan.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                 </span>
               </div>
             </div>
@@ -66,8 +66,8 @@ export const StandardPlanDetailDialog = ({
             {/* Stages and Tasks */}
             <div className="space-y-3">
               <div className="sticky top-0 bg-white py-2 border-b">
-                <h3 className="text-base font-semibold text-gray-900">Cultivation Stages</h3>
-                <p className="text-xs text-gray-500">Step-by-step cultivation process</p>
+                <h3 className="text-base font-semibold text-gray-900">Giai Đoạn Canh Tác</h3>
+                <p className="text-xs text-gray-500">Quy trình canh tác từng bước</p>
               </div>
               
               {plan.stages.map((stage) => (
@@ -80,13 +80,13 @@ export const StandardPlanDetailDialog = ({
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-gray-900 break-words">{stage.stageName}</h4>
                       <div className="flex flex-wrap items-center gap-2 mt-1">
-                        <span className="text-xs text-gray-600">
+                          <span className="text-xs text-gray-600">
                           <Clock className="h-3 w-3 inline mr-1" />
-                          {stage.expectedDurationDays} days
+                          {stage.expectedDurationDays} ngày
                         </span>
                         {stage.isMandatory && (
                           <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">
-                            Mandatory
+                            Bắt buộc
                           </span>
                         )}
                       </div>
@@ -100,7 +100,7 @@ export const StandardPlanDetailDialog = ({
                   {stage.tasks && stage.tasks.length > 0 && (
                     <div className="p-3 space-y-2">
                       <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
-                        Tasks ({stage.tasks.length})
+                        Nhiệm Vụ ({stage.tasks.length})
                       </p>
                       <div className="space-y-2">
                         {stage.tasks.map((task) => (
@@ -117,14 +117,18 @@ export const StandardPlanDetailDialog = ({
                                 {task.priority && (
                                   <span
                                     className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                                      task.priority === 'High'
+                                      task.priority === 'High' || task.priority === 'Critical'
                                         ? 'bg-red-100 text-red-700'
-                                        : task.priority === 'Medium'
+                                        : task.priority === 'Medium' || task.priority === 'Normal'
                                         ? 'bg-yellow-100 text-yellow-700'
                                         : 'bg-green-100 text-green-700'
                                     }`}
                                   >
-                                    {task.priority}
+                                    {task.priority === 'Low' ? 'Thấp' :
+                                     task.priority === 'Normal' ? 'Bình thường' :
+                                     task.priority === 'High' ? 'Cao' :
+                                     task.priority === 'Critical' ? 'Khẩn cấp' :
+                                     task.priority === 'Medium' ? 'Trung bình' : task.priority}
                                   </span>
                                 )}
                               </div>
@@ -133,7 +137,7 @@ export const StandardPlanDetailDialog = ({
                               )}
                               {task.taskType && (
                                 <p className="mt-1 text-xs text-gray-500">
-                                  <span className="font-medium">Type:</span> {task.taskType}
+                                  <span className="font-medium">Loại:</span> {task.taskType}
                                 </p>
                               )}
                             </div>
@@ -148,20 +152,20 @@ export const StandardPlanDetailDialog = ({
 
             {/* Metadata */}
             <div className="rounded-lg border bg-gray-50 p-3 text-xs">
-              <h4 className="font-semibold text-gray-700 mb-2">Plan Information</h4>
+              <h4 className="font-semibold text-gray-700 mb-2">Thông Tin Kế Hoạch</h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-600">
                 <div className="break-words">
-                  <span className="font-medium text-gray-700">Category:</span> {plan.categoryName}
+                  <span className="font-medium text-gray-700">Danh mục:</span> {plan.categoryName}
                 </div>
                 <div className="break-words">
-                  <span className="font-medium text-gray-700">Creator:</span> {plan.creatorName}
+                  <span className="font-medium text-gray-700">Người tạo:</span> {plan.creatorName}
                 </div>
                 <div className="break-words">
-                  <span className="font-medium text-gray-700">Created:</span>{' '}
+                  <span className="font-medium text-gray-700">Ngày tạo:</span>{' '}
                   {new Date(plan.createdAt).toLocaleDateString()}
                 </div>
                 <div className="break-words">
-                  <span className="font-medium text-gray-700">Last Modified:</span>{' '}
+                  <span className="font-medium text-gray-700">Chỉnh sửa lần cuối:</span>{' '}
                   {new Date(plan.lastModified).toLocaleDateString()}
                 </div>
               </div>
@@ -169,7 +173,7 @@ export const StandardPlanDetailDialog = ({
           </div>
         ) : (
           <div className="flex h-48 items-center justify-center">
-            <p className="text-gray-500">Plan not found</p>
+            <p className="text-gray-500">Không tìm thấy kế hoạch</p>
           </div>
         )}
       </div>

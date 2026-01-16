@@ -83,7 +83,7 @@ export const YearSeasonList = ({
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
-              placeholder="Search by season, cluster, or rice variety..."
+              placeholder="Tìm kiếm theo mùa vụ, cụm hoặc giống lúa..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -94,17 +94,17 @@ export const YearSeasonList = ({
             onChange={(e) => setFilterStatus(e.target.value)}
             className="px-3 py-2 border rounded-md text-sm"
           >
-            <option value="all">All Status</option>
-            <option value="Draft">Draft</option>
-            <option value="PlanningOpen">Planning Open</option>
-            <option value="Active">Active</option>
-            <option value="Completed">Completed</option>
+            <option value="all">Tất Cả Trạng Thái</option>
+            <option value="Draft">Bản Nháp</option>
+            <option value="PlanningOpen">Mở Lập Kế Hoạch</option>
+            <option value="Active">Đang Hoạt Động</option>
+            <option value="Completed">Đã Hoàn Thành</option>
           </select>
         </div>
         {onCreate && (
           <Button onClick={onCreate}>
             <Plus className="w-4 h-4 mr-2" />
-            Create YearSeason
+            Tạo Mùa Vụ Năm
           </Button>
         )}
       </div>
@@ -115,12 +115,12 @@ export const YearSeasonList = ({
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Calendar className="w-12 h-12 text-muted-foreground mb-4" />
             <p className="text-lg font-medium text-muted-foreground">
-              No YearSeasons found
+              Không tìm thấy mùa vụ năm
             </p>
             <p className="text-sm text-muted-foreground">
               {searchTerm || filterStatus !== 'all'
-                ? 'Try adjusting your filters'
-                : 'Create your first YearSeason to get started'}
+                ? 'Thử điều chỉnh bộ lọc của bạn'
+                : 'Tạo mùa vụ năm đầu tiên để bắt đầu'}
             </p>
           </CardContent>
         </Card>
@@ -139,7 +139,10 @@ export const YearSeasonList = ({
                     </p>
                   </div>
                   <Badge className={`${getStatusColor(season.status)} text-white`}>
-                    {season.status}
+                    {season.status === 'Draft' ? 'Bản Nháp' :
+                     season.status === 'PlanningOpen' ? 'Mở Lập Kế Hoạch' :
+                     season.status === 'Active' ? 'Đang Hoạt Động' :
+                     season.status === 'Completed' ? 'Đã Hoàn Thành' : season.status}
                   </Badge>
                 </div>
               </CardHeader>
@@ -153,7 +156,7 @@ export const YearSeasonList = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Rice Variety:</span>
+                    <span className="text-muted-foreground">Giống Lúa:</span>
                     <span className="font-medium">{season.riceVarietyName}</span>
                   </div>
                 </div>
@@ -167,7 +170,7 @@ export const YearSeasonList = ({
                       className="flex-1"
                     >
                       <Eye className="w-4 h-4 mr-1" />
-                      View
+                      Xem
                     </Button>
                   )}
                   {onEdit && (
@@ -178,7 +181,7 @@ export const YearSeasonList = ({
                       className="flex-1"
                     >
                       <Edit className="w-4 h-4 mr-1" />
-                      Edit
+                      Chỉnh Sửa
                     </Button>
                   )}
                   {onDelete && season.status === 'Draft' && (

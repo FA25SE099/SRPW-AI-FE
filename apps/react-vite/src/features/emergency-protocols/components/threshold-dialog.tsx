@@ -104,8 +104,8 @@ export const ThresholdDialog = ({
 
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Pest protocol created successfully',
+          title: 'Thành Công',
+          message: 'Đã tạo quy trình sâu bệnh thành công',
         });
 
         // The response IS the ID string directly
@@ -126,8 +126,8 @@ export const ThresholdDialog = ({
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error?.message || 'Failed to create pest protocol',
+          title: 'Lỗi',
+          message: error?.message || 'Tạo quy trình sâu bệnh thất bại',
         });
       },
     },
@@ -141,8 +141,8 @@ export const ThresholdDialog = ({
 
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Weather protocol created successfully',
+          title: 'Thành Công',
+          message: 'Đã tạo quy trình thời tiết thành công',
         });
 
         // The response IS the ID string directly
@@ -163,8 +163,8 @@ export const ThresholdDialog = ({
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error?.message || 'Failed to create weather protocol',
+          title: 'Lỗi',
+          message: error?.message || 'Tạo quy trình thời tiết thất bại',
         });
       },
     },
@@ -331,7 +331,7 @@ export const ThresholdDialog = ({
         <div className="relative z-10 w-full max-w-5xl rounded-lg bg-white shadow-xl">
           <div className="flex items-center justify-between border-b px-5 py-3">
             <h3 className="text-lg font-bold">
-              {isEditMode ? 'Edit' : 'Add'} Threshold
+              {isEditMode ? 'Chỉnh Sửa' : 'Thêm'} Ngưỡng
             </h3>
             <button
               onClick={onClose}
@@ -355,7 +355,7 @@ export const ThresholdDialog = ({
                 />
                 <Bug className="size-4 text-orange-600" />
                 <span className="text-sm font-medium text-gray-700">
-                  Pest Threshold
+                  Ngưỡng Sâu Bệnh
                 </span>
               </label>
               <label
@@ -369,7 +369,7 @@ export const ThresholdDialog = ({
                 />
                 <Cloud className="size-4 text-blue-600" />
                 <span className="text-sm font-medium text-gray-700">
-                  Weather Threshold
+                  Ngưỡng Thời Tiết
                 </span>
               </label>
             </div>
@@ -377,7 +377,7 @@ export const ThresholdDialog = ({
             {!enablePest && !enableWeather && (
               <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-2">
                 <p className="text-xs text-yellow-800">
-                  Please enable at least one threshold type
+                  Vui lòng bật ít nhất một loại ngưỡng
                 </p>
               </div>
             )}
@@ -389,20 +389,20 @@ export const ThresholdDialog = ({
               >
                 <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-orange-900">
                   <Bug className="size-4" />
-                  Pest Settings
+                  Cài Đặt Sâu Bệnh
                 </h4>
                 {enablePest ? (
                   <div className="space-y-2">
                     <div>
                       <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                        Pest Protocol
+                        Quy Trình Sâu Bệnh
                       </label>
                       <div className="flex gap-1">
                         <select
                           {...register('pestProtocolId')}
                           className="flex-1 rounded-md border bg-white px-2 py-1 text-xs"
                         >
-                          <option value="">Select...</option>
+                          <option value="">Chọn...</option>
                           {pestProtocolsList.map((p: any) => (
                             <option key={p.id} value={p.id}>
                               {p.name}
@@ -421,19 +421,19 @@ export const ThresholdDialog = ({
                     <div className="grid grid-cols-2 gap-1.5">
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Affect Type *
+                          Loại Ảnh Hưởng *
                         </label>
                         <input
                           {...register('pestAffectType', {
                             required: enablePest,
                           })}
-                          placeholder="Leaf Damage"
+                          placeholder="Thiệt Hại Lá"
                           className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                         />
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Severity *
+                          Mức Độ Nghiêm Trọng *
                         </label>
                         <select
                           {...register('pestSeverityLevel', {
@@ -441,17 +441,17 @@ export const ThresholdDialog = ({
                           })}
                           className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                         >
-                          <option value="">Select...</option>
+                          <option value="">Chọn...</option>
                           {SEVERITY_LEVELS.map((level) => (
                             <option key={level} value={level}>
-                              {level}
+                              {level === 'Low' ? 'Thấp' : level === 'Medium' ? 'Trung Bình' : level === 'High' ? 'Cao' : 'Nghiêm Trọng'}
                             </option>
                           ))}
                         </select>
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Area % *
+                          Diện Tích % *
                         </label>
                         <input
                           type="number"
@@ -465,7 +465,7 @@ export const ThresholdDialog = ({
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Damage % *
+                          Thiệt Hại % *
                         </label>
                         <input
                           type="number"
@@ -479,28 +479,28 @@ export const ThresholdDialog = ({
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Population
+                          Số Lượng
                         </label>
                         <input
                           {...register('pestPopulationThreshold')}
-                          placeholder="10/plant"
+                          placeholder="10/cây"
                           className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                         />
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Growth Stage
+                          Giai Đoạn Sinh Trưởng
                         </label>
                         <input
                           {...register('pestGrowthStage')}
-                          placeholder="Tillering"
+                          placeholder="Đẻ Nhánh"
                           className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                         />
                       </div>
                     </div>
                     <div>
                       <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                        Notes
+                        Ghi Chú
                       </label>
                       <textarea
                         {...register('pestThresholdNotes')}
@@ -511,7 +511,7 @@ export const ThresholdDialog = ({
                   </div>
                 ) : (
                   <div className="text-xs italic text-gray-400">
-                    Enable Pest Threshold to configure
+                    Bật Ngưỡng Sâu Bệnh để cấu hình
                   </div>
                 )}
               </div>
@@ -522,20 +522,20 @@ export const ThresholdDialog = ({
               >
                 <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-blue-900">
                   <Cloud className="size-4" />
-                  Weather Settings
+                  Cài Đặt Thời Tiết
                 </h4>
                 {enableWeather ? (
                   <div className="space-y-2">
                     <div>
                       <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                        Weather Protocol
+                        Quy Trình Thời Tiết
                       </label>
                       <div className="flex gap-1">
                         <select
                           {...register('weatherProtocolId')}
                           className="flex-1 rounded-md border bg-white px-2 py-1 text-xs"
                         >
-                          <option value="">Select...</option>
+                          <option value="">Chọn...</option>
                           {weatherProtocolsList.map((w: any) => (
                             <option key={w.id} value={w.id}>
                               {w.name}
@@ -554,19 +554,19 @@ export const ThresholdDialog = ({
                     <div className="grid grid-cols-2 gap-1.5">
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Event Type *
+                          Loại Sự Kiện *
                         </label>
                         <input
                           {...register('weatherEventType', {
                             required: enableWeather,
                           })}
-                          placeholder="Heavy Rain"
+                          placeholder="Mưa Lớn"
                           className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                         />
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Intensity *
+                          Cường Độ *
                         </label>
                         <select
                           {...register('weatherIntensityLevel', {
@@ -574,17 +574,17 @@ export const ThresholdDialog = ({
                           })}
                           className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                         >
-                          <option value="">Select...</option>
+                          <option value="">Chọn...</option>
                           {SEVERITY_LEVELS.map((level) => (
                             <option key={level} value={level}>
-                              {level}
+                              {level === 'Low' ? 'Thấp' : level === 'Medium' ? 'Trung Bình' : level === 'High' ? 'Cao' : 'Nghiêm Trọng'}
                             </option>
                           ))}
                         </select>
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Threshold *
+                          Ngưỡng *
                         </label>
                         <input
                           type="number"
@@ -598,7 +598,7 @@ export const ThresholdDialog = ({
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Unit *
+                          Đơn Vị *
                         </label>
                         <input
                           {...register('weatherMeasurementUnit', {
@@ -610,7 +610,7 @@ export const ThresholdDialog = ({
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Operator *
+                          Toán Tử *
                         </label>
                         <select
                           {...register('weatherThresholdOperator', {
@@ -618,17 +618,17 @@ export const ThresholdDialog = ({
                           })}
                           className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                         >
-                          <option value="">Select...</option>
+                          <option value="">Chọn...</option>
                           {THRESHOLD_OPERATORS.map((op) => (
                             <option key={op} value={op}>
-                              {op}
+                              {op === 'Greater Than' ? 'Lớn Hơn' : op === 'Less Than' ? 'Nhỏ Hơn' : op === 'Equal To' ? 'Bằng' : 'Giữa'}
                             </option>
                           ))}
                         </select>
                       </div>
                       <div>
                         <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                          Duration (days)
+                          Thời Gian (ngày)
                         </label>
                         <input
                           type="number"
@@ -641,7 +641,7 @@ export const ThresholdDialog = ({
                     </div>
                     <div>
                       <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                        Notes
+                        Ghi Chú
                       </label>
                       <textarea
                         {...register('weatherThresholdNotes')}
@@ -652,7 +652,7 @@ export const ThresholdDialog = ({
                   </div>
                 ) : (
                   <div className="text-xs italic text-gray-400">
-                    Enable Weather Threshold to configure
+                    Bật Ngưỡng Thời Tiết để cấu hình
                   </div>
                 )}
               </div>
@@ -661,21 +661,21 @@ export const ThresholdDialog = ({
             {/* Common Settings */}
             <div className="rounded-lg border-2 border-gray-200 bg-gray-50 p-3">
               <h4 className="mb-2 text-sm font-semibold text-gray-900">
-                Common Settings
+                Cài Đặt Chung
               </h4>
               <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                    Applicable Season *
+                    Mùa Vụ Áp Dụng *
                   </label>
                   <select
                     {...register('applicableSeason', { required: true })}
                     disabled={isLoadingSeasons}
                     className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                   >
-                    <option value="">Select...</option>
+                    <option value="">Chọn...</option>
                     {isLoadingSeasons ? (
-                      <option disabled>Loading seasons...</option>
+                      <option disabled>Đang tải mùa vụ...</option>
                     ) : seasons.length > 0 ? (
                       seasons.map((s) => (
                         <option key={s.id} value={s.seasonType}>
@@ -683,27 +683,27 @@ export const ThresholdDialog = ({
                         </option>
                       ))
                     ) : (
-                      <option disabled>No seasons available</option>
+                      <option disabled>Không có mùa vụ</option>
                     )}
                   </select>
                   {!isLoadingSeasons && seasons.length === 0 && (
                     <p className="mt-0.5 text-[9px] text-red-600">
-                      Failed to load seasons
+                      Tải mùa vụ thất bại
                     </p>
                   )}
                 </div>
                 <div>
                   <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                    Rice Variety
+                    Giống Lúa
                   </label>
                   <select
                     {...register('riceVarietyId')}
                     disabled={isLoadingRiceVarieties}
                     className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                   >
-                    <option value="">None (Optional)</option>
+                    <option value="">Không (Tùy Chọn)</option>
                     {isLoadingRiceVarieties ? (
-                      <option disabled>Loading varieties...</option>
+                      <option disabled>Đang tải giống lúa...</option>
                     ) : riceVarieties.length > 0 ? (
                       riceVarieties.map((variety) => (
                         <option key={variety.id} value={variety.id}>
@@ -711,18 +711,18 @@ export const ThresholdDialog = ({
                         </option>
                       ))
                     ) : (
-                      <option disabled>No varieties available</option>
+                      <option disabled>Không có giống lúa</option>
                     )}
                   </select>
                   {!isLoadingRiceVarieties && riceVarieties.length === 0 && (
                     <p className="mt-0.5 text-[9px] text-red-600">
-                      Failed to load rice varieties
+                      Tải giống lúa thất bại
                     </p>
                   )}
                 </div>
                 <div>
                   <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                    Priority (1-5) *
+                    Ưu Tiên (1-5) *
                   </label>
                   <select
                     {...register('priority', {
@@ -731,7 +731,7 @@ export const ThresholdDialog = ({
                     })}
                     className="w-full rounded-md border bg-white px-2 py-1 text-xs"
                   >
-                    <option value="">Select...</option>
+                    <option value="">Chọn...</option>
                     {PRIORITY_LEVELS.map((p) => (
                       <option key={p} value={p}>
                         {p}
@@ -742,7 +742,7 @@ export const ThresholdDialog = ({
               </div>
               <div className="mt-2">
                 <label className="mb-0.5 block text-[10px] font-medium text-gray-600">
-                  General Notes
+                  Ghi Chú Chung
                 </label>
                 <textarea
                   {...register('generalNotes')}
@@ -759,14 +759,14 @@ export const ThresholdDialog = ({
                 onClick={onClose}
                 size="sm"
               >
-                Cancel
+                Hủy
               </Button>
               <Button
                 type="submit"
                 disabled={!enablePest && !enableWeather}
                 size="sm"
               >
-                {isEditMode ? 'Update' : 'Add'} Threshold
+                {isEditMode ? 'Cập Nhật' : 'Thêm'} Ngưỡng
               </Button>
             </div>
           </form>

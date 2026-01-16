@@ -83,7 +83,7 @@ export const EditMaterialDialog = ({
       setImgUrls([...imgUrls, ...newUrls]);
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Failed to upload images. Please try again.');
+      alert('Tải lên hình ảnh thất bại. Vui lòng thử lại.');
     }
   };
 
@@ -112,41 +112,41 @@ export const EditMaterialDialog = ({
   const isLoading = updateMutation.isPending;
 
   return (
-    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Edit Material" maxWidth="2xl">
+    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Chỉnh Sửa Vật Liệu" maxWidth="2xl">
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          Update material name, manufacturer, description, and images.
+          Cập nhật tên vật liệu, nhà sản xuất, mô tả và hình ảnh.
         </p>
 
         <div className="space-y-2">
-          <Label>Material Name *</Label>
+          <Label>Tên Vật Liệu *</Label>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={isLoading}
-            placeholder="e.g., NPK Fertilizer 16-16-8"
+            placeholder="VD: Phân NPK 16-16-8"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Manufacturer</Label>
+          <Label>Nhà Sản Xuất</Label>
           <Input
             value={manufacturer}
             onChange={(e) => setManufacturer(e.target.value)}
             disabled={isLoading}
-            placeholder="e.g., Phân bón Phú Mỹ"
+            placeholder="VD: Phân bón Phú Mỹ"
           />
         </div>
 
         <div className="space-y-2">
-          <Label>Description</Label>
+          <Label>Mô Tả</Label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             disabled={isLoading}
             rows={3}
             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            placeholder="Description and notes..."
+            placeholder="Mô tả và ghi chú..."
           />
         </div>
 
@@ -160,13 +160,13 @@ export const EditMaterialDialog = ({
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <label htmlFor="isPartition" className="text-sm font-medium text-gray-700">
-            Can be partitioned (sold in smaller quantities)
+            Có thể chia nhỏ (bán với số lượng nhỏ hơn)
           </label>
         </div>
 
         {/* Image Upload Section */}
         <div>
-          <Label>Images</Label>
+          <Label>Hình Ảnh</Label>
           <div className="space-y-4">
             {/* Drag and Drop Upload Area */}
             <div
@@ -184,7 +184,7 @@ export const EditMaterialDialog = ({
             >
               <ImageIcon className="mx-auto mb-3 size-10 text-muted-foreground" />
               <p className="mb-2 text-sm text-muted-foreground">
-                Drag and drop your images here, or click to browse
+                Kéo thả hình ảnh vào đây, hoặc nhấp để duyệt
               </p>
               <input
                 type="file"
@@ -197,10 +197,10 @@ export const EditMaterialDialog = ({
               />
               <div className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 transition-colors hover:bg-gray-50">
                 <Upload className="size-4" />
-                <span className="text-sm font-medium">Select Images</span>
+                <span className="text-sm font-medium">Chọn Hình Ảnh</span>
               </div>
               {uploadImagesMutation.isPending && (
-                <p className="mt-2 text-xs text-primary">Uploading...</p>
+                <p className="mt-2 text-xs text-primary">Đang tải lên...</p>
               )}
             </div>
 
@@ -211,13 +211,13 @@ export const EditMaterialDialog = ({
                   <thead className="border-b border-gray-200 bg-gray-50">
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Preview
+                        Xem Trước
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        File
+                        Tệp
                       </th>
                       <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Actions
+                        Thao Tác
                       </th>
                     </tr>
                   </thead>
@@ -233,7 +233,7 @@ export const EditMaterialDialog = ({
                         </td>
                         <td className="px-4 py-3">
                           <div className="text-sm font-medium text-gray-900">
-                            Image {index + 1}
+                            Hình Ảnh {index + 1}
                           </div>
                           <div className="text-xs text-gray-500">
                             {url.split('/').pop()?.substring(0, 30)}...
@@ -246,7 +246,7 @@ export const EditMaterialDialog = ({
                             className="inline-flex items-center gap-1 rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
                           >
                             <X className="size-3" />
-                            Remove
+                            Xóa
                           </button>
                         </td>
                       </tr>
@@ -260,7 +260,7 @@ export const EditMaterialDialog = ({
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleUpdate}
@@ -268,7 +268,7 @@ export const EditMaterialDialog = ({
             isLoading={isLoading}
             icon={<Save className="h-4 w-4" />}
           >
-            Save Changes
+            Lưu Thay Đổi
           </Button>
         </div>
       </div>

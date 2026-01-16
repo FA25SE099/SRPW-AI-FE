@@ -14,7 +14,7 @@ const EmergencyRoute = () => {
 
     return (
         <>
-            <ContentLayout title="Emergency Plans">
+            <ContentLayout title="Kế hoạch khẩn cấp">
                 <EmergencyPlansList
                     onViewPlan={(planId) => setSelectedPlanId(planId)}
                     onSolveEmergency={handleSolveEmergency}
