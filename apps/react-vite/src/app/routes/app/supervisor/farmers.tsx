@@ -38,8 +38,8 @@ const SupervisorFarmersPage = () => {
 
     if (isLoading) {
         return (
-            <ContentLayout title="My Farmers">
-                <Head title="My Farmers" />
+            <ContentLayout title="Nông Dân Của Tôi">
+                <Head title="Nông Dân Của Tôi" />
                 <div className="flex h-96 items-center justify-center">
                     <Spinner size="lg" className="text-green-600" />
                 </div>
@@ -49,14 +49,14 @@ const SupervisorFarmersPage = () => {
 
     if (isError) {
         return (
-            <ContentLayout title="My Farmers">
-                <Head title="My Farmers" />
+            <ContentLayout title="Nông Dân Của Tôi">
+                <Head title="Nông Dân Của Tôi" />
                 <div className="flex h-96 items-center justify-center">
                     <div className="text-center">
                         <p className="text-lg font-semibold text-red-500">
-                            Failed to load farmers
+                            Không thể tải danh sách nông dân
                         </p>
-                        <p className="mt-2 text-muted-foreground">Please try again later</p>
+                        <p className="mt-2 text-muted-foreground">Vui lòng thử lại sau</p>
                     </div>
                 </div>
             </ContentLayout>
@@ -65,7 +65,7 @@ const SupervisorFarmersPage = () => {
 
     return (
         <div>
-            <Head title="My Farmers" />
+            <Head title="Nông Dân Của Tôi" />
             <div className="space-y-6">
                 {/* Header */}
                 <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
@@ -75,10 +75,10 @@ const SupervisorFarmersPage = () => {
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-neutral-900">
-                                My Farmers
+                                Nông Dân Của Tôi
                             </h1>
                             <p className="text-sm text-neutral-600 mt-1">
-                                View and manage farmers under your supervision
+                                Xem và quản lý nông dân dưới sự giám sát của bạn
                             </p>
                         </div>
                     </div>
@@ -96,7 +96,7 @@ const SupervisorFarmersPage = () => {
                             className="gap-2"
                         >
                             <Filter className="size-4" />
-                            {onlyAssigned ? 'Assigned Only' : 'All in Cluster'}
+                            {onlyAssigned ? 'Chỉ Được Phân Công' : 'Tất Cả Trong Cụm'}
                         </Button>
                     </div>
                 </div>
@@ -110,7 +110,7 @@ const SupervisorFarmersPage = () => {
                             </div>
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                                    Total Farmers
+                                    Tổng Nông Dân
                                 </p>
                                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                                     {totalCount}
@@ -126,7 +126,7 @@ const SupervisorFarmersPage = () => {
                             </div>
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                                    Active Farmers
+                                    Nông Dân Hoạt Động
                                 </p>
                                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                                     {farmers.filter((f: any) => f.isActive).length}
@@ -142,7 +142,7 @@ const SupervisorFarmersPage = () => {
                             </div>
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                                    Verified
+                                    Đã Xác Minh
                                 </p>
                                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                                     {farmers.filter((f: any) => f.isVerified).length}
@@ -158,7 +158,7 @@ const SupervisorFarmersPage = () => {
                             </div>
                             <div>
                                 <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                                    Total Plots
+                                    Tổng Thửa Đất
                                 </p>
                                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                                     {farmers.reduce((sum: number, f: any) => sum + f.plotCount, 0)}
@@ -174,7 +174,7 @@ const SupervisorFarmersPage = () => {
                         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Search by name or phone..."
+                            placeholder="Tìm kiếm theo tên hoặc số điện thoại..."
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
@@ -190,14 +190,14 @@ const SupervisorFarmersPage = () => {
                     <div className="rounded-lg border border-dashed border-gray-200 bg-white py-16 text-center">
                         <Users className="mx-auto mb-4 size-16 text-gray-300" />
                         <h3 className="text-lg font-semibold text-gray-900">
-                            No farmers found
+                            Không tìm thấy nông dân
                         </h3>
                         <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">
                             {searchTerm
-                                ? 'Try adjusting your search'
+                                ? 'Thử điều chỉnh tìm kiếm của bạn'
                                 : onlyAssigned
-                                    ? 'You have no assigned farmers yet'
-                                    : 'No farmers in your cluster'}
+                                    ? 'Bạn chưa có nông dân được phân công'
+                                    : 'Không có nông dân trong cụm của bạn'}
                         </p>
                     </div>
                 ) : (
@@ -207,25 +207,25 @@ const SupervisorFarmersPage = () => {
                                 <thead className="border-b border-gray-200 bg-gray-50">
                                     <tr>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                            Farmer Info
+                                            Thông Tin Nông Dân
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                            Contact
+                                            Liên Hệ
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                            Address
+                                            Địa Chỉ
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                            Status
+                                            Trạng Thái
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                            Plots
+                                            Thửa Đất
                                         </th>
                                         {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                             Last Activity
                                         </th> */}
                                         <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                                            Actions
+                                            Hành Động
                                         </th>
                                     </tr>
                                 </thead>
@@ -263,17 +263,17 @@ const SupervisorFarmersPage = () => {
                                                 <div className="flex gap-2">
                                                     {farmer.isActive && (
                                                         <Badge className="border border-green-200 bg-green-100 text-green-800">
-                                                            Active
+                                                            Hoạt Động
                                                         </Badge>
                                                     )}
                                                     {farmer.isVerified && (
                                                         <Badge className="border border-blue-200 bg-blue-100 text-blue-800">
-                                                            Verified
+                                                            Đã Xác Minh
                                                         </Badge>
                                                     )}
                                                     {!farmer.isActive && !farmer.isVerified && (
                                                         <Badge className="border border-gray-200 bg-gray-100 text-gray-800">
-                                                            Inactive
+                                                            Không Hoạt Động
                                                         </Badge>
                                                     )}
                                                 </div>
@@ -304,7 +304,7 @@ const SupervisorFarmersPage = () => {
                                                     className="text-green-600 hover:bg-green-50 hover:text-green-700"
                                                     onClick={() => handleViewDetails(farmer.farmerId)}
                                                 >
-                                                    View Details
+                                                    Xem Chi Tiết
                                                 </Button>
                                             </td>
                                         </tr>
@@ -316,8 +316,7 @@ const SupervisorFarmersPage = () => {
                         {totalPages > 1 && (
                             <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
                                 <div className="text-sm text-gray-600">
-                                    Showing page {currentPage} of {totalPages} ({totalCount} total
-                                    farmers)
+                                    Hiển thị trang {currentPage} / {totalPages} (Tổng {totalCount} nông dân)
                                 </div>
                                 <div className="flex gap-2">
                                     <Button
@@ -329,7 +328,7 @@ const SupervisorFarmersPage = () => {
                                         }
                                         className="border-gray-300 text-gray-700 hover:bg-gray-50"
                                     >
-                                        Previous
+                                        Trước
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -340,7 +339,7 @@ const SupervisorFarmersPage = () => {
                                         }
                                         className="border-gray-300 text-gray-700 hover:bg-gray-50"
                                     >
-                                        Next
+                                        Tiếp
                                     </Button>
                                 </div>
                             </div>

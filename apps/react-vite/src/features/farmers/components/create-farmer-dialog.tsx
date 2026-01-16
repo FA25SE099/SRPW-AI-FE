@@ -25,16 +25,16 @@ export const CreateFarmerDialog = ({ open, onOpenChange }: CreateFarmerDialogPro
       onSuccess: (data) => {
         addNotification({
           type: 'success',
-          title: 'Farmer Created',
-          message: `Successfully created farmer: ${data.fullName}`,
+          title: 'Tạo Nông Dân Thành Công',
+          message: `Đã tạo thành công nông dân: ${data.fullName}`,
         });
         onOpenChange(false);
       },
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Creation Failed',
-          message: error.message || 'Failed to create farmer',
+          title: 'Tạo Thất Bại',
+          message: error.message || 'Tạo nông dân thất bại',
         });
       },
     },
@@ -50,9 +50,9 @@ export const CreateFarmerDialog = ({ open, onOpenChange }: CreateFarmerDialogPro
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Farmer</DialogTitle>
+          <DialogTitle>Tạo Nông Dân Mới</DialogTitle>
           <DialogDescription>
-            Add a new farmer to your cluster by filling out the information below
+            Thêm nông dân mới vào cụm của bạn bằng cách điền thông tin bên dưới
           </DialogDescription>
         </DialogHeader>
 
@@ -69,15 +69,15 @@ export const CreateFarmerDialog = ({ open, onOpenChange }: CreateFarmerDialogPro
             <>
               <div className="space-y-4">
                 <Input
-                  label="Full Name"
-                  placeholder="Enter farmer's full name"
+                  label="Họ Và Tên"
+                  placeholder="Nhập họ và tên đầy đủ"
                   error={formState.errors['fullName']}
                   registration={register('fullName')}
                 />
 
                 <Input
-                  label="Phone Number"
-                  placeholder="Enter phone number (e.g., 0901234567)"
+                  label="Số Điện Thoại"
+                  placeholder="Nhập số điện thoại (ví dụ: 0901234567)"
                   error={formState.errors['phoneNumber']}
                   registration={register('phoneNumber')}
                 />
@@ -85,21 +85,21 @@ export const CreateFarmerDialog = ({ open, onOpenChange }: CreateFarmerDialogPro
                 <Input
                   label="Email"
                   type="email"
-                  placeholder="Enter email address (optional)"
+                  placeholder="Nhập địa chỉ email (tùy chọn)"
                   error={formState.errors['email']}
                   registration={register('email')}
                 />
 
                 <Input
-                  label="Farm Code"
-                  placeholder="Enter farm code (e.g., FARM001)"
+                  label="Mã Nông Dân"
+                  placeholder="Nhập mã nông dân (ví dụ: FARM001)"
                   error={formState.errors['farmCode']}
                   registration={register('farmCode')}
                 />
 
                 <Input
-                  label="Address"
-                  placeholder="Enter full address"
+                  label="Địa Chỉ"
+                  placeholder="Nhập địa chỉ đầy đủ"
                   error={formState.errors['address']}
                   registration={register('address')}
                 />
@@ -112,7 +112,7 @@ export const CreateFarmerDialog = ({ open, onOpenChange }: CreateFarmerDialogPro
                   onClick={handleClose}
                   disabled={createMutation.isPending}
                 >
-                  Cancel
+                  Hủy
                 </Button>
                 <Button
                   type="submit"
@@ -121,7 +121,7 @@ export const CreateFarmerDialog = ({ open, onOpenChange }: CreateFarmerDialogPro
                   icon={<UserPlus className="size-4" />}
                   className="gap-2"
                 >
-                  Create Farmer
+                  Tạo Nông Dân
                 </Button>
               </div>
             </>

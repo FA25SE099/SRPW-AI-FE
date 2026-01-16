@@ -109,25 +109,25 @@ const GroupCard = ({
     switch (status) {
       case 'awaiting-plan':
         return {
-          label: 'Awaiting Plan',
+          label: 'Chờ Kế Hoạch',
           disabled: true,
           className: 'w-full bg-gray-100 text-gray-500 cursor-not-allowed hover:bg-gray-100 disabled:opacity-100',
         };
       case 'in-progress':
         return {
-          label: 'View Plan Details',
+          label: 'Xem Chi Tiết Kế Hoạch',
           disabled: false,
           className: 'w-full bg-blue-600 hover:bg-blue-700 text-white',
         };
       case 'completed':
         return {
-          label: 'View Completed Plan',
+          label: 'Xem Kế Hoạch Hoàn Thành',
           disabled: false,
           className: 'w-full bg-green-600 hover:bg-green-700 text-white',
         };
       default:
         return {
-          label: 'Awaiting Plan',
+          label: 'Chờ Kế Hoạch',
           disabled: true,
           className: 'w-full bg-gray-100 text-gray-500 cursor-not-allowed hover:bg-gray-100 disabled:opacity-100',
         };
@@ -137,15 +137,15 @@ const GroupCard = ({
   const uiStatus = getUIPlanStatus(group, groupDetail);
   const buttonConfig = getButtonConfig(uiStatus);
   const color = group.color || groupColors[index % groupColors.length];
-  const supervisorName = group.supervisorName || groupDetail?.supervisorName || 'Unassigned Supervisor';
-  const supervisorEmail = group.supervisorEmail || 'N/A';
+  const supervisorName = group.supervisorName || groupDetail?.supervisorName || 'Chưa Phân Công';
+  const supervisorEmail = group.supervisorEmail || 'Không có';
 
   const handleButtonClick = () => {
     if (buttonConfig.disabled) return;
 
     onSelectGroup({
       id: group.groupId,
-      name: `Group ${group.riceVarietyName || groupDetail?.riceVarietyName || ''}`.trim(),
+      name: `Nhóm ${group.riceVarietyName || groupDetail?.riceVarietyName || ''}`.trim(),
       totalArea: group.totalArea ?? groupDetail?.totalArea ?? 0,
     });
   };
@@ -169,10 +169,10 @@ const GroupCard = ({
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-foreground text-lg">
-              {group.groupName || `Group ${index + 1}`}
+              {group.groupName || `Nhóm ${index + 1}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {group.riceVarietyName || groupDetail?.riceVarietyName || 'Rice Variety'} • {group.plotCount} plots • {group.totalArea.toFixed(1)} ha
+              {group.riceVarietyName || groupDetail?.riceVarietyName || 'Giống Lúa'} • {group.plotCount} mảnh • {group.totalArea.toFixed(1)} ha
             </p>
           </div>
         </div>
@@ -181,7 +181,7 @@ const GroupCard = ({
         <div className="space-y-2 mb-4 pb-4 border-b border-muted">
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">
-              Plots Assigned
+              Mảnh Được Phân Công
             </span>
             <span className="font-semibold text-foreground">
               {group.plotCount ?? groupDetail?.plots?.length ?? 0}
@@ -189,7 +189,7 @@ const GroupCard = ({
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">
-              Total Area
+              Tổng Diện Tích
             </span>
             <span className="font-semibold text-foreground">
               {(group.totalArea ?? groupDetail?.totalArea ?? 0)} ha
@@ -200,7 +200,7 @@ const GroupCard = ({
         {/* Supervisor Info */}
         <div className="mb-4">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Supervisor
+            Giám Sát Viên
           </p>
           <p className="font-medium text-foreground mt-1">
             {supervisorName}
@@ -213,7 +213,7 @@ const GroupCard = ({
         {/* Plan Status */}
         <div className="mb-4 flex items-center justify-between">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Plan Status
+            Trạng Thái Kế Hoạch
           </p>
           {isLoadingDetail ? (
             <div className="h-5 w-16 bg-gray-200 animate-pulse rounded"></div>
@@ -231,7 +231,7 @@ const GroupCard = ({
           {isLoadingDetail ? (
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Loading...
+              Đang tải...
             </div>
           ) : (
             buttonConfig.label
@@ -545,12 +545,12 @@ const ClusterDashboard = () => {
   const overviewPlots =
     typedPlotsData?.data?.map((plot) => {
       // Format planting date safely
-      let plantingDateDisplay = 'Not Selected';
+      let plantingDateDisplay = 'Chưa Chọn';
       if (plot.selectedPlantingDate) {
         try {
           const date = new Date(plot.selectedPlantingDate);
           if (!isNaN(date.getTime())) {
-            plantingDateDisplay = date.toLocaleDateString('en-GB');
+            plantingDateDisplay = date.toLocaleDateString('vi-VN');
           }
         } catch (error) {
           console.error('Error parsing date:', plot.selectedPlantingDate, error);
@@ -565,8 +565,8 @@ const ClusterDashboard = () => {
 
       return {
         plotId: plot.plotId,
-        plotName: `Plot ${plot.soThua}/${plot.soTo}`,
-        crop: plot.selectedRiceVarietyName || plot.yearSeasonRiceVarietyName || 'Not Selected',
+        plotName: `Mảnh ${plot.soThua}/${plot.soTo}`,
+        crop: plot.selectedRiceVarietyName || plot.yearSeasonRiceVarietyName || 'Chưa Chọn',
         area: plot.area,
         plantingDate: plantingDateDisplay,
         owner: plot.farmerName,
@@ -598,8 +598,8 @@ const ClusterDashboard = () => {
     return {
       supervisorId: supervisor.supervisorId,
       name: supervisor.supervisorName,
-      email: 'N/A', // API doesn't return email
-      phone: 'N/A', // API doesn't return phone
+      email: 'Không có', // API doesn't return email
+      phone: 'Không có', // API doesn't return phone
       assignedGroups: groupCount,
       totalPlots: supervisor.supervisedGroups?.reduce((sum, group) => sum + group.plotCount, 0) || 0,
       totalArea: supervisor.supervisedGroups?.reduce((sum, group) => sum + group.totalArea, 0) || 0,
@@ -616,11 +616,11 @@ const ClusterDashboard = () => {
 
   if (isLoading) {
     return (
-      <ContentLayout title="Cluster Manager Dashboard">
+      <ContentLayout title="Bảng Điều Khiển Quản Lý Cụm">
         <div className="flex items-center justify-center h-64">
           <div className="text-center space-y-4">
             <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-            <p className="text-muted-foreground">Loading cluster data...</p>
+            <p className="text-muted-foreground">Đang tải dữ liệu cụm...</p>
           </div>
         </div>
       </ContentLayout>
@@ -629,19 +629,19 @@ const ClusterDashboard = () => {
 
   if (!user?.data) {
     return (
-      <ContentLayout title="Cluster Manager Dashboard">
+      <ContentLayout title="Bảng Điều Khiển Quản Lý Cụm">
         <Card className="border-destructive/50">
           <CardContent className="p-8 text-center space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
             <div>
               <h3 className="font-semibold text-lg mb-2">
-                Failed to Load User Data
+                Tải Dữ Liệu Người Dùng Thất Bại
               </h3>
               <p className="text-muted-foreground mb-4">
                 {clusterIdError?.message ||
-                  'Could not fetch user information.'}
+                  'Không thể lấy thông tin người dùng.'}
               </p>
-              <Button onClick={() => window.location.reload()}>Retry</Button>
+              <Button onClick={() => window.location.reload()}>Thử Lại</Button>
             </div>
           </CardContent>
         </Card>
@@ -651,19 +651,19 @@ const ClusterDashboard = () => {
 
   if (clusterIdError) {
     return (
-      <ContentLayout title="Cluster Manager Dashboard">
+      <ContentLayout title="Bảng Điều Khiển Quản Lý Cụm">
         <Card className="border-destructive/50">
           <CardContent className="p-8 text-center space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
             <div>
               <h3 className="font-semibold text-lg mb-2">
-                Failed to Load Cluster ID
+                Tải ID Cụm Thất Bại
               </h3>
               <p className="text-muted-foreground mb-4">
                 {clusterIdError.message ||
-                  'Could not fetch cluster information for your account.'}
+                  'Không thể lấy thông tin cụm cho tài khoản của bạn.'}
               </p>
-              <Button onClick={() => window.location.reload()}>Retry</Button>
+              <Button onClick={() => window.location.reload()}>Thử Lại</Button>
             </div>
           </CardContent>
         </Card>
@@ -673,19 +673,19 @@ const ClusterDashboard = () => {
 
   if (seasonError) {
     return (
-      <ContentLayout title="Cluster Manager Dashboard">
+      <ContentLayout title="Bảng Điều Khiển Quản Lý Cụm">
         <Card className="border-destructive/50">
           <CardContent className="p-8 text-center space-y-4">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto" />
             <div>
               <h3 className="font-semibold text-lg mb-2">
-                Failed to Load Cluster Data
+                Tải Dữ Liệu Cụm Thất Bại
               </h3>
               <p className="text-muted-foreground mb-4">
                 {seasonError.message ||
-                  'An error occurred while fetching cluster information.'}
+                  'Đã xảy ra lỗi khi tải thông tin cụm.'}
               </p>
-              <Button onClick={() => window.location.reload()}>Retry</Button>
+              <Button onClick={() => window.location.reload()}>Thử Lại</Button>
             </div>
           </CardContent>
         </Card>
@@ -695,15 +695,14 @@ const ClusterDashboard = () => {
 
   if (!clusterId) {
     return (
-      <ContentLayout title="Cluster Manager Dashboard">
+      <ContentLayout title="Bảng Điều Khiển Quản Lý Cụm">
         <Card>
           <CardContent className="p-8 text-center space-y-4">
             <AlertCircle className="h-12 w-12 text-warning mx-auto" />
             <div>
-              <h3 className="font-semibold text-lg mb-2">No Cluster Assigned</h3>
+              <h3 className="font-semibold text-lg mb-2">Chưa Được Phân Công Cụm</h3>
               <p className="text-muted-foreground">
-                You don&apos;t have a cluster assigned yet. Please contact your
-                administrator.
+                Bạn chưa được phân công cụm nào. Vui lòng liên hệ quản trị viên.
               </p>
             </div>
           </CardContent>
@@ -716,21 +715,21 @@ const ClusterDashboard = () => {
 
   const stats = currentSeason ? [
     {
-      label: 'Farmers',
+      label: 'Nông Dân',
       value: currentSeason?.riceVarietySelection?.totalFarmers || 0,
       icon: Users,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50 dark:bg-blue-950',
     },
     {
-      label: 'Plots',
+      label: 'Mảnh Đất',
       value: currentSeason?.readiness?.availablePlots || 0,
       icon: MapPin,
       color: 'text-green-600',
       bgColor: 'bg-green-50 dark:bg-green-950',
     },
     {
-      label: 'Supervisors',
+      label: 'Giám Sát Viên',
       value: currentSeason?.readiness?.availableSupervisors || 0, icon: Users,
       color: 'text-purple-600',
       bgColor: 'bg-purple-50 dark:bg-purple-950',
@@ -749,10 +748,10 @@ const ClusterDashboard = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-neutral-900">
-                Cluster Manager Dashboard
+                Bảng Điều Khiển Quản Lý Cụm
               </h1>
               <p className="text-sm text-neutral-600 mt-1">
-                Monitor and manage your cluster: farmers, plots, groups, and production plans
+                Giám sát và quản lý cụm của bạn: nông dân, mảnh đất, nhóm và kế hoạch sản xuất
               </p>
             </div>
           </div>
@@ -763,14 +762,14 @@ const ClusterDashboard = () => {
             <div>
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold text-foreground">
-                  {currentSeason?.clusterName || yearSeasonsData?.clusterName || 'Cluster Dashboard'}
+                  {currentSeason?.clusterName || yearSeasonsData?.clusterName || 'Bảng Điều Khiển Cụm'}
                 </h1>
                 {currentSeason && (
                   <Badge
                     variant={currentSeason.hasGroups ? 'default' : 'secondary'}
                     className="text-xs"
                   >
-                    {currentSeason.hasGroups ? 'Groups Active' : 'Forming Stage'}
+                    {currentSeason.hasGroups ? 'Nhóm Đang Hoạt Động' : 'Giai Đoạn Gom Nhóm'}
                   </Badge>
                 )}
               </div>
@@ -785,14 +784,14 @@ const ClusterDashboard = () => {
                     {selectedSeasonData && (
                       <>
                         <span>•</span>
-                        <span>Year {selectedSeasonData.year}</span>
+                        <span>Năm {selectedSeasonData.year}</span>
                       </>
                     )}
                     {/* Show global season info only if viewing the actual current season */}
                     {globalSeason && activeYearSeasonId === currentYearSeasonId && (
                       <>
                         <span>•</span>
-                        <span>Day {globalSeason?.daysIntoSeason}</span>
+                        <span>Ngày {globalSeason?.daysIntoSeason}</span>
                         <span>•</span>
                         <span>
                           {globalSeason.startDate} - {globalSeason.endDate}
@@ -802,7 +801,7 @@ const ClusterDashboard = () => {
                   </>
                 ) : (
                   <span className="font-medium text-muted-foreground">
-                    No season selected
+                    Chưa chọn mùa vụ
                   </span>
                 )}
               </div>
@@ -833,8 +832,8 @@ const ClusterDashboard = () => {
                         </p>
                         <p className="text-2xl font-bold mt-1">{stat.value}</p>
                       </div>
-                      <div className={`p-3 rounded-lg ${stat.bgColor}`}>
-                        <Icon className={`h-6 w-6 ${stat.color}`} />
+                      <div className={'p-3 rounded-lg ' + stat.bgColor}>
+                        <Icon className={'h-6 w-6 ' + stat.color} />
                       </div>
                     </div>
                   </CardContent>
@@ -882,12 +881,12 @@ const ClusterDashboard = () => {
                 <CardContent className="p-8 text-center space-y-4">
                   <Calendar className="h-12 w-12 text-muted-foreground mx-auto" />
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">No Season Available</h3>
+                    <h3 className="font-semibold text-lg mb-2">Không Có Mùa Vụ</h3>
                     <p className="text-muted-foreground">
-                      There are no seasons configured for this cluster yet.
+                      Chưa có mùa vụ nào được cấu hình cho cụm này.
                       {allSeasons.length > 0
-                        ? ' Please select a season from the dropdown above.'
-                        : ' Please contact your administrator to set up seasons.'}
+                        ? ' Vui lòng chọn mùa vụ từ danh sách ở trên.'
+                        : ' Vui lòng liên hệ quản trị viên để thiết lập mùa vụ.'}
                     </p>
                   </div>
                 </CardContent>
@@ -925,15 +924,15 @@ const ClusterDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-bold text-foreground">
-                    Active Groups
+                    Nhóm Đang Hoạt Động
                   </h2>
                   <p className="textF-sm text-muted-foreground mt-1">
-                    {currentSeason.groups.length} groups managing{' '}
+                    {currentSeason.groups.length} nhóm quản lý{' '}
                     {currentSeason.groups.reduce(
                       (sum: number, g: any) => sum + (g.plotCount || 0),
                       0,
                     )}{' '}
-                    plots
+                    mảnh đất
                   </p>
                 </div>
               </div>

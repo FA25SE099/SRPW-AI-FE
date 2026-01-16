@@ -16,17 +16,17 @@ interface LatePlotsListProps {
 const getPlotStatusLabel = (status: PlotStatus): string => {
     switch (status) {
         case PlotStatus.Active:
-            return 'Active';
+            return 'Hoạt động';
         case PlotStatus.Inactive:
-            return 'Inactive';
+            return 'Không hoạt động';
         case PlotStatus.Emergency:
-            return 'Emergency';
+            return 'Khẩn cấp';
         case PlotStatus.Locked:
-            return 'Locked';
+            return 'Đã khóa';
         case PlotStatus.PendingPolygon:
-            return 'Pending Polygon';
+            return 'Chờ đa giác';
         default:
-            return 'Unknown';
+            return 'Không xác định';
     }
 };
 
@@ -76,7 +76,7 @@ export const LatePlotsList = ({
     if (!agronomyExpertId && !supervisorId) {
         return (
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-                <p className="text-gray-600">Unable to load data. User ID not available.</p>
+                <p className="text-gray-600">Không thể tải dữ liệu. ID người dùng không khả dụng.</p>
             </div>
         );
     }
@@ -107,14 +107,14 @@ export const LatePlotsList = ({
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                     <Input
-                        placeholder="Search by farmer name, Số Thửa, or Số Tờ..."
+                        placeholder="Tìm kiếm theo tên nông dân, Số Thửa, hoặc Số Tờ..."
                         value={searchTerm}
                         onChange={(e) => handleSearch(e.target.value)}
                         className="pl-10"
                     />
                 </div>
                 <div className="text-sm text-gray-600">
-                    Total: {totalCount} plots
+                    Tổng: {totalCount} thửa
                 </div>
             </div>
 
@@ -131,8 +131,8 @@ export const LatePlotsList = ({
                     <div className="flex items-start gap-2">
                         <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
                         <div>
-                            <p className="font-semibold">Failed to load plots</p>
-                            <p className="text-sm mt-1">{(error as any)?.response?.data?.message || (error as any)?.message || 'Unknown error occurred'}</p>
+                            <p className="font-semibold">Không thể tải dữ liệu thửa đất</p>
+                            <p className="text-sm mt-1">{(error as any)?.response?.data?.message || (error as any)?.message || 'Đã xảy ra lỗi không xác định'}</p>
                         </div>
                     </div>
                 </div>
@@ -146,28 +146,28 @@ export const LatePlotsList = ({
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Plot ID
+                                        Mã Thửa
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Farmer
+                                        Nông Dân
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Số Thửa / Số Tờ
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Area (ha)
+                                        Diện tích (ha)
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Soil Type
+                                        Loại Đất
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Late Count
+                                        Số Lần Trễ
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
+                                        Trạng Thái
                                     </th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
+                                        Hành Động
                                     </th>
                                 </tr>
                             </thead>
@@ -175,7 +175,7 @@ export const LatePlotsList = ({
                                 {plots.length === 0 ? (
                                     <tr>
                                         <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
-                                            No plots found with late records
+                                            Không tìm thấy thửa đất có hồ sơ trễ hạn
                                         </td>
                                     </tr>
                                 ) : (
@@ -207,7 +207,7 @@ export const LatePlotsList = ({
                                                             : 'bg-yellow-100 text-yellow-800'
                                                         }`}
                                                 >
-                                                    {plot.lateCount} times
+                                                    {plot.lateCount} lần
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -227,7 +227,7 @@ export const LatePlotsList = ({
                                                     disabled={!plot.groupId}
                                                 >
                                                     <Eye className="mr-1 h-4 w-4" />
-                                                    Detail
+                                                    Chi tiết
                                                 </Button>
                                             </td>
                                         </tr>
@@ -241,7 +241,7 @@ export const LatePlotsList = ({
                     {totalPages > 1 && (
                         <div className="flex items-center justify-between">
                             <div className="text-sm text-gray-600">
-                                Page {page} of {totalPages}
+                                Trang {page} / {totalPages}
                             </div>
                             <div className="flex gap-2">
                                 <Button
@@ -250,7 +250,7 @@ export const LatePlotsList = ({
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                                     disabled={page === 1}
                                 >
-                                    Previous
+                                    Trước
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -258,7 +258,7 @@ export const LatePlotsList = ({
                                     onClick={() => setPage((p) => p + 1)}
                                     disabled={page >= totalPages}
                                 >
-                                    Next
+                                    Tiếp
                                 </Button>
                             </div>
                         </div>

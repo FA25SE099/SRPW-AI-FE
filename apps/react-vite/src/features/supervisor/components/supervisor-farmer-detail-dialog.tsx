@@ -85,7 +85,7 @@ export const SupervisorFarmerDetailDialog = ({ farmerId, open, onOpenChange }: S
             <Dialog open={open} onOpenChange={onOpenChange}>
                 <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle>Farmer Details</DialogTitle>
+                        <DialogTitle>Chi Tiết Nông Dân</DialogTitle>
                     </DialogHeader>
 
                     {isLoading && (
@@ -96,7 +96,7 @@ export const SupervisorFarmerDetailDialog = ({ farmerId, open, onOpenChange }: S
 
                     {isError && (
                         <div className="text-center py-12">
-                            <p className="text-red-500">Failed to load farmer details</p>
+                            <p className="text-red-500">Không thể tải thông tin nông dân</p>
                         </div>
                     )}
 
@@ -116,10 +116,10 @@ export const SupervisorFarmerDetailDialog = ({ farmerId, open, onOpenChange }: S
                                     </div>
                                     <div className="flex gap-2">
                                         {farmer.isActive && (
-                                            <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">Active</span>
+                                            <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">Hoạt Động</span>
                                         )}
                                         {farmer.isVerified && (
-                                            <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">Verified</span>
+                                            <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">Đã Xác Minh</span>
                                         )}
                                     </div>
                                 </div>
@@ -128,7 +128,7 @@ export const SupervisorFarmerDetailDialog = ({ farmerId, open, onOpenChange }: S
                                     <div className="flex items-center gap-3">
                                         <Phone className="h-5 w-5 text-muted-foreground" />
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Phone Number</p>
+                                            <p className="text-sm text-muted-foreground">Số Điện Thoại</p>
                                             <p className="font-medium">{farmer.phoneNumber}</p>
                                         </div>
                                     </div>
@@ -136,7 +136,7 @@ export const SupervisorFarmerDetailDialog = ({ farmerId, open, onOpenChange }: S
                                     <div className="flex items-center gap-3">
                                         <MapPin className="h-5 w-5 text-muted-foreground" />
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Address</p>
+                                            <p className="text-sm text-muted-foreground">Địa Chỉ</p>
                                             <p className="font-medium">{farmer.address}</p>
                                         </div>
                                     </div>

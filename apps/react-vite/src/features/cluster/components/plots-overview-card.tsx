@@ -28,21 +28,21 @@ const getStatusInfo = (status: PlotStatus) => {
                 icon: CheckCircle,
                 color: 'text-green-600',
                 bgColor: 'bg-green-50',
-                label: 'Ready',
+                label: 'Sẵn Sàng',
             };
         case 'Pending':
             return {
                 icon: Clock,
                 color: 'text-yellow-600',
                 bgColor: 'bg-yellow-50',
-                label: 'Pending',
+                label: 'Đang Chờ',
             };
         case 'Issue':
             return {
                 icon: AlertCircle,
                 color: 'text-red-600',
                 bgColor: 'bg-red-50',
-                label: 'Issues',
+                label: 'Có Vấn Đề',
             };
         default:
             return {
@@ -83,8 +83,8 @@ export const PlotsOverviewCard = ({ plots, totalPlots, onViewAll }: PlotsOvervie
                     <div className="flex items-center gap-2">
                         <MapPin className="w-5 h-5 text-muted-foreground" />
                         <div>
-                            <CardTitle>Plots Overview</CardTitle>
-                            <CardDescription>{totalPlots} plots</CardDescription>
+                            <CardTitle>Tổng Quan Thừa Đất</CardTitle>
+                            <CardDescription>{totalPlots} thừa đất</CardDescription>
                         </div>
                     </div>
                     <Button
@@ -95,12 +95,12 @@ export const PlotsOverviewCard = ({ plots, totalPlots, onViewAll }: PlotsOvervie
                     >
                         {isExpanded ? (
                             <>
-                                <span className="text-sm">Collapse</span>
+                                <span className="text-sm">Thu Gọn</span>
                                 <ChevronUp className="w-4 h-4" />
                             </>
                         ) : (
                             <>
-                                <span className="text-sm">Expand</span>
+                                <span className="text-sm">Mở Rộng</span>
                                 <ChevronDown className="w-4 h-4" />
                             </>
                         )}
@@ -114,19 +114,19 @@ export const PlotsOverviewCard = ({ plots, totalPlots, onViewAll }: PlotsOvervie
                     <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200 flex-1">
                         <CheckCircle className="w-4 h-4 text-green-600" />
                         <span className="text-sm font-medium text-green-700">
-                            Ready ({statusCounts.Ready})
+                            Sẵn Sàng ({statusCounts.Ready})
                         </span>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-2 bg-yellow-50 rounded-lg border border-yellow-200 flex-1">
                         <Clock className="w-4 h-4 text-yellow-600" />
                         <span className="text-sm font-medium text-yellow-700">
-                            Pending ({statusCounts.Pending})
+                            Đang Chờ ({statusCounts.Pending})
                         </span>
                     </div>
                     <div className="flex items-center gap-2 px-3 py-2 bg-red-50 rounded-lg border border-red-200 flex-1">
                         <AlertCircle className="w-4 h-4 text-red-600" />
                         <span className="text-sm font-medium text-red-700">
-                            Issues ({statusCounts.Issue})
+                            Có Vấn Đề ({statusCounts.Issue})
                         </span>
                     </div>
                 </div>
@@ -139,22 +139,22 @@ export const PlotsOverviewCard = ({ plots, totalPlots, onViewAll }: PlotsOvervie
                                 <thead className="bg-muted">
                                     <tr>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                            Status
+                                            Trạng Thái
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                            Plot Name
+                                            Tên Thửa
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                            Crop
+                                            Giống Lúa
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                            Area
+                                            Diện Tích
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                            Planting Date
+                                            Ngày Giống
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                            Owner
+                                            Chủ Sở Hữu
                                         </th>
                                     </tr>
                                 </thead>
@@ -203,7 +203,7 @@ export const PlotsOverviewCard = ({ plots, totalPlots, onViewAll }: PlotsOvervie
                 {onViewAll && (
                     <div className="pt-2">
                         <Button variant="outline" onClick={onViewAll} className="w-full">
-                            View All Plots
+                            Xem Tất Cả Thửa Đất
                         </Button>
                     </div>
                 )}

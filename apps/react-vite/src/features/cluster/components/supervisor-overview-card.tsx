@@ -27,21 +27,21 @@ const getStatusInfo = (status: Supervisor['status']) => {
         color: 'text-green-600',
         bgColor: 'bg-green-50',
         borderColor: 'border-green-200',
-        label: 'Available',
+        label: 'Sẵn Sàng',
       };
     case 'Assigned':
       return {
         color: 'text-blue-600',
         bgColor: 'bg-blue-50',
         borderColor: 'border-blue-200',
-        label: 'Assigned',
+        label: 'Đã Phân Công',
       };
     case 'Busy':
       return {
         color: 'text-orange-600',
         bgColor: 'bg-orange-50',
         borderColor: 'border-orange-200',
-        label: 'Busy',
+        label: 'Bận',
       };
     default:
       return {
@@ -53,10 +53,10 @@ const getStatusInfo = (status: Supervisor['status']) => {
   }
 };
 
-export const SupervisorOverviewCard = ({ 
-  supervisors, 
-  totalSupervisors, 
-  onViewAll 
+export const SupervisorOverviewCard = ({
+  supervisors,
+  totalSupervisors,
+  onViewAll
 }: SupervisorOverviewCardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -68,8 +68,8 @@ export const SupervisorOverviewCard = ({
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-muted-foreground" />
             <div>
-              <CardTitle>Supervisors</CardTitle>
-              <CardDescription>No supervisors assigned yet</CardDescription>
+              <CardTitle>Giám Sát Viên</CardTitle>
+              <CardDescription>Chưa có giám sát viên được phân công</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -79,14 +79,14 @@ export const SupervisorOverviewCard = ({
               <AlertCircle className="h-8 w-8 text-orange-600" />
             </div>
             <h3 className="text-base font-semibold text-foreground mb-2">
-              No Supervisors Assigned
+              Chưa Có Giám Sát Viên
             </h3>
             <p className="text-sm text-muted-foreground max-w-sm mb-4">
-              This cluster doesn't have any supervisors assigned yet. 
-              Supervisors are needed to manage groups and coordinate farming activities.
+              Cụm này chưa có giám sát viên được phân công.
+              Giám sát viên cần thiết để quản lý các nhóm và điều phối hoạt động canh tác.
             </p>
-            <Button 
-              variant="default" 
+            <Button
+              variant="default"
               onClick={() => {
                 // Alert admin functionality
                 if (onViewAll) {
@@ -96,7 +96,7 @@ export const SupervisorOverviewCard = ({
               className="gap-2 bg-orange-600 hover:bg-orange-700"
             >
               <Bell className="w-4 h-4" />
-              Alert Admin
+              Thông Báo Quản Trị Viên
             </Button>
           </div>
         </CardContent>
@@ -118,8 +118,8 @@ export const SupervisorOverviewCard = ({
           <div className="flex items-center gap-2">
             <Users className="w-5 h-5 text-muted-foreground" />
             <div>
-              <CardTitle>Available Supervisors</CardTitle>
-              <CardDescription>{totalSupervisors} supervisors</CardDescription>
+              <CardTitle>Giám Sát Viên Hiện Có</CardTitle>
+              <CardDescription>{totalSupervisors} giám sát viên</CardDescription>
             </div>
           </div>
           <Button
@@ -130,12 +130,12 @@ export const SupervisorOverviewCard = ({
           >
             {isExpanded ? (
               <>
-                <span className="text-sm">Collapse</span>
+                <span className="text-sm">Thu Gọn</span>
                 <ChevronUp className="w-4 h-4" />
               </>
             ) : (
               <>
-                <span className="text-sm">Expand</span>
+                <span className="text-sm">Mở Rộng</span>
                 <ChevronDown className="w-4 h-4" />
               </>
             )}
@@ -149,19 +149,19 @@ export const SupervisorOverviewCard = ({
           <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200 flex-1">
             <div className="w-2 h-2 rounded-full bg-green-600"></div>
             <span className="text-sm font-medium text-green-700">
-              Available ({statusCounts.Available})
+              Sẵn Sàng ({statusCounts.Available})
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200 flex-1">
             <div className="w-2 h-2 rounded-full bg-blue-600"></div>
             <span className="text-sm font-medium text-blue-700">
-              Assigned ({statusCounts.Assigned})
+              Đã Phân Công ({statusCounts.Assigned})
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 rounded-lg border border-orange-200 flex-1">
             <div className="w-2 h-2 rounded-full bg-orange-600"></div>
             <span className="text-sm font-medium text-orange-700">
-              Busy ({statusCounts.Busy})
+              Bận ({statusCounts.Busy})
             </span>
           </div>
         </div>
@@ -201,19 +201,19 @@ export const SupervisorOverviewCard = ({
                   {/* Supervisor Stats */}
                   <div className="grid grid-cols-3 gap-3 pt-3 border-t border-border/50">
                     <div className="text-center">
-                      <div className="text-xs text-muted-foreground mb-1">Groups</div>
+                      <div className="text-xs text-muted-foreground mb-1">Nhóm</div>
                       <div className="text-lg font-bold text-foreground">
                         {supervisor.assignedGroups}
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-xs text-muted-foreground mb-1">Plots</div>
+                      <div className="text-xs text-muted-foreground mb-1">Thửa Đất</div>
                       <div className="text-lg font-bold text-foreground">
                         {supervisor.totalPlots}
                       </div>
                     </div>
                     <div className="text-center">
-                      <div className="text-xs text-muted-foreground mb-1">Area</div>
+                      <div className="text-xs text-muted-foreground mb-1">Diện Tích</div>
                       <div className="text-lg font-bold text-foreground">
                         {supervisor.totalArea} ha
                       </div>
@@ -241,7 +241,7 @@ export const SupervisorOverviewCard = ({
                     <div>
                       <div className="font-medium text-sm text-foreground">{supervisor.name}</div>
                       <div className="text-xs text-muted-foreground">
-                        {supervisor.assignedGroups} groups • {supervisor.totalPlots} plots
+                        {supervisor.assignedGroups} nhóm • {supervisor.totalPlots} thửa đất
                       </div>
                     </div>
                   </div>
@@ -257,7 +257,7 @@ export const SupervisorOverviewCard = ({
                   onClick={() => setIsExpanded(true)}
                   className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  +{supervisors.length - 3} more supervisors
+                  +{supervisors.length - 3} giám sát viên khác
                 </button>
               </div>
             )}
@@ -268,7 +268,7 @@ export const SupervisorOverviewCard = ({
         {onViewAll && (
           <div className="pt-2">
             <Button variant="outline" onClick={onViewAll} className="w-full">
-              Manage Supervisors
+              Quản Lý Giám Sát Viên
             </Button>
           </div>
         )}

@@ -28,7 +28,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Farmer Details</DialogTitle>
+          <DialogTitle>Chi Tiết Nông Dân</DialogTitle>
         </DialogHeader>
 
         {isLoading && (
@@ -39,7 +39,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
 
         {isError && (
           <div className="text-center py-12">
-            <p className="text-red-500">Failed to load farmer details</p>
+            <p className="text-red-500">Tải thông tin nông dân thất bại</p>
           </div>
         )}
 
@@ -59,10 +59,10 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                 </div>
                 <div className="flex gap-2">
                   {farmer.isActive && (
-                    <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">Active</span>
+                    <span className="px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm">Hoạt Động</span>
                   )}
                   {farmer.isVerified && (
-                    <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">Verified</span>
+                    <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">Đã Xác Minh</span>
                   )}
                 </div>
               </div>
@@ -71,7 +71,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                 <div className="flex items-center gap-3">
                   <Phone className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Phone Number</p>
+                    <p className="text-sm text-muted-foreground">Số Điện Thoại</p>
                     <p className="font-medium">{farmer.phoneNumber}</p>
                   </div>
                 </div>
@@ -79,7 +79,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                 <div className="flex items-center gap-3">
                   <MapPin className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Address</p>
+                    <p className="text-sm text-muted-foreground">Địa Chỉ</p>
                     <p className="font-medium">{farmer.address}</p>
                   </div>
                 </div>
@@ -101,7 +101,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                 <div className="flex items-center gap-3">
                   <Grid className="h-5 w-5 text-muted-foreground" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Plots</p>
+                    <p className="text-sm text-muted-foreground">Tổng Thửa Đất</p>
                     <p className="font-medium">{farmer.plotCount}</p>
                   </div>
                 </div>
@@ -117,14 +117,14 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                   className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${activeTab === "groups" ? "bg-background text-foreground shadow-sm" : "hover:bg-background/50"
                     }`}
                 >
-                  Groups ({farmer.groups?.length || 0})
+                  Nhóm ({farmer.groups?.length || 0})
                 </button>
                 <button
                   onClick={() => setActiveTab("plots")}
                   className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 flex-1 ${activeTab === "plots" ? "bg-background text-foreground shadow-sm" : "hover:bg-background/50"
                     }`}
                 >
-                  Plots ({farmer.plots?.length || 0})
+                  Thửa Đất ({farmer.plots?.length || 0})
                 </button>
               </div>
 
@@ -134,7 +134,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                   {!farmer.groups || farmer.groups.length === 0 ? (
                     <div className="text-center py-12 border rounded-lg">
                       <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No groups found</p>
+                      <p className="text-muted-foreground">Không tìm thấy nhóm</p>
                     </div>
                   ) : (
                     farmer.groups.map((group) => (
@@ -151,7 +151,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                           </span>
                         </div>
                         <div className="flex justify-between text-sm pt-3 border-t">
-                          <span className="text-muted-foreground">Total Area</span>
+                          <span className="text-muted-foreground">Tổng Diện Tích</span>
                           <span className="font-medium">{group.totalArea} ha</span>
                         </div>
                       </div>
@@ -166,7 +166,7 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                   {!farmer.plots || farmer.plots.length === 0 ? (
                     <div className="text-center py-12 border rounded-lg">
                       <Grid className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No plots found</p>
+                      <p className="text-muted-foreground">Không tìm thấy thừa đất</p>
                     </div>
                   ) : (
                     farmer.plots.map((plot) => (
@@ -190,15 +190,15 @@ export const FarmerDetailDialog = ({ farmerId, open, onOpenChange }: FarmerDetai
                         </div>
                         <div className="grid grid-cols-3 gap-3 text-sm">
                           <div>
-                            <p className="text-muted-foreground">Area</p>
+                            <p className="text-muted-foreground">Diện Tích</p>
                             <p className="font-medium">{plot.area} ha</p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground">Soil Type</p>
+                            <p className="text-muted-foreground">Loại Đất</p>
                             <p className="font-medium">{plot.soilType}</p>
                           </div>
                           <div>
-                            <p className="text-muted-foreground">Plot ID</p>
+                            <p className="text-muted-foreground">Mã Thửa</p>
                             <p className="font-mono text-xs">{plot.plotId}</p>
                           </div>
                         </div>

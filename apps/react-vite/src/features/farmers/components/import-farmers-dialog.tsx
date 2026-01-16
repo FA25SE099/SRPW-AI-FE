@@ -31,8 +31,8 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                 if (data.failureCount === 0) {
                     addNotification({
                         type: 'success',
-                        title: 'Import Successful',
-                        message: `Successfully imported ${data.successCount} farmers!`,
+                        title: 'Nhập Thành Công',
+                        message: `Đã nhập thành công ${data.successCount} nông dân!`,
                     });
                     onOpenChange(false);
                     setSelectedFile(null);
@@ -41,8 +41,8 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
             onError: (error: any) => {
                 addNotification({
                     type: 'error',
-                    title: 'Import Failed',
-                    message: error.message || 'Unknown error occurred',
+                    title: 'Nhập Thất Bại',
+                    message: error.message || 'Đã xảy ra lỗi không xác định',
                 });
             },
         },
@@ -55,8 +55,8 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
         } catch (error: any) {
             addNotification({
                 type: 'error',
-                title: 'Download Failed',
-                message: error.message || 'Failed to download template',
+                title: 'Tải Thất Bại',
+                message: error.message || 'Tải mẫu thất bại',
             });
         } finally {
             setIsDownloading(false);
@@ -103,16 +103,16 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
         if (!validTypes.includes(file.type)) {
             addNotification({
                 type: 'error',
-                title: 'Invalid File Type',
-                message: 'Please upload an Excel file (.xls or .xlsx)',
+                title: 'Loại File Không Hợp Lệ',
+                message: 'Vui lòng tải lên file Excel (.xls hoặc .xlsx)',
             });
             return false;
         }
         if (file.size > 10 * 1024 * 1024) {
             addNotification({
                 type: 'error',
-                title: 'File Too Large',
-                message: 'File size must be less than 10MB',
+                title: 'File Quá Lớn',
+                message: 'Kích thước file phải nhỏ hơn 10MB',
             });
             return false;
         }
@@ -137,9 +137,9 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
         <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Import Farmers from Excel</DialogTitle>
+                    <DialogTitle>Nhập Excel</DialogTitle>
                     <DialogDescription>
-                        Upload an Excel file containing farmer information
+                        Tải lên file Excel chứa thông tin nông dân
                     </DialogDescription>
                 </DialogHeader>
 
@@ -150,11 +150,11 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                             <div className="flex-1">
                                 <h4 className="font-medium text-sm mb-1 flex items-center gap-2">
                                     <FileSpreadsheet className="h-4 w-4 text-blue-600" />
-                                    Download Import Template
+                                    Tải Mẫu Nhập
                                 </h4>
                                 <p className="text-xs text-muted-foreground">
-                                    Get the Excel template with the correct format for importing farmers. 
-                                    Fill in farmer details including NumberOfPlots for each farmer.
+                                    Tải mẫu Excel với định dạng đúng để nhập nông dân.
+                                    Điền thông tin nông dân bao gồm Số Lượng Thửa Đất cho mỗi nông dân.
                                 </p>
                             </div>
                             <Button
@@ -167,12 +167,12 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                 {isDownloading ? (
                                     <>
                                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                        Downloading...
+                                        Đang tải...
                                     </>
                                 ) : (
                                     <>
                                         <Download className="h-4 w-4 mr-2" />
-                                        Download Template
+                                        Tải Mẫu
                                     </>
                                 )}
                             </Button>
@@ -193,7 +193,7 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                         >
                             <FileSpreadsheet className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                             <p className="text-sm text-muted-foreground mb-2">
-                                Drag and drop your Excel file here, or click to browse
+                                Kéo thả file Excel vào đây, hoặc nhấp để chọn file
                             </p>
                             <input
                                 type="file"
@@ -204,10 +204,10 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                             />
                             <div className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors">
                                 <Upload className="h-4 w-4" />
-                                <span className="text-sm font-medium">Select File</span>
+                                <span className="text-sm font-medium">Chọn File</span>
                             </div>
                             <p className="text-xs text-muted-foreground mt-4">
-                                Supported formats: .xls, .xlsx (Max 10MB)
+                                Định dạng hỗ trợ: .xls, .xlsx (Tối đa 10MB)
                             </p>
                         </div>
                     )}
@@ -240,25 +240,25 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                     {/* Excel Format Guide */}
                     {!importMutation.data && (
                         <div className="border rounded-lg p-4 bg-blue-50">
-                            <h4 className="font-medium text-sm mb-2">Expected Excel Format:</h4>
+                            <h4 className="font-medium text-sm mb-2">Định Dạng Excel Mong Đợi:</h4>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full text-xs">
                                     <thead>
                                         <tr className="border-b">
-                                            <th className="px-2 py-1 text-left">Id (Optional)</th>
-                                            <th className="px-2 py-1 text-left">FullName</th>
-                                            <th className="px-2 py-1 text-left">PhoneNumber</th>
-                                            <th className="px-2 py-1 text-left">Address</th>
-                                            <th className="px-2 py-1 text-left">FarmCode</th>
-                                            <th className="px-2 py-1 text-left">NumberOfPlots</th>
+                                            <th className="px-2 py-1 text-left">Id (Tùy Chọn)</th>
+                                            <th className="px-2 py-1 text-left">Họ Và Tên</th>
+                                            <th className="px-2 py-1 text-left">Số Điện Thoại</th>
+                                            <th className="px-2 py-1 text-left">Địa Chỉ</th>
+                                            <th className="px-2 py-1 text-left">Mã Nông Dân</th>
+                                            <th className="px-2 py-1 text-left">Số Lượng Thửa</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td className="px-2 py-1">GUID or empty</td>
-                                            <td className="px-2 py-1">John Doe</td>
-                                            <td className="px-2 py-1">+1234567890</td>
-                                            <td className="px-2 py-1">123 St</td>
+                                            <td className="px-2 py-1">GUID hoặc để trống</td>
+                                            <td className="px-2 py-1">Nguyễn Văn A</td>
+                                            <td className="px-2 py-1">0901234567</td>
+                                            <td className="px-2 py-1">123 Đường ABC</td>
                                             <td className="px-2 py-1">FARM001</td>
                                             <td className="px-2 py-1">3</td>
                                         </tr>
@@ -266,8 +266,8 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                 </table>
                             </div>
                             <p className="text-xs text-muted-foreground mt-2">
-                                <strong>NumberOfPlots:</strong> Specify how many plots each farmer owns (default: 1). 
-                                This will generate the correct number of rows in the plot import template.
+                                <strong>Số Lượng Thửa:</strong> Chỉ định số lượng thửa đất mỗi nông dân sở hữu (mặc định: 1).
+                                Điều này sẽ tạo số hàng chính xác trong mẫu nhập thửa đất.
                             </p>
                         </div>
                     )}
@@ -278,17 +278,17 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                             {/* Summary */}
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="border rounded-lg p-4 bg-blue-50">
-                                    <p className="text-sm text-muted-foreground">Total Rows</p>
+                                    <p className="text-sm text-muted-foreground">Tổng Số Hàng</p>
                                     <p className="text-2xl font-bold">{importMutation.data.totalRows}</p>
                                 </div>
                                 <div className="border rounded-lg p-4 bg-green-50">
-                                    <p className="text-sm text-muted-foreground">Success</p>
+                                    <p className="text-sm text-muted-foreground">Thành Công</p>
                                     <p className="text-2xl font-bold text-green-600">
                                         {importMutation.data.successCount}
                                     </p>
                                 </div>
                                 <div className="border rounded-lg p-4 bg-red-50">
-                                    <p className="text-sm text-muted-foreground">Failures</p>
+                                    <p className="text-sm text-muted-foreground">Thất Bại</p>
                                     <p className="text-2xl font-bold text-red-600">
                                         {importMutation.data.failureCount}
                                     </p>
@@ -300,14 +300,14 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                 <div className="border border-red-200 rounded-lg p-4 bg-red-50">
                                     <div className="flex items-center gap-2 mb-3">
                                         <AlertCircle className="h-5 w-5 text-red-600" />
-                                        <h4 className="font-medium text-red-900">Import Errors</h4>
+                                        <h4 className="font-medium text-red-900">Lỗi Nhập</h4>
                                     </div>
                                     <div className="space-y-2 max-h-60 overflow-y-auto">
                                         {importMutation.data.errors.map((error, idx) => (
                                             <div key={idx} className="text-sm bg-white p-3 rounded border">
-                                                <p className="font-medium">Row {error.rowNumber}</p>
+                                                <p className="font-medium">Hàng {error.rowNumber}</p>
                                                 <p className="text-muted-foreground">
-                                                    Field: {error.fieldName}
+                                                    Trường: {error.fieldName}
                                                 </p>
                                                 <p className="text-red-600">{error.errorMessage}</p>
                                             </div>
@@ -322,7 +322,7 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                     <div className="flex items-center gap-2">
                                         <CheckCircle className="h-5 w-5 text-green-600" />
                                         <p className="text-green-900">
-                                            Successfully imported {importMutation.data.successCount} farmers
+                                            Đã nhập thành công {importMutation.data.successCount} nông dân
                                         </p>
                                     </div>
                                 </div>
@@ -333,7 +333,7 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                     {/* Actions */}
                     <div className="flex justify-end gap-2">
                         <Button variant="outline" onClick={handleClose} disabled={importMutation.isPending}>
-                            {importMutation.data ? 'Close' : 'Cancel'}
+                            {importMutation.data ? 'Đóng' : 'Hủy'}
                         </Button>
                         {!importMutation.data && (
                             <Button
@@ -344,12 +344,12 @@ export const ImportFarmersDialog = ({ open, onOpenChange }: ImportFarmersDialogP
                                 {importMutation.isPending ? (
                                     <>
                                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                        Importing...
+                                        Đang nhập...
                                     </>
                                 ) : (
                                     <>
                                         <Upload className="h-4 w-4 mr-2" />
-                                        Import
+                                        Nhập
                                     </>
                                 )}
                             </Button>

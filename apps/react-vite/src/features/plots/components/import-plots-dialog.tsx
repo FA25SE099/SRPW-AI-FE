@@ -38,12 +38,12 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                 // ✅ Check if response is wrapped object or raw array
                 if (Array.isArray(data)) {
                     // Backend returned array directly (old format)
-                    setSuccessMessage(`Successfully imported ${data.length} plots!`)
+                    setSuccessMessage(`Đã nhập thành công ${data.length} thừa đất!`)
                     setErrors([])
                     addNotification({
                         type: 'success',
-                        title: 'Import Successful',
-                        message: `Successfully imported ${data.length} plots!`,
+                        title: 'Nhập Thành Công',
+                        message: `Đã nhập thành công ${data.length} thừa đất!`,
                     })
 
                     setTimeout(() => {
@@ -52,12 +52,12 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     }, 2000)
                 } else if (data.success === true) {
                     // Backend returned wrapped response
-                    setSuccessMessage(data.message || 'Plots imported successfully!')
+                    setSuccessMessage(data.message || 'Nhập thừa đất thành công!')
                     setErrors([])
                     addNotification({
                         type: 'success',
-                        title: 'Import Successful',
-                        message: data.message || 'Plots imported successfully!',
+                        title: 'Nhập Thành Công',
+                        message: data.message || 'Nhập thừa đất thành công!',
                     })
 
                     setTimeout(() => {
@@ -74,17 +74,17 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     setSuccessMessage('')
                     addNotification({
                         type: 'error',
-                        title: 'Import Failed',
-                        message: data.message || 'Import failed',
+                        title: 'Nhập Thất Bại',
+                        message: data.message || 'Nhập thất bại',
                     })
                 } else {
                     // Unknown format
                     console.error('Unknown response format:', data)
-                    setErrors(['Unexpected response format'])
+                    setErrors(['Định dạng phản hồi không mong đợi'])
                     addNotification({
                         type: 'error',
-                        title: 'Import Failed',
-                        message: 'Import failed - unexpected response',
+                        title: 'Nhập Thất Bại',
+                        message: 'Nhập thất bại - phản hồi không mong đợi',
                     })
                 }
             },
@@ -103,16 +103,16 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     setErrors(errorMessages)
                     addNotification({
                         type: 'error',
-                        title: 'Import Failed',
-                        message: responseData.message || 'Import failed',
+                        title: 'Nhập Thất Bại',
+                        message: responseData.message || 'Nhập thất bại',
                     })
                 } else {
                     // Network or unknown error
-                    setErrors(['Failed to import plots. Please try again.'])
+                    setErrors(['Nhập thừa đất thất bại. Vui lòng thử lại.'])
                     addNotification({
                         type: 'error',
-                        title: 'Import Failed',
-                        message: 'Failed to import plots',
+                        title: 'Nhập Thất Bại',
+                        message: 'Nhập thừa đất thất bại',
                     })
                 }
 
@@ -139,16 +139,16 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
         if (!validTypes.includes(file.type)) {
             addNotification({
                 type: 'error',
-                title: 'Invalid File Type',
-                message: 'Please select a valid Excel file (.xlsx or .xls)',
+                title: 'Loại File Không Hợp Lệ',
+                message: 'Vui lòng chọn file Excel hợp lệ (.xlsx hoặc .xls)',
             })
             return false
         }
         if (file.size > 10 * 1024 * 1024) {
             addNotification({
                 type: 'error',
-                title: 'File Too Large',
-                message: 'File size must be less than 10MB',
+                title: 'File Quá Lớn',
+                message: 'Kích thước file phải nhỏ hơn 10MB',
             })
             return false
         }
@@ -193,8 +193,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
         if (!selectedFile) {
             addNotification({
                 type: 'error',
-                title: 'No File Selected',
-                message: 'Please select a file to import',
+                title: 'Chưa Chọn File',
+                message: 'Vui lòng chọn file để nhập',
             })
             return
         }
@@ -214,15 +214,15 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
             await plotTemplate.download()
             addNotification({
                 type: 'success',
-                title: 'Download Successful',
-                message: 'Plot template downloaded successfully!',
+                title: 'Tải Thành Công',
+                message: 'Mẫu thừa đất đã được tải xuống!',
             })
         } catch (error: any) {
             console.error('Template download error:', error)
             addNotification({
                 type: 'error',
-                title: 'Download Failed',
-                message: error.message || 'Failed to download template. Please ensure farmers have been imported first.',
+                title: 'Tải Thất Bại',
+                message: error.message || 'Tải mẫu thất bại. Vui lòng đảm bảo nông dân đã được nhập trước.',
             })
         } finally {
             setIsDownloading(false)
@@ -235,10 +235,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <FileSpreadsheet className="size-5 text-green-600" />
-                        Import Plots from Excel
+                        Nhập Thừa Đất Từ Excel
                     </DialogTitle>
                     <DialogDescription>
-                        Upload an Excel file to import multiple plots at once
+                        Tải lên file Excel để nhập nhiều thừa đất cùng lúc
                     </DialogDescription>
                 </DialogHeader>
 
@@ -250,11 +250,11 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                 <FileSpreadsheet className="size-5 text-green-600 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-green-900 mb-1">
-                                        Download Personalized Plot Template
+                                        Tải Mẫu Thừa Đất Cá Nhân Hóa
                                     </p>
                                     <p className="text-xs text-green-700">
-                                        Template will be pre-filled with your imported farmers and their plot counts.
-                                        Includes a reference sheet with rice varieties.
+                                        Mẫu sẽ được điền sẵn với nông dân và số lượng thừa đất của họ.
+                                        Bao gồm trang tham chiếu với các giống lúa.
                                     </p>
                                 </div>
                             </div>
@@ -268,12 +268,12 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                 {isDownloading ? (
                                     <>
                                         <Loader2 className="size-4 mr-2 animate-spin" />
-                                        Downloading...
+                                        Đang tải...
                                     </>
                                 ) : (
                                     <>
                                         <Download className="size-4 mr-2" />
-                                        Download Template
+                                        Tải Mẫu
                                     </>
                                 )}
                             </Button>
@@ -283,7 +283,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     {/* File Upload */}
                     <div className="space-y-3">
                         <label className="block text-sm font-medium text-gray-700">
-                            Excel File <span className="text-red-500">*</span>
+                            File Excel <span className="text-red-500">*</span>
                         </label>
                         <div className="flex items-center gap-3">
                             <input
@@ -308,10 +308,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                 <Upload className="size-6 text-gray-400" />
                                 <div className="text-center">
                                     <p className="text-sm font-medium text-gray-700">
-                                        {selectedFile ? selectedFile.name : 'Click to upload or drag and drop'}
+                                        {selectedFile ? selectedFile.name : 'Nhấp để tải lên hoặc kéo thả vào'}
                                     </p>
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Excel files only (.xlsx, .xls) - Max 10MB
+                                        Chỉ file Excel (.xlsx, .xls) - Tối đa 10MB
                                     </p>
                                 </div>
                             </div>
@@ -343,7 +343,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     {/* Import Date (Optional) */}
                     <div className="space-y-3">
                         <label className="block text-sm font-medium text-gray-700">
-                            Import Date (Optional)
+                            Ngày Nhập (Tùy Chọn)
                         </label>
                         <input
                             type="date"
@@ -352,7 +352,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                             className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600"
                         />
                         <p className="text-xs text-gray-500">
-                            Leave empty to use current date
+                            Để trống để sử dụng ngày hiện tại
                         </p>
                     </div>
 
@@ -377,7 +377,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                 <AlertCircle className="size-5 text-red-600 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-red-900 mb-2">
-                                        Validation Errors:
+                                        Lỗi Kiểm Tra:
                                     </p>
                                     <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
                                         {errors.map((error, index) => (
@@ -400,7 +400,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                         }}
                         disabled={importMutation.isPending}
                     >
-                        Cancel
+                        Hủy
                     </Button>
                     <Button
                         onClick={handleImport}
@@ -408,7 +408,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                         className="bg-green-600 hover:bg-green-700 text-white gap-2"
                     >
                         {importMutation.isPending && <Spinner size="sm" />}
-                        Import Plots
+                        Nhập Thừa Đất
                     </Button>
                 </div>
             </DialogContent>

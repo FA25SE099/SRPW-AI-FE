@@ -74,12 +74,12 @@ export const SeasonSelectorV0 = ({
     <div className="flex gap-4 items-center">
       <Select value={selectedValue} onValueChange={handleValueChange}>
         <SelectTrigger className="w-48">
-          <SelectValue placeholder="Select season" />
+          <SelectValue placeholder="Chọn mùa vụ" />
         </SelectTrigger>
         <SelectContent>
           {seasons.currentSeason && (
             <SelectItem value="current">
-              {seasons.currentSeason.displayName} (Current)
+              {seasons.currentSeason.displayName} (Hiện tại)
             </SelectItem>
           )}
           {seasons.pastSeasons?.map((season, idx) => (
@@ -89,7 +89,7 @@ export const SeasonSelectorV0 = ({
           ))}
           {seasons.upcomingSeasons?.map((season, idx) => (
             <SelectItem key={`up-${idx}`} value={`upcoming-${idx}`}>
-              {season.displayName || `${season.seasonName} ${season.year}`} (Upcoming)
+              {season.displayName || `${season.seasonName} ${season.year}`} (Sắp tới)
             </SelectItem>
           ))}
         </SelectContent>

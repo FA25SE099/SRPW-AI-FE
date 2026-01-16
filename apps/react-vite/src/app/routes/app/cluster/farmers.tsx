@@ -55,15 +55,15 @@ const ClusterFarmers = () => {
 
         addNotification({
           type: 'success',
-          title: 'Export Successful',
-          message: 'Farmers data has been exported successfully',
+          title: 'Xuất File Thành Công',
+          message: 'Dữ liệu nông dân đã được xuất thành công',
         });
       },
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Export Failed',
-          message: error.message || 'Unknown error occurred',
+          title: 'Xuất File Thất Bại',
+          message: error.message || 'Đã xảy ra lỗi không xác định',
         });
       },
     },
@@ -84,7 +84,7 @@ const ClusterFarmers = () => {
 
   if (isLoading) {
     return (
-      <ContentLayout title="Farmers Management">
+      <ContentLayout title="Quản Lý Nông Dân">
         <div className="flex h-96 items-center justify-center">
           <Spinner size="lg" className="text-green-600" />
         </div>
@@ -94,13 +94,13 @@ const ClusterFarmers = () => {
 
   if (isError) {
     return (
-      <ContentLayout title="Farmers Management">
+      <ContentLayout title="Quản Lý Nông Dân">
         <div className="flex h-96 items-center justify-center">
           <div className="text-center">
             <p className="text-lg font-semibold text-red-500">
-              Failed to load farmers
+              Tải danh sách nông dân thất bại
             </p>
-            <p className="mt-2 text-muted-foreground">Please try again later</p>
+            <p className="mt-2 text-muted-foreground">Vui lòng thử lại sau</p>
           </div>
         </div>
       </ContentLayout>
@@ -119,10 +119,10 @@ const ClusterFarmers = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-neutral-900">
-                  Farmers Management
+                  Quản Lý Nông Dân
                 </h1>
                 <p className="text-sm text-neutral-600 mt-1">
-                  Manage all farmers in your cluster
+                  Quản lý tất cả nông dân trong cụm của bạn
                 </p>
               </div>
             </div>
@@ -133,14 +133,14 @@ const ClusterFarmers = () => {
                 className="gap-2 bg-green-600 text-white hover:bg-green-700"
               >
                 <UserPlus className="size-4" />
-                Create Farmer
+                Tạo Nông Dân
               </Button>
               <Button
                 onClick={() => setImportDialogOpen(true)}
                 variant="outline"
                 className="gap-2 border-green-600 text-green-600 hover:bg-green-50"
               >
-                Import Farmers
+                Nhập Nông Dân
               </Button>
               <Button
                 onClick={handleExport}
@@ -150,7 +150,7 @@ const ClusterFarmers = () => {
                 className="gap-2"
               >
                 <Download className="size-4" />
-                Export
+                Xuất File
               </Button>
             </div>
           </div>
@@ -165,7 +165,7 @@ const ClusterFarmers = () => {
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                  Total Farmers
+                  Tổng Nông Dân
                 </p>
                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                   {totalCount}
@@ -181,7 +181,7 @@ const ClusterFarmers = () => {
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                  Active Farmers
+                  Đang Hoạt Động
                 </p>
                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                   {farmers.filter((f: any) => f.isActive).length}
@@ -197,7 +197,7 @@ const ClusterFarmers = () => {
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                  Current Page
+                  Trang Hiện Tại
                 </p>
                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                   {farmers.length}
@@ -213,7 +213,7 @@ const ClusterFarmers = () => {
               </div>
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                  Total Plots
+                  Tổng Thửa Đất
                 </p>
                 <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                   {farmers.reduce((sum: number, f: any) => sum + f.plotCount, 0)}
@@ -229,7 +229,7 @@ const ClusterFarmers = () => {
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by name, phone, or code..."
+              placeholder="Tìm theo tên, số điện thoại hoặc mã..."
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
@@ -245,12 +245,12 @@ const ClusterFarmers = () => {
           <div className="rounded-lg border border-dashed border-gray-200 bg-white py-16 text-center">
             <Users className="mx-auto mb-4 size-16 text-gray-300" />
             <h3 className="text-lg font-semibold text-gray-900">
-              No farmers found
+              Không tìm thấy nông dân
             </h3>
             <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">
               {searchTerm
-                ? 'Try adjusting your search'
-                : 'Start by importing farmers'}
+                ? 'Thử điều chỉnh từ khóa tìm kiếm'
+                : 'Bắt đầu bằng cách nhập nông dân'}
             </p>
           </div>
         ) : (
@@ -260,25 +260,25 @@ const ClusterFarmers = () => {
                 <thead className="border-b border-gray-200 bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Farmer Info
+                      Thông Tin Nông Dân
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Contact
+                      Liên Hệ
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Address
+                      Địa Chỉ
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Status
+                      Trạng Thái
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Plots
+                      Thửa Đất
                     </th>
                     {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                       Last Activity
                     </th> */}
                     <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                      Actions
+                      Thao Tác
                     </th>
                   </tr>
                 </thead>
@@ -315,11 +315,11 @@ const ClusterFarmers = () => {
                       <td className="whitespace-nowrap px-6 py-4">
                         {farmer.isActive ? (
                           <Badge className="border border-green-200 bg-green-100 text-green-800">
-                            Active
+                            Hoạt Động
                           </Badge>
                         ) : (
                           <Badge className="border border-gray-200 bg-gray-100 text-gray-800">
-                            Inactive
+                            Ngừng Hoạt Động
                           </Badge>
                         )}
                       </td>
@@ -347,7 +347,7 @@ const ClusterFarmers = () => {
                           className="text-green-600 hover:bg-green-50 hover:text-green-700"
                           onClick={() => handleViewDetails(farmer.farmerId)}
                         >
-                          View Details
+                          Xem Chi Tiết
                         </Button>
                       </td>
                     </tr>
@@ -359,8 +359,7 @@ const ClusterFarmers = () => {
             {totalPages > 1 && (
               <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
                 <div className="text-sm text-gray-600">
-                  Showing page {currentPage} of {totalPages} ({totalCount} total
-                  farmers)
+                  Hiển thị trang {currentPage} / {totalPages} ({totalCount} nông dân)
                 </div>
                 <div className="flex gap-2">
                   <Button
@@ -372,7 +371,7 @@ const ClusterFarmers = () => {
                     }
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
-                    Previous
+                    Trước
                   </Button>
                   <Button
                     variant="outline"
@@ -383,7 +382,7 @@ const ClusterFarmers = () => {
                     }
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
-                    Next
+                    Sau
                   </Button>
                 </div>
               </div>

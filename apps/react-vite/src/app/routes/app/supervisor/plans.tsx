@@ -6,19 +6,19 @@ import { paths } from '@/config/paths';
 
 const PlansRoute = () => {
     const navigate = useNavigate();
-    
+
     return (
-        <ContentLayout title="Production Plans">
+        <ContentLayout title="Kế Hoạch Sản Xuất">
             <div className="space-y-6">
                 <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <div className="mb-6 flex items-center justify-between">
-                        <h2 className="text-lg font-bold text-gray-900">All Production Plans</h2>
-                        <button 
+                        <h2 className="text-lg font-bold text-gray-900">Tất Cả Kế Hoạch Sản Xuất</h2>
+                        <button
                             className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
                             onClick={() => navigate(paths.app.supervisor.group.getHref())}
                         >
                             <Plus className="h-4 w-4" />
-                            Create New Plan
+                            Tạo Kế Hoạch Mới
                         </button>
                     </div>
 
@@ -72,35 +72,34 @@ const PlansRoute = () => {
                                             <Calendar className="h-4 w-4 text-gray-500" />
                                             <h4 className="font-semibold text-gray-900">{plan.name}</h4>
                                             <span
-                                                className={`rounded px-2 py-0.5 text-xs font-medium ${
-                                                    plan.statusColor === 'green'
+                                                className={`rounded px-2 py-0.5 text-xs font-medium ${plan.statusColor === 'green'
                                                         ? 'bg-green-100 text-green-700'
                                                         : plan.statusColor === 'orange'
-                                                        ? 'bg-orange-100 text-orange-700'
-                                                        : plan.statusColor === 'blue'
-                                                        ? 'bg-blue-100 text-blue-700'
-                                                        : 'bg-gray-100 text-gray-700'
-                                                }`}
+                                                            ? 'bg-orange-100 text-orange-700'
+                                                            : plan.statusColor === 'blue'
+                                                                ? 'bg-blue-100 text-blue-700'
+                                                                : 'bg-gray-100 text-gray-700'
+                                                    }`}
                                             >
                                                 {plan.status}
                                             </span>
                                         </div>
                                         <p className="text-sm text-gray-600">
-                                            Rice Variety: {plan.variety} • Area: {plan.area}
+                                            Giống Lúa: {plan.variety} • Diện Tích: {plan.area}
                                         </p>
                                         <p className="mt-1 text-xs text-gray-500">
-                                            Start Date: {plan.startDate}
+                                            Ngày Bắt Đầu: {plan.startDate}
                                         </p>
                                         <p className="text-xs text-gray-500">{plan.progress}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
                                     <button className="flex-1 rounded bg-blue-600 px-3 py-2 text-sm text-white transition-colors hover:bg-blue-700">
-                                        View Details
+                                        Xem Chi Tiết
                                     </button>
                                     {plan.status !== 'Completed' && (
                                         <button className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50">
-                                            Edit
+                                            Chỉnh Sửa
                                         </button>
                                     )}
                                 </div>

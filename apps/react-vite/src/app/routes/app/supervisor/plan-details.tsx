@@ -59,7 +59,7 @@ const ImageViewer = ({ images, open, onClose }: { images: string[]; open: boolea
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle>Farm Log Images</DialogTitle>
+          <DialogTitle>Hình Ảnh Nhật Ký Canh Tác</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto p-4">
           {images.map((url, index) => (
@@ -276,14 +276,14 @@ const SupervisorPlanDetailsPage = () => {
       <div className="space-y-4">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Invalid Plan ID</AlertTitle>
+          <AlertTitle>ID Kế Hoạch Không Hợp Lệ</AlertTitle>
           <AlertDescription>
-            No plan ID provided. Please navigate from the group page.
+            Không có ID kế hoạch được cung cấp. Vui lòng điều hướng từ trang nhóm.
           </AlertDescription>
         </Alert>
         <Button variant="outline" onClick={() => navigate(-1)}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Go Back
+          Quay Lại
         </Button>
       </div>
     );
@@ -293,8 +293,8 @@ const SupervisorPlanDetailsPage = () => {
     return (
       <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
         <Spinner size="lg" />
-        <p className="text-muted-foreground">Loading detailed plan information...</p>
-        <p className="text-sm text-muted-foreground">This may take a few moments</p>
+        <p className="text-muted-foreground">Đang tải thông tin kế hoạch chi tiết...</p>
+        <p className="text-sm text-muted-foreground">Điều này có thể mất vài phút</p>
       </div>
     );
   }
@@ -304,14 +304,14 @@ const SupervisorPlanDetailsPage = () => {
       <div className="space-y-4">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Error Loading Plan Details</AlertTitle>
+          <AlertTitle>Lỗi Tải Chi Tiết Kế Hoạch</AlertTitle>
           <AlertDescription>
-            {error.message || 'Failed to load plan details. Please try again.'}
+            {error?.message || 'Không thể tải thông tin kế hoạch. Vui lòng thử lại sau.'}
           </AlertDescription>
         </Alert>
         <Button variant="outline" onClick={() => navigate(-1)}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Go Back
+          Quay Lại
         </Button>
       </div>
     );
@@ -322,14 +322,14 @@ const SupervisorPlanDetailsPage = () => {
       <div className="space-y-4">
         <Alert>
           <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Plan Not Found</AlertTitle>
+          <AlertTitle>Không Tìm Thấy Kế Hoạch</AlertTitle>
           <AlertDescription>
-            The requested plan could not be found.
+            Không tìm thấy kế hoạch yêu cầu.
           </AlertDescription>
         </Alert>
         <Button variant="outline" onClick={() => navigate(-1)}>
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Go Back
+          Quay Lại
         </Button>
       </div>
     );

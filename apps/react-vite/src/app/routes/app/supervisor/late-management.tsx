@@ -33,10 +33,10 @@ const LateManagementRoute = () => {
                                 </div>
                                 <div>
                                     <h1 className="text-3xl font-bold text-neutral-900">
-                                        Late Management
+                                        Quản Lý Trễ Hạn
                                     </h1>
                                     <p className="text-sm text-neutral-600 mt-1">
-                                        Track and manage farmers and plots with late task submissions in your groups
+                                        Theo dõi và quản lý nông dân và thửa đất có nhiệm vụ trễ hạn trong nhóm của bạn
                                     </p>
                                 </div>
                             </div>
@@ -44,8 +44,8 @@ const LateManagementRoute = () => {
                         {/* Description */}
                         <div className="rounded-lg border border-gray-200 bg-white p-4">
                             <p className="text-sm text-gray-600">
-                                Track and manage farmers and plots with late task submissions in your groups.
-                                View detailed late records and monitor compliance.
+                                Theo dõi và quản lý nông dân và thửa đất có nhiệm vụ trễ hạn trong nhóm của bạn.
+                                Xem chi tiết hồ sơ trễ hạn và giám sát tuân thủ.
                             </p>
                         </div>
 
@@ -60,7 +60,7 @@ const LateManagementRoute = () => {
                                         }`}
                                 >
                                     <Users className="h-4 w-4" />
-                                    Farmer Lateness
+                                    Nông Dân Trễ Hạn
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('plots')}
@@ -70,7 +70,7 @@ const LateManagementRoute = () => {
                                         }`}
                                 >
                                     <MapPin className="h-4 w-4" />
-                                    Plot Lateness
+                                    Thửa Đất Trễ Hạn
                                 </button>
                             </nav>
                         </div>

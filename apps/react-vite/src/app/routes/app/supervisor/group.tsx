@@ -61,7 +61,7 @@ const SupervisorGroupPage = () => {
       enabled: !!((group as any)?.yearSeasonId),
     },
   });
-  
+
   const typedYearSeasonData = yearSeasonData as import('@/features/yearseason/types').YearSeason | undefined;
 
   // Auto-select first group when groups are loaded
@@ -126,7 +126,7 @@ const SupervisorGroupPage = () => {
       // Has other seasons but not this one - show selector
       return (
         <>
-          <Head title="My Group Management" />
+          <Head title="Quản Lý Nhóm Của Tôi" />
 
           <div className="space-y-6">
             <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
@@ -136,10 +136,10 @@ const SupervisorGroupPage = () => {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-neutral-900">
-                    My Group Management
+                    Quản Lý Nhóm Của Tôi
                   </h1>
                   <p className="text-sm text-neutral-600 mt-1">
-                    List groups assigned for the selected season
+                    Danh sách các nhóm được phân công cho mùa vụ đã chọn
                   </p>
                 </div>
               </div>
@@ -147,9 +147,9 @@ const SupervisorGroupPage = () => {
 
             <Alert>
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>No Groups for This Season</AlertTitle>
+              <AlertTitle>Không Có Nhóm Cho Mùa Vụ Này</AlertTitle>
               <AlertDescription>
-                You don't have any groups assigned for this season. Try selecting a different season below.
+                Bạn chưa có nhóm nào được phân công cho mùa vụ này. Hãy thử chọn một mùa vụ khác bên dưới.
               </AlertDescription>
             </Alert>
 
@@ -160,7 +160,7 @@ const SupervisorGroupPage = () => {
                 onValueChange={handleSeasonChange}
               >
                 <SelectTrigger className="w-[300px]">
-                  <SelectValue placeholder="Select a season" />
+                  <SelectValue placeholder="Chọn mùa vụ" />
                 </SelectTrigger>
                 <SelectContent>
                   {availableSeasons.map((season: any) => (
@@ -168,7 +168,7 @@ const SupervisorGroupPage = () => {
                       key={`${season.seasonId}-${season.year}`}
                       value={season.isCurrent ? 'current' : `${season.seasonId}|${season.year}`}
                     >
-                      {season.displayName} {season.isCurrent && '(Current)'}
+                      {season.displayName} {season.isCurrent && '(Hiện Tại)'}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -184,16 +184,16 @@ const SupervisorGroupPage = () => {
       <div className="space-y-4">
         <Alert variant={isNotFound ? 'default' : 'destructive'}>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{isNotFound ? 'No Groups Assigned' : 'Error Loading Groups'}</AlertTitle>
+          <AlertTitle>{isNotFound ? 'Chưa Có Nhóm Được Phân Công' : 'Lỗi Tải Nhóm'}</AlertTitle>
           <AlertDescription>
             {isNotFound
-              ? "You don't have any groups assigned yet. Please contact your cluster manager."
-              : errorMessage || 'Failed to load your group information. Please try again later.'}
+              ? "Bạn chưa có nhóm nào được phân công. Vui lòng liên hệ quản lý cụm của bạn."
+              : errorMessage || 'Không thể tải thông tin nhóm của bạn. Vui lòng thử lại sau.'}
           </AlertDescription>
         </Alert>
         {!isNotFound && (
           <Button onClick={() => window.location.reload()} variant="outline">
-            Retry
+            Thử Lại
           </Button>
         )}
       </div>
@@ -205,9 +205,9 @@ const SupervisorGroupPage = () => {
       <div className="space-y-4">
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Groups Found</AlertTitle>
+          <AlertTitle>Không Tìm Thấy Nhóm</AlertTitle>
           <AlertDescription>
-            You don't have any groups assigned for this season.
+            Bạn chưa có nhóm nào được phân công cho mùa vụ này.
           </AlertDescription>
         </Alert>
       </div>
@@ -259,11 +259,11 @@ const SupervisorGroupPage = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-neutral-900">
-                  My Groups - {group.season?.seasonName} {group.season?.year || (group as any).seasonYear}
+                  Nhóm Của Tôi - {group.season?.seasonName} {group.season?.year || (group as any).seasonYear}
                 </h1>
                 <p className="text-sm text-neutral-600 mt-1">
-                  {(group as any).isCurrentSeason ? 'Current Season' : `Past Season (${group.season?.year || (group as any).seasonYear})`}
-                  {groups.length > 1 && ` • Managing ${groups.length} groups`}
+                  {(group as any).isCurrentSeason ? 'Mùa Vụ Hiện Tại' : `Mùa Vụ Trước (${group.season?.year || (group as any).seasonYear})`}
+                  {groups.length > 1 && ` • Quản lý ${groups.length} nhóm`}
                 </p>
               </div>
             </div>
@@ -276,13 +276,13 @@ const SupervisorGroupPage = () => {
                   onClick={() => navigate(paths.app.supervisor.materialDistributions.getHref(group.groupId))}
                 >
                   <Package className="mr-2 h-4 w-4" />
-                  Material Distributions
+                  Phân Phối Vật Tư
                 </Button>
               )}
               {group.currentState === 'PrePlanning' && group.readiness?.isReady && !group.planOverview && (
                 <Button onClick={handleCreateProductionPlan}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Create Production Plan
+                  Tạo Kế Hoạch Sản Xuất
                 </Button>
               )}
             </div>
@@ -360,7 +360,7 @@ const SupervisorGroupPage = () => {
                 0,
                 Math.ceil(
                   (new Date(typedYearSeasonData.planningWindowEnd).getTime() - new Date().getTime()) /
-                    (1000 * 60 * 60 * 24)
+                  (1000 * 60 * 60 * 24)
                 )
               )
             }

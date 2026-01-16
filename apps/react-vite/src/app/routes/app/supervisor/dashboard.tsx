@@ -56,43 +56,43 @@ const OverviewTab = () => {
             {/* User Info Section */}
             <div className="rounded-lg border bg-white p-6">
                 <h2 className="text-lg font-semibold text-gray-900">
-                    Welcome, {user.data?.firstName} {user.data?.lastName}!
+                    Chào mừng, {user.data?.firstName} {user.data?.lastName}!
                 </h2>
                 <p className="mt-2 text-gray-600">
-                    Role: <span className="font-medium">{user.data?.role}</span>
+                    Vai trò: <span className="font-medium">{user.data?.role}</span>
                 </p>
                 <p className="mt-1 text-sm text-gray-500">
-                    Manage your group, coordinate farmers, and monitor production plans.
+                    Quản lý nhóm, điều phối nông dân và theo dõi kế hoạch sản xuất.
                 </p>
             </div>
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard
-                    title="Total Farmers"
+                    title="Tổng Nông Dân"
                     value="24"
-                    subtitle="In your group"
+                    subtitle="Trong nhóm của bạn"
                     icon={Users}
                     color="bg-blue-600"
                 />
                 <StatCard
-                    title="Total Area"
+                    title="Tổng Diện Tích"
                     value="45.8 ha"
-                    subtitle="Across 32 plots"
+                    subtitle="Trên 32 thửa đất"
                     icon={MapPin}
                     color="bg-green-600"
                 />
                 <StatCard
-                    title="Active Plans"
+                    title="Kế Hoạch Hoạt Động"
                     value="3"
-                    subtitle="Currently running"
+                    subtitle="Đang thực hiện"
                     icon={Calendar}
                     color="bg-purple-600"
                 />
                 <StatCard
-                    title="Pending Approvals"
+                    title="Chờ Duyệt"
                     value="2"
-                    subtitle="Awaiting expert review"
+                    subtitle="Đang chờ chuyên gia xem xét"
                     icon={Clock}
                     color="bg-orange-600"
                 />
@@ -101,7 +101,7 @@ const OverviewTab = () => {
             {/* Quick Actions */}
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 className="mb-4 text-lg font-bold text-gray-900">
-                    Quick Actions
+                    Hành Động Nhanh
                 </h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <button
@@ -112,8 +112,8 @@ const OverviewTab = () => {
                             <Calendar className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
-                            <p className="font-medium text-gray-900">Create Plan</p>
-                            <p className="text-xs text-gray-500">New production plan</p>
+                            <p className="font-medium text-gray-900">Tạo Kế Hoạch</p>
+                            <p className="text-xs text-gray-500">Kế hoạch sản xuất mới</p>
                         </div>
                     </button>
                     <button
@@ -124,8 +124,8 @@ const OverviewTab = () => {
                             <Activity className="h-5 w-5 text-green-600" />
                         </div>
                         <div>
-                            <p className="font-medium text-gray-900">View Group Details</p>
-                            <p className="text-xs text-gray-500">Farmers & plots info</p>
+                            <p className="font-medium text-gray-900">Xem Chi Tiết Nhóm</p>
+                            <p className="text-xs text-gray-500">Thông tin nông dân & thửa đất</p>
                         </div>
                     </button>
                     <button
@@ -136,8 +136,8 @@ const OverviewTab = () => {
                             <TrendingUp className="h-5 w-5 text-purple-600" />
                         </div>
                         <div>
-                            <p className="font-medium text-gray-900">View Reports</p>
-                            <p className="text-xs text-gray-500">Performance analytics</p>
+                            <p className="font-medium text-gray-900">Xem Báo Cáo</p>
+                            <p className="text-xs text-gray-500">Phân tích hiệu suất</p>
                         </div>
                     </button>
                 </div>
@@ -148,34 +148,34 @@ const OverviewTab = () => {
                 {/* Group Summary */}
                 <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <h2 className="mb-4 text-lg font-bold text-gray-900">
-                        Group Summary
+                        Tóm Tắt Nhóm
                     </h2>
                     <div className="space-y-4">
                         <div className="flex items-center justify-between border-b pb-3">
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Group ID</p>
+                                <p className="text-sm font-medium text-gray-700">Mã Nhóm</p>
                                 <p className="text-xs text-gray-500">G-034</p>
                             </div>
                             <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-                                Active
+                                Hoạt Động
                             </span>
                         </div>
                         <div className="flex items-center justify-between border-b pb-3">
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Region</p>
-                                <p className="text-xs text-gray-500">An Giang Province</p>
+                                <p className="text-sm font-medium text-gray-700">Khu Vực</p>
+                                <p className="text-xs text-gray-500">Tỉnh An Giang</p>
                             </div>
                         </div>
                         <div className="flex items-center justify-between border-b pb-3">
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Members</p>
-                                <p className="text-xs text-gray-500">24 farmers</p>
+                                <p className="text-sm font-medium text-gray-700">Thành Viên</p>
+                                <p className="text-xs text-gray-500">24 nông dân</p>
                             </div>
                         </div>
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-700">Total Land</p>
-                                <p className="text-xs text-gray-500">45.8 hectares</p>
+                                <p className="text-sm font-medium text-gray-700">Tổng Diện Tích</p>
+                                <p className="text-xs text-gray-500">45.8 hécta</p>
                             </div>
                         </div>
                     </div>
@@ -184,37 +184,37 @@ const OverviewTab = () => {
                 {/* Current Season Plans */}
                 <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <h2 className="mb-4 text-lg font-bold text-gray-900">
-                        Current Season Plans
+                        Kế Hoạch Mùa Hiện Tại
                     </h2>
                     <div className="space-y-3">
                         <div className="rounded-lg border border-gray-200 p-4">
                             <div className="mb-2 flex items-start justify-between">
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Winter-Spring 2024</h4>
-                                    <p className="text-xs text-gray-500">OM5451 Rice Variety</p>
+                                    <h4 className="font-semibold text-gray-900">Mùa Đông Xuân 2024</h4>
+                                    <p className="text-xs text-gray-500">Giống Lúa OM5451</p>
                                 </div>
                                 <span className="rounded bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
-                                    Approved
+                                    Đã Duyệt
                                 </span>
                             </div>
                             <div className="text-xs text-gray-600">
-                                <p>Area: 45.8 ha • Started: Jan 15, 2024</p>
-                                <p className="mt-1">Stage: Growth Phase (Day 45/120)</p>
+                                <p>Diện tích: 45.8 ha • Bắt đầu: 15/01/2024</p>
+                                <p className="mt-1">Giai đoạn: Sinh Trưởng (Ngày 45/120)</p>
                             </div>
                         </div>
                         <div className="rounded-lg border border-gray-200 p-4">
                             <div className="mb-2 flex items-start justify-between">
                                 <div>
-                                    <h4 className="font-semibold text-gray-900">Emergency Plan</h4>
-                                    <p className="text-xs text-gray-500">Pest Control Response</p>
+                                    <h4 className="font-semibold text-gray-900">Kế Hoạch Khẩn Cấp</h4>
+                                    <p className="text-xs text-gray-500">Ứng Phó Kiểm Soát Sâu Bệnh</p>
                                 </div>
                                 <span className="rounded bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
-                                    Pending
+                                    Chờ Duyệt
                                 </span>
                             </div>
                             <div className="text-xs text-gray-600">
-                                <p>Submitted: 2 hours ago</p>
-                                <p className="mt-1">Awaiting expert approval</p>
+                                <p>Gửi: 2 giờ trước</p>
+                                <p className="mt-1">Đang chờ chuyên gia phê duyệt</p>
                             </div>
                         </div>
                     </div>
@@ -224,38 +224,38 @@ const OverviewTab = () => {
             {/* Recent Activity */}
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 className="mb-4 text-lg font-bold text-gray-900">
-                    Recent Activity
+                    Hoạt Động Gần Đây
                 </h2>
                 <div className="space-y-4">
                     {[
                         {
-                            action: 'Production plan approved',
-                            target: 'Winter-Spring 2024 Plan',
-                            time: '2h ago',
+                            action: 'Kế hoạch sản xuất đã được duyệt',
+                            target: 'Kế Hoạch Mùa Đông Xuân 2024',
+                            time: '2 giờ trước',
                             status: 'success',
                         },
                         {
-                            action: 'Emergency plan submitted',
-                            target: 'Pest Control Response',
-                            time: '2h ago',
+                            action: 'Đã gửi kế hoạch khẩn cấp',
+                            target: 'Ứng Phó Kiểm Soát Sâu Bệnh',
+                            time: '2 giờ trước',
                             status: 'warning',
                         },
                         {
-                            action: 'Farmer reported progress',
-                            target: 'Nguyen Van C - Plot A-12',
-                            time: '5h ago',
+                            action: 'Nông dân báo cáo tiến độ',
+                            target: 'Nguyễn Văn C - Thửa A-12',
+                            time: '5 giờ trước',
                             status: 'info',
                         },
                         {
-                            action: 'Task completed',
-                            target: 'Fertilizer Application - Stage 2',
-                            time: '1d ago',
+                            action: 'Đã hoàn thành nhiệm vụ',
+                            target: 'Bón Phân - Giai Đoạn 2',
+                            time: '1 ngày trước',
                             status: 'success',
                         },
                         {
-                            action: 'Material order placed',
-                            target: 'NPK Fertilizer - 500kg',
-                            time: '2d ago',
+                            action: 'Đã đặt hàng vật tư',
+                            target: 'Phân NPK - 500kg',
+                            time: '2 ngày trước',
                             status: 'info',
                         },
                     ].map((item, idx) => (
@@ -291,39 +291,39 @@ const GroupTab = () => {
             {/* Group Info Card */}
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-gray-900">Group Information</h2>
+                    <h2 className="text-lg font-bold text-gray-900">Thông Tin Nhóm</h2>
                     <button className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700">
-                        Edit Group
+                        Chỉnh Sửa Nhóm
                     </button>
                 </div>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
-                        <p className="text-sm font-medium text-gray-700">Group ID</p>
+                        <p className="text-sm font-medium text-gray-700">Mã Nhóm</p>
                         <p className="mt-1 text-base text-gray-900">G-034</p>
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-gray-700">Status</p>
+                        <p className="text-sm font-medium text-gray-700">Trạng Thái</p>
                         <p className="mt-1">
                             <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
-                                Active
+                                Hoạt Động
                             </span>
                         </p>
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-gray-700">Region</p>
-                        <p className="mt-1 text-base text-gray-900">An Giang Province</p>
+                        <p className="text-sm font-medium text-gray-700">Khu Vực</p>
+                        <p className="mt-1 text-base text-gray-900">Tỉnh An Giang</p>
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-gray-700">Cluster</p>
-                        <p className="mt-1 text-base text-gray-900">Mekong Delta Cluster 1</p>
+                        <p className="text-sm font-medium text-gray-700">Cụm</p>
+                        <p className="mt-1 text-base text-gray-900">Cụm Đồng Bằng Sông Cửu Long 1</p>
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-gray-700">Total Farmers</p>
-                        <p className="mt-1 text-base text-gray-900">24 members</p>
+                        <p className="text-sm font-medium text-gray-700">Tổng Nông Dân</p>
+                        <p className="mt-1 text-base text-gray-900">24 thành viên</p>
                     </div>
                     <div>
-                        <p className="text-sm font-medium text-gray-700">Total Area</p>
-                        <p className="mt-1 text-base text-gray-900">45.8 hectares</p>
+                        <p className="text-sm font-medium text-gray-700">Tổng Diện Tích</p>
+                        <p className="mt-1 text-base text-gray-900">45.8 hecta</p>
                     </div>
                 </div>
             </div>
@@ -331,9 +331,9 @@ const GroupTab = () => {
             {/* Farmers List */}
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-gray-900">Farmers in Group</h2>
+                    <h2 className="text-lg font-bold text-gray-900">Nông Dân Trong Nhóm</h2>
                     <button className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50">
-                        Add Farmer
+                        Thêm Nông Dân
                     </button>
                 </div>
                 <div className="overflow-x-auto">
@@ -341,19 +341,19 @@ const GroupTab = () => {
                         <thead className="border-b border-gray-200 bg-gray-50">
                             <tr>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">
-                                    Farmer Name
+                                    Tên Nông Dân
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">
-                                    Plots
+                                    Thửa Đất
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">
-                                    Total Area
+                                    Tổng Diện Tích
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">
-                                    Status
+                                    Trạng Thái
                                 </th>
                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-600">
-                                    Actions
+                                    Hành Động
                                 </th>
                             </tr>
                         </thead>
@@ -381,7 +381,7 @@ const GroupTab = () => {
                                     </td>
                                     <td className="px-4 py-3">
                                         <button className="text-sm text-blue-600 hover:text-blue-700">
-                                            View Details
+                                            Xem Chi Tiết
                                         </button>
                                     </td>
                                 </tr>
@@ -393,18 +393,18 @@ const GroupTab = () => {
 
             {/* Plots Overview */}
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-4 text-lg font-bold text-gray-900">Plots Overview</h2>
+                <h2 className="mb-4 text-lg font-bold text-gray-900">Tổng Quan Thửa Đất</h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                     <div className="rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm font-medium text-gray-600">Total Plots</p>
+                        <p className="text-sm font-medium text-gray-600">Tổng Thửa Đất</p>
                         <p className="mt-1 text-2xl font-bold text-gray-900">32</p>
                     </div>
                     <div className="rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm font-medium text-gray-600">Active Plots</p>
+                        <p className="text-sm font-medium text-gray-600">Thửa Đất Hoạt Động</p>
                         <p className="mt-1 text-2xl font-bold text-green-600">28</p>
                     </div>
                     <div className="rounded-lg border border-gray-200 p-4">
-                        <p className="text-sm font-medium text-gray-600">Idle Plots</p>
+                        <p className="text-sm font-medium text-gray-600">Thửa Đất Trống</p>
                         <p className="mt-1 text-2xl font-bold text-gray-400">4</p>
                     </div>
                 </div>
@@ -421,12 +421,12 @@ const PlansTab = () => {
         <div className="space-y-6">
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-bold text-gray-900">Production Plans</h2>
+                    <h2 className="text-lg font-bold text-gray-900">Kế Hoạch Sản Xuất</h2>
                     <button
                         className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700"
                         onClick={() => navigate(paths.app.supervisor.group.getHref())}
                     >
-                        Create New Plan
+                        Tạo Kế Hoạch Mới
                     </button>
                 </div>
 
@@ -434,30 +434,30 @@ const PlansTab = () => {
                 <div className="space-y-4">
                     {[
                         {
-                            name: 'Winter-Spring 2024',
+                            name: 'Vụ Đông Xuân 2024',
                             variety: 'OM5451',
                             area: '45.8 ha',
-                            startDate: 'Jan 15, 2024',
-                            status: 'Approved',
-                            progress: 'Day 45/120',
+                            startDate: '15 tháng 1, 2024',
+                            status: 'Đã Duyệt',
+                            progress: 'Ngày 45/120',
                             statusColor: 'green',
                         },
                         {
-                            name: 'Emergency Pest Control',
-                            variety: 'N/A',
+                            name: 'Kế Hoạch Khẩn Cấp Kiểm Soát Sâu Bệnh',
+                            variety: 'Không có',
                             area: '12.3 ha',
-                            startDate: 'Mar 1, 2024',
-                            status: 'Pending',
-                            progress: 'Awaiting approval',
+                            startDate: '1 tháng 3, 2024',
+                            status: 'Chờ Duyệt',
+                            progress: 'Đang chờ phê duyệt',
                             statusColor: 'orange',
                         },
                         {
-                            name: 'Summer-Autumn 2024 (Draft)',
+                            name: 'Vụ Hè Thu 2024 (Bản Nháp)',
                             variety: 'IR50404',
                             area: '45.8 ha',
-                            startDate: 'May 1, 2024',
-                            status: 'Draft',
-                            progress: 'Planning phase',
+                            startDate: '1 tháng 5, 2024',
+                            status: 'Bản Nháp',
+                            progress: 'Giai đoạn lên kế hoạch',
                             statusColor: 'gray',
                         },
                     ].map((plan, idx) => (
@@ -481,20 +481,20 @@ const PlansTab = () => {
                                         </span>
                                     </div>
                                     <p className="text-sm text-gray-600">
-                                        Rice Variety: {plan.variety} • Area: {plan.area}
+                                        Giống Lúa: {plan.variety} • Diện tích: {plan.area}
                                     </p>
                                     <p className="mt-1 text-xs text-gray-500">
-                                        Start Date: {plan.startDate}
+                                        Ngày Bắt Đầu: {plan.startDate}
                                     </p>
                                     <p className="text-xs text-gray-500">{plan.progress}</p>
                                 </div>
                             </div>
                             <div className="flex gap-2">
                                 <button className="flex-1 rounded bg-blue-600 px-3 py-2 text-sm text-white transition-colors hover:bg-blue-700">
-                                    View Details
+                                    Xem Chi Tiết
                                 </button>
                                 <button className="rounded border border-gray-300 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50">
-                                    Edit
+                                    Chỉnh Sửa
                                 </button>
                             </div>
                         </div>
@@ -510,35 +510,35 @@ const ReportsTab = () => {
     return (
         <div className="space-y-6">
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                <h2 className="mb-4 text-lg font-bold text-gray-900">Reports & Analytics</h2>
+                <h2 className="mb-4 text-lg font-bold text-gray-900">Báo Cáo & Phân Tích</h2>
 
                 {/* Key Metrics */}
                 <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div className="rounded-lg bg-blue-50 p-4">
-                        <p className="text-sm font-medium text-blue-900">Avg Yield/Ha</p>
-                        <p className="mt-1 text-2xl font-bold text-blue-600">6.8 tons</p>
-                        <p className="mt-1 text-xs text-blue-700">+12% vs last season</p>
+                        <p className="text-sm font-medium text-blue-900">Năng Suất Trung Bình/Ha</p>
+                        <p className="mt-1 text-2xl font-bold text-blue-600">6.8 tấn</p>
+                        <p className="mt-1 text-xs text-blue-700">+12% so với mùa trước</p>
                     </div>
                     <div className="rounded-lg bg-green-50 p-4">
-                        <p className="text-sm font-medium text-green-900">Plan Success Rate</p>
+                        <p className="text-sm font-medium text-green-900">Tỷ Lệ Thành Công</p>
                         <p className="mt-1 text-2xl font-bold text-green-600">87%</p>
-                        <p className="mt-1 text-xs text-green-700">Target: 85%</p>
+                        <p className="mt-1 text-xs text-green-700">Mục tiêu: 85%</p>
                     </div>
                     <div className="rounded-lg bg-purple-50 p-4">
-                        <p className="text-sm font-medium text-purple-900">Cost Efficiency</p>
+                        <p className="text-sm font-medium text-purple-900">Hiệu Quả Chi Phí</p>
                         <p className="mt-1 text-2xl font-bold text-purple-600">93%</p>
-                        <p className="mt-1 text-xs text-purple-700">Within budget</p>
+                        <p className="mt-1 text-xs text-purple-700">Trong ngân sách</p>
                     </div>
                 </div>
 
                 {/* Reports List */}
                 <div className="space-y-3">
-                    <h3 className="font-semibold text-gray-900">Available Reports</h3>
+                    <h3 className="font-semibold text-gray-900">Các Báo Cáo Khả Dụng</h3>
                     {[
-                        { name: 'Monthly Production Summary', date: 'March 2024', type: 'PDF' },
-                        { name: 'Farmer Performance Analysis', date: 'Q1 2024', type: 'Excel' },
-                        { name: 'Material Usage Report', date: 'Feb 2024', type: 'PDF' },
-                        { name: 'Yield Comparison Report', date: '2023-2024', type: 'PDF' },
+                        { name: 'Tổng Kết Sản Xuất Tháng', date: 'Tháng 3 2024', type: 'PDF' },
+                        { name: 'Phân Tích Hiệu Suất Nông Dân', date: 'Q1 2024', type: 'Excel' },
+                        { name: 'Báo Cáo Sử Dụng Vật Liệu', date: 'Tháng 2 2024', type: 'PDF' },
+                        { name: 'Báo Cáo So Sánh Năng Suất', date: '2023-2024', type: 'PDF' },
                     ].map((report, idx) => (
                         <div
                             key={idx}
@@ -551,7 +551,7 @@ const ReportsTab = () => {
                                 </p>
                             </div>
                             <button className="rounded bg-blue-600 px-4 py-2 text-sm text-white transition-colors hover:bg-blue-700">
-                                Download
+                                Tải Xuống
                             </button>
                         </div>
                     ))}
@@ -565,10 +565,10 @@ const SupervisorDashboardRoute = () => {
     const [activeTab, setActiveTab] = useState('overview');
 
     const tabs = [
-        { id: 'overview', label: 'Overview', icon: TrendingUp },
-        { id: 'group', label: 'Group Management', icon: Users },
-        { id: 'plans', label: 'Production Plans', icon: Calendar },
-        { id: 'reports', label: 'Reports', icon: CheckCircle },
+        { id: 'overview', label: 'Tổng Quan', icon: TrendingUp },
+        { id: 'group', label: 'Quản Lý Nhóm', icon: Users },
+        { id: 'plans', label: 'Kế Hoạch Sản Xuất', icon: Calendar },
+        { id: 'reports', label: 'Báo Cáo', icon: CheckCircle },
     ];
 
     const renderTabContent = () => {
@@ -587,7 +587,7 @@ const SupervisorDashboardRoute = () => {
     };
 
     return (
-        <ContentLayout title="Supervisor Dashboard">
+        <ContentLayout title="Bảng Điều Khiển Giám Sát Viên">
             <div className="space-y-6">
                 {/* Custom Tab Navigation */}
                 <div className="border-b border-gray-200">

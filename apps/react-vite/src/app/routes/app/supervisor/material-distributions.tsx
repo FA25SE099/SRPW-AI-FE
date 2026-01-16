@@ -18,7 +18,7 @@ const MaterialDistributionsRoute = () => {
       forbiddenFallback={<div>Only supervisors can view this page.</div>}
       allowedRoles={[ROLES.Supervisor]}
     >
-      <ContentLayout title="Material Distributions">
+      <ContentLayout title="Phân Phối Vật Tư">
         {user.isLoading ? (
           <div className="flex justify-center py-8">
             <Spinner size="lg" />
@@ -26,18 +26,18 @@ const MaterialDistributionsRoute = () => {
         ) : !groupId ? (
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>No Group Selected</AlertTitle>
+            <AlertTitle>Chưa Chọn Nhóm</AlertTitle>
             <AlertDescription>
-              Please select a group to view material distributions. You can access
-              this page from your group management dashboard.
+              Vui lòng chọn một nhóm để xem phân phối vật tư. Bạn có thể truy cập
+              trang này từ bảng điều khiển quản lý nhóm của bạn.
             </AlertDescription>
           </Alert>
         ) : !user.data?.id ? (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
+            <AlertTitle>Lỗi</AlertTitle>
             <AlertDescription>
-              Unable to load user information. Please try refreshing the page.
+              Không thể tải thông tin người dùng. Vui lòng thử làm mới trang.
             </AlertDescription>
           </Alert>
         ) : (
@@ -45,8 +45,8 @@ const MaterialDistributionsRoute = () => {
             {/* Description */}
             <div className="rounded-lg border border-gray-200 bg-white p-4">
               <p className="text-sm text-gray-600">
-                Manage and track material distributions for your group. Confirm
-                distributions and monitor farmer confirmations.
+                Quản lý và theo dõi phân phối vật tư cho nhóm của bạn. Xác nhận
+                phân phối và giám sát xác nhận của nông dân.
               </p>
             </div>
 

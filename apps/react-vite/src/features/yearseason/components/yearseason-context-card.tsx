@@ -40,7 +40,7 @@ export const YearSeasonContextCard = ({ context }: Props) => {
         <div className="flex items-start gap-2 text-sm">
           <Calendar className="w-4 h-4 mt-0.5 text-muted-foreground" />
           <div>
-            <div className="font-medium">Season Period</div>
+            <div className="font-medium">Giai Đoạn Mùa Vụ</div>
             <div className="text-muted-foreground">
               {format(new Date(context.startDate), 'MMM dd, yyyy')} -{' '}
               {format(new Date(context.endDate), 'MMM dd, yyyy')}
@@ -52,13 +52,13 @@ export const YearSeasonContextCard = ({ context }: Props) => {
           <div className="flex items-start gap-2 text-sm">
             <Clock className="w-4 h-4 mt-0.5 text-muted-foreground" />
             <div>
-              <div className="font-medium">Planning Window Closes</div>
+              <div className="font-medium">Cửa Sổ Lên Kế Hoạch Đóng</div>
               <div className="text-muted-foreground">
                 {format(new Date(context.planningWindowEnd), 'MMM dd, yyyy HH:mm')}
                 {context.daysUntilPlanningWindowEnd !== undefined &&
                   context.daysUntilPlanningWindowEnd > 0 && (
                     <span className="ml-2 text-orange-600 font-medium">
-                      ({context.daysUntilPlanningWindowEnd} days remaining)
+                      (Còn {context.daysUntilPlanningWindowEnd} ngày)
                     </span>
                   )}
               </div>
@@ -70,7 +70,7 @@ export const YearSeasonContextCard = ({ context }: Props) => {
           <div className="flex items-start gap-2 text-sm">
             <Calendar className="w-4 h-4 mt-0.5 text-muted-foreground" />
             <div>
-              <div className="font-medium">Group Median Planting Date</div>
+              <div className="font-medium">Ngày Trồng Trung Vị Của Nhóm</div>
               <div className="text-muted-foreground">
                 {format(new Date(context.groupPlantingDate), 'MMM dd, yyyy')}
               </div>
@@ -83,7 +83,7 @@ export const YearSeasonContextCard = ({ context }: Props) => {
             <div className="flex items-start gap-2 text-sm">
               <AlertCircle className="w-4 h-4 mt-0.5 text-muted-foreground" />
               <div>
-                <div className="font-medium">Planting Flexibility</div>
+                <div className="font-medium">Tính Linh Hoạt Trồng</div>
                 <div className="text-muted-foreground">
                   ±{context.allowedPlantingFlexibilityDays} days
                 </div>
@@ -95,12 +95,12 @@ export const YearSeasonContextCard = ({ context }: Props) => {
           {context.isPlanningWindowOpen ? (
             <div className="flex items-center gap-2 text-sm text-green-600">
               <CheckCircle className="w-4 h-4" />
-              <span className="font-medium">Planning window is currently open</span>
+              <span className="font-medium">Cửa sổ lên kế hoạch hiện đang mở</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-sm text-red-600">
               <AlertCircle className="w-4 h-4" />
-              <span className="font-medium">Planning window is closed</span>
+              <span className="font-medium">Cửa sổ lên kế hoạch đã đóng</span>
             </div>
           )}
         </div>
