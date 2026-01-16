@@ -107,7 +107,7 @@ export const EditRiceVarietyDialog = ({
                 <option value="">Select category...</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name}
+                    {category.categoryName}
                   </option>
                 ))}
               </select>

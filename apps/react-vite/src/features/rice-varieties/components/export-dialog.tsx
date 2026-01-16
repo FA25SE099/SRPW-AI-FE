@@ -60,7 +60,7 @@ export const ExportDialog = ({
               <option value="">All Categories</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name}
+                  {category.categoryName}
                 </option>
               ))}
             </select>
@@ -90,7 +90,7 @@ export const ExportDialog = ({
           <p className="text-sm text-blue-700">
             <strong>Export will include:</strong>
             <br />
-            • {selectedCategoryId ? categories.find(c => c.id === selectedCategoryId)?.name || 'Selected category' : 'All categories'}
+            • {selectedCategoryId ? categories.find(c => c.id === selectedCategoryId)?.categoryName || 'Selected category' : 'All categories'}
             <br />
             • {isActiveFilter === undefined ? 'All statuses' : isActiveFilter ? 'Active only' : 'Inactive only'}
             <br />
