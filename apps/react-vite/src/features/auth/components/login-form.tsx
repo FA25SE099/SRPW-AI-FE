@@ -28,31 +28,40 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
           <>
             <Input
               type="email"
-              label="Email Address"
+              label="Email"
+              placeholder="Email"
               error={formState.errors['email']}
               registration={register('email')}
+              className="mb-4"
             />
             <Input
               type="password"
-              label="Password"
+              label="Mật khẩu"
+              placeholder="Mật khẩu"
               error={formState.errors['password']}
               registration={register('password')}
+              className="mb-2"
             />
+            <div className="mb-6 text-right">
+              <Link
+                to={paths.auth.forgotPassword.getHref()}
+                className="text-xs text-gray-500 hover:text-green-600"
+              >
+                Quên mật khẩu?
+              </Link>
+            </div>
             <div>
               <Button
                 isLoading={login.isPending}
                 type="submit"
-                className="w-full"
+                className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-all duration-300 hover:bg-green-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
               >
-                Log in
+                Đăng nhập
               </Button>
             </div>
           </>
         )}
       </Form>
-      <div className="mt-2 flex items-center justify-end">
-
-      </div>
     </div>
   );
 };
