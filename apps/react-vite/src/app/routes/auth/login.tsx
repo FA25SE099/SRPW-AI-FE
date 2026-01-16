@@ -2,6 +2,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { Link } from 'react-router';
 import { useUser } from '@/lib/auth';
 
+import { AuthLayout } from '@/components/layouts/auth-layout';
 import { paths } from '@/config/paths';
 import { LoginForm } from '@/features/auth/components/login-form';
 
