@@ -70,8 +70,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                     setTimeout(() => {
                         onOpenChange(false)
                         resetForm()
-                        // Refresh the page to show updated plots
-                        window.location.reload()
+                        // Data will be automatically refetched via query invalidation
                     }, 2000)
                 }
             },

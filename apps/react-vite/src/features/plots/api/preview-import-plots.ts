@@ -41,6 +41,8 @@ export type PlotImportPreviewRow = {
     plotStatus?: string | null
     willCreatePlotCultivation?: string | null
     seasonYear?: string | null
+    boundaryWKT?: string | null
+    coordinateWKT?: string | null
 }
 
 export type PlotImportPreviewSummary = {
@@ -147,7 +149,11 @@ export const useImportPlotsFromData = ({ mutationConfig }: UseImportPlotsFromDat
 
     return useMutation({
         onSuccess: (...args) => {
+            // Invalidate all plots-related queries to refetch data
             queryClient.invalidateQueries({ queryKey: ['plots'] })
+            queryClient.invalidateQueries({ queryKey: ['plots-out-season'] })
+            queryClient.invalidateQueries({ queryKey: ['plots-awaiting-polygon'] })
+            queryClient.invalidateQueries({ queryKey: ['farmer-plots'] })
             onSuccess?.(...args)
         },
         ...restConfig,
@@ -170,7 +176,7 @@ export const convertPreviewToImportRows = (previewRows: PlotImportPreviewRow[]):
         plantingDate: row.plantingDate || undefined,
         seasonName: row.seasonName || undefined,
         year: row.year || undefined,
-        boundaryWKT: row.hasPolygon ? null : null, // You might want to preserve this if available
-        coordinateWKT: null
+        boundaryWKT: row.boundaryWKT || null, // Preserve boundaryWKT from preview
+        coordinateWKT: row.coordinateWKT || null // Preserve coordinateWKT from preview
     }))
 }
