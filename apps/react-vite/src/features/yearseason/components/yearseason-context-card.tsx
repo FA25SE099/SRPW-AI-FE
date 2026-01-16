@@ -32,7 +32,10 @@ export const YearSeasonContextCard = ({ context }: Props) => {
             {context.seasonName} {context.year}
           </CardTitle>
           <Badge className={getStatusColor(context.status)}>
-            {context.status}
+            {context.status === 'Draft' ? 'Bản Nháp' :
+             context.status === 'PlanningOpen' ? 'Mở Lập Kế Hoạch' :
+             context.status === 'Active' ? 'Đang Hoạt Động' :
+             context.status === 'Completed' ? 'Đã Hoàn Thành' : context.status}
           </Badge>
         </div>
       </CardHeader>
@@ -40,7 +43,7 @@ export const YearSeasonContextCard = ({ context }: Props) => {
         <div className="flex items-start gap-2 text-sm">
           <Calendar className="w-4 h-4 mt-0.5 text-muted-foreground" />
           <div>
-            <div className="font-medium">Giai Đoạn Mùa Vụ</div>
+            <div className="font-medium">Thời Kỳ Mùa Vụ</div>
             <div className="text-muted-foreground">
               {format(new Date(context.startDate), 'MMM dd, yyyy')} -{' '}
               {format(new Date(context.endDate), 'MMM dd, yyyy')}
@@ -52,7 +55,7 @@ export const YearSeasonContextCard = ({ context }: Props) => {
           <div className="flex items-start gap-2 text-sm">
             <Clock className="w-4 h-4 mt-0.5 text-muted-foreground" />
             <div>
-              <div className="font-medium">Cửa Sổ Lên Kế Hoạch Đóng</div>
+              <div className="font-medium">Cửa Sổ Lập Kế Hoạch Đóng</div>
               <div className="text-muted-foreground">
                 {format(new Date(context.planningWindowEnd), 'MMM dd, yyyy HH:mm')}
                 {context.daysUntilPlanningWindowEnd !== undefined &&
@@ -70,7 +73,7 @@ export const YearSeasonContextCard = ({ context }: Props) => {
           <div className="flex items-start gap-2 text-sm">
             <Calendar className="w-4 h-4 mt-0.5 text-muted-foreground" />
             <div>
-              <div className="font-medium">Ngày Trồng Trung Vị Của Nhóm</div>
+              <div className="font-medium">Ngày Gieo Trồng Trung Vị Nhóm</div>
               <div className="text-muted-foreground">
                 {format(new Date(context.groupPlantingDate), 'MMM dd, yyyy')}
               </div>
@@ -83,7 +86,7 @@ export const YearSeasonContextCard = ({ context }: Props) => {
             <div className="flex items-start gap-2 text-sm">
               <AlertCircle className="w-4 h-4 mt-0.5 text-muted-foreground" />
               <div>
-                <div className="font-medium">Tính Linh Hoạt Trồng</div>
+                <div className="font-medium">Linh Hoạt Gieo Trồng</div>
                 <div className="text-muted-foreground">
                   ±{context.allowedPlantingFlexibilityDays} days
                 </div>
@@ -95,12 +98,12 @@ export const YearSeasonContextCard = ({ context }: Props) => {
           {context.isPlanningWindowOpen ? (
             <div className="flex items-center gap-2 text-sm text-green-600">
               <CheckCircle className="w-4 h-4" />
-              <span className="font-medium">Cửa sổ lên kế hoạch hiện đang mở</span>
+              <span className="font-medium">Cửa sổ lập kế hoạch hiện đang mở</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-sm text-red-600">
               <AlertCircle className="w-4 h-4" />
-              <span className="font-medium">Cửa sổ lên kế hoạch đã đóng</span>
+              <span className="font-medium">Cửa sổ lập kế hoạch đã đóng</span>
             </div>
           )}
         </div>

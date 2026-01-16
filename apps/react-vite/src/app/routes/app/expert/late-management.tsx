@@ -16,7 +16,7 @@ const LateManagementRoute = () => {
 
     return (
         <Authorization
-            forbiddenFallback={<div>Only experts can view this.</div>}
+            forbiddenFallback={<div>Chỉ chuyên gia mới có thể xem trang này.</div>}
             allowedRoles={[ROLES.AgronomyExpert]}
         >
             <div>
@@ -33,10 +33,10 @@ const LateManagementRoute = () => {
                                 </div>
                                 <div>
                                     <h1 className="text-3xl font-bold text-neutral-900">
-                                        Late Management
+                                        Quản lý trễ hạn
                                     </h1>
                                     <p className="text-sm text-neutral-600 mt-1">
-                                        Track and manage farmers and plots with late task submissions across your cluster
+                                        Theo dõi và quản lý nông dân và lô đất có công việc nộp trễ trong cụm của bạn
                                     </p>
                                 </div>
                             </div>
@@ -44,8 +44,8 @@ const LateManagementRoute = () => {
                         {/* Description */}
                         <div className="rounded-lg border border-gray-200 bg-white p-4">
                             <p className="text-sm text-gray-600">
-                                Track and manage farmers and plots with late task submissions.
-                                View detailed late records and monitor compliance across your cluster.
+                                Theo dõi và quản lý nông dân và lô đất có công việc nộp trễ.
+                                Xem chi tiết hồ sơ trễ hạn và giám sát tuân thủ trong cụm của bạn.
                             </p>
                         </div>
 
@@ -60,7 +60,7 @@ const LateManagementRoute = () => {
                                         }`}
                                 >
                                     <Users className="h-4 w-4" />
-                                    Farmer Lateness
+                                    Trễ hạn nông dân
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('plots')}
@@ -70,7 +70,7 @@ const LateManagementRoute = () => {
                                         }`}
                                 >
                                     <MapPin className="h-4 w-4" />
-                                    Plot Lateness
+                                    Trễ hạn lô đất
                                 </button>
                             </nav>
                         </div>

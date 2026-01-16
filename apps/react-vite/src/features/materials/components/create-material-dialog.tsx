@@ -63,16 +63,16 @@ export const CreateMaterialDialog = ({
   const isLoading = createMutation.isPending;
 
   return (
-    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Create New Material" maxWidth="2xl">
+    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Tạo Vật Liệu Mới" maxWidth="2xl">
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          Add a new material (fertilizer or pesticide) to the inventory.
+          Thêm vật liệu mới (phân bón hoặc thuốc trừ sâu) vào kho.
         </p>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Material Name *
+              Tên Vật Liệu *
             </label>
             <input
               type="text"
@@ -80,13 +80,13 @@ export const CreateMaterialDialog = ({
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., NPK Fertilizer 16-16-8"
+              placeholder="VD: Phân NPK 16-16-8"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Type *
+              Loại *
             </label>
             <select
               value={type}
@@ -94,8 +94,8 @@ export const CreateMaterialDialog = ({
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
             >
-              <option value={MaterialType.Fertilizer}>Fertilizer</option>
-              <option value={MaterialType.Pesticide}>Pesticide</option>
+              <option value={MaterialType.Fertilizer}>Phân Bón</option>
+              <option value={MaterialType.Pesticide}>Thuốc Trừ Sâu</option>
             </select>
           </div>
         </div>
@@ -103,7 +103,7 @@ export const CreateMaterialDialog = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Amount *
+              Số Lượng *
             </label>
             <input
               type="number"
@@ -111,13 +111,13 @@ export const CreateMaterialDialog = ({
               onChange={(e) => setAmmountPerMaterial(Number(e.target.value))}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 50"
+              placeholder="VD: 50"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Unit *
+              Đơn Vị *
             </label>
             <input
               type="text"
@@ -125,13 +125,13 @@ export const CreateMaterialDialog = ({
               onChange={(e) => setUnit(e.target.value)}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., kg"
+              placeholder="VD: kg"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Price (VND) *
+              Giá (VND) *
             </label>
             <input
               type="number"
@@ -139,14 +139,14 @@ export const CreateMaterialDialog = ({
               onChange={(e) => setPricePerMaterial(Number(e.target.value))}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 450000"
+              placeholder="VD: 450000"
             />
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Manufacturer
+            Nhà Sản Xuất
           </label>
           <input
             type="text"
@@ -154,13 +154,13 @@ export const CreateMaterialDialog = ({
             onChange={(e) => setManufacturer(e.target.value)}
             disabled={isLoading}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            placeholder="e.g., Phân bón Phú Mỹ"
+            placeholder="VD: Phân bón Phú Mỹ"
           />
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Description
+            Mô Tả
           </label>
           <textarea
             value={description}
@@ -168,7 +168,7 @@ export const CreateMaterialDialog = ({
             disabled={isLoading}
             rows={3}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            placeholder="Description and notes..."
+            placeholder="Mô tả và ghi chú..."
           />
         </div>
 
@@ -182,7 +182,7 @@ export const CreateMaterialDialog = ({
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-            Active
+            Đang Hoạt Động
           </label>
         </div>
 
@@ -196,13 +196,13 @@ export const CreateMaterialDialog = ({
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <label htmlFor="isPartition" className="text-sm font-medium text-gray-700">
-            Can be partitioned (sold in smaller quantities)
+            Có thể chia nhỏ (bán với số lượng nhỏ hơn)
           </label>
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleCreate}
@@ -210,7 +210,7 @@ export const CreateMaterialDialog = ({
             isLoading={isLoading}
             icon={<Plus className="h-4 w-4" />}
           >
-            Create Material
+            Tạo Vật Liệu
           </Button>
         </div>
       </div>

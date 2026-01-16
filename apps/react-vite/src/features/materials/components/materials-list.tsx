@@ -99,7 +99,7 @@ export const MaterialsList = () => {
               setSelectedType(MaterialType.Fertilizer);
             }}
           >
-            Fertilizers
+            Phân Bón
           </Button>
           <Button
             variant={selectedType === MaterialType.Pesticide ? 'default' : 'outline'}
@@ -108,7 +108,7 @@ export const MaterialsList = () => {
               setSelectedType(MaterialType.Pesticide);
             }}
           >
-            Pesticides
+            Thuốc Trừ Sâu
           </Button>
           <Button
             variant={selectedType === MaterialType.Seed ? 'default' : 'outline'}
@@ -117,11 +117,11 @@ export const MaterialsList = () => {
               setSelectedType(MaterialType.Seed);
             }}
           >
-            Seeds
+            Hạt Giống
           </Button>
 
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Price at:</label>
+            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Giá tại:</label>
             <input
               type="datetime-local"
               value={tempDateTime}
@@ -133,14 +133,14 @@ export const MaterialsList = () => {
               variant="outline"
               onClick={handleApplyDateTime}
             >
-              Apply
+              Áp Dụng
             </Button>
           </div>          <Button
             variant="default"
             onClick={() => setCreateDialogOpen(true)}
             icon={<Plus className="h-4 w-4" />}
           >
-            Create Material
+            Tạo Vật Liệu
           </Button>
 
           {/* View Toggle */}
@@ -151,7 +151,7 @@ export const MaterialsList = () => {
               onClick={() => setViewMode('grid')}
               icon={<Grid3x3 className="h-4 w-4" />}
             >
-              Grid
+              Lưới
             </Button>
             <Button
               variant={viewMode === 'table' ? 'default' : 'ghost'}
@@ -159,7 +159,7 @@ export const MaterialsList = () => {
               onClick={() => setViewMode('table')}
               icon={<Table className="h-4 w-4" />}
             >
-              Table
+              Bảng
             </Button>
           </div>
 
@@ -169,7 +169,7 @@ export const MaterialsList = () => {
             isLoading={downloadPriceListMutation.isPending}
             icon={<Download className="h-4 w-4" />}
           >
-            Price List
+            Bảng Giá
           </Button>
           <Button
             variant="outline"
@@ -177,7 +177,7 @@ export const MaterialsList = () => {
             isLoading={downloadTemplateMutation.isPending}
             icon={<FileDown className="h-4 w-4" />}
           >
-            Template
+            Mẫu
           </Button>
           {/* Import Excel */}
           <Button
@@ -185,7 +185,7 @@ export const MaterialsList = () => {
             onClick={() => setImportDialogOpen(true)}
             icon={<Upload className="h-4 w-4" />}
           >
-            Import Excel
+            Nhập Excel
           </Button>
         </div>
 
@@ -216,15 +216,15 @@ export const MaterialsList = () => {
                         <h3 className="font-semibold text-gray-900">{material.name}</h3>
                         <p className="text-sm text-gray-500">
                           {material.type === MaterialType.Fertilizer
-                            ? 'Fertilizer'
+                            ? 'Phân Bón'
                             : material.type === MaterialType.Pesticide
-                              ? 'Pesticide'
+                              ? 'Thuốc Trừ Sâu'
                               : material.type === MaterialType.Seed
-                                ? 'Seed'
+                                ? 'Hạt Giống'
                                 : ''}
                           {material.isPartition && (
                             <span className="ml-2 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">
-                              Partitioned
+                              Có Thể Chia Nhỏ
                             </span>
                           )}
                         </p>
@@ -236,17 +236,17 @@ export const MaterialsList = () => {
                         : 'bg-gray-100 text-gray-700'
                         }`}
                     >
-                      {material.isActive ? 'Active' : 'Inactive'}
+                      {material.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                     </span>
                   </div>
 
                   <div className="mt-4 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Quantity:</span>
+                      <span className="text-gray-500">Số Lượng:</span>
                       <span className="font-medium">{material.showout || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Price:</span>
+                      <span className="text-gray-500">Giá:</span>
                       <span className="font-medium">
                         {material.pricePerMaterial != null
                           ? `${material.pricePerMaterial.toLocaleString('vi-VN')} VND`
@@ -254,7 +254,7 @@ export const MaterialsList = () => {
                       </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Manufacturer:</span>
+                      <span className="text-gray-500">Nhà Sản Xuất:</span>
                       <span className="truncate font-medium pl-2 text-right" title={material.manufacturer || 'N/A'}>
                         {material.manufacturer || 'N/A'}
                       </span>
@@ -276,7 +276,7 @@ export const MaterialsList = () => {
                       icon={<Eye className="h-3 w-3" />}
                       className="flex-1"
                     >
-                      View
+                      Xem
                     </Button>
                     <Button
                       size="sm"
@@ -285,7 +285,7 @@ export const MaterialsList = () => {
                       icon={<Edit className="h-3 w-3" />}
                       className="flex-1"
                     >
-                      Edit
+                      Chỉnh Sửa
                     </Button>
                     <Button
                       size="sm"
@@ -294,7 +294,7 @@ export const MaterialsList = () => {
                       icon={<Trash2 className="h-3 w-3" />}
                       className="flex-1 text-red-600 hover:bg-red-50 hover:text-red-700"
                     >
-                      Delete
+                      Xóa
                     </Button>
                   </div>
                 </div>
@@ -308,28 +308,28 @@ export const MaterialsList = () => {
                   <thead className="bg-gray-50 border-b">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
+                        Tên
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Type
+                        Loại
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Quantity
+                        Số Lượng
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
+                        Giá
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Manufacturer
+                        Nhà Sản Xuất
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
+                        Trạng Thái
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Partition
+                        Chia Nhỏ
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
+                        Thao Tác
                       </th>
                     </tr>
                   </thead>
@@ -363,8 +363,12 @@ export const MaterialsList = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {material.type === MaterialType.Fertilizer
-                            ? 'Fertilizer'
-                            : 'Pesticide'}
+                            ? 'Phân Bón'
+                            : material.type === MaterialType.Pesticide
+                              ? 'Thuốc Trừ Sâu'
+                              : material.type === MaterialType.Seed
+                                ? 'Hạt Giống'
+                                : ''}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {material.showout || 'N/A'}
@@ -384,7 +388,7 @@ export const MaterialsList = () => {
                               : 'bg-gray-100 text-gray-700'
                               }`}
                           >
-                            {material.isActive ? 'Active' : 'Inactive'}
+                            {material.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -394,7 +398,7 @@ export const MaterialsList = () => {
                               : 'bg-gray-100 text-gray-700'
                               }`}
                           >
-                            {material.isPartition ? 'Partitioned' : 'Whole'}
+                            {material.isPartition ? 'Có Thể Chia Nhỏ' : 'Nguyên Gói'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
@@ -402,21 +406,21 @@ export const MaterialsList = () => {
                             <button
                               onClick={() => handleView(material)}
                               className="text-gray-600 hover:text-gray-900"
-                              title="View Details"
+                              title="Xem Chi Tiết"
                             >
                               <Eye className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleEdit(material)}
                               className="text-blue-600 hover:text-blue-900"
-                              title="Edit"
+                              title="Chỉnh Sửa"
                             >
                               <Edit className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(material)}
                               className="text-red-600 hover:text-red-900"
-                              title="Delete"
+                              title="Xóa"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
@@ -431,7 +435,7 @@ export const MaterialsList = () => {
           )
         ) : (
           <div className="flex h-48 items-center justify-center rounded-lg border border-dashed">
-            <p className="text-gray-500">No materials found</p>
+            <p className="text-gray-500">Không tìm thấy vật liệu</p>
           </div>
         )}
 
@@ -439,9 +443,9 @@ export const MaterialsList = () => {
         {materials && materials.totalPages > 1 && (
           <div className="flex items-center justify-between border-t pt-4">
             <div className="text-sm text-gray-700">
-              Showing {(currentPage - 1) * pageSize + 1} to{' '}
-              {Math.min(currentPage * pageSize, materials.totalCount)} of{' '}
-              {materials.totalCount} results
+              Hiển thị {(currentPage - 1) * pageSize + 1} đến{' '}
+              {Math.min(currentPage * pageSize, materials.totalCount)} trong{' '}
+              {materials.totalCount} kết quả
             </div>
             <div className="flex gap-2">
               <Button
@@ -449,14 +453,14 @@ export const MaterialsList = () => {
                 disabled={!materials.hasPrevious}
                 onClick={() => setCurrentPage((p) => p - 1)}
               >
-                Previous
+                Trước
               </Button>
               <Button
                 variant="outline"
                 disabled={!materials.hasNext}
                 onClick={() => setCurrentPage((p) => p + 1)}
               >
-                Next
+                Sau
               </Button>
             </div>
           </div>

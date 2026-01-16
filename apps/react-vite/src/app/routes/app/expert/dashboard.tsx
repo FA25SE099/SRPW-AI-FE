@@ -58,7 +58,7 @@ const ApprovalItem = ({
         <div className="mb-3 flex items-start justify-between">
             <div className="flex-1">
                 <div className="mb-1 flex items-center gap-2">
-                    <h4 className="font-semibold text-gray-900">Group {group}</h4>
+                    <h4 className="font-semibold text-gray-900">Nhóm {group}</h4>
                     <span
                         className={`rounded px-2 py-0.5 text-xs font-medium ${priority === 'Critical'
                                 ? 'bg-red-100 text-red-700'
@@ -70,20 +70,20 @@ const ApprovalItem = ({
                         {priority}
                     </span>
                 </div>
-                <p className="text-sm text-gray-600">Supervisor: {supervisor}</p>
+                <p className="text-sm text-gray-600">Giám sát viên: {supervisor}</p>
                 <p className="mt-1 text-xs text-gray-500">{type}</p>
             </div>
             <span className="text-xs text-gray-400">{time}</span>
         </div>
         <div className="flex gap-2">
             <button className="flex-1 rounded bg-green-600 px-3 py-2 text-sm text-white transition-colors hover:bg-green-700">
-                Approve
+                Phê duyệt
             </button>
             <button className="flex-1 rounded bg-gray-100 px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-200">
-                Review
+                Xem xét
             </button>
             <button className="rounded bg-red-50 px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-100">
-                Reject
+                Từ chối
             </button>
         </div>
     </div>
@@ -130,11 +130,11 @@ const AlertItem = ({
         </div>
         <p className="mb-2 text-sm text-gray-700">{message}</p>
         <div className="flex items-center justify-between text-xs">
-            <span className="text-gray-600">Source: {source}</span>
-            <span className="text-gray-600">{affected} plots affected</span>
+            <span className="text-gray-600">Nguồn: {source}</span>
+            <span className="text-gray-600">{affected} lô bị ảnh hưởng</span>
         </div>
         <button className="mt-3 w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm transition-colors hover:bg-gray-50">
-            Review & Respond
+            Xem xét và phản hồi
         </button>
     </div>
 );
@@ -143,7 +143,7 @@ const ExpertDashboardRoute = () => {
     const user = useUser();
 
     return (
-        <ContentLayout title="Expert Dashboard - Overview">
+        <ContentLayout title="Bảng điều khiển Chuyên gia - Tổng quan">
             {/* User Info Section */}
             <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -167,30 +167,30 @@ const ExpertDashboardRoute = () => {
             {/* Stats Grid */}
             <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
                 <StatCard
-                    title="Groups Supervised"
+                    title="Nhóm được giám sát"
                     value="47"
-                    subtitle="Across 3 regions"
+                    subtitle="Trên 3 vùng"
                     icon={FileText}
                     color="bg-blue-600"
                 />
                 <StatCard
-                    title="Pending Approvals"
+                    title="Phê duyệt đang chờ"
                     value="12"
-                    subtitle="8 urgent, 4 normal"
+                    subtitle="8 khẩn cấp, 4 bình thường"
                     icon={Clock}
                     color="bg-orange-600"
                 />
                 <StatCard
-                    title="Active Alerts"
+                    title="Cảnh báo đang hoạt động"
                     value="5"
-                    subtitle="3 critical, 2 high"
+                    subtitle="3 nghiêm trọng, 2 cao"
                     icon={AlertTriangle}
                     color="bg-red-600"
                 />
                 <StatCard
-                    title="Avg Response Time"
+                    title="Thời gian phản hồi trung bình"
                     value="2.4h"
-                    subtitle="Target: < 4h"
+                    subtitle="Mục tiêu: < 4h"
                     icon={CheckCircle}
                     color="bg-green-600"
                 />
@@ -202,10 +202,10 @@ const ExpertDashboardRoute = () => {
                 <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-lg font-bold text-gray-900">
-                            Urgent Approvals
+                            Phê duyệt khẩn cấp
                         </h2>
                         <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-medium text-orange-700">
-                            8 Pending
+                            8 Đang chờ
                         </span>
                     </div>
                     <div className="space-y-3">
@@ -213,21 +213,21 @@ const ExpertDashboardRoute = () => {
                             id={1}
                             supervisor="Nguyen Van A"
                             group="G-034"
-                            type="Emergency Spraying Plan"
+                            type="Kế hoạch phun thuốc khẩn cấp"
                             priority="Critical"
-                            time="15 min ago"
+                            time="15 phút trước"
                         />
                         <ApprovalItem
                             id={2}
                             supervisor="Tran Thi B"
                             group="G-021"
-                            type="Modified Fertilization Schedule"
+                            type="Lịch bón phân đã sửa đổi"
                             priority="Urgent"
-                            time="1h ago"
+                            time="1 giờ trước"
                         />
                     </div>
                     <button className="mt-4 w-full rounded-lg px-4 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50">
-                        View All Approvals
+                        Xem tất cả phê duyệt
                     </button>
                 </div>
 
@@ -235,32 +235,32 @@ const ExpertDashboardRoute = () => {
                 <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">
                         <h2 className="text-lg font-bold text-gray-900">
-                            Emergency Alerts
+                            Cảnh báo khẩn cấp
                         </h2>
                         <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
-                            5 Active
+                            5 Đang hoạt động
                         </span>
                     </div>
                     <div className="space-y-3">
                         <AlertItem
-                            type="Pest Outbreak"
+                            type="Bùng phát sâu bệnh"
                             severity="Critical"
-                            message="Brown planthopper detected above threshold in 12 plots"
-                            source="AI Detection"
-                            time="30 min ago"
+                            message="Rầy nâu phát hiện vượt ngưỡng ở 12 lô"
+                            source="Phát hiện AI"
+                            time="30 phút trước"
                             affected="12"
                         />
                         <AlertItem
-                            type="Heavy Rain Warning"
+                            type="Cảnh báo mưa lớn"
                             severity="High"
-                            message="Severe weather expected in next 24h"
-                            source="Weather API"
-                            time="2h ago"
+                            message="Thời tiết khắc nghiệt dự kiến trong 24h tới"
+                            source="API Thời tiết"
+                            time="2 giờ trước"
                             affected="23"
                         />
                     </div>
                     <button className="mt-4 w-full rounded-lg px-4 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50">
-                        View All Alerts
+                        Xem tất cả cảnh báo
                     </button>
                 </div>
             </div>
@@ -268,32 +268,32 @@ const ExpertDashboardRoute = () => {
             {/* Recent Activity */}
             <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
                 <h2 className="mb-4 text-lg font-bold text-gray-900">
-                    Recent Activity
+                    Hoạt động gần đây
                 </h2>
                 <div className="space-y-4">
                     {[
                         {
-                            action: 'Approved production plan',
-                            target: 'Group G-045',
-                            time: '2h ago',
+                            action: 'Đã phê duyệt kế hoạch sản xuất',
+                            target: 'Nhóm G-045',
+                            time: '2 giờ trước',
                             status: 'success',
                         },
                         {
-                            action: 'Modified standard plan',
-                            target: 'OM5451 Rice Variety',
-                            time: '5h ago',
+                            action: 'Đã sửa đổi kế hoạch tiêu chuẩn',
+                            target: 'Giống lúa OM5451',
+                            time: '5 giờ trước',
                             status: 'info',
                         },
                         {
-                            action: 'Emergency protocol activated',
-                            target: 'Group G-021',
-                            time: '1d ago',
+                            action: 'Đã kích hoạt giao thức khẩn cấp',
+                            target: 'Nhóm G-021',
+                            time: '1 ngày trước',
                             status: 'warning',
                         },
                         {
-                            action: 'Approved material substitute',
-                            target: 'Group G-018',
-                            time: '2d ago',
+                            action: 'Đã phê duyệt vật liệu thay thế',
+                            target: 'Nhóm G-018',
+                            time: '2 ngày trước',
                             status: 'success',
                         },
                     ].map((item, idx) => (

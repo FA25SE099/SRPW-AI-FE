@@ -55,17 +55,17 @@ export const ImportMaterialsDialog = ({
     <SimpleDialog
       isOpen={isOpen}
       onClose={onClose}
-      title="Import Materials from Excel"
+      title="Nhập Vật Liệu Từ Excel"
     >
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          Upload an Excel file to import materials (creates new or updates existing).
+          Tải lên tệp Excel để nhập vật liệu (tạo mới hoặc cập nhật hiện có).
         </p>
 
         {/* File Selection */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Excel File
+            Tệp Excel
           </label>
           <div className="flex items-center gap-2">
             <input
@@ -82,7 +82,7 @@ export const ImportMaterialsDialog = ({
               disabled={isLoading}
               icon={<Upload className="h-4 w-4" />}
             >
-              Choose File
+              Chọn Tệp
             </Button>
             {selectedFile && (
               <div className="flex items-center gap-2 rounded-md border bg-gray-50 px-3 py-2">
@@ -102,14 +102,14 @@ export const ImportMaterialsDialog = ({
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleImport}
             disabled={!selectedFile || isLoading}
             isLoading={isLoading}
           >
-            Import Materials
+            Nhập Vật Liệu
           </Button>
         </div>
       </div>

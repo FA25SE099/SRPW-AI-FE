@@ -54,16 +54,16 @@ export const UpdateStandardPlanDialog = ({
   const isLoading = updateMutation.isPending;
 
   return (
-    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Update Standard Plan" maxWidth="2xl">
+    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Cập Nhật Kế Hoạch Chuẩn" maxWidth="2xl">
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          Update the standard plan information. Note: This will not modify the stages and tasks.
+          Cập nhật thông tin kế hoạch chuẩn. Lưu ý: Điều này sẽ không thay đổi các giai đoạn và nhiệm vụ.
         </p>
 
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Plan Name *
+              Tên Kế Hoạch *
             </label>
             <input
               type="text"
@@ -71,13 +71,13 @@ export const UpdateStandardPlanDialog = ({
               onChange={(e) => setPlanName(e.target.value)}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., Kế hoạch canh tác giống ngắn ngày"
+              placeholder="VD: Kế hoạch canh tác giống ngắn ngày"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Description
+              Mô Tả
             </label>
             <textarea
               value={description}
@@ -85,13 +85,13 @@ export const UpdateStandardPlanDialog = ({
               disabled={isLoading}
               rows={3}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="Plan description and notes..."
+              placeholder="Mô tả kế hoạch và ghi chú..."
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Total Duration (Days) *
+              Tổng Thời Gian (Ngày) *
             </label>
             <input
               type="number"
@@ -100,7 +100,7 @@ export const UpdateStandardPlanDialog = ({
               onChange={(e) => setTotalDurationDays(Number(e.target.value))}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 95"
+              placeholder="VD: 95"
             />
           </div>
 
@@ -114,14 +114,14 @@ export const UpdateStandardPlanDialog = ({
               className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-              Active
+              Đang Hoạt Động
             </label>
           </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleUpdate}
@@ -129,7 +129,7 @@ export const UpdateStandardPlanDialog = ({
             isLoading={isLoading}
             icon={<Save className="h-4 w-4" />}
           >
-            Save Changes
+            Lưu Thay Đổi
           </Button>
         </div>
       </div>

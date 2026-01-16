@@ -12,17 +12,16 @@ export const TimelineVisualization = ({ timeline }: Props) => {
     <Card className="border-border">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Season Timeline</CardTitle>
+          <CardTitle>Dòng Thời Gian Mùa Vụ</CardTitle>
           <div className="text-sm text-muted-foreground">
-            {timeline.daysElapsed || 0} days elapsed • {timeline.daysRemaining || 0}{' '}
-            days remaining
+            Đã qua {timeline.daysElapsed || 0} ngày • Còn {timeline.daysRemaining || 0} ngày
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Progress</span>
+            <span className="text-muted-foreground">Tiến Độ</span>
             <span className="font-medium">
               {timeline.progressPercentage.toFixed(1)}%
             </span>
@@ -32,19 +31,19 @@ export const TimelineVisualization = ({ timeline }: Props) => {
 
         <div className="grid grid-cols-2 gap-4 pt-2">
           <div className="space-y-1">
-            <div className="text-xs text-muted-foreground">Planning Window</div>
+            <div className="text-xs text-muted-foreground">Cửa Sổ Lập Kế Hoạch</div>
             <div className="text-sm font-medium">
               {format(new Date(timeline.planningWindowStart), 'MMM dd')} -{' '}
               {format(new Date(timeline.planningWindowEnd), 'MMM dd')}
             </div>
             {timeline.isPlanningWindowOpen && (
               <div className="text-xs text-blue-600">
-                Currently open
+                Hiện đang mở
               </div>
             )}
           </div>
           <div className="space-y-1">
-            <div className="text-xs text-muted-foreground">Season Period</div>
+            <div className="text-xs text-muted-foreground">Thời Kỳ Mùa Vụ</div>
             <div className="text-sm font-medium">
               {format(new Date(timeline.seasonStartDate), 'MMM dd')} -{' '}
               {format(new Date(timeline.seasonEndDate), 'MMM dd')}
@@ -55,17 +54,17 @@ export const TimelineVisualization = ({ timeline }: Props) => {
         <div className="pt-2 border-t">
           {!timeline.hasSeasonStarted && (
             <div className="text-sm text-muted-foreground">
-              🕐 Season starts in {timeline.daysUntilSeasonStart} days
+              🕐 Mùa vụ bắt đầu sau {timeline.daysUntilSeasonStart} ngày
             </div>
           )}
           {timeline.hasSeasonStarted && !timeline.hasSeasonEnded && (
             <div className="text-sm text-green-600 font-medium">
-              ✅ Season is active ({timeline.daysRemaining} days remaining)
+              ✅ Mùa vụ đang hoạt động (Còn {timeline.daysRemaining} ngày)
             </div>
           )}
           {timeline.hasSeasonEnded && (
             <div className="text-sm text-purple-600 font-medium">
-              ✅ Season has ended
+              ✅ Mùa vụ đã kết thúc
             </div>
           )}
         </div>

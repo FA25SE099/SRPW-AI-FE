@@ -228,7 +228,7 @@ export const YearSeasonFormDialog = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {yearSeason ? 'Edit YearSeason' : 'Create New YearSeason'}
+            {yearSeason ? 'Chỉnh Sửa Mùa Vụ Năm' : 'Tạo Mùa Vụ Năm Mới'}
           </DialogTitle>
         </DialogHeader>
 
@@ -236,14 +236,14 @@ export const YearSeasonFormDialog = ({
           <div className="grid grid-cols-2 gap-4">
             {/* Cluster Selection */}
             <div className="space-y-2">
-              <Label htmlFor="clusterId">Cluster *</Label>
+              <Label htmlFor="clusterId">Cụm *</Label>
               <select
                 id="clusterId"
-                {...register('clusterId', { required: 'Cluster is required' })}
+                {...register('clusterId', { required: 'Cụm là bắt buộc' })}
                 className="w-full px-3 py-2 border rounded-md"
                 disabled={!!yearSeason}
               >
-                <option value="">Select cluster...</option>
+                <option value="">Chọn cụm...</option>
                 {clusters.map((cluster) => (
                   <option key={cluster.id} value={cluster.id}>
                     {cluster.name}
@@ -257,15 +257,15 @@ export const YearSeasonFormDialog = ({
 
             {/* Season Selection */}
             <div className="space-y-2">
-              <Label htmlFor="seasonId">Season *</Label>
+              <Label htmlFor="seasonId">Mùa Vụ *</Label>
               <select
                 id="seasonId"
-                {...register('seasonId', { required: 'Season is required' })}
+                {...register('seasonId', { required: 'Mùa vụ là bắt buộc' })}
                 className="w-full px-3 py-2 border rounded-md"
                 disabled={!!yearSeason || isLoadingSeasons}
               >
                 <option value="">
-                  {isLoadingSeasons ? 'Loading seasons...' : 'Select season...'}
+                  {isLoadingSeasons ? 'Đang tải mùa vụ...' : 'Chọn mùa vụ...'}
                 </option>
                 {seasons.map((season) => (
                   <option key={season.id} value={season.id}>
@@ -280,14 +280,14 @@ export const YearSeasonFormDialog = ({
 
             {/* Year */}
             <div className="space-y-2">
-              <Label htmlFor="year">Year *</Label>
+              <Label htmlFor="year">Năm *</Label>
               <Input
                 id="year"
                 type="number"
                 {...register('year', {
-                  required: 'Year is required',
-                  min: { value: 2020, message: 'Year must be 2020 or later' },
-                  max: { value: 2100, message: 'Year must be 2100 or earlier' },
+                  required: 'Năm là bắt buộc',
+                  min: { value: 2020, message: 'Năm phải từ 2020 trở đi' },
+                  max: { value: 2100, message: 'Năm phải từ 2100 trở về trước' },
                 })}
                 disabled={!!yearSeason}
               />
@@ -299,22 +299,22 @@ export const YearSeasonFormDialog = ({
             {/* Rice Variety */}
             <div className="space-y-2">
               <Label htmlFor="riceVarietyId">
-                Rice Variety {watch('allowFarmerSelection') ? '' : '*'}
+                Giống Lúa {watch('allowFarmerSelection') ? '' : '*'}
               </Label>
               <select
                 id="riceVarietyId"
                 {...register('riceVarietyId', {
-                  required: !watch('allowFarmerSelection') && 'Rice variety is required when farmer selection is disabled',
+                  required: !watch('allowFarmerSelection') && 'Giống lúa là bắt buộc khi tắt lựa chọn nông dân',
                 })}
                 className="w-full px-3 py-2 border rounded-md"
                 disabled={watch('allowFarmerSelection') || isLoadingRiceVarieties}
               >
                 <option value="">
                   {isLoadingRiceVarieties
-                    ? 'Loading varieties...'
+                    ? 'Đang tải giống lúa...'
                     : watch('allowFarmerSelection')
-                      ? 'N/A - Farmers will select varieties'
-                      : 'Select rice variety...'}
+                      ? 'N/A - Nông dân sẽ chọn giống'
+                      : 'Chọn giống lúa...'}
                 </option>
                 {riceVarieties.map((variety) => (
                   <option key={variety.id} value={variety.id}>
@@ -329,7 +329,7 @@ export const YearSeasonFormDialog = ({
               )}
               {watch('allowFarmerSelection') && (
                 <p className="text-xs text-muted-foreground">
-                  Farmers will choose their own rice varieties during the selection window
+                  Nông dân sẽ chọn giống lúa của riêng họ trong cửa sổ lựa chọn
                 </p>
               )}
             </div>
@@ -338,29 +338,29 @@ export const YearSeasonFormDialog = ({
           {/* Season Dates */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="font-medium text-sm">Season Period</h3>
+              <h3 className="font-medium text-sm">Thời Kỳ Mùa Vụ</h3>
               {isCalculatingDates && (
                 <span className="text-xs text-blue-600 flex items-center gap-1">
                   <Loader2 className="w-3 h-3 animate-spin" />
-                  Calculating dates...
+                  Đang tính toán ngày...
                 </span>
               )}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="startDate">Start Date * (DD/MM/YYYY)</Label>
+                <Label htmlFor="startDate">Ngày Bắt Đầu * (DD/MM/YYYY)</Label>
                 <Input
                   id="startDate"
                   type="date"
                   {...register('startDate', {
-                    required: 'Start date is required',
+                    required: 'Ngày bắt đầu là bắt buộc',
                     validate: (value) => {
                       const today = new Date();
                       today.setHours(0, 0, 0, 0); // Reset time to start of day
                       const selectedDate = new Date(value);
 
                       if (selectedDate < today) {
-                        return 'Start date cannot be in the past';
+                        return 'Ngày bắt đầu không thể ở quá khứ';
                       }
                       return true;
                     },
@@ -372,16 +372,16 @@ export const YearSeasonFormDialog = ({
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="endDate">End Date * (DD/MM/YYYY)</Label>
+                <Label htmlFor="endDate">Ngày Kết Thúc * (DD/MM/YYYY)</Label>
                 <Input
                   id="endDate"
                   type="date"
                   {...register('endDate', {
-                    required: 'End date is required',
+                    required: 'Ngày kết thúc là bắt buộc',
                     validate: (value) => {
                       const start = watch('startDate');
                       if (start && new Date(value) <= new Date(start)) {
-                        return 'End date must be after start date';
+                        return 'Ngày kết thúc phải sau ngày bắt đầu';
                       }
 
                       const today = new Date();
@@ -389,7 +389,7 @@ export const YearSeasonFormDialog = ({
                       const selectedDate = new Date(value);
 
                       if (selectedDate < today) {
-                        return 'End date cannot be in the past';
+                        return 'Ngày kết thúc không thể ở quá khứ';
                       }
 
                       return true;
@@ -404,30 +404,30 @@ export const YearSeasonFormDialog = ({
             </div>
             {calculatedDates && !yearSeason && (
               <p className="text-xs text-green-600">
-                ✓ Dates auto-filled from {calculatedDates.seasonName}
-                {calculatedDates.crossesYears && ' (spans two years)'}
+                ✓ Ngày đã được tự động điền từ {calculatedDates.seasonName}
+                {calculatedDates.crossesYears && ' (trải qua hai năm)'}
               </p>
             )}
           </div>
 
           {/* Planning Window */}
           <div className="space-y-2">
-            <h3 className="font-medium text-sm">Planning Window</h3>
+            <h3 className="font-medium text-sm">Cửa Sổ Lập Kế Hoạch</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="planningWindowStart">Start Date * (DD/MM/YYYY)</Label>
+                <Label htmlFor="planningWindowStart">Ngày Bắt Đầu * (DD/MM/YYYY)</Label>
                 <Input
                   id="planningWindowStart"
                   type="date"
                   {...register('planningWindowStart', {
-                    required: 'Planning window start is required',
+                    required: 'Ngày bắt đầu cửa sổ lập kế hoạch là bắt buộc',
                     validate: (value) => {
                       const today = new Date();
                       today.setHours(0, 0, 0, 0);
                       const selectedDate = new Date(value);
 
                       if (selectedDate < today) {
-                        return 'Planning window start cannot be in the past';
+                        return 'Ngày bắt đầu cửa sổ lập kế hoạch không thể ở quá khứ';
                       }
                       return true;
                     },
@@ -440,23 +440,23 @@ export const YearSeasonFormDialog = ({
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="planningWindowEnd">End Date * (DD/MM/YYYY)</Label>
+                <Label htmlFor="planningWindowEnd">Ngày Kết Thúc * (DD/MM/YYYY)</Label>
                 <Input
                   id="planningWindowEnd"
                   type="date"
                   {...register('planningWindowEnd', {
-                    required: 'Planning window end is required',
+                    required: 'Ngày kết thúc cửa sổ lập kế hoạch là bắt buộc',
                     validate: (value) => {
                       const start = watch('planningWindowStart');
                       const seasonStart = watch('startDate');
                       if (start && new Date(value) <= new Date(start)) {
-                        return 'Planning window end must be after start';
+                        return 'Ngày kết thúc cửa sổ lập kế hoạch phải sau ngày bắt đầu';
                       }
                       if (
                         seasonStart &&
                         new Date(value) >= new Date(seasonStart)
                       ) {
-                        return 'Planning window must end before season starts';
+                        return 'Cửa sổ lập kế hoạch phải kết thúc trước khi mùa vụ bắt đầu';
                       }
 
                       const today = new Date();
@@ -464,7 +464,7 @@ export const YearSeasonFormDialog = ({
                       const selectedDate = new Date(value);
 
                       if (selectedDate < today) {
-                        return 'Planning window end cannot be in the past';
+                        return 'Ngày kết thúc cửa sổ lập kế hoạch không thể ở quá khứ';
                       }
 
                       return true;
@@ -485,10 +485,10 @@ export const YearSeasonFormDialog = ({
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <h3 className="font-medium text-sm text-blue-900">
-                  Farmer Variety Selection
+                  Lựa Chọn Giống Lúa Của Nông Dân
                 </h3>
                 <p className="text-xs text-blue-700 mt-1">
-                  Allow farmers to choose their own rice varieties
+                  Cho phép nông dân chọn giống lúa của riêng họ
                 </p>
               </div>
               <label className="flex items-center space-x-2 cursor-pointer">
@@ -498,7 +498,7 @@ export const YearSeasonFormDialog = ({
                   className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm font-medium text-blue-900">
-                  Enable
+                  Bật
                 </span>
               </label>
             </div>
@@ -507,13 +507,13 @@ export const YearSeasonFormDialog = ({
               <div className="grid grid-cols-2 gap-4 pt-2">
                 <div className="space-y-2">
                   <Label htmlFor="farmerSelectionWindowStart" className="text-blue-900">
-                    Selection Window Start * (DD/MM/YYYY)
+                    Ngày Bắt Đầu Cửa Sổ Lựa Chọn * (DD/MM/YYYY)
                   </Label>
                   <Input
                     id="farmerSelectionWindowStart"
                     type="date"
                     {...register('farmerSelectionWindowStart', {
-                      required: watch('allowFarmerSelection') && 'Selection window start is required',
+                      required: watch('allowFarmerSelection') && 'Ngày bắt đầu cửa sổ lựa chọn là bắt buộc',
                       validate: (value) => {
                         if (!watch('allowFarmerSelection')) return true;
 
@@ -534,23 +534,23 @@ export const YearSeasonFormDialog = ({
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="farmerSelectionWindowEnd" className="text-blue-900">
-                    Selection Window End * (DD/MM/YYYY)
+                    Ngày Kết Thúc Cửa Sổ Lựa Chọn * (DD/MM/YYYY)
                   </Label>
                   <Input
                     id="farmerSelectionWindowEnd"
                     type="date"
                     {...register('farmerSelectionWindowEnd', {
-                      required: watch('allowFarmerSelection') && 'Selection window end is required',
+                      required: watch('allowFarmerSelection') && 'Ngày kết thúc cửa sổ lựa chọn là bắt buộc',
                       validate: (value) => {
                         if (!watch('allowFarmerSelection')) return true;
 
                         const start = watch('farmerSelectionWindowStart');
                         if (start && value && new Date(value) <= new Date(start)) {
-                          return 'Selection window end must be after start';
+                          return 'Ngày kết thúc cửa sổ lựa chọn phải sau ngày bắt đầu';
                         }
                         const seasonStart = watch('startDate');
                         if (seasonStart && value && new Date(value) >= new Date(seasonStart)) {
-                          return 'Selection window must end before season starts';
+                          return 'Cửa sổ lựa chọn phải kết thúc trước khi mùa vụ bắt đầu';
                         }
                         return true;
                       },
@@ -569,11 +569,11 @@ export const YearSeasonFormDialog = ({
 
           {/* Additional Settings */}
           <div className="space-y-2">
-            <h3 className="font-medium text-sm">Additional Settings</h3>
+            <h3 className="font-medium text-sm">Cài Đặt Bổ Sung</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="allowedPlantingFlexibilityDays">
-                  Planting Flexibility (days)
+                  Linh Hoạt Gieo Trồng (ngày)
                 </Label>
                 <Input
                   id="allowedPlantingFlexibilityDays"
@@ -581,7 +581,7 @@ export const YearSeasonFormDialog = ({
                   min="0"
                   {...register('allowedPlantingFlexibilityDays', {
                     valueAsNumber: true,
-                    min: { value: 0, message: 'Must be 0 or greater' },
+                    min: { value: 0, message: 'Phải từ 0 trở lên' },
                   })}
                 />
                 {errors.allowedPlantingFlexibilityDays && (
@@ -592,7 +592,7 @@ export const YearSeasonFormDialog = ({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="materialConfirmationDaysBeforePlanting">
-                  Material Confirmation Days
+                  Số Ngày Xác Nhận Vật Liệu
                 </Label>
                 <Input
                   id="materialConfirmationDaysBeforePlanting"
@@ -600,7 +600,7 @@ export const YearSeasonFormDialog = ({
                   min="0"
                   {...register('materialConfirmationDaysBeforePlanting', {
                     valueAsNumber: true,
-                    min: { value: 0, message: 'Must be 0 or greater' },
+                    min: { value: 0, message: 'Phải từ 0 trở lên' },
                   })}
                 />
                 {errors.materialConfirmationDaysBeforePlanting && (
@@ -614,11 +614,11 @@ export const YearSeasonFormDialog = ({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
+              Hủy
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {yearSeason ? 'Update' : 'Create'}
+              {yearSeason ? 'Cập Nhật' : 'Tạo'}
             </Button>
           </DialogFooter>
         </form>

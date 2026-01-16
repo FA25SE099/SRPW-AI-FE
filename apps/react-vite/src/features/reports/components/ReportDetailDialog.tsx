@@ -63,8 +63,8 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                     {/* Header */}
                     <div className="flex items-center justify-between border-b px-6 py-4">
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900">Report Details</h2>
-                            <p className="text-sm text-gray-600 mt-1">View complete report information</p>
+                            <h2 className="text-xl font-bold text-gray-900">Chi Tiết Báo Cáo</h2>
+                            <p className="text-sm text-gray-600 mt-1">Xem thông tin báo cáo đầy đủ</p>
                         </div>
                         <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-100">
                             <X className="h-5 w-5" />
@@ -89,17 +89,26 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                             <h3 className="text-2xl font-bold text-gray-900">{report.title}</h3>
                                             <div className="flex items-center gap-2 mt-2">
                                                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${getSeverityColor(report.severity)}`}>
-                                                    {report.severity} Severity
+                                                    {report.severity === 'Critical' ? 'Khẩn Cấp' :
+                                                     report.severity === 'High' ? 'Cao' :
+                                                     report.severity === 'Medium' ? 'Trung Bình' :
+                                                     report.severity === 'Low' ? 'Thấp' : report.severity} Mức Độ
                                                 </span>
                                                 <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
-                                                    {report.reportType}
+                                                    {report.reportType === 'Pest' ? 'Sâu Bệnh' :
+                                                     report.reportType === 'Weather' ? 'Thời Tiết' :
+                                                     report.reportType === 'Disease' ? 'Bệnh' :
+                                                     report.reportType === 'Other' ? 'Khác' : report.reportType}
                                                 </span>
                                                 <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${report.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
                                                         report.status === 'UnderReview' ? 'bg-blue-100 text-blue-800' :
                                                             report.status === 'Resolved' ? 'bg-green-100 text-green-800' :
                                                                 'bg-gray-100 text-gray-800'
                                                     }`}>
-                                                    {report.status}
+                                                    {report.status === 'Pending' ? 'Chờ Xử Lý' :
+                                                     report.status === 'UnderReview' ? 'Đang Xem Xét' :
+                                                     report.status === 'Resolved' ? 'Đã Giải Quyết' :
+                                                     report.status === 'Rejected' ? 'Đã Từ Chối' : report.status}
                                                 </span>
                                             </div>
                                         </div>
@@ -108,69 +117,69 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
 
                                 {/* Description */}
                                 <div className="rounded-lg border bg-gray-50 p-4">
-                                    <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
+                                    <h4 className="font-semibold text-gray-900 mb-2">Mô Tả</h4>
                                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{report.description}</p>
                                 </div>
 
                                 {/* Report Information */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="rounded-lg border bg-white p-4">
-                                        <h4 className="font-semibold text-gray-900 mb-3">Plot Information</h4>
+                                        <h4 className="font-semibold text-gray-900 mb-3">Thông Tin Lô</h4>
                                         <dl className="space-y-2 text-sm">
                                             <div className="flex items-center gap-2">
                                                 <MapPin className="h-4 w-4 text-gray-400" />
-                                                <dt className="text-gray-600">Plot Name:</dt>
+                                                <dt className="text-gray-600">Tên Lô:</dt>
                                                 <dd className="font-medium text-gray-900">{report.plotName}</dd>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <MapPin className="h-4 w-4 text-gray-400" />
-                                                <dt className="text-gray-600">Area:</dt>
+                                                <dt className="text-gray-600">Diện Tích:</dt>
                                                 <dd className="font-medium text-gray-900">{report.plotArea} ha</dd>
                                             </div>
                                             {report.coordinates && (
                                                 <div className="flex items-center gap-2">
                                                     <MapPin className="h-4 w-4 text-gray-400" />
-                                                    <dt className="text-gray-600">Coordinates:</dt>
+                                                    <dt className="text-gray-600">Tọa Độ:</dt>
                                                     <dd className="font-medium text-gray-900 text-xs">{report.coordinates}</dd>
                                                 </div>
                                             )}
                                             <div className="flex items-center gap-2">
                                                 <FileText className="h-4 w-4 text-gray-400" />
-                                                <dt className="text-gray-600">Cultivation Plan:</dt>
+                                                <dt className="text-gray-600">Kế Hoạch Canh Tác:</dt>
                                                 <dd className="font-medium text-gray-900 text-xs">{report.cultivationPlanName}</dd>
                                             </div>
                                         </dl>
                                     </div>
 
                                     <div className="rounded-lg border bg-white p-4">
-                                        <h4 className="font-semibold text-gray-900 mb-3">Reporter Information</h4>
+                                        <h4 className="font-semibold text-gray-900 mb-3">Thông Tin Người Báo Cáo</h4>
                                         <dl className="space-y-2 text-sm">
                                             <div className="flex items-center gap-2">
                                                 <User className="h-4 w-4 text-gray-400" />
-                                                <dt className="text-gray-600">Reported By:</dt>
+                                                <dt className="text-gray-600">Báo Cáo Bởi:</dt>
                                                 <dd className="font-medium text-gray-900">{report.reportedBy}</dd>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <User className="h-4 w-4 text-gray-400" />
-                                                <dt className="text-gray-600">Role:</dt>
+                                                <dt className="text-gray-600">Vai Trò:</dt>
                                                 <dd className="font-medium text-gray-900">{report.reportedByRole}</dd>
                                             </div>
                                             <div className="flex items-center gap-2">
                                                 <Calendar className="h-4 w-4 text-gray-400" />
-                                                <dt className="text-gray-600">Reported At:</dt>
+                                                <dt className="text-gray-600">Báo Cáo Lúc:</dt>
                                                 <dd className="font-medium text-gray-900">{formatDate(report.reportedAt)}</dd>
                                             </div>
                                             {report.farmerName && (
                                                 <div className="flex items-center gap-2">
                                                     <User className="h-4 w-4 text-gray-400" />
-                                                    <dt className="text-gray-600">Farmer:</dt>
+                                                    <dt className="text-gray-600">Nông Dân:</dt>
                                                     <dd className="font-medium text-gray-900">{report.farmerName}</dd>
                                                 </div>
                                             )}
                                             {report.clusterName && (
                                                 <div className="flex items-center gap-2">
                                                     <MapPin className="h-4 w-4 text-gray-400" />
-                                                    <dt className="text-gray-600">Cluster:</dt>
+                                                    <dt className="text-gray-600">Cụm:</dt>
                                                     <dd className="font-medium text-gray-900">{report.clusterName}</dd>
                                                 </div>
                                             )}
@@ -182,7 +191,7 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                 {(report.affectedTaskName || report.affectedTaskType || report.affectedTaskVersionName) && (
                                     <div className="rounded-lg border bg-white p-4">
                                         <div className="flex items-center justify-between mb-3">
-                                            <h4 className="font-semibold text-gray-900">Affected Cultivation Task</h4>
+                                            <h4 className="font-semibold text-gray-900">Nhiệm Vụ Canh Tác Bị Ảnh Hưởng</h4>
                                             {report.plotId && report.groupId && (
                                                 <Button
                                                     variant="outline"
@@ -190,7 +199,7 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                                     onClick={() => setIsCultivationPlanDialogOpen(true)}
                                                 >
                                                     <Eye className="h-4 w-4 mr-2" />
-                                                    View In Cultivation Plan
+                                                    Xem Trong Kế Hoạch Canh Tác
                                                 </Button>
                                             )}
                                         </div>
@@ -198,21 +207,21 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                             {report.affectedTaskName && (
                                                 <div className="flex items-center gap-2">
                                                     <ClipboardList className="h-4 w-4 text-gray-400" />
-                                                    <dt className="text-gray-600">Task Name:</dt>
+                                                    <dt className="text-gray-600">Tên Nhiệm Vụ:</dt>
                                                     <dd className="font-medium text-gray-900">{report.affectedTaskName}</dd>
                                                 </div>
                                             )}
                                             {report.affectedTaskType && (
                                                 <div className="flex items-center gap-2">
                                                     <ClipboardList className="h-4 w-4 text-gray-400" />
-                                                    <dt className="text-gray-600">Task Type:</dt>
+                                                    <dt className="text-gray-600">Loại Nhiệm Vụ:</dt>
                                                     <dd className="font-medium text-gray-900">{report.affectedTaskType}</dd>
                                                 </div>
                                             )}
                                             {report.affectedTaskVersionName && (
                                                 <div className="flex items-center gap-2">
                                                     <FileText className="h-4 w-4 text-gray-400" />
-                                                    <dt className="text-gray-600">Version:</dt>
+                                                    <dt className="text-gray-600">Phiên Bản:</dt>
                                                     <dd className="font-medium text-gray-900">{report.affectedTaskVersionName}</dd>
                                                 </div>
                                             )}
@@ -223,7 +232,7 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                 {/* Images */}
                                 {report.images && report.images.length > 0 && (
                                     <div className="rounded-lg border bg-white p-4">
-                                        <h4 className="font-semibold text-gray-900 mb-3">Attached Images</h4>
+                                        <h4 className="font-semibold text-gray-900 mb-3">Hình Ảnh Đính Kèm</h4>
                                         <div className="grid grid-cols-4 gap-3">
                                             {report.images.map((image, idx) => (
                                                 <img
@@ -240,21 +249,21 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                 {/* Resolution Info (if resolved) */}
                                 {report.status === 'Resolved' && report.resolvedBy && (
                                     <div className="rounded-lg border border-green-200 bg-green-50 p-4">
-                                        <h4 className="font-semibold text-green-900 mb-3">Resolution Information</h4>
+                                        <h4 className="font-semibold text-green-900 mb-3">Thông Tin Giải Quyết</h4>
                                         <dl className="space-y-2 text-sm">
                                             <div>
-                                                <dt className="text-green-700 font-medium">Resolved By:</dt>
+                                                <dt className="text-green-700 font-medium">Giải Quyết Bởi:</dt>
                                                 <dd className="text-gray-900">{report.resolvedBy}</dd>
                                             </div>
                                             {report.resolvedAt && (
                                                 <div>
-                                                    <dt className="text-green-700 font-medium">Resolved At:</dt>
+                                                    <dt className="text-green-700 font-medium">Giải Quyết Lúc:</dt>
                                                     <dd className="text-gray-900">{formatDate(report.resolvedAt)}</dd>
                                                 </div>
                                             )}
                                             {report.resolutionNotes && (
                                                 <div>
-                                                    <dt className="text-green-700 font-medium">Resolution Notes:</dt>
+                                                    <dt className="text-green-700 font-medium">Ghi Chú Giải Quyết:</dt>
                                                     <dd className="text-gray-900 whitespace-pre-wrap">{report.resolutionNotes}</dd>
                                                 </div>
                                             )}
@@ -264,7 +273,7 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                             </div>
                         ) : (
                             <div className="text-center py-8 text-gray-600">
-                                Report not found
+                                Không tìm thấy báo cáo
                             </div>
                         )}
                     </div>
@@ -272,7 +281,7 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                     {/* Footer */}
                     <div className="border-t px-6 py-4 flex justify-between bg-gray-50">
                         <Button variant="outline" onClick={onClose}>
-                            Close
+                            Đóng
                         </Button>
                         {report && (report.status === 'Pending' || report.status === 'UnderReview') && onResolve && (
                             <Button
@@ -283,7 +292,7 @@ export const ReportDetailDialog = ({ isOpen, onClose, reportId, onResolve }: Rep
                                 className="bg-green-600 hover:bg-green-700 text-white"
                             >
                                 <AlertTriangle className="h-4 w-4 mr-2" />
-                                Resolve This Report
+                                Giải Quyết Báo Cáo Này
                             </Button>
                         )}
                     </div>

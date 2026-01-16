@@ -36,8 +36,8 @@ const STATUS_CONFIG: Record<
     }
 > = {
     Draft: {
-        label: 'Draft',
-        description: 'Initial planning phase',
+        label: 'Bản Nháp',
+        description: 'Giai đoạn lập kế hoạch ban đầu',
         icon: Clock,
         color: 'text-gray-600',
         bgColor: 'bg-gray-50',
@@ -45,8 +45,8 @@ const STATUS_CONFIG: Record<
         nextStatuses: ['PlanningOpen'],
     },
     PlanningOpen: {
-        label: 'Planning Open',
-        description: 'Farmers can select rice varieties',
+        label: 'Mở Lập Kế Hoạch',
+        description: 'Nông dân có thể chọn giống lúa',
         icon: Play,
         color: 'text-blue-600',
         bgColor: 'bg-blue-50',
@@ -54,8 +54,8 @@ const STATUS_CONFIG: Record<
         nextStatuses: ['Active'],
     },
     Active: {
-        label: 'Active',
-        description: 'Cultivation in progress',
+        label: 'Đang Hoạt Động',
+        description: 'Canh tác đang tiến hành',
         icon: CheckCircle2,
         color: 'text-green-600',
         bgColor: 'bg-green-50',
@@ -63,8 +63,8 @@ const STATUS_CONFIG: Record<
         nextStatuses: ['Completed'],
     },
     Completed: {
-        label: 'Completed',
-        description: 'Season has ended',
+        label: 'Đã Hoàn Thành',
+        description: 'Mùa vụ đã kết thúc',
         icon: CheckCheck,
         color: 'text-purple-600',
         bgColor: 'bg-purple-50',
@@ -96,11 +96,11 @@ export const UpdateStatusDialog = ({
     const getStatusWarning = (newStatus: YearSeasonStatus): string | null => {
         switch (newStatus) {
             case 'PlanningOpen':
-                return 'Opening planning will allow farmers to select their rice varieties. Make sure all prerequisites are met.';
+                return 'Mở lập kế hoạch sẽ cho phép nông dân chọn giống lúa của họ. Đảm bảo tất cả các điều kiện tiên quyết đã được đáp ứng.';
             case 'Active':
-                return 'Activating the season will lock farmer selections and begin cultivation tracking. This action should only be done when planting has started.';
+                return 'Kích hoạt mùa vụ sẽ khóa lựa chọn của nông dân và bắt đầu theo dõi canh tác. Hành động này chỉ nên được thực hiện khi đã bắt đầu gieo trồng.';
             case 'Completed':
-                return 'Completing the season will mark it as finished. This action is permanent and cannot be undone.';
+                return 'Hoàn thành mùa vụ sẽ đánh dấu nó là đã kết thúc. Hành động này là vĩnh viễn và không thể hoàn tác.';
             default:
                 return null;
         }
@@ -110,9 +110,9 @@ export const UpdateStatusDialog = ({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle>Update Season Status</DialogTitle>
+                    <DialogTitle>Cập Nhật Trạng Thái Mùa Vụ</DialogTitle>
                     <DialogDescription>
-                        Change the status of {yearSeasonName}
+                        Thay đổi trạng thái của {yearSeasonName}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -120,7 +120,7 @@ export const UpdateStatusDialog = ({
                     {/* Current Status */}
                     <div>
                         <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                            Current Status
+                            Trạng Thái Hiện Tại
                         </label>
                         <div
                             className={`flex items-center gap-3 p-4 rounded-lg border ${currentConfig.borderColor} ${currentConfig.bgColor}`}
@@ -139,7 +139,7 @@ export const UpdateStatusDialog = ({
                     {availableStatuses.length > 0 ? (
                         <div>
                             <label className="text-sm font-medium text-muted-foreground mb-2 block">
-                                Change Status To
+                                Thay Đổi Trạng Thái Thành
                             </label>
                             <div className="space-y-2">
                                 {availableStatuses.map((status) => {
@@ -181,7 +181,7 @@ export const UpdateStatusDialog = ({
                         <Alert>
                             <AlertCircle className="h-4 w-4" />
                             <AlertDescription>
-                                This season has reached its final status and cannot be changed further.
+                                Mùa vụ này đã đạt trạng thái cuối cùng và không thể thay đổi thêm.
                             </AlertDescription>
                         </Alert>
                     )}
@@ -199,7 +199,7 @@ export const UpdateStatusDialog = ({
 
                 <DialogFooter>
                     <Button variant="outline" onClick={onClose} disabled={isUpdating}>
-                        Cancel
+                        Hủy
                     </Button>
                     <Button
                         onClick={handleConfirm}
@@ -209,10 +209,10 @@ export const UpdateStatusDialog = ({
                         {isUpdating ? (
                             <>
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Updating...
+                                Đang cập nhật...
                             </>
                         ) : (
-                            <>Update Status</>
+                            <>Cập Nhật Trạng Thái</>
                         )}
                     </Button>
                 </DialogFooter>

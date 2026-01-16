@@ -81,8 +81,8 @@ export const ResolveReportDialog = ({
             onSuccess: () => {
                 addNotification({
                     type: 'success',
-                    title: 'Report Resolved',
-                    message: 'The report has been successfully resolved and cultivation plan updated.',
+                    title: 'Báo Cáo Đã Được Giải Quyết',
+                    message: 'Báo cáo đã được giải quyết thành công và kế hoạch canh tác đã được cập nhật.',
                 });
                 handleClose();
             },
@@ -211,15 +211,15 @@ export const ResolveReportDialog = ({
     };
 
     const handlePushScheduledDates = (stageIndex: number, taskIndex: number) => {
-        const daysInput = prompt('Enter the number of days to push all tasks after this one:');
+        const daysInput = prompt('Nhập số ngày để đẩy tất cả các nhiệm vụ sau nhiệm vụ này:');
         if (!daysInput) return;
 
         const days = parseInt(daysInput);
         if (isNaN(days) || days <= 0) {
             addNotification({
                 type: 'error',
-                title: 'Invalid Input',
-                message: 'Please enter a valid positive number.',
+                title: 'Đầu Vào Không Hợp Lệ',
+                message: 'Vui lòng nhập một số dương hợp lệ.',
             });
             return;
         }
@@ -249,8 +249,8 @@ export const ResolveReportDialog = ({
         setEditableStages(updatedStages);
         addNotification({
             type: 'success',
-            title: 'Dates Updated',
-            message: `All tasks after this one have been pushed by ${days} day${days !== 1 ? 's' : ''}.`,
+            title: 'Đã Cập Nhật Ngày',
+            message: `Tất cả các nhiệm vụ sau nhiệm vụ này đã được đẩy lùi ${days} ngày.`,
         });
     };
 
@@ -267,7 +267,7 @@ export const ResolveReportDialog = ({
                     {/* Header */}
                     <div className="flex items-center justify-between border-b px-6 py-4">
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900">Resolve Report</h2>
+                            <h2 className="text-xl font-bold text-gray-900">Giải Quyết Báo Cáo</h2>
                             <p className="text-sm text-gray-600 mt-1">{reportTitle}</p>
                         </div>
                         <button onClick={handleClose} className="rounded-full p-2 hover:bg-gray-100">

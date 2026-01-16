@@ -4,7 +4,7 @@ import { EmergencyProtocolsList } from '@/features/emergency-protocols/component
 const EmergencyProtocolsRoute = () => {
     return (
         <Authorization
-            forbiddenFallback={<div>Only experts can view this.</div>}
+            forbiddenFallback={<div>Chỉ chuyên gia mới có thể xem trang này.</div>}
             allowedRoles={[ROLES.AgronomyExpert]}
         >
             <EmergencyProtocolsList />

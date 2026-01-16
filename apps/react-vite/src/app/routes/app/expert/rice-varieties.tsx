@@ -12,10 +12,10 @@ const RiceVarietiesRoute = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-neutral-900">
-              Rice Varieties Management
+              Quản lý giống lúa
             </h1>
             <p className="text-sm text-neutral-600 mt-1">
-              Manage rice varieties, categories, and seasonal associations
+              Quản lý giống lúa, danh mục và liên kết theo mùa
             </p>
           </div>
         </div>

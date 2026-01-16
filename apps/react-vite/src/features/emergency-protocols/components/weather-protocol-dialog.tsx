@@ -78,7 +78,7 @@ export const WeatherProtocolDialog = ({
       });
     } catch (error) {
       console.error('Upload failed:', error);
-      alert('Failed to upload images. Please try again.');
+      alert('Tải lên hình ảnh thất bại. Vui lòng thử lại.');
     }
   };
 
@@ -95,7 +95,7 @@ export const WeatherProtocolDialog = ({
         <div className="fixed inset-0 bg-black/50" onClick={onClose} />
         <div className="relative z-10 max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
           <h3 className="mb-4 text-lg font-bold">
-            {isEditMode ? 'Edit Weather Protocol' : 'Create Weather Protocol'}
+            {isEditMode ? 'Chỉnh Sửa Quy Trình Thời Tiết' : 'Tạo Quy Trình Thời Tiết'}
           </h3>
           <form
             onSubmit={(e) => {
@@ -105,7 +105,7 @@ export const WeatherProtocolDialog = ({
             className="space-y-4"
           >
             <div>
-              <Label>Name *</Label>
+              <Label>Tên *</Label>
               <Input
                 value={protocol.name || ''}
                 onChange={(e) =>
@@ -118,7 +118,7 @@ export const WeatherProtocolDialog = ({
               />
             </div>
             <div>
-              <Label>Source *</Label>
+              <Label>Nguồn *</Label>
               <Input
                 value={protocol.source || ''}
                 onChange={(e) =>
@@ -131,7 +131,7 @@ export const WeatherProtocolDialog = ({
               />
             </div>
             <div>
-              <Label>Source Link</Label>
+              <Label>Liên Kết Nguồn</Label>
               <Input
                 value={protocol.sourceLink || ''}
                 onChange={(e) =>
@@ -143,7 +143,7 @@ export const WeatherProtocolDialog = ({
               />
             </div>
             <div>
-              <Label>Description *</Label>
+              <Label>Mô Tả *</Label>
               <textarea
                 value={protocol.description || ''}
                 onChange={(e) =>
@@ -178,7 +178,7 @@ export const WeatherProtocolDialog = ({
                 >
                   <ImageIcon className="mx-auto mb-3 size-10 text-muted-foreground" />
                   <p className="mb-2 text-sm text-muted-foreground">
-                    Drag and drop your images here, or click to browse
+                    Kéo thả hình ảnh vào đây, hoặc nhấp để duyệt
                   </p>
                   <input
                     type="file"
@@ -191,10 +191,10 @@ export const WeatherProtocolDialog = ({
                   />
                   <div className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 transition-colors hover:bg-gray-50">
                     <Upload className="size-4" />
-                    <span className="text-sm font-medium">Select Images</span>
+                    <span className="text-sm font-medium">Chọn Hình Ảnh</span>
                   </div>
                   {uploadFilesMutation.isPending && (
-                    <p className="mt-2 text-xs text-primary">Uploading...</p>
+                    <p className="mt-2 text-xs text-primary">Đang tải lên...</p>
                   )}
                 </div>
 
@@ -205,13 +205,13 @@ export const WeatherProtocolDialog = ({
                       <thead className="border-b border-gray-200 bg-gray-50">
                         <tr>
                           <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                            Preview
+                            Xem Trước
                           </th>
                           <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                            File
+                            Tệp
                           </th>
                           <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                            Actions
+                            Thao Tác
                           </th>
                         </tr>
                       </thead>
@@ -227,7 +227,7 @@ export const WeatherProtocolDialog = ({
                             </td>
                             <td className="px-4 py-3">
                               <div className="text-sm font-medium text-gray-900">
-                                Image {index + 1}
+                                Hình Ảnh {index + 1}
                               </div>
                               <div className="text-xs text-gray-500">
                                 {link.split('/').pop()?.substring(0, 30)}...
@@ -240,7 +240,7 @@ export const WeatherProtocolDialog = ({
                                 className="inline-flex items-center gap-1 rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 transition-colors hover:bg-red-100"
                               >
                                 <X className="size-3" />
-                                Remove
+                                Xóa
                               </button>
                             </td>
                           </tr>
@@ -253,7 +253,7 @@ export const WeatherProtocolDialog = ({
             </div>
 
             <div>
-              <Label>Notes</Label>
+              <Label>Ghi Chú</Label>
               <textarea
                 value={protocol.notes || ''}
                 onChange={(e) =>
@@ -278,7 +278,7 @@ export const WeatherProtocolDialog = ({
                 }
                 id="weather-active"
               />
-              <label htmlFor="weather-active">Active</label>
+              <label htmlFor="weather-active">Đang Hoạt Động</label>
             </div>
             <div className="flex justify-end gap-2 border-t pt-4">
               <Button
@@ -287,10 +287,10 @@ export const WeatherProtocolDialog = ({
                 onClick={onClose}
                 disabled={isLoading}
               >
-                Cancel
+                Hủy
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : isEditMode ? 'Save' : 'Create'}
+                {isLoading ? 'Đang Lưu...' : isEditMode ? 'Lưu' : 'Tạo'}
               </Button>
             </div>
           </form>

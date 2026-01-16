@@ -83,7 +83,7 @@ export const StandardPlansList = () => {
               onClick={() => setCreateDialogOpen(true)}
               icon={<Plus className="h-4 w-4" />}
             >
-              Create Standard Plan
+              Tạo Kế Hoạch Chuẩn
             </Button>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -92,7 +92,7 @@ export const StandardPlansList = () => {
               onClick={() => setSelectedCategory('')}
               className={selectedCategory === '' ? '' : 'text-gray-700'}
             >
-              All Categories
+              Tất Cả Danh Mục
             </Button>
             {categories.map((category: any) => {
               return (
@@ -102,7 +102,7 @@ export const StandardPlansList = () => {
                   onClick={() => setSelectedCategory(category.id)}
                   className={selectedCategory === category.id ? '' : 'text-gray-700'}
                 >
-                  {category.categoryName || category.name || 'Unnamed Category'}
+                  {category.categoryName || category.name || 'Danh Mục Chưa Đặt Tên'}
                 </Button>
               );
             })}
@@ -115,22 +115,22 @@ export const StandardPlansList = () => {
                 size="sm"
                 onClick={() => setFilterActive(undefined)}
               >
-                All
-              </Button>
-              <Button
-                variant={filterActive === true ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setFilterActive(true)}
-              >
-                Active
-              </Button>
-              <Button
-                variant={filterActive === false ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setFilterActive(false)}
-              >
-                Inactive
-              </Button>
+                  Tất Cả
+                </Button>
+                <Button
+                  variant={filterActive === true ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilterActive(true)}
+                >
+                  Đang Hoạt Động
+                </Button>
+                <Button
+                  variant={filterActive === false ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilterActive(false)}
+                >
+                  Không Hoạt Động
+                </Button>
             </div>
 
             <Button
@@ -139,7 +139,7 @@ export const StandardPlansList = () => {
               isLoading={downloadExcelMutation.isPending}
               icon={<Download className="h-4 w-4" />}
             >
-              Export Excel
+              Xuất Excel
             </Button>
             <Button
               variant="outline"
@@ -147,7 +147,7 @@ export const StandardPlansList = () => {
               isLoading={downloadTemplateMutation.isPending}
               icon={<FileDown className="h-4 w-4" />}
             >
-              Template
+              Mẫu
             </Button>
           </div>
         </div>
@@ -156,7 +156,7 @@ export const StandardPlansList = () => {
         <div className="flex gap-2">
           <input
             type="text"
-            placeholder="Search by plan name or description..."
+            placeholder="Tìm kiếm theo tên kế hoạch hoặc mô tả..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
@@ -182,7 +182,7 @@ export const StandardPlansList = () => {
                       : 'bg-gray-100 text-gray-700'
                       }`}
                   >
-                    {plan.isActive ? 'Active' : 'Inactive'}
+                    {plan.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                   </span>
                 </div>
 
@@ -193,15 +193,15 @@ export const StandardPlansList = () => {
                 <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                   <div className="rounded-md bg-blue-50 p-2">
                     <Clock className="mx-auto h-4 w-4 text-blue-600" />
-                    <p className="mt-1 text-xs font-medium text-blue-900">{plan.totalDuration} days</p>
+                    <p className="mt-1 text-xs font-medium text-blue-900">{plan.totalDuration} ngày</p>
                   </div>
                   <div className="rounded-md bg-purple-50 p-2">
                     <ListChecks className="mx-auto h-4 w-4 text-purple-600" />
-                    <p className="mt-1 text-xs font-medium text-purple-900">{plan.totalStages} stages</p>
+                    <p className="mt-1 text-xs font-medium text-purple-900">{plan.totalStages} giai đoạn</p>
                   </div>
                   <div className="rounded-md bg-green-50 p-2">
                     <Calendar className="mx-auto h-4 w-4 text-green-600" />
-                    <p className="mt-1 text-xs font-medium text-green-900">{plan.totalTasks} tasks</p>
+                    <p className="mt-1 text-xs font-medium text-green-900">{plan.totalTasks} nhiệm vụ</p>
                   </div>
                 </div>
 
@@ -214,7 +214,7 @@ export const StandardPlansList = () => {
                     icon={<Eye className="h-3 w-3" />}
                     className="flex-1"
                   >
-                    View
+                    Xem
                   </Button>
                   <Button
                     size="sm"
@@ -223,7 +223,7 @@ export const StandardPlansList = () => {
                     icon={<Calendar className="h-3 w-3" />}
                     className="flex-1"
                   >
-                    Review
+                    Xem Xét
                   </Button>
                   <Button
                     size="sm"
@@ -232,7 +232,7 @@ export const StandardPlansList = () => {
                     icon={<Edit className="h-3 w-3" />}
                     className="flex-1"
                   >
-                    Edit
+                    Chỉnh Sửa
                   </Button>
                 </div>
               </div>
@@ -240,7 +240,7 @@ export const StandardPlansList = () => {
           </div>
         ) : (
           <div className="flex h-48 items-center justify-center rounded-lg border border-dashed">
-            <p className="text-gray-500">No standard plans found</p>
+            <p className="text-gray-500">Không tìm thấy kế hoạch chuẩn</p>
           </div>
         )}
       </div>

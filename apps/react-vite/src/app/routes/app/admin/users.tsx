@@ -19,13 +19,13 @@ type User = {
 };
 
 const USER_ROLES = [
-  { value: '', label: 'All Roles' },
-  { value: 'Admin', label: 'Admin' },
-  { value: 'ClusterManager', label: 'Cluster Manager' },
-  { value: 'Supervisor', label: 'Supervisor' },
-  { value: 'Farmer', label: 'Farmer' },
-  { value: 'AgronomyExpert', label: 'Agronomy Expert' },
-  { value: 'UavVendor', label: 'UAV Vendor' },
+  { value: '', label: 'Tất cả vai trò' },
+  { value: 'Admin', label: 'Quản trị viên' },
+  { value: 'ClusterManager', label: 'Quản lý cụm' },
+  { value: 'Supervisor', label: 'Giám sát viên' },
+  { value: 'Farmer', label: 'Nông dân' },
+  { value: 'AgronomyExpert', label: 'Chuyên gia nông học' },
+  { value: 'UavVendor', label: 'Nhà cung cấp UAV' },
 ];
 
 enum SortBy {
@@ -80,22 +80,22 @@ const AdminUsersRoute = () => {
     setSortBy((prev) =>
       prev === SortBy.NameAscending
         ? SortBy.NameDescending
-        : SortBy.NameAscending
+        : SortBy.NameAscending,
     );
     setCurrentPage(1);
   };
 
   return (
-    <ContentLayout title="Users Management">
+    <ContentLayout title="Quản lý người dùng">
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900">
-              All Users
+              Tất cả người dùng
             </h2>
             <p className="mt-1 text-sm text-gray-600">
-              Manage and view all system users
+              Quản lý và xem tất cả người dùng hệ thống
             </p>
           </div>
         </div>
@@ -106,7 +106,7 @@ const AdminUsersRoute = () => {
             <div className="relative md:col-span-3">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search by name or email"
+                placeholder="Tìm kiếm theo tên hoặc email"
                 value={searchEmailAndName}
                 onChange={(e) => {
                   setSearchEmailAndName(e.target.value);
@@ -119,7 +119,7 @@ const AdminUsersRoute = () => {
             <div className="relative md:col-span-3">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search by phone number"
+                placeholder="Tìm kiếm theo số điện thoại"
                 value={searchPhoneNumber}
                 onChange={(e) => {
                   setSearchPhoneNumber(e.target.value);
@@ -155,7 +155,7 @@ const AdminUsersRoute = () => {
                   setCurrentPage(1);
                 }}
               >
-                All Status
+                Tất cả trạng thái
               </Button>
               <Button
                 size="sm"
@@ -165,7 +165,7 @@ const AdminUsersRoute = () => {
                   setCurrentPage(1);
                 }}
               >
-                Active
+                Hoạt động
               </Button>
               <Button
                 size="sm"
@@ -175,7 +175,7 @@ const AdminUsersRoute = () => {
                   setCurrentPage(1);
                 }}
               >
-                Inactive
+                Không hoạt động
               </Button>
             </div>
           </div>
@@ -185,17 +185,17 @@ const AdminUsersRoute = () => {
         <div className="rounded-lg border border-gray-200 bg-white overflow-hidden">
           {isLoading ? (
             <div className="p-8 text-center text-gray-500">
-              Loading users...
+              Đang tải người dùng...
             </div>
           ) : error ? (
             <div className="p-8 text-center text-red-500">
-              Error loading users. Please try again.
+              Lỗi khi tải người dùng. Vui lòng thử lại.
             </div>
           ) : users.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
-              <p className="text-lg font-medium">No users found</p>
+              <p className="text-lg font-medium">Không tìm thấy người dùng</p>
               <p className="text-sm mt-2">
-                Try adjusting your search or filter criteria
+                Thử điều chỉnh tiêu chí tìm kiếm hoặc bộ lọc của bạn
               </p>
             </div>
           ) : (
@@ -209,7 +209,7 @@ const AdminUsersRoute = () => {
                           onClick={toggleSort}
                           className="flex items-center gap-1 hover:text-gray-700"
                         >
-                          Full Name
+                          Họ và tên
                           <ArrowUpDown className="h-3 w-3" />
                           <span className="text-xs normal-case text-gray-400">
                             ({sortBy === SortBy.NameAscending ? 'A-Z' : 'Z-A'})
@@ -220,16 +220,16 @@ const AdminUsersRoute = () => {
                         Email
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Phone Number
+                        Số điện thoại
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Role
+                        Vai trò
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
+                        Trạng thái
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Verified
+                        Xác thực
                       </th>
                       {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Last Activity
@@ -266,22 +266,24 @@ const AdminUsersRoute = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isActive
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                              }`}
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              user.isActive
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
                           >
-                            {user.isActive ? 'Active' : 'Inactive'}
+                            {user.isActive ? 'Hoạt động' : 'Không hoạt động'}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.isVerified
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-yellow-100 text-yellow-800'
-                              }`}
+                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                              user.isVerified
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}
                           >
-                            {user.isVerified ? 'Verified' : 'Pending'}
+                            {user.isVerified ? 'Đã xác minh' : 'Chờ xác minh'}
                           </span>
                         </td>
                         {/* <td className="px-6 py-4 whitespace-nowrap">
@@ -306,15 +308,13 @@ const AdminUsersRoute = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() =>
-                        setCurrentPage((p) => Math.max(1, p - 1))
-                      }
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={!hasPrevious || isLoading}
                     >
-                      Previous
+                      Trước
                     </Button>
                     <span className="text-sm text-gray-600">
-                      Page {currentPage} of {totalPages}
+                      Trang {currentPage} / {totalPages}
                     </span>
                     <Button
                       variant="outline"
@@ -322,11 +322,11 @@ const AdminUsersRoute = () => {
                       onClick={() => setCurrentPage((p) => p + 1)}
                       disabled={!hasNext || isLoading}
                     >
-                      Next
+                      Sau
                     </Button>
                   </div>
                   <div className="text-sm text-gray-600">
-                    Total: {totalCount} users
+                    Tổng: {totalCount} người dùng
                   </div>
                 </div>
               )}

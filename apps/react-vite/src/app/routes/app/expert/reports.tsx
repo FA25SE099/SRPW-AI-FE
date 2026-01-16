@@ -22,10 +22,10 @@ const ExpertReportsRoute = () => {
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-neutral-900">
-                                Plot Reports
+                                Báo cáo lô đất
                             </h1>
                             <p className="text-sm text-neutral-600 mt-1">
-                                Review and resolve plot-level reports from farmers and supervisors
+                                Xem xét và xử lý báo cáo cấp lô đất từ nông dân và giám sát viên
                             </p>
                         </div>
                     </div>

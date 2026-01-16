@@ -57,6 +57,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 className="w-full rounded-full bg-green-600 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-all duration-300 hover:bg-green-700 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
               >
                 Đăng nhập
+                Đăng nhập
               </Button>
             </div>
           </>

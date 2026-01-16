@@ -96,7 +96,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                         <input
                             type="text"
-                            placeholder="Search reports by plot name, title, or description..."
+                            placeholder="Tìm kiếm báo cáo theo tên lô, tiêu đề hoặc mô tả..."
                             value={searchTerm}
                             onChange={(e) => {
                                 setSearchTerm(e.target.value);
@@ -112,7 +112,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                         className="whitespace-nowrap"
                     >
                         <Filter className="h-4 w-4 mr-2" />
-                        Filters
+                        Bộ Lọc
                     </Button>
                 </div>
 
@@ -120,7 +120,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                     <div className="rounded-lg border bg-white p-4 shadow-sm">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Trạng Thái</label>
                                 <select
                                     value={selectedStatus}
                                     onChange={(e) => {
@@ -129,15 +129,15 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                                     }}
                                     className="w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 >
-                                    <option value="">All Statuses</option>
-                                    <option value="Pending">Pending</option>
-                                    <option value="UnderReview">Under Review</option>
-                                    <option value="Resolved">Resolved</option>
-                                    <option value="Rejected">Rejected</option>
+                                    <option value="">Tất Cả Trạng Thái</option>
+                                    <option value="Pending">Chờ Xử Lý</option>
+                                    <option value="UnderReview">Đang Xem Xét</option>
+                                    <option value="Resolved">Đã Giải Quyết</option>
+                                    <option value="Rejected">Đã Từ Chối</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Severity</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Mức Độ</label>
                                 <select
                                     value={selectedSeverity}
                                     onChange={(e) => {
@@ -146,15 +146,15 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                                     }}
                                     className="w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 >
-                                    <option value="">All Severities</option>
-                                    <option value="Critical">Critical</option>
-                                    <option value="High">High</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Low">Low</option>
+                                    <option value="">Tất Cả Mức Độ</option>
+                                    <option value="Critical">Khẩn Cấp</option>
+                                    <option value="High">Cao</option>
+                                    <option value="Medium">Trung Bình</option>
+                                    <option value="Low">Thấp</option>
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Loại</label>
                                 <select
                                     value={selectedType}
                                     onChange={(e) => {
@@ -163,11 +163,11 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                                     }}
                                     className="w-full rounded-md border border-gray-300 py-2 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 >
-                                    <option value="">All Types</option>
-                                    <option value="Pest">Pest</option>
-                                    <option value="Weather">Weather</option>
-                                    <option value="Disease">Disease</option>
-                                    <option value="Other">Other</option>
+                                    <option value="">Tất Cả Loại</option>
+                                    <option value="Pest">Sâu Bệnh</option>
+                                    <option value="Weather">Thời Tiết</option>
+                                    <option value="Disease">Bệnh</option>
+                                    <option value="Other">Khác</option>
                                 </select>
                             </div>
                             <div className="flex items-end">
@@ -177,7 +177,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                                     onClick={clearFilters}
                                     className="w-full"
                                 >
-                                    Clear Filters
+                                    Xóa Bộ Lọc
                                 </Button>
                             </div>
                         </div>
@@ -190,9 +190,9 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                 {reports.length === 0 ? (
                     <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
                         <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                        <p className="mt-2 text-sm text-gray-600">No reports found</p>
+                        <p className="mt-2 text-sm text-gray-600">Không tìm thấy báo cáo</p>
                         <p className="text-xs text-gray-500 mt-1">
-                            Try adjusting your filters or search terms
+                            Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm
                         </p>
                     </div>
                 ) : (
@@ -211,7 +211,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
             {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t pt-4">
                     <p className="text-sm text-gray-600">
-                        Page {currentPage} of {totalPages} • {totalCount} total reports
+                        Trang {currentPage} / {totalPages} • Tổng {totalCount} báo cáo
                     </p>
                     <div className="flex gap-2">
                         <Button
@@ -220,7 +220,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                             variant="outline"
                             size="sm"
                         >
-                            Previous
+                            Trước
                         </Button>
                         <Button
                             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
@@ -228,7 +228,7 @@ export const ReportsList = ({ onViewDetails, onResolve }: ReportsListProps) => {
                             variant="outline"
                             size="sm"
                         >
-                            Next
+                            Sau
                         </Button>
                     </div>
                 </div>

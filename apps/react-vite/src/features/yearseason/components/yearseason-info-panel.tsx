@@ -53,7 +53,7 @@ export const YearSeasonInfoPanel = ({
         icon: <AlertTriangle className="h-5 w-5 text-red-600" />,
         color: 'border-red-200 bg-red-50',
         textColor: 'text-red-900',
-        message: 'Planning window is closed. You cannot create new production plans.',
+        message: 'Cửa sổ lập kế hoạch đã đóng. Bạn không thể tạo kế hoạch sản xuất mới.',
       };
     }
 
@@ -68,7 +68,7 @@ export const YearSeasonInfoPanel = ({
         icon: <AlertTriangle className="h-5 w-5 text-orange-600" />,
         color: 'border-orange-200 bg-orange-50',
         textColor: 'text-orange-900',
-        message: `Planning window closes in ${daysUntilPlanningWindowEnd} ${daysUntilPlanningWindowEnd === 1 ? 'day' : 'days'}. Create your production plan soon!`,
+        message: `Cửa sổ lập kế hoạch sẽ đóng sau ${daysUntilPlanningWindowEnd} ${daysUntilPlanningWindowEnd === 1 ? 'ngày' : 'ngày'}. Hãy tạo kế hoạch sản xuất của bạn sớm!`,
       };
     }
 
@@ -78,7 +78,7 @@ export const YearSeasonInfoPanel = ({
         icon: <CheckCircle className="h-5 w-5 text-green-600" />,
         color: 'border-green-200 bg-green-50',
         textColor: 'text-green-900',
-        message: 'Planning window is open. You can create production plans now.',
+        message: 'Cửa sổ lập kế hoạch đang mở. Bạn có thể tạo kế hoạch sản xuất ngay bây giờ.',
       };
     }
 
@@ -87,7 +87,7 @@ export const YearSeasonInfoPanel = ({
       icon: <Info className="h-5 w-5 text-blue-600" />,
       color: 'border-blue-200 bg-blue-50',
       textColor: 'text-blue-900',
-      message: 'Season information',
+      message: 'Thông tin mùa vụ',
     };
   };
 
@@ -109,8 +109,11 @@ export const YearSeasonInfoPanel = ({
                   {alertInfo.message}
                 </p>
               </div>
-              <Badge className={`${getStatusColor(status)} text-white`}>
-                {status}
+                  <Badge className={`${getStatusColor(status)} text-white`}>
+                {status === 'Draft' ? 'Bản Nháp' :
+                 status === 'PlanningOpen' ? 'Mở Lập Kế Hoạch' :
+                 status === 'Active' ? 'Đang Hoạt Động' :
+                 status === 'Completed' ? 'Đã Hoàn Thành' : status}
               </Badge>
             </div>
 
@@ -120,7 +123,7 @@ export const YearSeasonInfoPanel = ({
               <div className="flex items-start gap-2">
                 <Calendar className={`h-4 w-4 mt-0.5 ${alertInfo.textColor} opacity-70`} />
                 <div>
-                  <div className={`font-medium ${alertInfo.textColor}`}>Season Period</div>
+                  <div className={`font-medium ${alertInfo.textColor}`}>Thời Kỳ Mùa Vụ</div>
                   <div className={`${alertInfo.textColor} opacity-80`}>
                     {format(new Date(startDate), 'MMM dd, yyyy')} -{' '}
                     {format(new Date(endDate), 'MMM dd, yyyy')}
@@ -134,12 +137,12 @@ export const YearSeasonInfoPanel = ({
                   <Clock className={`h-4 w-4 mt-0.5 ${alertInfo.textColor} opacity-70`} />
                   <div>
                     <div className={`font-medium ${alertInfo.textColor}`}>
-                      Planning Window
+                      Cửa Sổ Lập Kế Hoạch
                       {isPlanningWindowOpen && (
-                        <Badge className="ml-2 bg-green-500 text-white text-xs">Open</Badge>
+                        <Badge className="ml-2 bg-green-500 text-white text-xs">Mở</Badge>
                       )}
                       {!isPlanningWindowOpen && (
-                        <Badge className="ml-2 bg-red-500 text-white text-xs">Closed</Badge>
+                        <Badge className="ml-2 bg-red-500 text-white text-xs">Đóng</Badge>
                       )}
                     </div>
                     <div className={`${alertInfo.textColor} opacity-80`}>
@@ -155,7 +158,7 @@ export const YearSeasonInfoPanel = ({
                 <div className="flex items-start gap-2">
                   <Info className={`h-4 w-4 mt-0.5 ${alertInfo.textColor} opacity-70`} />
                   <div>
-                    <div className={`font-medium ${alertInfo.textColor}`}>Rice Variety</div>
+                    <div className={`font-medium ${alertInfo.textColor}`}>Giống Lúa</div>
                     <div className={`${alertInfo.textColor} opacity-80`}>{riceVarietyName}</div>
                   </div>
                 </div>
@@ -166,9 +169,9 @@ export const YearSeasonInfoPanel = ({
                 <div className="flex items-start gap-2">
                   <Calendar className={`h-4 w-4 mt-0.5 ${alertInfo.textColor} opacity-70`} />
                   <div>
-                    <div className={`font-medium ${alertInfo.textColor}`}>Planting Flexibility</div>
+                    <div className={`font-medium ${alertInfo.textColor}`}>Linh Hoạt Gieo Trồng</div>
                     <div className={`${alertInfo.textColor} opacity-80`}>
-                      ±{allowedPlantingFlexibilityDays} days from group median
+                      ±{allowedPlantingFlexibilityDays} ngày từ trung vị nhóm
                     </div>
                   </div>
                 </div>
@@ -181,7 +184,7 @@ export const YearSeasonInfoPanel = ({
               daysUntilPlanningWindowEnd > 0 &&
               daysUntilPlanningWindowEnd <= 7 && (
                 <div className={`text-sm font-medium ${alertInfo.textColor} pt-2 border-t`}>
-                  ⏰ {daysUntilPlanningWindowEnd} {daysUntilPlanningWindowEnd === 1 ? 'day' : 'days'} remaining to create production plans
+                  ⏰ Còn {daysUntilPlanningWindowEnd} {daysUntilPlanningWindowEnd === 1 ? 'ngày' : 'ngày'} để tạo kế hoạch sản xuất
                 </div>
               )}
           </div>
