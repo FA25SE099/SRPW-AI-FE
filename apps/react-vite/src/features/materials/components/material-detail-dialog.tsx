@@ -37,7 +37,7 @@ export const MaterialDetailDialog = ({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Material Details</DialogTitle>
+                    <DialogTitle>Chi Tiết Vật Liệu</DialogTitle>
                 </DialogHeader>
 
                 {isLoading ? (
@@ -49,7 +49,7 @@ export const MaterialDetailDialog = ({
                         {/* Images Section */}
                         {material.imgUrls && material.imgUrls.length > 0 ? (
                             <div className="space-y-3">
-                                <h3 className="text-sm font-medium text-gray-700">Images</h3>
+                                <h3 className="text-sm font-medium text-gray-700">Hình Ảnh</h3>
                                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                                     {material.imgUrls.map((url, index) => (
                                         <div
@@ -69,7 +69,7 @@ export const MaterialDetailDialog = ({
                             <div className="flex h-32 items-center justify-center rounded-lg border border-dashed bg-gray-50">
                                 <div className="text-center">
                                     <Package className="mx-auto h-8 w-8 text-gray-400" />
-                                    <p className="mt-2 text-sm text-gray-500">No images available</p>
+                                    <p className="mt-2 text-sm text-gray-500">Không có hình ảnh</p>
                                 </div>
                             </div>
                         )}
@@ -77,26 +77,28 @@ export const MaterialDetailDialog = ({
                         {/* Basic Information */}
                         <div className="grid gap-4 sm:grid-cols-2">
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Name</label>
+                                <label className="text-sm font-medium text-gray-700">Tên</label>
                                 <p className="mt-1 text-sm text-gray-900">{material.name}</p>
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Type</label>
+                                <label className="text-sm font-medium text-gray-700">Loại</label>
                                 <p className="mt-1 text-sm text-gray-900">
-                                    {material.type === MaterialType.Fertilizer ? 'Fertilizer' : 'Pesticide'}
+                                    {material.type === MaterialType.Fertilizer ? 'Phân Bón' :
+                                     material.type === MaterialType.Pesticide ? 'Thuốc Trừ Sâu' :
+                                     material.type === MaterialType.Seed ? 'Hạt Giống' : ''}
                                 </p>
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Quantity</label>
+                                <label className="text-sm font-medium text-gray-700">Số Lượng</label>
                                 <p className="mt-1 text-sm text-gray-900">
                                     {material.showout || `${material.ammountPerMaterial} ${material.unit}`}
                                 </p>
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Price</label>
+                                <label className="text-sm font-medium text-gray-700">Giá</label>
                                 <p className="mt-1 text-sm text-gray-900">
                                     {material.pricePerMaterial != null
                                         ? `${material.pricePerMaterial.toLocaleString('vi-VN')} VND`
@@ -105,12 +107,12 @@ export const MaterialDetailDialog = ({
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Manufacturer</label>
+                                <label className="text-sm font-medium text-gray-700">Nhà Sản Xuất</label>
                                 <p className="mt-1 text-sm text-gray-900">{material.manufacturer || 'N/A'}</p>
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Status</label>
+                                <label className="text-sm font-medium text-gray-700">Trạng Thái</label>
                                 <p className="mt-1">
                                     <span
                                         className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${material.isActive
@@ -118,13 +120,13 @@ export const MaterialDetailDialog = ({
                                             : 'bg-gray-100 text-gray-700'
                                             }`}
                                     >
-                                        {material.isActive ? 'Active' : 'Inactive'}
+                                        {material.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                                     </span>
                                 </p>
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Partition Type</label>
+                                <label className="text-sm font-medium text-gray-700">Loại Chia Nhỏ</label>
                                 <p className="mt-1">
                                     <span
                                         className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${material.isPartition
@@ -132,7 +134,7 @@ export const MaterialDetailDialog = ({
                                             : 'bg-gray-100 text-gray-700'
                                             }`}
                                     >
-                                        {material.isPartition ? 'Partitioned' : 'Whole Package'}
+                                        {material.isPartition ? 'Có Thể Chia Nhỏ' : 'Nguyên Gói'}
                                     </span>
                                 </p>
                             </div>
@@ -141,7 +143,7 @@ export const MaterialDetailDialog = ({
                         {/* Description */}
                         {material.description && (
                             <div>
-                                <label className="text-sm font-medium text-gray-700">Description</label>
+                                <label className="text-sm font-medium text-gray-700">Mô Tả</label>
                                 <p className="mt-1 text-sm text-gray-900 whitespace-pre-wrap">
                                     {material.description}
                                 </p>
@@ -151,16 +153,16 @@ export const MaterialDetailDialog = ({
                         {/* Actions */}
                         <div className="flex justify-end gap-3 border-t pt-4">
                             <Button variant="outline" onClick={onClose}>
-                                Close
+                                Đóng
                             </Button>
                             <Button onClick={handleEdit} icon={<Edit className="h-4 w-4" />}>
-                                Edit Material
+                                Chỉnh Sửa Vật Liệu
                             </Button>
                         </div>
                     </div>
                 ) : (
                     <div className="flex h-48 items-center justify-center">
-                        <p className="text-gray-500">Material not found</p>
+                        <p className="text-gray-500">Không tìm thấy vật liệu</p>
                     </div>
                 )}
             </DialogContent>

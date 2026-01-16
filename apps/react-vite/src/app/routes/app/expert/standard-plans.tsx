@@ -12,10 +12,10 @@ export default function StandardPlansRoute() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-neutral-900">
-              Standard Plans
+              Kế hoạch tiêu chuẩn
             </h1>
             <p className="text-sm text-neutral-600 mt-1">
-              Manage and view standard rice cultivation plans and protocols
+              Quản lý và xem kế hoạch canh tác lúa tiêu chuẩn và giao thức
             </p>
           </div>
         </div>

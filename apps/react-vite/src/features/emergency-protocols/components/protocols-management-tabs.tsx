@@ -126,8 +126,8 @@ export const ProtocolsManagementTabs = () => {
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Pest protocol created',
+          title: 'Thành Công',
+          message: 'Đã tạo quy trình sâu bệnh',
         });
         setIsPestCreateOpen(false);
         resetPestForm();
@@ -148,8 +148,8 @@ export const ProtocolsManagementTabs = () => {
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Pest protocol updated successfully',
+          title: 'Thành Công',
+          message: 'Đã cập nhật quy trình sâu bệnh thành công',
         });
         setIsPestDetailOpen(false);
         setIsPestEditing(false);
@@ -164,8 +164,8 @@ export const ProtocolsManagementTabs = () => {
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Weather protocol created',
+          title: 'Thành Công',
+          message: 'Đã tạo quy trình thời tiết',
         });
         setIsWeatherCreateOpen(false);
         resetWeatherForm();
@@ -186,8 +186,8 @@ export const ProtocolsManagementTabs = () => {
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Weather protocol updated successfully',
+          title: 'Thành Công',
+          message: 'Đã cập nhật quy trình thời tiết thành công',
         });
         setIsWeatherDetailOpen(false);
         setIsWeatherEditing(false);
@@ -212,7 +212,7 @@ export const ProtocolsManagementTabs = () => {
               : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
           >
-            Pest Protocols
+            Quy Trình Sâu Bệnh
           </button>
           <button
             onClick={() => setActiveTab('weather')}
@@ -221,7 +221,7 @@ export const ProtocolsManagementTabs = () => {
               : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
           >
-            Weather Protocols
+            Quy Trình Thời Tiết
           </button>
         </nav>
       </div>
@@ -233,7 +233,7 @@ export const ProtocolsManagementTabs = () => {
             <div className="relative max-w-md flex-1">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search pest protocols..."
+                placeholder="Tìm kiếm quy trình sâu bệnh..."
                 value={pestSearch}
                 onChange={(e) => setPestSearch(e.target.value)}
                 className="pl-10"
@@ -247,7 +247,7 @@ export const ProtocolsManagementTabs = () => {
               }}
             >
               <Plus className="mr-2 size-4" />
-              Create Pest Protocol
+              Tạo Quy Trình Sâu Bệnh
             </Button>
           </div>
 
@@ -258,7 +258,7 @@ export const ProtocolsManagementTabs = () => {
               </div>
             ) : pestProtocols.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
-                No pest protocols found
+                Không tìm thấy quy trình sâu bệnh
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -266,22 +266,22 @@ export const ProtocolsManagementTabs = () => {
                   <thead className="border-b border-gray-200 bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Image
+                        Hình Ảnh
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Name
+                        Tên
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Type
+                        Loại
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Description
+                        Mô Tả
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Status
+                        Trạng Thái
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Actions
+                        Thao Tác
                       </th>
                     </tr>
                   </thead>
@@ -324,7 +324,7 @@ export const ProtocolsManagementTabs = () => {
                               : 'border border-gray-200 bg-gray-100 text-gray-800'
                               }`}
                           >
-                            {protocol.isActive ? 'Active' : 'Inactive'}
+                            {protocol.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                           </span>
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-right">
@@ -348,7 +348,7 @@ export const ProtocolsManagementTabs = () => {
                               }}
                             >
                               <Eye className="mr-1 size-4" />
-                              View
+                              Xem
                             </Button>
                             <Button
                               variant="ghost"
@@ -369,7 +369,7 @@ export const ProtocolsManagementTabs = () => {
                               }}
                             >
                               <Edit className="mr-1 size-4" />
-                              Edit
+                              Chỉnh Sửa
                             </Button>
                           </div>
                         </td>
@@ -384,7 +384,7 @@ export const ProtocolsManagementTabs = () => {
           {pestData && pestData.totalPages > 1 && (
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                Page {pestPage} of {pestData.totalPages}
+                Trang {pestPage} / {pestData.totalPages}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -393,7 +393,7 @@ export const ProtocolsManagementTabs = () => {
                   disabled={!pestData.hasPrevious}
                   onClick={() => setPestPage(pestPage - 1)}
                 >
-                  Previous
+                  Trước
                 </Button>
                 <Button
                   variant="outline"
@@ -401,7 +401,7 @@ export const ProtocolsManagementTabs = () => {
                   disabled={!pestData.hasNext}
                   onClick={() => setPestPage(pestPage + 1)}
                 >
-                  Next
+                  Sau
                 </Button>
               </div>
             </div>
@@ -426,24 +426,24 @@ export const ProtocolsManagementTabs = () => {
             <Dialog open={isPestDetailOpen} onOpenChange={setIsPestDetailOpen}>
               <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Pest Protocol Details</DialogTitle>
+                  <DialogTitle>Chi Tiết Quy Trình Sâu Bệnh</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-gray-600">Name</Label>
+                    <Label className="text-gray-600">Tên</Label>
                     <div className="mt-1 font-medium">{pestForm.name}</div>
                   </div>
                   <div>
-                    <Label className="text-gray-600">Type</Label>
+                    <Label className="text-gray-600">Loại</Label>
                     <div className="mt-1">{pestForm.type}</div>
                   </div>
                   <div>
-                    <Label className="text-gray-600">Description</Label>
+                    <Label className="text-gray-600">Mô Tả</Label>
                     <div className="mt-1">{pestForm.description}</div>
                   </div>
                   {pestForm.imageLinks.length > 0 && (
                     <div>
-                      <Label className="text-gray-600">Images</Label>
+                      <Label className="text-gray-600">Hình Ảnh</Label>
                       <div className="mt-2 grid grid-cols-3 gap-2">
                         {pestForm.imageLinks.map((link, idx) => (
                           <img
@@ -457,11 +457,11 @@ export const ProtocolsManagementTabs = () => {
                     </div>
                   )}
                   <div>
-                    <Label className="text-gray-600">Notes</Label>
+                    <Label className="text-gray-600">Ghi Chú</Label>
                     <div className="mt-1">{pestForm.notes || '-'}</div>
                   </div>
                   <div>
-                    <Label className="text-gray-600">Status</Label>
+                    <Label className="text-gray-600">Trạng Thái</Label>
                     <div className="mt-1">
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${pestForm.isActive
@@ -469,7 +469,7 @@ export const ProtocolsManagementTabs = () => {
                           : 'bg-gray-100 text-gray-800'
                           }`}
                       >
-                        {pestForm.isActive ? 'Active' : 'Inactive'}
+                        {pestForm.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                       </span>
                     </div>
                   </div>
@@ -481,11 +481,11 @@ export const ProtocolsManagementTabs = () => {
                         resetPestForm();
                       }}
                     >
-                      Close
+                      Đóng
                     </Button>
                     <Button onClick={() => setIsPestEditing(true)}>
                       <Edit className="mr-2 size-4" />
-                      Edit
+                      Chỉnh Sửa
                     </Button>
                   </div>
                 </div>
@@ -519,7 +519,7 @@ export const ProtocolsManagementTabs = () => {
             <div className="relative max-w-md flex-1">
               <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="Search weather protocols..."
+                placeholder="Tìm kiếm quy trình thời tiết..."
                 value={weatherSearch}
                 onChange={(e) => setWeatherSearch(e.target.value)}
                 className="pl-10"
@@ -532,7 +532,7 @@ export const ProtocolsManagementTabs = () => {
               }}
             >
               <Plus className="mr-2 size-4" />
-              Create Weather Protocol
+              Tạo Quy Trình Thời Tiết
             </Button>
           </div>
 
@@ -543,7 +543,7 @@ export const ProtocolsManagementTabs = () => {
               </div>
             ) : weatherProtocols.length === 0 ? (
               <div className="p-8 text-center text-gray-500">
-                No weather protocols found
+                Không tìm thấy quy trình thời tiết
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -551,22 +551,22 @@ export const ProtocolsManagementTabs = () => {
                   <thead className="border-b border-gray-200 bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Image
+                        Hình Ảnh
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Name
+                        Tên
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Source
+                        Nguồn
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Description
+                        Mô Tả
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Status
+                        Trạng Thái
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Actions
+                        Thao Tác
                       </th>
                     </tr>
                   </thead>
@@ -609,7 +609,7 @@ export const ProtocolsManagementTabs = () => {
                               : 'border border-gray-200 bg-gray-100 text-gray-800'
                               }`}
                           >
-                            {weather.isActive ? 'Active' : 'Inactive'}
+                            {weather.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                           </span>
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-right">
@@ -634,7 +634,7 @@ export const ProtocolsManagementTabs = () => {
                               }}
                             >
                               <Eye className="mr-1 size-4" />
-                              View
+                              Xem
                             </Button>
                             <Button
                               variant="ghost"
@@ -656,7 +656,7 @@ export const ProtocolsManagementTabs = () => {
                               }}
                             >
                               <Edit className="mr-1 size-4" />
-                              Edit
+                              Chỉnh Sửa
                             </Button>
                           </div>
                         </td>
@@ -671,7 +671,7 @@ export const ProtocolsManagementTabs = () => {
           {weatherData && weatherData.totalPages > 1 && (
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                Page {weatherPage} of {weatherData.totalPages}
+                Trang {weatherPage} / {weatherData.totalPages}
               </p>
               <div className="flex gap-2">
                 <Button
@@ -680,7 +680,7 @@ export const ProtocolsManagementTabs = () => {
                   disabled={!weatherData.hasPrevious}
                   onClick={() => setWeatherPage(weatherPage - 1)}
                 >
-                  Previous
+                  Trước
                 </Button>
                 <Button
                   variant="outline"
@@ -688,7 +688,7 @@ export const ProtocolsManagementTabs = () => {
                   disabled={!weatherData.hasNext}
                   onClick={() => setWeatherPage(weatherPage + 1)}
                 >
-                  Next
+                  Sau
                 </Button>
               </div>
             </div>
@@ -716,20 +716,20 @@ export const ProtocolsManagementTabs = () => {
             >
               <DialogContent className="max-h-[85vh] max-w-2xl overflow-y-auto">
                 <DialogHeader>
-                  <DialogTitle>Weather Protocol Details</DialogTitle>
+                  <DialogTitle>Chi Tiết Quy Trình Thời Tiết</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-gray-600">Name</Label>
+                    <Label className="text-gray-600">Tên</Label>
                     <div className="mt-1 font-medium">{weatherForm.name}</div>
                   </div>
                   <div>
-                    <Label className="text-gray-600">Source</Label>
+                    <Label className="text-gray-600">Nguồn</Label>
                     <div className="mt-1">{weatherForm.source}</div>
                   </div>
                   {weatherForm.sourceLink && (
                     <div>
-                      <Label className="text-gray-600">Source Link</Label>
+                      <Label className="text-gray-600">Liên Kết Nguồn</Label>
                       <div className="mt-1">
                         <a
                           href={weatherForm.sourceLink}
@@ -743,12 +743,12 @@ export const ProtocolsManagementTabs = () => {
                     </div>
                   )}
                   <div>
-                    <Label className="text-gray-600">Description</Label>
+                    <Label className="text-gray-600">Mô Tả</Label>
                     <div className="mt-1">{weatherForm.description}</div>
                   </div>
                   {weatherForm.imageLinks.length > 0 && (
                     <div>
-                      <Label className="text-gray-600">Images</Label>
+                      <Label className="text-gray-600">Hình Ảnh</Label>
                       <div className="mt-2 grid grid-cols-3 gap-2">
                         {weatherForm.imageLinks.map((link, idx) => (
                           <img
@@ -762,11 +762,11 @@ export const ProtocolsManagementTabs = () => {
                     </div>
                   )}
                   <div>
-                    <Label className="text-gray-600">Notes</Label>
+                    <Label className="text-gray-600">Ghi Chú</Label>
                     <div className="mt-1">{weatherForm.notes || '-'}</div>
                   </div>
                   <div>
-                    <Label className="text-gray-600">Status</Label>
+                    <Label className="text-gray-600">Trạng Thái</Label>
                     <div className="mt-1">
                       <span
                         className={`rounded-full px-2 py-1 text-xs ${weatherForm.isActive
@@ -774,7 +774,7 @@ export const ProtocolsManagementTabs = () => {
                           : 'bg-gray-100 text-gray-800'
                           }`}
                       >
-                        {weatherForm.isActive ? 'Active' : 'Inactive'}
+                        {weatherForm.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                       </span>
                     </div>
                   </div>
@@ -786,11 +786,11 @@ export const ProtocolsManagementTabs = () => {
                         resetWeatherForm();
                       }}
                     >
-                      Close
+                      Đóng
                     </Button>
                     <Button onClick={() => setIsWeatherEditing(true)}>
                       <Edit className="mr-2 size-4" />
-                      Edit
+                      Chỉnh Sửa
                     </Button>
                   </div>
                 </div>

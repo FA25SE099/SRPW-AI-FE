@@ -62,18 +62,18 @@ export const StandardPlanReviewDialog = ({
             <div className="rounded-lg border bg-green-50 p-4">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-5 w-5 text-green-600" />
-                <span className="text-sm font-medium text-green-900">Total Cost for Area</span>
+                <span className="text-sm font-medium text-green-900">Tổng Chi Phí cho Diện Tích</span>
               </div>
               <p className="mt-2 text-2xl font-bold text-green-900">
                 {result.totalCostForArea.toLocaleString('vi-VN')}
               </p>
-              <p className="text-xs text-green-700">VND for {result.area} ha</p>
+              <p className="text-xs text-green-700">VND cho {result.area} ha</p>
             </div>
 
             <div className="rounded-lg border bg-purple-50 p-4">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-purple-600" />
-                <span className="text-sm font-medium text-purple-900">Cost/Hectare</span>
+                <span className="text-sm font-medium text-purple-900">Chi Phí/Hecta</span>
               </div>
               <p className="mt-2 text-2xl font-bold text-purple-900">
                 {result.totalCostPerHa.toLocaleString('vi-VN')}
@@ -84,18 +84,18 @@ export const StandardPlanReviewDialog = ({
             <div className="rounded-lg border bg-orange-50 p-4">
               <div className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-orange-600" />
-                <span className="text-sm font-medium text-orange-900">Material Types</span>
+                <span className="text-sm font-medium text-orange-900">Loại Vật Liệu</span>
               </div>
               <p className="mt-2 text-2xl font-bold text-orange-900">
                 {result.materialCostItems.length}
               </p>
-              <p className="text-xs text-orange-700">types</p>
+              <p className="text-xs text-orange-700">loại</p>
             </div>
           </div>
 
           {/* Task Cost Breakdowns */}
           <div>
-            <h3 className="mb-3 text-lg font-semibold text-gray-800">Task Cost Breakdowns</h3>
+            <h3 className="mb-3 text-lg font-semibold text-gray-800">Phân Tích Chi Phí Nhiệm Vụ</h3>
             <div className="space-y-2">
               {result.taskCostBreakdowns.map((task) => (
                 <div key={task.taskName} className="rounded-lg border">
@@ -124,16 +124,16 @@ export const StandardPlanReviewDialog = ({
                         <thead className="bg-gray-100">
                           <tr>
                             <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
-                              Material
+                              Vật Liệu
                             </th>
                             <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
-                              Qty Needed
+                              Số Lượng Cần
                             </th>
                             <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
-                              Packages
+                              Gói
                             </th>
                             <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600">
-                              Total Cost
+                              Tổng Chi Phí
                             </th>
                           </tr>
                         </thead>
@@ -166,7 +166,7 @@ export const StandardPlanReviewDialog = ({
                   <Info className="h-5 w-5 text-yellow-400" />
                 </div>
                 <div className="ml-3">
-                  <h3 className="text-sm font-medium text-yellow-800">Price Warnings</h3>
+                  <h3 className="text-sm font-medium text-yellow-800">Cảnh Báo Giá</h3>
                   <div className="mt-2 text-sm text-yellow-700">
                     <ul className="list-disc space-y-1 pl-5">
                       {result.priceWarnings.map((warning, index) => (
@@ -181,9 +181,9 @@ export const StandardPlanReviewDialog = ({
 
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="outline" onClick={() => setResult(null)}>
-              Back
+              Quay lại
             </Button>
-            <Button onClick={handleClose}>Close</Button>
+            <Button onClick={handleClose}>Đóng</Button>
           </div>
         </div>
       );
@@ -192,11 +192,11 @@ export const StandardPlanReviewDialog = ({
     return (
       <>
         <p className="text-sm text-gray-600">
-          Enter the cultivation area to calculate the estimated material cost for this standard plan.
+          Nhập diện tích canh tác để tính toán chi phí vật liệu ước tính cho kế hoạch chuẩn này.
         </p>
 
         <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">Area (Hectares) *</label>
+          <label className="block text-sm font-medium text-gray-700">Diện Tích (Hecta) *</label>
           <input
             type="number"
             min="0.1"
@@ -204,20 +204,20 @@ export const StandardPlanReviewDialog = ({
             value={areaInHectares}
             onChange={(e) => setAreaInHectares(Number(e.target.value))}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            placeholder="e.g., 10.5"
+            placeholder="VD: 10.5"
           />
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={handleClose}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleCalculateCost}
             disabled={areaInHectares <= 0 || costCalculationMutation.isPending}
             isLoading={costCalculationMutation.isPending}
           >
-            Calculate Cost
+            Tính Chi Phí
           </Button>
         </div>
       </>
@@ -228,7 +228,7 @@ export const StandardPlanReviewDialog = ({
     <SimpleDialog
       isOpen={isOpen}
       onClose={handleClose}
-      title={`Cost Review: ${plan?.name || 'Standard Plan'}`}
+      title={`Xem Xét Chi Phí: ${plan?.name || 'Kế Hoạch Chuẩn'}`}
       maxWidth="4xl"
     >
       <div className="space-y-4">{renderContent()}</div>

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
-import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X, Download, Loader2 } from 'lucide-react'
-import { useImportPlotsExcel } from '../api/import-plots-excel'
+import { Upload, FileSpreadsheet, AlertCircle, CheckCircle2, X, Download, Loader2, Edit2, Save, AlertTriangle } from 'lucide-react'
+import { usePreviewImportPlots, useImportPlotsFromData, convertPreviewToImportRows, type PlotImportRow, type PlotImportPreviewRow, type PlotImportPreviewDto } from '../api/preview-import-plots'
 import { usePlotImportTemplate } from '../api/download-plot-import-template'
 import {
     Dialog,
@@ -16,13 +16,14 @@ import { useNotifications } from '@/components/ui/notifications'
 type ImportPlotsDialogProps = {
     open: boolean
     onOpenChange: (open: boolean) => void
+    clusterManagerId?: string | null
 }
 
-export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps) => {
+export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: ImportPlotsDialogProps) => {
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
-    const [importDate, setImportDate] = useState<string>('')
-    const [errors, setErrors] = useState<string[]>([])
-    const [successMessage, setSuccessMessage] = useState<string>('')
+    const [previewData, setPreviewData] = useState<PlotImportPreviewDto | null>(null)
+    const [editableRows, setEditableRows] = useState<PlotImportRow[]>([])
+    const [isPreviewMode, setIsPreviewMode] = useState(false)
     const [isDownloading, setIsDownloading] = useState(false)
     const [dragActive, setDragActive] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -30,102 +31,66 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
 
     const plotTemplate = usePlotImportTemplate()
 
-    const importMutation = useImportPlotsExcel({
+    const previewMutation = usePreviewImportPlots({
         mutationConfig: {
             onSuccess: (data) => {
-                console.log('📦 Import response:', JSON.stringify(data, null, 2))
-
-                // ✅ Check if response is wrapped object or raw array
-                if (Array.isArray(data)) {
-                    // Backend returned array directly (old format)
-                    setSuccessMessage(`Successfully imported ${data.length} plots!`)
-                    setErrors([])
+                if (data.success && data.data) {
+                    setPreviewData(data.data)
+                    setIsPreviewMode(true)
+                    // Initialize editable rows from invalid rows (exclude duplicates - they will be skipped)
+                    const invalidRowsToEdit = data.data.invalidRows.filter(row => !row.isDuplicate && row.errors && row.errors.length > 0)
+                    setEditableRows(convertPreviewToImportRows(invalidRowsToEdit))
                     addNotification({
                         type: 'success',
-                        title: 'Import Successful',
-                        message: `Successfully imported ${data.length} plots!`,
-                    })
-
-                    setTimeout(() => {
-                        onOpenChange(false)
-                        resetForm()
-                    }, 2000)
-                } else if (data.success === true) {
-                    // Backend returned wrapped response
-                    setSuccessMessage(data.message || 'Plots imported successfully!')
-                    setErrors([])
-                    addNotification({
-                        type: 'success',
-                        title: 'Import Successful',
-                        message: data.message || 'Plots imported successfully!',
-                    })
-
-                    setTimeout(() => {
-                        onOpenChange(false)
-                        resetForm()
-                    }, 2000)
-                } else if (data.success === false) {
-                    // Backend returned error in wrapped format
-                    const errorMessages = data.errors && data.errors.length > 0
-                        ? data.errors
-                        : [data.message || 'Import failed']
-
-                    setErrors(errorMessages)
-                    setSuccessMessage('')
-                    addNotification({
-                        type: 'error',
-                        title: 'Import Failed',
-                        message: data.message || 'Import failed',
-                    })
-                } else {
-                    // Unknown format
-                    console.error('Unknown response format:', data)
-                    setErrors(['Unexpected response format'])
-                    addNotification({
-                        type: 'error',
-                        title: 'Import Failed',
-                        message: 'Import failed - unexpected response',
+                        title: 'Preview Successful',
+                        message: `Found ${data.data.validRowsCount} valid, ${data.data.invalidRowsCount} invalid, ${data.data.duplicateRowsCount} duplicate, and ${data.data.skippedRowsCount} skipped rows`,
                     })
                 }
             },
             onError: (error: any) => {
-                console.error('❌ Import error:', error)
-                console.error('Error response:', error?.response?.data)
+                console.error('Preview error:', error)
+                addNotification({
+                    type: 'error',
+                    title: 'Preview Failed',
+                    message: error?.response?.data?.message || 'Failed to preview import',
+                })
+            },
+        },
+    })
 
-                const responseData = error?.response?.data
-
-                if (responseData && (responseData.succeeded === false || responseData.success === false)) {
-                    // Backend returned error response (supports both 'succeeded' and 'success')
-                    const errorMessages = responseData.errors && responseData.errors.length > 0
-                        ? responseData.errors
-                        : [responseData.message || 'Import failed']
-
-                    setErrors(errorMessages)
+    const importMutation = useImportPlotsFromData({
+        mutationConfig: {
+            onSuccess: (data) => {
+                if (data.success) {
                     addNotification({
-                        type: 'error',
-                        title: 'Import Failed',
-                        message: responseData.message || 'Import failed',
+                        type: 'success',
+                        title: 'Import Successful',
+                        message: data.message || `Successfully imported ${data.data?.length || 0} plots!`,
                     })
-                } else {
-                    // Network or unknown error
-                    setErrors(['Failed to import plots. Please try again.'])
-                    addNotification({
-                        type: 'error',
-                        title: 'Import Failed',
-                        message: 'Failed to import plots',
-                    })
+                    setTimeout(() => {
+                        onOpenChange(false)
+                        resetForm()
+                        // Refresh the page to show updated plots
+                        window.location.reload()
+                    }, 2000)
                 }
-
-                setSuccessMessage('')
+            },
+            onError: (error: any) => {
+                console.error('Import error:', error)
+                addNotification({
+                    type: 'error',
+                    title: 'Import Failed',
+                    message: error?.response?.data?.message || 'Failed to import plots',
+                })
             },
         },
     })
 
     const resetForm = () => {
         setSelectedFile(null)
-        setImportDate('')
-        setErrors([])
-        setSuccessMessage('')
+        setPreviewData(null)
+        setEditableRows([])
+        setIsPreviewMode(false)
         if (fileInputRef.current) {
             fileInputRef.current.value = ''
         }
@@ -159,8 +124,9 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
         const file = e.target.files?.[0]
         if (file && validateFile(file)) {
             setSelectedFile(file)
-            setErrors([])
-            setSuccessMessage('')
+            setIsPreviewMode(false)
+            setPreviewData(null)
+            setEditableRows([])
         }
     }
 
@@ -183,28 +149,52 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
             const file = e.dataTransfer.files[0]
             if (validateFile(file)) {
                 setSelectedFile(file)
-                setErrors([])
-                setSuccessMessage('')
+                setIsPreviewMode(false)
+                setPreviewData(null)
+                setEditableRows([])
             }
         }
     }
 
-    const handleImport = () => {
+    const handlePreview = () => {
         if (!selectedFile) {
             addNotification({
                 type: 'error',
                 title: 'No File Selected',
-                message: 'Please select a file to import',
+                message: 'Please select a file to preview',
             })
             return
         }
 
-        setErrors([])
-        setSuccessMessage('')
+        previewMutation.mutate({
+            excelFile: selectedFile,
+        })
+    }
+
+    const handleFixRow = (index: number, field: keyof PlotImportRow, value: any) => {
+        const updated = [...editableRows]
+        updated[index] = { ...updated[index], [field]: value }
+        setEditableRows(updated)
+    }
+
+    const handleImportFixed = () => {
+        if (!previewData) {
+            addNotification({
+                type: 'error',
+                title: 'No Preview Data',
+                message: 'Please preview the file first',
+            })
+            return
+        }
+
+        // Merge valid rows with fixed invalid rows
+        // Note: Duplicate rows are automatically skipped by the backend
+        const validImportRows = convertPreviewToImportRows(previewData.validRows)
+        const allRows: PlotImportRow[] = [...validImportRows, ...editableRows]
 
         importMutation.mutate({
-            excelFile: selectedFile,
-            importDate: importDate || undefined,
+            plotRows: allRows,
+            clusterManagerId: clusterManagerId || null,
         })
     }
 
@@ -231,14 +221,14 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px]">
+            <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <FileSpreadsheet className="size-5 text-green-600" />
                         Import Plots from Excel
                     </DialogTitle>
                     <DialogDescription>
-                        Upload an Excel file to import multiple plots at once
+                        Upload an Excel file to preview and import multiple plots at once
                     </DialogDescription>
                 </DialogHeader>
 
@@ -262,7 +252,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                                 variant="outline"
                                 size="sm"
                                 onClick={handleDownloadTemplate}
-                                disabled={isDownloading || importMutation.isPending}
+                                disabled={isDownloading || previewMutation.isPending || importMutation.isPending}
                                 className="border-green-300 text-green-700 hover:bg-green-100 shrink-0"
                             >
                                 {isDownloading ? (
@@ -281,111 +271,311 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                     </div>
 
                     {/* File Upload */}
-                    <div className="space-y-3">
-                        <label className="block text-sm font-medium text-gray-700">
-                            Excel File <span className="text-red-500">*</span>
-                        </label>
-                        <div className="flex items-center gap-3">
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept=".xlsx,.xls"
-                                onChange={handleFileChange}
-                                className="hidden"
-                                id="excel-upload"
-                            />
-                            <div
-                                onDragEnter={handleDrag}
-                                onDragLeave={handleDrag}
-                                onDragOver={handleDrag}
-                                onDrop={handleDrop}
-                                onClick={() => fileInputRef.current?.click()}
-                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${dragActive
-                                    ? 'border-green-500 bg-green-50'
-                                    : 'border-gray-300 hover:border-green-500 hover:bg-green-50'
-                                    }`}
-                            >
-                                <Upload className="size-6 text-gray-400" />
-                                <div className="text-center">
-                                    <p className="text-sm font-medium text-gray-700">
-                                        {selectedFile ? selectedFile.name : 'Click to upload or drag and drop'}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        Excel files only (.xlsx, .xls) - Max 10MB
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {selectedFile && (
-                            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                                <FileSpreadsheet className="size-5 text-green-600" />
-                                <span className="flex-1 text-sm font-medium text-green-900">
-                                    {selectedFile.name}
-                                </span>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                        setSelectedFile(null)
-                                        if (fileInputRef.current) {
-                                            fileInputRef.current.value = ''
-                                        }
-                                    }}
-                                    className="size-6 p-0 hover:bg-green-100"
+                    {!isPreviewMode && (
+                        <div className="space-y-3">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Excel File <span className="text-red-500">*</span>
+                            </label>
+                            <div className="flex items-center gap-3">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept=".xlsx,.xls"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                    id="excel-upload"
+                                />
+                                <div
+                                    onDragEnter={handleDrag}
+                                    onDragLeave={handleDrag}
+                                    onDragOver={handleDrag}
+                                    onDrop={handleDrop}
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className={`flex-1 flex items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${dragActive
+                                        ? 'border-green-500 bg-green-50'
+                                        : 'border-gray-300 hover:border-green-500 hover:bg-green-50'
+                                        }`}
                                 >
-                                    <X className="size-4" />
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Import Date (Optional) */}
-                    <div className="space-y-3">
-                        <label className="block text-sm font-medium text-gray-700">
-                            Import Date (Optional)
-                        </label>
-                        <input
-                            type="date"
-                            value={importDate}
-                            onChange={(e) => setImportDate(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600"
-                        />
-                        <p className="text-xs text-gray-500">
-                            Leave empty to use current date
-                        </p>
-                    </div>
-
-                    {/* Success Message */}
-                    {successMessage && (
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <div className="flex items-start gap-3">
-                                <CheckCircle2 className="size-5 text-green-600 flex-shrink-0 mt-0.5" />
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-green-900">
-                                        {successMessage}
-                                    </p>
+                                    <Upload className="size-6 text-gray-400" />
+                                    <div className="text-center">
+                                        <p className="text-sm font-medium text-gray-700">
+                                            {selectedFile ? selectedFile.name : 'Click to upload or drag and drop'}
+                                        </p>
+                                        <p className="text-xs text-gray-500 mt-1">
+                                            Excel files only (.xlsx, .xls) - Max 10MB
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
+
+                            {selectedFile && (
+                                <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                    <FileSpreadsheet className="size-5 text-green-600" />
+                                    <span className="flex-1 text-sm font-medium text-green-900">
+                                        {selectedFile.name}
+                                    </span>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => {
+                                            setSelectedFile(null)
+                                            if (fileInputRef.current) {
+                                                fileInputRef.current.value = ''
+                                            }
+                                        }}
+                                        className="size-6 p-0 hover:bg-green-100"
+                                    >
+                                        <X className="size-4" />
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    {/* Validation Errors */}
-                    {errors.length > 0 && (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                            <div className="flex items-start gap-3">
-                                <AlertCircle className="size-5 text-red-600 flex-shrink-0 mt-0.5" />
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-red-900 mb-2">
-                                        Validation Errors:
-                                    </p>
-                                    <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
-                                        {errors.map((error, index) => (
-                                            <li key={index}>{error}</li>
-                                        ))}
-                                    </ul>
+                    {/* Preview Results */}
+                    {isPreviewMode && previewData && (
+                        <div className="space-y-4">
+                            {/* Summary Card */}
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div>
+                                        <p className="text-sm font-medium text-blue-900">
+                                            Preview Results
+                                        </p>
+                                        <p className="text-xs text-blue-700 mt-1">
+                                            Total: {previewData.totalRows} rows
+                                        </p>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            setIsPreviewMode(false)
+                                            setPreviewData(null)
+                                            setEditableRows([])
+                                        }}
+                                    >
+                                        <X className="size-4 mr-2" />
+                                        Close Preview
+                                    </Button>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+                                    <div className="bg-green-100 rounded p-2 text-center">
+                                        <p className="font-medium text-green-900">{previewData.validRowsCount}</p>
+                                        <p className="text-green-700">Valid</p>
+                                    </div>
+                                    <div className="bg-red-100 rounded p-2 text-center">
+                                        <p className="font-medium text-red-900">{previewData.invalidRowsCount}</p>
+                                        <p className="text-red-700">Invalid</p>
+                                    </div>
+                                    <div className="bg-yellow-100 rounded p-2 text-center">
+                                        <p className="font-medium text-yellow-900">{previewData.duplicateRowsCount}</p>
+                                        <p className="text-yellow-700">Duplicate</p>
+                                    </div>
+                                    <div className="bg-gray-100 rounded p-2 text-center">
+                                        <p className="font-medium text-gray-900">{previewData.skippedRowsCount}</p>
+                                        <p className="text-gray-700">Skipped</p>
+                                    </div>
+                                    <div className="bg-blue-100 rounded p-2 text-center">
+                                        <p className="font-medium text-blue-900">{previewData.summary?.rowsCreatingCultivation || 0}</p>
+                                        <p className="text-blue-700">Cultivation</p>
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* General Errors */}
+                            {previewData.generalErrors && previewData.generalErrors.length > 0 && (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    <div className="flex items-start gap-3">
+                                        <AlertCircle className="size-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-red-900 mb-2">
+                                                General Errors:
+                                            </p>
+                                            <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
+                                                {previewData.generalErrors.map((error, index) => (
+                                                    <li key={index}>{error}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Valid Rows - Read Only */}
+                            {previewData.validRows.length > 0 && (
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-gray-700">
+                                        Valid Rows ({previewData.validRows.length})
+                                    </h4>
+                                    <div className="border rounded-lg overflow-hidden">
+                                        <div className="max-h-48 overflow-y-auto">
+                                            <table className="w-full text-sm">
+                                                <thead className="bg-gray-50 sticky top-0">
+                                                    <tr>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Row</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">FarmCode</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">SoThua</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Area</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Status</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Warnings</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200">
+                                                    {previewData.validRows.map((row: PlotImportPreviewRow) => (
+                                                        <tr key={row.rowNumber} className={row.warnings && row.warnings.length > 0 ? "bg-yellow-50" : "bg-green-50"}>
+                                                            <td className="px-3 py-2">{row.rowNumber}</td>
+                                                            <td className="px-3 py-2">{row.farmCode || '-'}</td>
+                                                            <td className="px-3 py-2">{row.soThua || '-'}</td>
+                                                            <td className="px-3 py-2">{row.area || '-'}</td>
+                                                            <td className="px-3 py-2">
+                                                                <span className={`text-xs ${row.status === 'Warning' ? 'text-yellow-700' : 'text-green-700'}`}>
+                                                                    {row.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                {row.warnings && row.warnings.length > 0 ? (
+                                                                    <div className="flex items-start gap-1">
+                                                                        <AlertTriangle className="size-3 text-yellow-600 flex-shrink-0 mt-0.5" />
+                                                                        <div className="text-xs text-yellow-700">
+                                                                            {row.warnings.map((warning, i) => (
+                                                                                <div key={i}>{warning}</div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-xs text-gray-400">-</span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Duplicate Rows - Read Only (Info) */}
+                            {previewData.invalidRows.filter(row => row.isDuplicate).length > 0 && (
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                        <AlertTriangle className="size-4 text-yellow-600" />
+                                        Duplicate Rows ({previewData.invalidRows.filter(row => row.isDuplicate).length}) - Will be skipped
+                                    </h4>
+                                    <div className="border border-yellow-200 rounded-lg overflow-hidden bg-yellow-50">
+                                        <div className="max-h-32 overflow-y-auto">
+                                            <table className="w-full text-sm">
+                                                <thead className="bg-yellow-100 sticky top-0">
+                                                    <tr>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-yellow-900">Row</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-yellow-900">FarmCode</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-yellow-900">SoThua</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-yellow-900">SoTo</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-yellow-900">Reason</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-yellow-200">
+                                                    {previewData.invalidRows.filter(row => row.isDuplicate).map((row: PlotImportPreviewRow) => (
+                                                        <tr key={row.rowNumber}>
+                                                            <td className="px-3 py-2">{row.rowNumber}</td>
+                                                            <td className="px-3 py-2">{row.farmCode || '-'}</td>
+                                                            <td className="px-3 py-2">{row.soThua || '-'}</td>
+                                                            <td className="px-3 py-2">{row.soTo || '-'}</td>
+                                                            <td className="px-3 py-2">
+                                                                <div className="text-xs text-yellow-800">
+                                                                    {row.warnings && row.warnings.length > 0 ? row.warnings[0] : 'Duplicate plot'}
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Invalid Rows - Editable (only rows with errors, not duplicates) */}
+                            {editableRows.length > 0 && (
+                                <div className="space-y-2">
+                                    <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                        <Edit2 className="size-4" />
+                                        Fix Errors ({editableRows.length})
+                                    </h4>
+                                    <p className="text-xs text-gray-500">
+                                        Please fix the errors below. Duplicate rows will be automatically skipped during import.
+                                    </p>
+                                    <div className="border rounded-lg overflow-hidden">
+                                        <div className="max-h-64 overflow-y-auto">
+                                            <table className="w-full text-sm">
+                                                <thead className="bg-gray-50 sticky top-0">
+                                                    <tr>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">FarmCode</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">SoThua</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">SoTo</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Area</th>
+                                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">Errors</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-gray-200">
+                                                    {editableRows.map((row, index) => (
+                                                        <tr key={index} className="bg-red-50">
+                                                            <td className="px-3 py-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={row.farmCode || ''}
+                                                                    onChange={(e) => handleFixRow(index, 'farmCode', e.target.value)}
+                                                                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                                                                    placeholder="FarmCode"
+                                                                />
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <input
+                                                                    type="number"
+                                                                    value={row.soThua || ''}
+                                                                    onChange={(e) => handleFixRow(index, 'soThua', e.target.value ? parseInt(e.target.value) : undefined)}
+                                                                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                                                                    placeholder="SoThua"
+                                                                />
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <input
+                                                                    type="number"
+                                                                    value={row.soTo || ''}
+                                                                    onChange={(e) => handleFixRow(index, 'soTo', e.target.value ? parseInt(e.target.value) : undefined)}
+                                                                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                                                                    placeholder="SoTo"
+                                                                />
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <input
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    value={row.area || ''}
+                                                                    onChange={(e) => handleFixRow(index, 'area', e.target.value ? parseFloat(e.target.value) : undefined)}
+                                                                    className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-green-500"
+                                                                    placeholder="Area"
+                                                                />
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <ul className="text-xs text-red-700 space-y-1">
+                                                                    {previewData.invalidRows[index]?.errors?.map((err: string, i: number) => (
+                                                                        <li key={i} className="flex items-start gap-1">
+                                                                            <AlertCircle className="size-3 mt-0.5 flex-shrink-0" />
+                                                                            <span>{err}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -398,18 +588,30 @@ export const ImportPlotsDialog = ({ open, onOpenChange }: ImportPlotsDialogProps
                             onOpenChange(false)
                             resetForm()
                         }}
-                        disabled={importMutation.isPending}
+                        disabled={previewMutation.isPending || importMutation.isPending}
                     >
                         Cancel
                     </Button>
-                    <Button
-                        onClick={handleImport}
-                        disabled={!selectedFile || importMutation.isPending}
-                        className="bg-green-600 hover:bg-green-700 text-white gap-2"
-                    >
-                        {importMutation.isPending && <Spinner size="sm" />}
-                        Import Plots
-                    </Button>
+                    {!isPreviewMode ? (
+                        <Button
+                            onClick={handlePreview}
+                            disabled={!selectedFile || previewMutation.isPending}
+                            className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                        >
+                            {previewMutation.isPending && <Spinner size="sm" />}
+                            Preview Import
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={handleImportFixed}
+                            disabled={importMutation.isPending || (!(previewData?.validRowsCount ?? 0) && !editableRows.length)}
+                            className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                        >
+                            {importMutation.isPending && <Spinner size="sm" />}
+                            <Save className="size-4" />
+                            Import Fixed Data
+                        </Button>
+                    )}
                 </div>
             </DialogContent>
         </Dialog>

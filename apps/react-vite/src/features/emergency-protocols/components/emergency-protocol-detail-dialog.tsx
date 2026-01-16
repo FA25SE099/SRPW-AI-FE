@@ -123,20 +123,20 @@ export const EmergencyProtocolDetailDialog = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] max-w-5xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Emergency Protocol Details</DialogTitle>
+          <DialogTitle>Chi Tiết Quy Trình Khẩn Cấp</DialogTitle>
           <DialogDescription>
-            View complete information about this emergency protocol
+            Xem thông tin đầy đủ về quy trình khẩn cấp này
           </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <Spinner size="lg" />
-            <p className="ml-3 text-gray-600">Loading protocol details...</p>
+            <p className="ml-3 text-gray-600">Đang tải chi tiết quy trình...</p>
           </div>
         ) : !protocol ? (
           <div className="py-8 text-center">
-            <p className="text-gray-500">Protocol not found</p>
+            <p className="text-gray-500">Không tìm thấy quy trình</p>
             {error && (
               <p className="mt-2 text-sm text-red-500">{String(error)}</p>
             )}
@@ -169,7 +169,7 @@ export const EmergencyProtocolDetailDialog = ({
                     : 'bg-gray-100 text-gray-800'
                     }`}
                 >
-                  {protocol.isActive ? 'Active' : 'Inactive'}
+                  {protocol.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                 </span>
               </div>
               {protocol.description && (
@@ -182,16 +182,16 @@ export const EmergencyProtocolDetailDialog = ({
               <div className="rounded-lg bg-blue-50 p-4">
                 <div className="mb-1 flex items-center gap-2 text-blue-600">
                   <Calendar className="size-5" />
-                  <span className="text-sm font-medium">Duration</span>
+                  <span className="text-sm font-medium">Thời Gian</span>
                 </div>
                 <p className="text-2xl font-bold text-blue-900">
-                  {protocol.totalDurationDays} days
+                  {protocol.totalDurationDays} ngày
                 </p>
               </div>
               <div className="rounded-lg bg-green-50 p-4">
                 <div className="mb-1 flex items-center gap-2 text-green-600">
                   <Activity className="size-5" />
-                  <span className="text-sm font-medium">Tasks</span>
+                  <span className="text-sm font-medium">Nhiệm Vụ</span>
                 </div>
                 <p className="text-2xl font-bold text-green-900">
                   {protocol.totalTasks}
@@ -200,7 +200,7 @@ export const EmergencyProtocolDetailDialog = ({
               <div className="rounded-lg bg-purple-50 p-4">
                 <div className="mb-1 flex items-center gap-2 text-purple-600">
                   <Target className="size-5" />
-                  <span className="text-sm font-medium">Thresholds</span>
+                  <span className="text-sm font-medium">Ngưỡng</span>
                 </div>
                 <p className="text-2xl font-bold text-purple-900">
                   {protocol.totalThresholds}
@@ -209,7 +209,7 @@ export const EmergencyProtocolDetailDialog = ({
               <div className="rounded-lg bg-orange-50 p-4">
                 <div className="mb-1 flex items-center gap-2 text-orange-600">
                   <Package className="size-5" />
-                  <span className="text-sm font-medium">Materials</span>
+                  <span className="text-sm font-medium">Vật Liệu</span>
                 </div>
                 <p className="text-2xl font-bold text-orange-900">
                   {protocol.totalMaterialTypes}
@@ -221,7 +221,7 @@ export const EmergencyProtocolDetailDialog = ({
             {protocol.thresholds && protocol.thresholds.length > 0 && (
               <div>
                 <h4 className="mb-3 font-semibold text-gray-900">
-                  Trigger Thresholds
+                  Ngưỡng Kích Hoạt
                 </h4>
                 <div className="space-y-3">
                   {protocol.thresholds.map((threshold: any, index: number) => (
@@ -231,7 +231,7 @@ export const EmergencyProtocolDetailDialog = ({
                     >
                       <div className="mb-2 flex items-start justify-between">
                         <h5 className="font-medium text-gray-900">
-                          Threshold {index + 1} - Priority {threshold.priority}
+                          Ngưỡng {index + 1} - Ưu Tiên {threshold.priority}
                         </h5>
                         <span className="rounded bg-blue-100 px-2 py-1 text-xs text-blue-800">
                           {threshold.applicableSeason}
@@ -241,18 +241,18 @@ export const EmergencyProtocolDetailDialog = ({
                       {threshold.pestProtocolName && (
                         <div className="mb-2">
                           <p className="text-sm font-medium text-gray-700">
-                            Pest Protocol
+                            Quy Trình Sâu Bệnh
                           </p>
                           <p className="text-sm text-gray-600">
                             {threshold.pestProtocolName}
                           </p>
                           {threshold.pestSeverityLevel && (
                             <p className="text-xs text-gray-500">
-                              Severity: {threshold.pestSeverityLevel}
+                              Mức Độ: {threshold.pestSeverityLevel}
                               {threshold.pestAreaThresholdPercent &&
-                                ` • Area: ${(threshold.pestAreaThresholdPercent * 100).toFixed(1)}%`}
+                                ` • Diện Tích: ${(threshold.pestAreaThresholdPercent * 100).toFixed(1)}%`}
                               {threshold.pestDamageThresholdPercent &&
-                                ` • Damage: ${(threshold.pestDamageThresholdPercent * 100).toFixed(1)}%`}
+                                ` • Thiệt Hại: ${(threshold.pestDamageThresholdPercent * 100).toFixed(1)}%`}
                             </p>
                           )}
                           {threshold.pestThresholdNotes && (
@@ -266,18 +266,18 @@ export const EmergencyProtocolDetailDialog = ({
                       {threshold.weatherProtocolName && (
                         <div className="mb-2">
                           <p className="text-sm font-medium text-gray-700">
-                            Weather Protocol
+                            Quy Trình Thời Tiết
                           </p>
                           <p className="text-sm text-gray-600">
                             {threshold.weatherProtocolName}
                           </p>
                           {threshold.weatherEventType && (
                             <p className="text-xs text-gray-500">
-                              Event: {threshold.weatherEventType}
+                              Sự Kiện: {threshold.weatherEventType}
                               {threshold.weatherIntensityLevel &&
-                                ` • Intensity: ${threshold.weatherIntensityLevel}`}
+                                ` • Cường Độ: ${threshold.weatherIntensityLevel}`}
                               {threshold.weatherMeasurementThreshold &&
-                                ` • Threshold: ${threshold.weatherThresholdOperator} ${threshold.weatherMeasurementThreshold} ${threshold.weatherMeasurementUnit}`}
+                                ` • Ngưỡng: ${threshold.weatherThresholdOperator} ${threshold.weatherMeasurementThreshold} ${threshold.weatherMeasurementUnit}`}
                             </p>
                           )}
                           {threshold.weatherThresholdNotes && (
@@ -290,7 +290,7 @@ export const EmergencyProtocolDetailDialog = ({
 
                       {threshold.riceVarietyName && (
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">Rice Variety:</span>{' '}
+                          <span className="font-medium">Giống Lúa:</span>{' '}
                           {threshold.riceVarietyName}
                         </p>
                       )}
@@ -311,7 +311,7 @@ export const EmergencyProtocolDetailDialog = ({
               <div className="rounded-lg border bg-gradient-to-r from-green-50 to-emerald-50 p-4">
                 <div className="mb-3 flex items-center gap-2">
                   <DollarSign className="size-5 text-green-600" />
-                  <h4 className="font-semibold text-gray-900">Cost Estimate (per hectare)</h4>
+                  <h4 className="font-semibold text-gray-900">Ước Tính Chi Phí (mỗi hecta)</h4>
                   {isCalculatingCost && <Spinner size="sm" />}
                 </div>
                 <div className="space-y-2">
@@ -323,8 +323,8 @@ export const EmergencyProtocolDetailDialog = ({
                       <div className="flex-1">
                         <p className="font-medium text-gray-900">{item.materialName}</p>
                         <p className="text-xs text-gray-500">
-                          {item.quantityPerHa} {item.unit}/ha • {item.packagesNeeded} package(s) needed
-                          ({item.amountPerMaterial} {item.unit}/package)
+                          {item.quantityPerHa} {item.unit}/ha • Cần {item.packagesNeeded} gói
+                          ({item.amountPerMaterial} {item.unit}/gói)
                         </p>
                       </div>
                       <div className="text-right">
@@ -338,9 +338,9 @@ export const EmergencyProtocolDetailDialog = ({
                     </div>
                   ))}
                   <div className="mt-3 flex items-center justify-between border-t pt-3">
-                    <p className="text-lg font-bold text-gray-900">Total Cost</p>
+                    <p className="text-lg font-bold text-gray-900">Tổng Chi Phí</p>
                     <p className="text-2xl font-bold text-green-700">
-                      ${totalCostPerHa.toFixed(0)}/ha
+                      {totalCostPerHa.toFixed(0)} VND/ha
                     </p>
                   </div>
                 </div>
@@ -351,7 +351,7 @@ export const EmergencyProtocolDetailDialog = ({
             {protocol.stages && protocol.stages.length > 0 && (
               <div>
                 <h4 className="mb-3 font-semibold text-gray-900">
-                  Implementation Tasks
+                  Nhiệm Vụ Thực Hiện
                 </h4>
                 <div className="space-y-4">
                   {protocol.stages.map((stage: any, index: number) => (
@@ -372,10 +372,9 @@ export const EmergencyProtocolDetailDialog = ({
                                     </p>
                                   )}
                                   <p className="mt-1 text-xs text-gray-500">
-                                    Day {task.daysAfter} • Duration:{' '}
-                                    {task.durationDays} day(s) •
-                                    {task.durationDays} day(s) • Type:{' '}
-                                    {task.taskType} • Priority: {task.priority}
+                                    Ngày {task.daysAfter} • Thời Gian:{' '}
+                                    {task.durationDays} ngày • Loại:{' '}
+                                    {task.taskType} • Ưu Tiên: {task.priority}
                                   </p>
                                 </div>
                               </div>
@@ -384,7 +383,7 @@ export const EmergencyProtocolDetailDialog = ({
                               {task.materials && task.materials.length > 0 && (
                                 <div className="ml-6 mt-2 rounded bg-gray-50 p-3">
                                   <p className="mb-2 text-xs font-medium text-gray-700">
-                                    Required Materials:
+                                    Vật Liệu Cần Thiết:
                                   </p>
                                   <div className="space-y-1">
                                     {task.materials.map((material: any) => (
@@ -437,11 +436,11 @@ export const EmergencyProtocolDetailDialog = ({
 
             {/* Metadata */}
             <div className="space-y-1 border-t pt-4 text-sm text-gray-500">
-              <p>Created by: {protocol.creatorName}</p>
-              <p>Created at: {new Date(protocol.createdAt).toLocaleString()}</p>
+              <p>Được tạo bởi: {protocol.creatorName}</p>
+              <p>Được tạo lúc: {new Date(protocol.createdAt).toLocaleString('vi-VN')}</p>
               <p>
-                Last modified:{' '}
-                {new Date(protocol.lastModified).toLocaleString()}
+                Chỉnh sửa lần cuối:{' '}
+                {new Date(protocol.lastModified).toLocaleString('vi-VN')}
               </p>
             </div>
           </div>

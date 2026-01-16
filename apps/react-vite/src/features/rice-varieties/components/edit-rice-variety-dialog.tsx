@@ -68,16 +68,16 @@ export const EditRiceVarietyDialog = ({
   const categories = categoriesQuery.data || [];
 
   return (
-    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Edit Rice Variety" maxWidth="2xl">
+    <SimpleDialog isOpen={isOpen} onClose={onClose} title="Chỉnh Sửa Giống Lúa" maxWidth="2xl">
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          Update rice variety information.
+          Cập nhật thông tin giống lúa.
         </p>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Variety Name *
+              Tên Giống Lúa *
             </label>
             <input
               type="text"
@@ -85,13 +85,13 @@ export const EditRiceVarietyDialog = ({
               onChange={(e) => setVarietyName(e.target.value)}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., ST25"
+              placeholder="VD: ST25"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Category *
+              Danh Mục *
             </label>
             {categoriesQuery.isLoading ? (
               <div className="flex items-center justify-center py-2">
@@ -104,7 +104,7 @@ export const EditRiceVarietyDialog = ({
                 disabled={isLoading}
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
               >
-                <option value="">Select category...</option>
+                <option value="">Chọn danh mục...</option>
                 {categories.map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
@@ -118,7 +118,7 @@ export const EditRiceVarietyDialog = ({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Growth Duration (Days) *
+              Thời Gian Sinh Trưởng (Ngày) *
             </label>
             <input
               type="number"
@@ -126,13 +126,13 @@ export const EditRiceVarietyDialog = ({
               onChange={(e) => setBaseGrowthDurationDays(Number(e.target.value))}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 95"
+              placeholder="VD: 95"
             />
           </div>
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-700">
-              Yield per Hectare (tons) *
+              Năng Suất Mỗi Hecta (Tấn) *
             </label>
             <input
               type="number"
@@ -141,14 +141,14 @@ export const EditRiceVarietyDialog = ({
               onChange={(e) => setBaseYieldPerHectare(Number(e.target.value))}
               disabled={isLoading}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-              placeholder="e.g., 6.5"
+              placeholder="VD: 6.5"
             />
           </div>
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Description
+            Mô Tả
           </label>
           <textarea
             value={description}
@@ -156,13 +156,13 @@ export const EditRiceVarietyDialog = ({
             disabled={isLoading}
             rows={2}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            placeholder="Description of the rice variety..."
+            placeholder="Mô tả về giống lúa..."
           />
         </div>
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            Characteristics
+            Đặc Tính
           </label>
           <textarea
             value={characteristics}
@@ -170,7 +170,7 @@ export const EditRiceVarietyDialog = ({
             disabled={isLoading}
             rows={2}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
-            placeholder="Key characteristics of the variety..."
+            placeholder="Đặc tính chính của giống..."
           />
         </div>
 
@@ -184,13 +184,13 @@ export const EditRiceVarietyDialog = ({
             className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
           />
           <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-            Active
+            Đang Hoạt Động
           </label>
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleUpdate}
@@ -198,7 +198,7 @@ export const EditRiceVarietyDialog = ({
             isLoading={isLoading}
             icon={<Save className="h-4 w-4" />}
           >
-            Save Changes
+            Lưu Thay Đổi
           </Button>
         </div>
       </div>

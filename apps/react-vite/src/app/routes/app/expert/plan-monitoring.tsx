@@ -29,7 +29,7 @@ const PlanMonitoringPage = () => {
 
   if (isLoading) {
     return (
-      <ContentLayout title="Plan Monitoring">
+      <ContentLayout title="Giám sát kế hoạch">
         <div className="flex h-64 items-center justify-center">
           <Spinner size="lg" />
         </div>
@@ -39,11 +39,11 @@ const PlanMonitoringPage = () => {
 
   if (error) {
     return (
-      <ContentLayout title="Plan Monitoring">
+      <ContentLayout title="Giám sát kế hoạch">
         <Card className="border-destructive/50">
           <CardContent className="p-8 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <p className="text-muted-foreground">Failed to load approved plans</p>
+            <p className="text-muted-foreground">Không thể tải kế hoạch đã phê duyệt</p>
           </CardContent>
         </Card>
       </ContentLayout>
@@ -60,7 +60,7 @@ const PlanMonitoringPage = () => {
             variant="outline"
             onClick={() => setSelectedPlanId(null)}
           >
-            ← Back to Plans List
+            ← Quay lại danh sách kế hoạch
           </Button>
           <PlanExecutionDashboard
             planId={selectedPlanId}
@@ -71,18 +71,18 @@ const PlanMonitoringPage = () => {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold">Approved Production Plans</h2>
+              <h2 className="text-2xl font-bold">Kế hoạch sản xuất đã phê duyệt</h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Monitor execution and progress of approved plans
+                Giám sát thực hiện và tiến độ của các kế hoạch đã phê duyệt
               </p>
             </div>
-            <Badge variant="secondary">{plans.length} Plans</Badge>
+            <Badge variant="secondary">{plans.length} Kế hoạch</Badge>
           </div>
 
           {plans.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center">
-                <p className="text-muted-foreground">No approved plans found</p>
+                <p className="text-muted-foreground">Không tìm thấy kế hoạch đã phê duyệt</p>
               </CardContent>
             </Card>
           ) : (
@@ -106,7 +106,7 @@ const PlanMonitoringPage = () => {
                             </div>
                           </div>
                         </div>
-                        <Badge variant="default">Approved</Badge>
+                        <Badge variant="default">Đã phê duyệt</Badge>
                       </div>
 
                       {/* Stats Grid */}
@@ -114,16 +114,16 @@ const PlanMonitoringPage = () => {
                         <div className="p-3 bg-blue-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-1">
                             <TrendingUp className="h-4 w-4 text-blue-600" />
-                            <span className="text-xs font-medium text-blue-900">Area</span>
+                            <span className="text-xs font-medium text-blue-900">Diện tích</span>
                           </div>
                           <p className="text-lg font-bold text-blue-900">{plan.totalArea.toFixed(1)} ha</p>
-                          <p className="text-xs text-blue-700">{plan.plotCount} plots</p>
+                          <p className="text-xs text-blue-700">{plan.plotCount} lô</p>
                         </div>
 
                         <div className="p-3 bg-green-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-1">
                             <DollarSign className="h-4 w-4 text-green-600" />
-                            <span className="text-xs font-medium text-green-900">Cost</span>
+                            <span className="text-xs font-medium text-green-900">Chi phí</span>
                           </div>
                           <p className="text-lg font-bold text-green-900">
                             {(plan.estimatedCost / 1000000).toFixed(1)}M
@@ -134,18 +134,18 @@ const PlanMonitoringPage = () => {
                         <div className="p-3 bg-purple-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-1">
                             <Calendar className="h-4 w-4 text-purple-600" />
-                            <span className="text-xs font-medium text-purple-900">Approved</span>
+                            <span className="text-xs font-medium text-purple-900">Đã phê duyệt</span>
                           </div>
                           <p className="text-sm font-bold text-purple-900">
-                            {new Date(plan.approvedAt).toLocaleDateString()}
+                            {new Date(plan.approvedAt).toLocaleDateString('vi-VN')}
                           </p>
-                          <p className="text-xs text-purple-700">by {plan.approvedBy}</p>
+                          <p className="text-xs text-purple-700">bởi {plan.approvedBy}</p>
                         </div>
 
                         <div className="p-3 bg-orange-50 rounded-lg">
                           <div className="flex items-center gap-2 mb-1">
                             <Eye className="h-4 w-4 text-orange-600" />
-                            <span className="text-xs font-medium text-orange-900">Progress</span>
+                            <span className="text-xs font-medium text-orange-900">Tiến độ</span>
                           </div>
                           <p className="text-lg font-bold text-orange-900">
                             {plan.completionPercentage.toFixed(0)}%
@@ -161,7 +161,7 @@ const PlanMonitoringPage = () => {
                           onClick={() => setSelectedPlanId(plan.planId)}
                           icon={<Eye className="h-4 w-4" />}
                         >
-                          View Execution Details
+                          Xem chi tiết thực hiện
                         </Button>
                       </div>
                     </div>

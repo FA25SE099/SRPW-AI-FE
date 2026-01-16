@@ -231,16 +231,16 @@ export const CreateEmergencyProtocolDialog = ({
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Emergency protocol created successfully',
+          title: 'Thành Công',
+          message: 'Đã tạo quy trình khẩn cấp thành công',
         });
         handleClose();
       },
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error.message || 'Failed to create emergency protocol',
+          title: 'Lỗi',
+          message: error.message || 'Tạo quy trình khẩn cấp thất bại',
         });
       },
     },
@@ -251,8 +251,8 @@ export const CreateEmergencyProtocolDialog = ({
       onSuccess: (response: any) => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Pest protocol created successfully',
+          title: 'Thành Công',
+          message: 'Đã tạo quy trình sâu bệnh thành công',
         });
         setIsPestProtocolDialogOpen(false);
         setNewPestProtocol({
@@ -282,8 +282,8 @@ export const CreateEmergencyProtocolDialog = ({
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error.message || 'Failed to create pest protocol',
+          title: 'Lỗi',
+          message: error.message || 'Tạo quy trình sâu bệnh thất bại',
         });
       },
     },
@@ -294,8 +294,8 @@ export const CreateEmergencyProtocolDialog = ({
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Weather protocol created successfully',
+          title: 'Thành Công',
+          message: 'Đã tạo quy trình thời tiết thành công',
         });
         setIsWeatherProtocolDialogOpen(false);
         setNewWeatherProtocol({
@@ -314,8 +314,8 @@ export const CreateEmergencyProtocolDialog = ({
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error.message || 'Failed to create weather protocol',
+          title: 'Lỗi',
+          message: error.message || 'Tạo quy trình thời tiết thất bại',
         });
       },
     },
@@ -365,16 +365,16 @@ export const CreateEmergencyProtocolDialog = ({
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Emergency protocol updated successfully',
+          title: 'Thành Công',
+          message: 'Đã cập nhật quy trình khẩn cấp thành công',
         });
         handleClose();
       },
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error.message || 'Failed to update emergency protocol',
+          title: 'Lỗi',
+          message: error.message || 'Cập nhật quy trình khẩn cấp thất bại',
         });
       },
     },
@@ -507,7 +507,7 @@ export const CreateEmergencyProtocolDialog = ({
     // Check if there's at least one task
     const stage = editableStages[0];
     if (!stage || stage.tasks.length === 0) {
-      errors.push('At least one task is required');
+      errors.push('Cần ít nhất một nhiệm vụ');
     }
 
     if (stage) {
@@ -516,7 +516,7 @@ export const CreateEmergencyProtocolDialog = ({
 
         // Check task name
         if (!task.taskName || task.taskName.trim() === '') {
-          errors.push(`Task ${taskIndex + 1} is missing a name`);
+          errors.push(`Nhiệm vụ ${taskIndex + 1} thiếu tên`);
           newValidationErrors[taskKey] = true;
         }
       });
@@ -527,7 +527,7 @@ export const CreateEmergencyProtocolDialog = ({
     if (errors.length > 0) {
       addNotification({
         type: 'error',
-        title: 'Validation Error',
+        title: 'Lỗi Xác Thực',
         message: errors.join(', '),
       });
       return;
@@ -577,8 +577,8 @@ export const CreateEmergencyProtocolDialog = ({
             console.error('❌ Failed to calculate costs:', error);
             addNotification({
               type: 'error',
-              title: 'Cost Calculation Failed',
-              message: error?.message || 'Unable to calculate material costs',
+              title: 'Tính Toán Chi Phí Thất Bại',
+              message: error?.message || 'Không thể tính toán chi phí vật liệu',
             });
           },
         }
@@ -918,18 +918,18 @@ export const CreateEmergencyProtocolDialog = ({
     seedsQuery.isLoading;
 
   const getTitle = () => {
-    const prefix = isEditMode ? 'Edit' : 'Create';
+    const prefix = isEditMode ? 'Chỉnh Sửa' : 'Tạo';
     switch (step) {
       case 'basic':
-        return `${prefix} Emergency Protocol - Basic Info`;
+        return `${prefix} Quy Trình Khẩn Cấp - Thông Tin Cơ Bản`;
       case 'tasks':
-        return `${prefix} Emergency Protocol - Tasks`;
+        return `${prefix} Quy Trình Khẩn Cấp - Nhiệm Vụ`;
       case 'thresholds':
-        return `${prefix} Emergency Protocol - Thresholds`;
+        return `${prefix} Quy Trình Khẩn Cấp - Ngưỡng`;
       case 'preview':
-        return `${prefix} Emergency Protocol - Review`;
+        return `${prefix} Quy Trình Khẩn Cấp - Xem Xét`;
       default:
-        return `${prefix} Emergency Protocol`;
+        return `${prefix} Quy Trình Khẩn Cấp`;
     }
   };
 
@@ -942,7 +942,7 @@ export const CreateEmergencyProtocolDialog = ({
           <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-8 shadow-xl">
             <div className="text-center">
               <Spinner size="lg" className="mx-auto mb-4" />
-              <p className="text-gray-600">Loading protocol details...</p>
+              <p className="text-gray-600">Đang tải chi tiết quy trình...</p>
             </div>
           </div>
         </div>
@@ -962,9 +962,9 @@ export const CreateEmergencyProtocolDialog = ({
               <h2 className="text-lg font-bold text-gray-900">{getTitle()}</h2>
               {formData?.categoryId && (
                 <p className="text-xs text-gray-600">
-                  Category:{' '}
+                  Danh Mục:{' '}
                   {categories.find((c: any) => c.id === formData.categoryId)
-                    ?.categoryName || 'Loading...'}
+                    ?.categoryName || 'Đang tải...'}
                 </p>
               )}
             </div>
@@ -989,10 +989,10 @@ export const CreateEmergencyProtocolDialog = ({
                     <FileText className="mt-0.5 size-5 text-blue-600" />
                     <div>
                       <h4 className="font-semibold text-blue-900">
-                        Step 1: Basic Information
+                        Bước 1: Thông Tin Cơ Bản
                       </h4>
                       <p className="mt-1 text-sm text-blue-700">
-                        Provide the basic details for your emergency protocol.
+                        Cung cấp thông tin cơ bản cho quy trình khẩn cấp của bạn.
                       </p>
                     </div>
                   </div>
@@ -1001,17 +1001,17 @@ export const CreateEmergencyProtocolDialog = ({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Plan Name *
+                      Tên Kế Hoạch *
                     </label>
                     <input
                       type="text"
                       {...register('planName', {
-                        required: 'Plan name is required',
+                        required: 'Tên kế hoạch là bắt buộc',
                       })}
                       value={watch('planName') || ''}
                       onChange={(e) => setValue('planName', e.target.value)}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter plan name"
+                      placeholder="Nhập tên kế hoạch"
                     />
                     {errors.planName && (
                       <p className="text-sm text-red-600">
@@ -1022,17 +1022,17 @@ export const CreateEmergencyProtocolDialog = ({
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Description *
+                      Mô Tả *
                     </label>
                     <textarea
                       {...register('description', {
-                        required: 'Description is required',
+                        required: 'Mô tả là bắt buộc',
                       })}
                       value={watch('description') || ''}
                       onChange={(e) => setValue('description', e.target.value)}
                       rows={3}
                       className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
-                      placeholder="Enter description"
+                      placeholder="Nhập mô tả"
                     />
                     {errors.description && (
                       <p className="text-sm text-red-600">
@@ -1043,15 +1043,15 @@ export const CreateEmergencyProtocolDialog = ({
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Total Duration (Days) *
+                      Tổng Thời Gian (Ngày) *
                     </label>
                     <input
                       type="number"
                       {...register('totalDurationDays', {
-                        required: 'Duration is required',
+                        required: 'Thời gian là bắt buộc',
                         min: {
                           value: 1,
-                          message: 'Duration must be at least 1 day',
+                          message: 'Thời gian phải ít nhất 1 ngày',
                         },
                         valueAsNumber: true,
                       })}
@@ -1074,7 +1074,7 @@ export const CreateEmergencyProtocolDialog = ({
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Rice Category *
+                      Danh Mục Lúa *
                     </label>
                     {categoriesQuery.isLoading ? (
                       <div className="flex items-center justify-center py-2">
@@ -1084,7 +1084,7 @@ export const CreateEmergencyProtocolDialog = ({
                       <>
                         <select
                           {...register('categoryId', {
-                            required: 'Category is required',
+                            required: 'Danh mục là bắt buộc',
                           })}
                           value={watch('categoryId') || ''}
                           onChange={(e) =>
@@ -1093,7 +1093,7 @@ export const CreateEmergencyProtocolDialog = ({
                           className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-transparent focus:ring-2 focus:ring-blue-500"
                           disabled={categoriesQuery.isLoading}
                         >
-                          <option value="">Select category</option>
+                          <option value="">Chọn danh mục</option>
                           {categories.map((category: any) => (
                             <option key={category.id} value={category.id}>
                               {category.categoryName}
@@ -1119,7 +1119,7 @@ export const CreateEmergencyProtocolDialog = ({
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
                       <span className="text-sm font-medium text-gray-700">
-                        Active (protocol can be used immediately)
+                        Đang Hoạt Động (quy trình có thể sử dụng ngay)
                       </span>
                     </label>
                   </div>
@@ -1127,14 +1127,14 @@ export const CreateEmergencyProtocolDialog = ({
 
                 <div className="flex justify-end gap-2 border-t pt-4">
                   <Button type="button" variant="outline" onClick={handleClose}>
-                    Cancel
+                    Hủy
                   </Button>
                   <Button
                     type="submit"
                     disabled={!planName || !description || !categoryId}
                     icon={<ArrowRight className="size-4" />}
                   >
-                    Next: Tasks
+                    Tiếp: Nhiệm Vụ
                   </Button>
                 </div>
               </form>
@@ -1148,10 +1148,10 @@ export const CreateEmergencyProtocolDialog = ({
                     <Package className="mt-0.5 size-5 text-blue-600" />
                     <div>
                       <h4 className="font-semibold text-blue-900">
-                        Step 2: Define Tasks
+                        Bước 2: Định Nghĩa Nhiệm Vụ
                       </h4>
                       <p className="mt-1 text-sm text-blue-700">
-                        Add tasks for the emergency protocol.
+                        Thêm nhiệm vụ cho quy trình khẩn cấp.
                       </p>
                     </div>
                   </div>
@@ -1160,7 +1160,7 @@ export const CreateEmergencyProtocolDialog = ({
                 <div className="space-y-3 rounded-lg border bg-white p-4">
                   <div className="flex items-center justify-between rounded-md bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-2">
                     <span className="text-sm font-semibold text-blue-900">
-                      Tasks ({editableStages[0]?.tasks.length || 0})
+                      Nhiệm Vụ ({editableStages[0]?.tasks.length || 0})
                     </span>
                     <button
                       type="button"
@@ -1169,7 +1169,7 @@ export const CreateEmergencyProtocolDialog = ({
                       className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700"
                     >
                       <Plus className="size-4" />
-                      Add Task
+                      Thêm Nhiệm Vụ
                     </button>
                   </div>
 
@@ -1186,7 +1186,7 @@ export const CreateEmergencyProtocolDialog = ({
                               onClick={() => handleInsertTask(0, 0)}
                               disabled={isLoading}
                               className="absolute -left-3 top-1/2 z-10 flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-blue-500 text-white shadow-md transition-colors hover:bg-blue-600"
-                              title="Add task before"
+                              title="Thêm nhiệm vụ trước"
                             >
                               <Plus className="size-3.5" />
                             </button>
@@ -1209,7 +1209,7 @@ export const CreateEmergencyProtocolDialog = ({
                                     onClick={() => handleMoveTaskLeft(0, taskIndex)}
                                     disabled={isLoading || taskIndex === 0}
                                     className="rounded p-0.5 text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-30"
-                                    title="Move task left"
+                                    title="Di chuyển nhiệm vụ sang trái"
                                   >
                                     <ChevronLeft className="size-3" />
                                   </button>
@@ -1218,7 +1218,7 @@ export const CreateEmergencyProtocolDialog = ({
                                     onClick={() => handleMoveTaskRight(0, taskIndex)}
                                     disabled={isLoading || taskIndex === editableStages[0]?.tasks.length - 1}
                                     className="rounded p-0.5 text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-30"
-                                    title="Move task right"
+                                    title="Di chuyển nhiệm vụ sang phải"
                                   >
                                     <ChevronRight className="size-3" />
                                   </button>
@@ -1237,7 +1237,7 @@ export const CreateEmergencyProtocolDialog = ({
                             <div className="flex-1 space-y-2">
                               <div className="space-y-0.5">
                                 <label className="block text-[10px] font-medium text-gray-600">
-                                  Task name *
+                                  Tên Nhiệm Vụ *
                                 </label>
                                 <input
                                   type="text"
@@ -1248,7 +1248,7 @@ export const CreateEmergencyProtocolDialog = ({
                                     })
                                   }
                                   disabled={isLoading}
-                                  placeholder="Task name"
+                                  placeholder="Tên nhiệm vụ"
                                   className={`block w-full rounded-md border ${hasTaskError
                                     ? 'border-red-500 bg-red-50'
                                     : 'border-gray-300 bg-white'
@@ -1256,14 +1256,14 @@ export const CreateEmergencyProtocolDialog = ({
                                 />
                                 {hasTaskError && (
                                   <p className="mt-0.5 text-[10px] text-red-600">
-                                    Task name is required
+                                    Tên nhiệm vụ là bắt buộc
                                   </p>
                                 )}
                               </div>
 
                               <div className="space-y-0.5">
                                 <label className="block text-[10px] font-medium text-gray-600">
-                                  Description
+                                  Mô Tả
                                 </label>
                                 <textarea
                                   value={task.description || ''}
@@ -1273,7 +1273,7 @@ export const CreateEmergencyProtocolDialog = ({
                                     })
                                   }
                                   disabled={isLoading}
-                                  placeholder="Description"
+                                  placeholder="Mô tả"
                                   rows={2}
                                   className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                 />
@@ -1282,7 +1282,7 @@ export const CreateEmergencyProtocolDialog = ({
                               <div className="grid grid-cols-2 gap-1.5">
                                 <div className="space-y-0.5">
                                   <label className="block text-[10px] font-medium text-gray-600">
-                                    Days After
+                                    Ngày Sau
                                   </label>
                                   <input
                                     type="number"
@@ -1300,7 +1300,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 </div>
                                 <div className="space-y-0.5">
                                   <label className="block text-[10px] font-medium text-gray-600">
-                                    Duration
+                                    Thời Gian
                                   </label>
                                   <input
                                     type="number"
@@ -1321,7 +1321,7 @@ export const CreateEmergencyProtocolDialog = ({
 
                               <div className="space-y-0.5">
                                 <label className="block text-[10px] font-medium text-gray-600">
-                                  Task Type
+                                  Loại Nhiệm Vụ
                                 </label>
                                 <select
                                   value={task.taskType}
@@ -1335,7 +1335,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 >
                                   {TASK_TYPES.map((type) => (
                                     <option key={type} value={type}>
-                                      {type}
+                                      {type === 'LandPreparation' ? 'Chuẩn Bị Đất' : type === 'Fertilization' ? 'Bón Phân' : type === 'PestControl' ? 'Kiểm Soát Sâu Bệnh' : type === 'Harvesting' ? 'Thu Hoạch' : 'Gieo Trồng'}
                                     </option>
                                   ))}
                                 </select>
@@ -1343,7 +1343,7 @@ export const CreateEmergencyProtocolDialog = ({
 
                               <div className="space-y-0.5">
                                 <label className="block text-[10px] font-medium text-gray-600">
-                                  Priority
+                                  Ưu Tiên
                                 </label>
                                 <select
                                   value={task.priority}
@@ -1357,7 +1357,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 >
                                   {PRIORITIES.map((priority) => (
                                     <option key={priority} value={priority}>
-                                      {priority}
+                                      {priority === 'Low' ? 'Thấp' : priority === 'Normal' ? 'Bình Thường' : priority === 'High' ? 'Cao' : 'Nghiêm Trọng'}
                                     </option>
                                   ))}
                                 </select>
@@ -1367,7 +1367,7 @@ export const CreateEmergencyProtocolDialog = ({
                               <div className="space-y-1.5 rounded-md border border-gray-200 bg-gray-50 p-1.5">
                                 <div className="flex items-center justify-between">
                                   <span className="text-[10px] font-semibold text-gray-700">
-                                    Materials
+                                    Vật Liệu
                                   </span>
                                   <button
                                     type="button"
@@ -1377,7 +1377,7 @@ export const CreateEmergencyProtocolDialog = ({
                                     disabled={isLoading}
                                     className="text-[10px] font-medium text-blue-600 underline hover:text-blue-700"
                                   >
-                                    + Add
+                                    + Thêm
                                   </button>
                                 </div>
                                 {task.materials.map(
@@ -1401,10 +1401,10 @@ export const CreateEmergencyProtocolDialog = ({
                                         className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                       >
                                         <option value="">
-                                          Select material...
+                                          Chọn vật liệu...
                                         </option>
                                         {fertilizers.length > 0 && (
-                                          <optgroup label="Fertilizers">
+                                          <optgroup label="Phân Bón">
                                             {fertilizers.map((mat: any) => (
                                               <option
                                                 key={mat.materialId}
@@ -1416,7 +1416,7 @@ export const CreateEmergencyProtocolDialog = ({
                                           </optgroup>
                                         )}
                                         {pesticides.length > 0 && (
-                                          <optgroup label="Pesticides">
+                                          <optgroup label="Thuốc Trừ Sâu">
                                             {pesticides.map((mat: any) => (
                                               <option
                                                 key={mat.materialId}
@@ -1428,7 +1428,7 @@ export const CreateEmergencyProtocolDialog = ({
                                           </optgroup>
                                         )}
                                         {seeds.length > 0 && (
-                                          <optgroup label="Seeds">
+                                          <optgroup label="Hạt Giống">
                                             {seeds.map((mat: any) => (
                                               <option
                                                 key={mat.materialId}
@@ -1456,7 +1456,7 @@ export const CreateEmergencyProtocolDialog = ({
                                           disabled={isLoading}
                                           min="0"
                                           step="0.1"
-                                          placeholder="Qty/ha"
+                                          placeholder="Số lượng/ha"
                                           className="flex-1 rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                         />
                                         <button
@@ -1479,7 +1479,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 )}
                                 {task.materials.length === 0 && (
                                   <p className="py-0.5 text-center text-[10px] italic text-gray-500">
-                                    No materials
+                                    Không có vật liệu
                                   </p>
                                 )}
                               </div>
@@ -1491,7 +1491,7 @@ export const CreateEmergencyProtocolDialog = ({
                             onClick={() => handleInsertTask(0, taskIndex + 1)}
                             disabled={isLoading}
                             className="absolute -right-3 top-1/2 z-10 flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-blue-500 text-white shadow-md transition-colors hover:bg-blue-600"
-                            title="Add task after"
+                            title="Thêm nhiệm vụ sau"
                           >
                             <Plus className="size-3.5" />
                           </button>
@@ -1504,10 +1504,10 @@ export const CreateEmergencyProtocolDialog = ({
                     editableStages[0].tasks.length === 0) && (
                       <div className="rounded-lg border border-yellow-200 bg-yellow-50 py-8 text-center">
                         <p className="mb-1 text-sm font-medium text-yellow-800">
-                          ⚠️ At least one task is required
+                          ⚠️ Cần ít nhất một nhiệm vụ
                         </p>
                         <p className="mb-3 text-xs italic text-yellow-600">
-                          Add a task to proceed to the next step
+                          Thêm nhiệm vụ để tiếp tục bước tiếp theo
                         </p>
                         <button
                           type="button"
@@ -1516,7 +1516,7 @@ export const CreateEmergencyProtocolDialog = ({
                           className="inline-flex items-center gap-1 rounded-md bg-yellow-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-yellow-600"
                         >
                           <Plus className="size-3.5" />
-                          Add First Task
+                          Thêm Nhiệm Vụ Đầu Tiên
                         </button>
                       </div>
                     )}
@@ -1530,7 +1530,7 @@ export const CreateEmergencyProtocolDialog = ({
                       disabled={isLoading}
                     >
                       <ArrowLeft className="mr-1 size-4" />
-                      Back
+                      Quay Lại
                     </Button>
                     <Button
                       onClick={handleToThresholds}
@@ -1544,7 +1544,7 @@ export const CreateEmergencyProtocolDialog = ({
                       }
                       icon={<ArrowRight className="size-4" />}
                     >
-                      Next: Add Thresholds
+                      Tiếp: Thêm Ngưỡng
                     </Button>
                   </div>
                 </div>
@@ -1559,10 +1559,10 @@ export const CreateEmergencyProtocolDialog = ({
                     <Bug className="mt-0.5 size-5 text-blue-600" />
                     <div>
                       <h4 className="font-semibold text-blue-900">
-                        Step 3: Define Thresholds
+                        Bước 3: Định Nghĩa Ngưỡng
                       </h4>
                       <p className="mt-1 text-sm text-blue-700">
-                        Add thresholds that trigger this emergency protocol.
+                        Thêm ngưỡng kích hoạt quy trình khẩn cấp này.
                       </p>
                     </div>
                   </div>
@@ -1571,7 +1571,7 @@ export const CreateEmergencyProtocolDialog = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-semibold text-gray-900">
-                      Thresholds ({editableThresholds.length})
+                      Ngưỡng ({editableThresholds.length})
                     </span>
                     <Button
                       onClick={() => setIsThresholdDialogOpen(true)}
@@ -1579,7 +1579,7 @@ export const CreateEmergencyProtocolDialog = ({
                       size="sm"
                       icon={<Plus className="size-4" />}
                     >
-                      Add Threshold
+                      Thêm Ngưỡng
                     </Button>
                   </div>
 
@@ -1596,13 +1596,13 @@ export const CreateEmergencyProtocolDialog = ({
                                 {threshold.pestProtocolId && (
                                   <span className="inline-flex items-center gap-1 rounded-md bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
                                     <Bug className="size-3" />
-                                    Pest
+                                    Sâu Bệnh
                                   </span>
                                 )}
                                 {threshold.weatherProtocolId && (
                                   <span className="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
                                     <Cloud className="size-3" />
-                                    Weather
+                                    Thời Tiết
                                   </span>
                                 )}
                                 <span className="font-medium text-gray-900">
@@ -1611,7 +1611,7 @@ export const CreateEmergencyProtocolDialog = ({
                                     threshold.weatherEventType,
                                   ]
                                     .filter(Boolean)
-                                    .join(' + ') || 'Combined Threshold'}
+                                    .join(' + ') || 'Ngưỡng Kết Hợp'}
                                 </span>
                               </div>
 
@@ -1620,15 +1620,15 @@ export const CreateEmergencyProtocolDialog = ({
                                 <div className="border-l-2 border-orange-200 pl-2">
                                   <p className="text-xs text-gray-600">
                                     <span className="font-medium text-orange-600">
-                                      Pest:
+                                      Sâu Bệnh:
                                     </span>{' '}
                                     {threshold.pestSeverityLevel}
-                                    {' • '}Area:{' '}
+                                    {' • '}Diện Tích:{' '}
                                     {threshold.pestAreaThresholdPercent}%{' • '}
-                                    Damage:{' '}
+                                    Thiệt Hại:{' '}
                                     {threshold.pestDamageThresholdPercent}%
                                     {threshold.pestGrowthStage &&
-                                      ` • Stage: ${threshold.pestGrowthStage}`}
+                                      ` • Giai Đoạn: ${threshold.pestGrowthStage}`}
                                   </p>
                                 </div>
                               )}
@@ -1638,20 +1638,20 @@ export const CreateEmergencyProtocolDialog = ({
                                 <div className="border-l-2 border-blue-200 pl-2">
                                   <p className="text-xs text-gray-600">
                                     <span className="font-medium text-blue-600">
-                                      Weather:
+                                      Thời Tiết:
                                     </span>{' '}
                                     {threshold.weatherIntensityLevel}
                                     {' • '}
                                     {threshold.weatherMeasurementThreshold}{' '}
                                     {threshold.weatherMeasurementUnit}
                                     {threshold.weatherDurationDaysThreshold &&
-                                      ` • ${threshold.weatherDurationDaysThreshold} days`}
+                                      ` • ${threshold.weatherDurationDaysThreshold} ngày`}
                                   </p>
                                 </div>
                               )}
 
                               <p className="text-xs text-gray-500">
-                                Season: {threshold.applicableSeason} • Priority:{' '}
+                                Mùa Vụ: {threshold.applicableSeason} • Ưu Tiên:{' '}
                                 {threshold.priority}
                               </p>
                             </div>
@@ -1663,7 +1663,7 @@ export const CreateEmergencyProtocolDialog = ({
                                   setIsThresholdDialogOpen(true);
                                 }}
                                 className="rounded p-1 transition-colors hover:bg-gray-200"
-                                title="Edit threshold"
+                                title="Chỉnh sửa ngưỡng"
                               >
                                 <Edit className="size-4 text-gray-600" />
                               </button>
@@ -1681,7 +1681,7 @@ export const CreateEmergencyProtocolDialog = ({
                     </div>
                   ) : (
                     <p className="rounded-md bg-gray-50 py-8 text-center text-sm italic text-gray-500">
-                      No thresholds yet. Click "Add Threshold" to create one.
+                      Chưa có ngưỡng nào. Nhấp "Thêm Ngưỡng" để tạo một ngưỡng.
                     </p>
                   )}
                 </div>
@@ -1694,14 +1694,14 @@ export const CreateEmergencyProtocolDialog = ({
                       disabled={isLoading}
                     >
                       <ArrowLeft className="mr-1 size-4" />
-                      Back
+                      Quay Lại
                     </Button>
                     <Button
                       onClick={handleToPreview}
                       disabled={isLoading}
                       icon={<ArrowRight className="size-4" />}
                     >
-                      Next: Preview
+                      Tiếp: Xem Trước
                     </Button>
                   </div>
                 </div>
@@ -1716,11 +1716,11 @@ export const CreateEmergencyProtocolDialog = ({
                     <FileText className="mt-0.5 size-5 text-blue-600" />
                     <div>
                       <h4 className="font-semibold text-blue-900">
-                        Step 4: Review & Create
+                        Bước 4: Xem Xét & Tạo
                       </h4>
                       <p className="mt-1 text-sm text-blue-700">
-                        Review the emergency protocol details. Click "Create
-                        Protocol" to finalize.
+                        Xem xét chi tiết quy trình khẩn cấp. Nhấp "Tạo Quy Trình"
+                        để hoàn tất.
                       </p>
                     </div>
                   </div>
@@ -1737,18 +1737,18 @@ export const CreateEmergencyProtocolDialog = ({
                   <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
                     <div>
                       <span className="font-medium text-gray-700">
-                        Duration:
+                        Thời Gian:
                       </span>{' '}
                       <span className="text-gray-900">
-                        {formData?.totalDurationDays} days
+                        {formData?.totalDurationDays} ngày
                       </span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Status:</span>{' '}
+                      <span className="font-medium text-gray-700">Trạng Thái:</span>{' '}
                       <span
                         className={`${formData?.isActive ? 'text-green-600' : 'text-gray-600'}`}
                       >
-                        {formData?.isActive ? 'Active' : 'Inactive'}
+                        {formData?.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                       </span>
                     </div>
                   </div>
@@ -1758,12 +1758,12 @@ export const CreateEmergencyProtocolDialog = ({
                 <div className="max-h-[400px] overflow-y-auto rounded-lg border">
                   <div className="space-y-3 p-4">
                     <h4 className="sticky top-0 z-10 bg-white pb-2 font-semibold text-gray-900">
-                      Tasks (
+                      Nhiệm Vụ (
                       {editableStages.reduce(
                         (sum, s) => sum + s.tasks.length,
                         0,
                       )}{' '}
-                      tasks)
+                      nhiệm vụ)
                     </h4>
                     {editableStages.map((stage, idx) => (
                       <div key={idx} className="rounded-lg border bg-white p-3">
@@ -1778,14 +1778,14 @@ export const CreateEmergencyProtocolDialog = ({
                                   {task.taskName}
                                 </div>
                                 <div className="text-xs text-gray-500">
-                                  Day {task.daysAfter} • Duration:{' '}
-                                  {task.durationDays} day(s) • {task.taskType} •
-                                  Priority: {task.priority}
+                                  Ngày {task.daysAfter} • Thời Gian:{' '}
+                                  {task.durationDays} ngày • {task.taskType} •
+                                  Ưu Tiên: {task.priority}
                                 </div>
                                 {task.materials.length > 0 && (
                                   <div className="mt-1 space-y-1">
                                     <div className="text-xs text-gray-600">
-                                      Materials:{' '}
+                                      Vật Liệu:{' '}
                                       {task.materials
                                         .map((m) => {
                                           const mat = [
@@ -1820,13 +1820,13 @@ export const CreateEmergencyProtocolDialog = ({
                 {editableStages.some(s => s.tasks.some(t => t.materials.length > 0)) && (
                   <div className="rounded-lg border bg-gradient-to-r from-green-50 to-emerald-50 p-4">
                     <div className="mb-3 flex items-center gap-2">
-                      <h4 className="font-semibold text-gray-900">Cost Estimate (per hectare)</h4>
+                      <h4 className="font-semibold text-gray-900">Ước Tính Chi Phí (mỗi hecta)</h4>
                       {calculateCostMutation.isPending && <Spinner size="sm" />}
                     </div>
                     {calculateCostMutation.isPending ? (
-                      <div className="text-center py-4 text-gray-500">Calculating costs...</div>
+                      <div className="text-center py-4 text-gray-500">Đang tính toán chi phí...</div>
                     ) : materialCosts.length === 0 ? (
-                      <div className="text-center py-4 text-gray-500">Unable to load cost information</div>
+                      <div className="text-center py-4 text-gray-500">Không thể tải thông tin chi phí</div>
                     ) : (
                       <div className="space-y-2">
                         {materialCosts.map((item) => (
@@ -1837,8 +1837,8 @@ export const CreateEmergencyProtocolDialog = ({
                             <div className="flex-1">
                               <p className="font-medium text-gray-900">{item.materialName}</p>
                               <p className="text-xs text-gray-500">
-                                {item.quantityPerHa} {item.unit}/ha • {item.packagesNeeded} package(s) needed
-                                ({item.amountPerMaterial} {item.unit}/package)
+                                {item.quantityPerHa} {item.unit}/ha • Cần {item.packagesNeeded} gói
+                                ({item.amountPerMaterial} {item.unit}/gói)
                               </p>
                             </div>
                             <div className="text-right">
@@ -1846,13 +1846,13 @@ export const CreateEmergencyProtocolDialog = ({
                                 {item.costPerHa.toFixed(0)} VND/ha
                               </p>
                               <p className="text-xs text-gray-500">
-                                {item.pricePerMaterial} VND/package
+                                {item.pricePerMaterial} VND/gói
                               </p>
                             </div>
                           </div>
                         ))}
                         <div className="mt-3 flex items-center justify-between border-t pt-3">
-                          <p className="text-lg font-bold text-gray-900">Total Cost</p>
+                          <p className="text-lg font-bold text-gray-900">Tổng Chi Phí</p>
                           <p className="text-2xl font-bold text-green-700">
                             {totalCostPerHa.toFixed(0)} VND/ha
                           </p>
@@ -1866,7 +1866,7 @@ export const CreateEmergencyProtocolDialog = ({
                 {editableThresholds.length > 0 && (
                   <div className="rounded-lg border bg-white p-4">
                     <h4 className="mb-3 font-semibold text-gray-900">
-                      Thresholds ({editableThresholds.length})
+                      Ngưỡng ({editableThresholds.length})
                     </h4>
                     <div className="space-y-2">
                       {editableThresholds.map((threshold, idx) => (
@@ -1878,13 +1878,13 @@ export const CreateEmergencyProtocolDialog = ({
                             {threshold.pestProtocolId && (
                               <span className="inline-flex items-center gap-1 rounded-md bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">
                                 <Bug className="size-3" />
-                                Pest Threshold
+                                Ngưỡng Sâu Bệnh
                               </span>
                             )}
                             {threshold.weatherProtocolId && (
                               <span className="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
                                 <Cloud className="size-3" />
-                                Weather Threshold
+                                Ngưỡng Thời Tiết
                               </span>
                             )}
                           </div>
@@ -1893,12 +1893,12 @@ export const CreateEmergencyProtocolDialog = ({
                           {threshold.pestProtocolId && (
                             <div className="mb-2 border-l-2 border-orange-300 pl-3">
                               <p className="mb-1 text-xs font-medium text-orange-900">
-                                Pest Conditions:
+                                Điều Kiện Sâu Bệnh:
                               </p>
                               <div className="space-y-0.5 text-xs text-gray-700">
                                 {threshold.pestAffectType && (
                                   <p>
-                                    • Affect Type:{' '}
+                                    • Loại Ảnh Hưởng:{' '}
                                     <span className="font-medium">
                                       {threshold.pestAffectType}
                                     </span>
@@ -1906,7 +1906,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 )}
                                 {threshold.pestSeverityLevel && (
                                   <p>
-                                    • Severity:{' '}
+                                    • Mức Độ Nghiêm Trọng:{' '}
                                     <span className="font-medium">
                                       {threshold.pestSeverityLevel}
                                     </span>
@@ -1915,7 +1915,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 {threshold.pestAreaThresholdPercent !==
                                   undefined && (
                                     <p>
-                                      • Area Threshold:{' '}
+                                      • Ngưỡng Diện Tích:{' '}
                                       <span className="font-medium">
                                         {threshold.pestAreaThresholdPercent}%
                                       </span>
@@ -1924,7 +1924,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 {threshold.pestDamageThresholdPercent !==
                                   undefined && (
                                     <p>
-                                      • Damage Threshold:{' '}
+                                      • Ngưỡng Thiệt Hại:{' '}
                                       <span className="font-medium">
                                         {threshold.pestDamageThresholdPercent}%
                                       </span>
@@ -1932,7 +1932,7 @@ export const CreateEmergencyProtocolDialog = ({
                                   )}
                                 {threshold.pestPopulationThreshold && (
                                   <p>
-                                    • Population:{' '}
+                                    • Số Lượng:{' '}
                                     <span className="font-medium">
                                       {threshold.pestPopulationThreshold}
                                     </span>
@@ -1940,7 +1940,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 )}
                                 {threshold.pestGrowthStage && (
                                   <p>
-                                    • Growth Stage:{' '}
+                                    • Giai Đoạn Sinh Trưởng:{' '}
                                     <span className="font-medium">
                                       {threshold.pestGrowthStage}
                                     </span>
@@ -1948,7 +1948,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 )}
                                 {threshold.pestThresholdNotes && (
                                   <p className="italic text-gray-600">
-                                    Note: {threshold.pestThresholdNotes}
+                                    Ghi Chú: {threshold.pestThresholdNotes}
                                   </p>
                                 )}
                               </div>
@@ -1959,12 +1959,12 @@ export const CreateEmergencyProtocolDialog = ({
                           {threshold.weatherProtocolId && (
                             <div className="mb-2 border-l-2 border-blue-300 pl-3">
                               <p className="mb-1 text-xs font-medium text-blue-900">
-                                Weather Conditions:
+                                Điều Kiện Thời Tiết:
                               </p>
                               <div className="space-y-0.5 text-xs text-gray-700">
                                 {threshold.weatherEventType && (
                                   <p>
-                                    • Event Type:{' '}
+                                    • Loại Sự Kiện:{' '}
                                     <span className="font-medium">
                                       {threshold.weatherEventType}
                                     </span>
@@ -1972,7 +1972,7 @@ export const CreateEmergencyProtocolDialog = ({
                                 )}
                                 {threshold.weatherIntensityLevel && (
                                   <p>
-                                    • Intensity:{' '}
+                                    • Cường Độ:{' '}
                                     <span className="font-medium">
                                       {threshold.weatherIntensityLevel}
                                     </span>
@@ -1982,7 +1982,7 @@ export const CreateEmergencyProtocolDialog = ({
                                   undefined &&
                                   threshold.weatherMeasurementUnit && (
                                     <p>
-                                      • Threshold:{' '}
+                                      • Ngưỡng:{' '}
                                       <span className="font-medium">
                                         {threshold.weatherMeasurementThreshold}{' '}
                                         {threshold.weatherMeasurementUnit}
@@ -1991,7 +1991,7 @@ export const CreateEmergencyProtocolDialog = ({
                                   )}
                                 {threshold.weatherThresholdOperator && (
                                   <p>
-                                    • Operator:{' '}
+                                    • Toán Tử:{' '}
                                     <span className="font-medium">
                                       {threshold.weatherThresholdOperator}
                                     </span>
@@ -1999,16 +1999,16 @@ export const CreateEmergencyProtocolDialog = ({
                                 )}
                                 {threshold.weatherDurationDaysThreshold && (
                                   <p>
-                                    • Duration:{' '}
+                                    • Thời Gian:{' '}
                                     <span className="font-medium">
                                       {threshold.weatherDurationDaysThreshold}{' '}
-                                      days
+                                      ngày
                                     </span>
                                   </p>
                                 )}
                                 {threshold.weatherThresholdNotes && (
                                   <p className="italic text-gray-600">
-                                    Note: {threshold.weatherThresholdNotes}
+                                    Ghi Chú: {threshold.weatherThresholdNotes}
                                   </p>
                                 )}
                               </div>
@@ -2020,7 +2020,7 @@ export const CreateEmergencyProtocolDialog = ({
                             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-600">
                               {threshold.applicableSeason && (
                                 <span>
-                                  Season:{' '}
+                                  Mùa Vụ:{' '}
                                   <span className="font-medium text-gray-900">
                                     {threshold.applicableSeason}
                                   </span>
@@ -2028,7 +2028,7 @@ export const CreateEmergencyProtocolDialog = ({
                               )}
                               {threshold.priority && (
                                 <span>
-                                  Priority:{' '}
+                                  Ưu Tiên:{' '}
                                   <span className="font-medium text-gray-900">
                                     {threshold.priority}
                                   </span>
@@ -2036,18 +2036,18 @@ export const CreateEmergencyProtocolDialog = ({
                               )}
                               {threshold.riceVarietyId && (
                                 <span>
-                                  Rice Variety:{' '}
+                                  Giống Lúa:{' '}
                                   <span className="font-medium text-gray-900">
                                     {riceVarieties.find(
                                       (v: any) => v.id === threshold.riceVarietyId,
-                                    )?.varietyName || 'Unknown'}
+                                    )?.varietyName || 'Không Xác Định'}
                                   </span>
                                 </span>
                               )}
                             </div>
                             {threshold.generalNotes && (
                               <p className="mt-1 text-xs italic text-gray-600">
-                                General Note: {threshold.generalNotes}
+                                Ghi Chú Chung: {threshold.generalNotes}
                               </p>
                             )}
                           </div>
@@ -2065,7 +2065,7 @@ export const CreateEmergencyProtocolDialog = ({
                       disabled={createProtocolMutation.isPending}
                     >
                       <ArrowLeft className="mr-1 size-4" />
-                      Back
+                      Quay Lại
                     </Button>
                     <Button
                       onClick={handleCreateOrUpdateProtocol}
@@ -2080,11 +2080,11 @@ export const CreateEmergencyProtocolDialog = ({
                     >
                       {isLoading
                         ? isEditMode
-                          ? 'Updating...'
-                          : 'Creating...'
+                          ? 'Đang Cập Nhật...'
+                          : 'Đang Tạo...'
                         : isEditMode
-                          ? 'Update Protocol'
-                          : 'Create Protocol'}
+                          ? 'Cập Nhật Quy Trình'
+                          : 'Tạo Quy Trình'}
                     </Button>
                   </div>
                 </div>

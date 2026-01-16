@@ -7,7 +7,7 @@ const PlanApprovalsRoute = () => {
 
   return (
     <>
-      <ContentLayout title="Pending Approvals">
+      <ContentLayout title="Phê duyệt đang chờ">
         <PendingApprovalsList onViewPlan={(planId: string) => setSelectedPlanId(planId)} />
       </ContentLayout>
 

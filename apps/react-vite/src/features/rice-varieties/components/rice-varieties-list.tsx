@@ -101,7 +101,7 @@ export const RiceVarietiesList = () => {
         <div className="flex flex-1 gap-2 max-w-md">
           <input
             type="text"
-            placeholder="Search rice varieties..."
+            placeholder="Tìm kiếm giống lúa..."
             value={search}
             onChange={handleSearchChange}
             className="flex-1 h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
@@ -111,19 +111,19 @@ export const RiceVarietiesList = () => {
               variant={isActiveFilter === undefined ? 'default' : 'outline'}
               onClick={() => setIsActiveFilter(undefined)}
             >
-              All
+              Tất Cả
             </Button>
             <Button
               variant={isActiveFilter === true ? 'default' : 'outline'}
               onClick={() => setIsActiveFilter(true)}
             >
-              Active
+              Đang Hoạt Động
             </Button>
             <Button
               variant={isActiveFilter === false ? 'default' : 'outline'}
               onClick={() => setIsActiveFilter(false)}
             >
-              Inactive
+              Không Hoạt Động
             </Button>
           </div>
         </div>
@@ -134,14 +134,14 @@ export const RiceVarietiesList = () => {
             onClick={() => setCreateDialogOpen(true)}
             icon={<Plus className="h-4 w-4" />}
           >
-            Create Variety
+            Tạo Giống Lúa
           </Button>
           <Button
             variant="outline"
             onClick={handleExport}
             icon={<Download className="h-4 w-4" />}
           >
-            Export
+            Xuất
           </Button>
           <Button
             variant="outline"
@@ -149,7 +149,7 @@ export const RiceVarietiesList = () => {
             isLoading={downloadTemplateMutation.isPending}
             icon={<FileDown className="h-4 w-4" />}
           >
-            Template
+            Mẫu
           </Button>
         </div>
       </div>
@@ -161,7 +161,7 @@ export const RiceVarietiesList = () => {
             <div key={categoryName} className="space-y-4">
               <div className="border-b pb-2">
                 <h2 className="text-lg font-semibold text-gray-900">{categoryName}</h2>
-                <p className="text-sm text-gray-500">{varieties.length} varieties</p>
+                <p className="text-sm text-gray-500">{varieties.length} giống</p>
               </div>
               
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
@@ -189,22 +189,22 @@ export const RiceVarietiesList = () => {
                             : 'bg-gray-100 text-gray-700'
                         }`}
                       >
-                        {variety.isActive ? 'Active' : 'Inactive'}
+                        {variety.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                       </span>
                     </div>
 
                     <div className="mt-4 space-y-2">
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-gray-400" />
-                        <span className="text-gray-500">Growth Duration:</span>
+                        <span className="text-gray-500">Thời Gian Sinh Trưởng:</span>
                         <span className="font-medium">
-                          {variety.baseGrowthDurationDays} days
+                          {variety.baseGrowthDurationDays} ngày
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-500">Yield/Hectare:</span>
+                        <span className="text-gray-500">Năng Suất/Hecta:</span>
                         <span className="font-medium">
-                          {variety.baseYieldPerHectare} tons
+                          {variety.baseYieldPerHectare} tấn
                         </span>
                       </div>
                     </div>
@@ -218,7 +218,7 @@ export const RiceVarietiesList = () => {
                     {variety.characteristics && (
                       <div className="mt-3 rounded-md bg-gray-50 p-2">
                         <p className="line-clamp-2 text-xs text-gray-600">
-                          <span className="font-medium">Characteristics: </span>
+                          <span className="font-medium">Đặc Tính: </span>
                           {variety.characteristics}
                         </p>
                       </div>
@@ -233,7 +233,7 @@ export const RiceVarietiesList = () => {
                         icon={<Edit className="h-3 w-3" />}
                         className="flex-1"
                       >
-                        Edit
+                        Chỉnh Sửa
                       </Button>
                       <Button
                         size="sm"
@@ -242,21 +242,21 @@ export const RiceVarietiesList = () => {
                         icon={<Trash2 className="h-3 w-3" />}
                         className="flex-1 text-red-600 hover:bg-red-50 hover:text-red-700"
                       >
-                        Delete
+                        Xóa
                       </Button>
                     </div>
 
                     {/* Season Association */}
                     <div className="mt-4 border-t pt-3">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-gray-500">Season Associations</span>
+                        <span className="text-xs font-medium text-gray-500">Liên Kết Mùa Vụ</span>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleAssociateSeason(variety)}
                           icon={<Plus className="h-3 w-3" />}
                         >
-                          Add Season
+                          Thêm Mùa Vụ
                         </Button>
                       </div>
                       
@@ -272,7 +272,7 @@ export const RiceVarietiesList = () => {
                                     </span>
                                     {association.isRecommended && (
                                       <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-                                        Recommended
+                                        Được Khuyến Nghị
                                       </span>
                                     )}
                                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -280,16 +280,16 @@ export const RiceVarietiesList = () => {
                                       association.riskLevel === 1 ? 'bg-yellow-100 text-yellow-700' :
                                       'bg-red-100 text-red-700'
                                     }`}>
-                                      {association.riskLevel === 0 ? 'Low Risk' :
-                                       association.riskLevel === 1 ? 'Medium Risk' : 'High Risk'}
+                                      {association.riskLevel === 0 ? 'Rủi Ro Thấp' :
+                                       association.riskLevel === 1 ? 'Rủi Ro Trung Bình' : 'Rủi Ro Cao'}
                                     </span>
                                   </div>
                                   <div className="mt-1 text-xs text-blue-700">
                                     <div className="grid grid-cols-2 gap-2">
-                                      <span>Duration: {association.growthDurationDays} days</span>
-                                      <span>Yield: {association.expectedYieldPerHectare} tons/ha</span>
-                                      <span>Planting: {association.optimalPlantingStart} - {association.optimalPlantingEnd}</span>
-                                      <span>Season: {association.seasonName}</span>
+                                      <span>Thời Gian: {association.growthDurationDays} ngày</span>
+                                      <span>Năng Suất: {association.expectedYieldPerHectare} tấn/ha</span>
+                                      <span>Gieo Trồng: {association.optimalPlantingStart} - {association.optimalPlantingEnd}</span>
+                                      <span>Mùa Vụ: {association.seasonName}</span>
                                     </div>
                                     {association.seasonalNotes && (
                                       <p className="mt-1 text-gray-600 italic">
@@ -304,8 +304,8 @@ export const RiceVarietiesList = () => {
                         </div>
                       ) : (
                         <div className="text-center py-2">
-                          <p className="text-xs text-gray-400">No seasons associated</p>
-                          <p className="text-xs text-gray-400">Click "Add Season" to create an association</p>
+                          <p className="text-xs text-gray-400">Chưa có mùa vụ liên kết</p>
+                          <p className="text-xs text-gray-400">Nhấp "Thêm Mùa Vụ" để tạo liên kết</p>
                         </div>
                       )}
                     </div>
@@ -317,7 +317,7 @@ export const RiceVarietiesList = () => {
         </div>
       ) : (
         <div className="flex h-48 items-center justify-center rounded-lg border border-dashed">
-          <p className="text-gray-500">No rice varieties found</p>
+          <p className="text-gray-500">Không tìm thấy giống lúa</p>
         </div>
       )}
 

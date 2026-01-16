@@ -37,10 +37,10 @@ export const EmergencyProtocolsList = () => {
                         </div>
                         <div>
                             <h1 className="text-3xl font-bold text-neutral-900">
-                                Emergency Center
+                                Trung Tâm Khẩn Cấp
                             </h1>
                             <p className="text-sm text-neutral-600 mt-1">
-                                Manage emergency protocols and response procedures for critical crop issues
+                                Quản lý quy trình khẩn cấp và thủ tục phản ứng cho các vấn đề cây trồng quan trọng
                             </p>
                         </div>
                     </div>
@@ -55,7 +55,7 @@ export const EmergencyProtocolsList = () => {
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
                         >
-                            Emergency Protocols
+                            Quy Trình Khẩn Cấp
                         </button>
                         <button
                             onClick={() => setActiveTab('protocols')}
@@ -64,7 +64,7 @@ export const EmergencyProtocolsList = () => {
                                 : 'border-transparent text-gray-500 hover:text-gray-700'
                                 }`}
                         >
-                            Protocols Management
+                            Quản Lý Quy Trình
                         </button>
                     </nav>
                 </div>
@@ -76,7 +76,7 @@ export const EmergencyProtocolsList = () => {
                             <div className="relative flex-1 max-w-md">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                 <Input
-                                    placeholder="Search emergency protocols..."
+                                    placeholder="Tìm kiếm quy trình khẩn cấp..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="pl-10"
@@ -84,7 +84,7 @@ export const EmergencyProtocolsList = () => {
                             </div>
                             <Button onClick={() => setIsCreateOpen(true)}>
                                 <Plus className="h-4 w-4 mr-2" />
-                                Create Emergency Protocol
+                                Tạo Quy Trình Khẩn Cấp
                             </Button>
                         </div>
 
@@ -94,7 +94,7 @@ export const EmergencyProtocolsList = () => {
                             </div>
                         ) : protocols.length === 0 ? (
                             <div className="p-8 text-center text-gray-500 bg-white rounded-lg border">
-                                No emergency protocols found
+                                Không tìm thấy quy trình khẩn cấp
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -116,22 +116,22 @@ export const EmergencyProtocolsList = () => {
                                                     : 'bg-gray-100 text-gray-800'
                                                     }`}
                                             >
-                                                {protocol.isActive ? 'Active' : 'Inactive'}
+                                                {protocol.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                                             </span>
                                         </div>
 
                                         <p className="text-sm text-gray-600 line-clamp-2">
-                                            {protocol.description || 'No description available'}
+                                            {protocol.description || 'Không có mô tả'}
                                         </p>
 
                                         <div className="flex items-center gap-4 text-sm text-gray-500">
                                             <div className="flex items-center gap-1">
                                                 <Calendar className="h-4 w-4" />
-                                                <span>{protocol.totalDurationDays} days</span>
+                                                <span>{protocol.totalDurationDays} ngày</span>
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <Activity className="h-4 w-4" />
-                                                <span>{protocol.totalStages || 0} stages</span>
+                                                <span>{protocol.totalStages || 0} giai đoạn</span>
                                             </div>
                                         </div>
 
@@ -143,7 +143,7 @@ export const EmergencyProtocolsList = () => {
                                                 onClick={() => setDetailProtocol(protocol)}
                                             >
                                                 <Eye className="h-4 w-4 mr-1" />
-                                                Detail
+                                                Chi Tiết
                                             </Button>
                                             <Button
                                                 variant="outline"
@@ -155,7 +155,7 @@ export const EmergencyProtocolsList = () => {
                                                 }}
                                             >
                                                 <Edit className="h-4 w-4 mr-1" />
-                                                Edit
+                                                Chỉnh Sửa
                                             </Button>
                                         </div>
                                     </div>
@@ -166,7 +166,7 @@ export const EmergencyProtocolsList = () => {
                         {protocolsQuery.data && protocolsQuery.data.totalPages > 1 && (
                             <div className="flex items-center justify-between">
                                 <p className="text-sm text-gray-600">
-                                    Page {currentPage} of {protocolsQuery.data.totalPages}
+                                    Trang {currentPage} / {protocolsQuery.data.totalPages}
                                 </p>
                                 <div className="flex gap-2">
                                     <Button
@@ -175,7 +175,7 @@ export const EmergencyProtocolsList = () => {
                                         disabled={!protocolsQuery.data.hasPrevious}
                                         onClick={() => setCurrentPage(currentPage - 1)}
                                     >
-                                        Previous
+                                        Trước
                                     </Button>
                                     <Button
                                         variant="outline"
@@ -183,7 +183,7 @@ export const EmergencyProtocolsList = () => {
                                         disabled={!protocolsQuery.data.hasNext}
                                         onClick={() => setCurrentPage(currentPage + 1)}
                                     >
-                                        Next
+                                        Sau
                                     </Button>
                                 </div>
                             </div>

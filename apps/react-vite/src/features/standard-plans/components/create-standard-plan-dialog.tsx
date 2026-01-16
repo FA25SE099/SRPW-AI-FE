@@ -36,7 +36,7 @@ export const CreateStandardPlanDialog = ({
   const [totalDurationDays, setTotalDurationDays] = useState<number>(120);
   const [stages, setStages] = useState<CreateStandardPlanStage[]>([
     {
-      stageName: 'Land Preparation',
+      stageName: 'Chuẩn bị đất',
       sequenceOrder: 0,
       expectedDurationDays: 7,
       isMandatory: true,
@@ -77,8 +77,8 @@ export const CreateStandardPlanDialog = ({
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Standard plan created successfully',
+          title: 'Thành công',
+          message: 'Tạo kế hoạch chuẩn thành công',
         });
         handleClose();
       },
@@ -86,10 +86,10 @@ export const CreateStandardPlanDialog = ({
         console.error('Create standard plan error:', error);
         console.error('Error response:', error.response?.data);
 
-        const errorMessage = error.errors?.join('\n') || error.message || 'Failed to create standard plan';
+        const errorMessage = error.errors?.join('\n') || error.message || 'Không thể tạo kế hoạch chuẩn';
         addNotification({
           type: 'error',
-          title: 'Error',
+          title: 'Lỗi',
           message: errorMessage,
         });
       },
@@ -103,7 +103,7 @@ export const CreateStandardPlanDialog = ({
     setTotalDurationDays(120);
     setStages([
       {
-        stageName: 'Land Preparation',
+        stageName: 'Chuẩn bị đất',
         sequenceOrder: 0,
         expectedDurationDays: 7,
         isMandatory: true,
@@ -231,8 +231,8 @@ export const CreateStandardPlanDialog = ({
     if (totalDurationDays < 1 || totalDurationDays > 365) {
       addNotification({
         type: 'error',
-        title: 'Validation Error',
-        message: 'Total duration must be between 1 and 365 days',
+        title: 'Lỗi xác thực',
+        message: 'Tổng thời gian phải từ 1 đến 365 ngày',
       });
       return;
     }
@@ -240,8 +240,8 @@ export const CreateStandardPlanDialog = ({
     if (stages.length === 0) {
       addNotification({
         type: 'error',
-        title: 'Validation Error',
-        message: 'Please add at least one stage',
+        title: 'Lỗi xác thực',
+        message: 'Vui lòng thêm ít nhất một giai đoạn',
       });
       return;
     }
@@ -252,8 +252,8 @@ export const CreateStandardPlanDialog = ({
       if (!stage.stageName || !stage.stageName.trim()) {
         addNotification({
           type: 'error',
-          title: 'Validation Error',
-          message: `Stage ${i + 1} must have a name`,
+          title: 'Lỗi xác thực',
+          message: `Giai đoạn ${i + 1} phải có tên`,
         });
         return;
       }
@@ -261,8 +261,8 @@ export const CreateStandardPlanDialog = ({
       if (stage.tasks.length === 0) {
         addNotification({
           type: 'error',
-          title: 'Validation Error',
-          message: `Stage "${stage.stageName}" must have at least one task`,
+          title: 'Lỗi xác thực',
+          message: `Giai đoạn "${stage.stageName}" phải có ít nhất một nhiệm vụ`,
         });
         return;
       }
@@ -272,16 +272,16 @@ export const CreateStandardPlanDialog = ({
         if (!task.taskName || !task.taskName.trim()) {
           addNotification({
             type: 'error',
-            title: 'Validation Error',
-            message: `Task ${j + 1} in stage "${stage.stageName}" must have a name`,
+            title: 'Lỗi xác thực',
+            message: `Nhiệm vụ ${j + 1} trong giai đoạn "${stage.stageName}" phải có tên`,
           });
           return;
         }
         if (!task.description || !task.description.trim()) {
           addNotification({
             type: 'error',
-            title: 'Validation Error',
-            message: `Task "${task.taskName}" must have a description`,
+            title: 'Lỗi xác thực',
+            message: `Nhiệm vụ "${task.taskName}" phải có mô tả`,
           });
           return;
         }
@@ -500,8 +500,8 @@ export const CreateStandardPlanDialog = ({
             console.error('Failed to calculate costs:', error);
             addNotification({
               type: 'error',
-              title: 'Cost Calculation Failed',
-              message: error?.message || 'Unable to calculate material costs',
+              title: 'Tính toán chi phí thất bại',
+              message: error?.message || 'Không thể tính toán chi phí vật liệu',
             });
           },
         }
@@ -522,14 +522,14 @@ export const CreateStandardPlanDialog = ({
           <div className="flex items-center justify-between border-b px-5 py-3">
             <div>
               <h2 className="text-lg font-bold text-gray-900">
-                Create Standard Plan
-                {step === 'basic' && ' - Basic Info'}
-                {step === 'stages' && ' - Stages & Tasks'}
-                {step === 'preview' && ' - Preview'}
+                Tạo Kế Hoạch Chuẩn
+                {step === 'basic' && ' - Thông Tin Cơ Bản'}
+                {step === 'stages' && ' - Giai Đoạn & Nhiệm Vụ'}
+                {step === 'preview' && ' - Xem Trước'}
               </h2>
               {categoryId && (
                 <p className="text-xs text-gray-600">
-                  Category: {categories.find((c: any) => c.id === categoryId)?.categoryName || 'Loading...'}
+                  Danh mục: {categories.find((c: any) => c.id === categoryId)?.categoryName || 'Đang tải...'}
                 </p>
               )}
             </div>
@@ -548,12 +548,12 @@ export const CreateStandardPlanDialog = ({
             {step === 'basic' && (
               <>
                 <div className="rounded-lg border bg-gray-50 p-4 space-y-3">
-                  <h3 className="text-sm font-bold text-gray-900">Basic Information</h3>
+                  <h3 className="text-sm font-bold text-gray-900">Thông Tin Cơ Bản</h3>
 
                   <div className="grid grid-cols-4 gap-3">
                     <div className="space-y-1.5 col-span-2">
                       <label className="block text-xs font-medium text-gray-700">
-                        Plan Name *
+                        Tên Kế Hoạch *
                       </label>
                       <input
                         type="text"
@@ -561,13 +561,13 @@ export const CreateStandardPlanDialog = ({
                         onChange={(e) => setPlanName(e.target.value)}
                         disabled={isLoading}
                         className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
-                        placeholder="e.g., Winter-Spring Rice 2025"
+                        placeholder="VD: Lúa Đông Xuân 2025"
                       />
                     </div>
 
                     <div className="space-y-1.5">
                       <label className="block text-xs font-medium text-gray-700">
-                        Rice Category *
+                        Danh Mục Lúa *
                       </label>
                       {categoriesQuery.isLoading ? (
                         <div className="flex items-center justify-center py-2">
@@ -580,7 +580,7 @@ export const CreateStandardPlanDialog = ({
                           disabled={isLoading}
                           className="block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
                         >
-                          <option value="">Select category...</option>
+                          <option value="">Chọn danh mục...</option>
                           {categories.map((category: any) => (
                             <option key={category.id} value={category.id}>
                               {category.categoryName}
@@ -592,7 +592,7 @@ export const CreateStandardPlanDialog = ({
 
                     <div className="space-y-1.5">
                       <label className="block text-xs font-medium text-gray-700">
-                        Duration (Days) *
+                        Thời Gian (Ngày) *
                       </label>
                       <input
                         type="number"
@@ -608,7 +608,7 @@ export const CreateStandardPlanDialog = ({
 
                     <div className="space-y-1.5 col-span-4">
                       <label className="block text-xs font-medium text-gray-700">
-                        Description (Optional)
+                        Mô Tả (Tùy chọn)
                       </label>
                       <textarea
                         value={description}
@@ -616,7 +616,7 @@ export const CreateStandardPlanDialog = ({
                         disabled={isLoading}
                         rows={2}
                         className="block w-full rounded-md border border-gray-300 px-2.5 py-1.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
-                        placeholder="Standard cultivation plan description"
+                        placeholder="Mô tả kế hoạch canh tác chuẩn"
                       />
                     </div>
                   </div>
@@ -625,7 +625,7 @@ export const CreateStandardPlanDialog = ({
                 <div className="sticky bottom-0 bg-white border-t pt-3 pb-2 -mx-5 px-5">
                   <div className="flex justify-end gap-2">
                     <Button variant="outline" onClick={handleClose} disabled={isLoading} size="sm">
-                      Cancel
+                      Hủy
                     </Button>
                     <Button
                       onClick={() => setStep('stages')}
@@ -633,7 +633,7 @@ export const CreateStandardPlanDialog = ({
                       size="sm"
                       icon={<ArrowRight className="h-4 w-4" />}
                     >
-                      Next: Stages
+                      Tiếp: Giai Đoạn
                     </Button>
                   </div>
                 </div>
@@ -646,14 +646,14 @@ export const CreateStandardPlanDialog = ({
                 {/* Stages Section */}
                 <div className="rounded-lg border bg-white p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-gray-900">Cultivation Stages & Tasks</h3>
+                    <h3 className="text-sm font-bold text-gray-900">Giai Đoạn & Nhiệm Vụ Canh Tác</h3>
                     <Button
                       size="sm"
                       onClick={handleAddStage}
                       disabled={isLoading}
                       icon={<Plus className="h-3.5 w-3.5" />}
                     >
-                      Add Stage
+                      Thêm Giai Đoạn
                     </Button>
                   </div>
 
@@ -667,7 +667,7 @@ export const CreateStandardPlanDialog = ({
                             onClick={() => handleInsertStage(0)}
                             disabled={isLoading}
                             className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 w-6 h-6 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-md transition-colors"
-                            title="Add stage before"
+                            title="Thêm giai đoạn trước"
                           >
                             <Plus className="h-3.5 w-3.5" />
                           </button>
@@ -688,7 +688,7 @@ export const CreateStandardPlanDialog = ({
                                     handleUpdateStage(stageIndex, { stageName: e.target.value })
                                   }
                                   disabled={isLoading}
-                                  placeholder="e.g., Land Preparation, Planting"
+                                  placeholder="VD: Chuẩn bị đất, Gieo trồng"
                                   className="col-span-6 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                 />
                                 <input
@@ -701,7 +701,7 @@ export const CreateStandardPlanDialog = ({
                                   }
                                   disabled={isLoading}
                                   min="1"
-                                  placeholder="Days"
+                                  placeholder="Ngày"
                                   className="col-span-3 block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                 />
                                 <div className="col-span-3 flex items-center gap-2">
@@ -717,7 +717,7 @@ export const CreateStandardPlanDialog = ({
                                       disabled={isLoading}
                                       className="h-3.5 w-3.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                     />
-                                    <span className="font-medium">Mandatory</span>
+                                    <span className="font-medium">Bắt buộc</span>
                                   </label>
                                 </div>
                               </div>
@@ -728,7 +728,7 @@ export const CreateStandardPlanDialog = ({
                                   handleUpdateStage(stageIndex, { notes: e.target.value })
                                 }
                                 disabled={isLoading}
-                                placeholder="Stage notes"
+                                placeholder="Ghi chú giai đoạn"
                                 className="block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs italic text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                               />
                             </div>
@@ -748,7 +748,7 @@ export const CreateStandardPlanDialog = ({
                           <div className="space-y-2">
                             <div className="flex items-center justify-between rounded-md bg-blue-50 px-2.5 py-1.5">
                               <span className="text-xs font-semibold text-blue-900">
-                                Tasks ({stage.tasks.length})
+                                Nhiệm Vụ ({stage.tasks.length})
                               </span>
                               <button
                                 type="button"
@@ -757,7 +757,7 @@ export const CreateStandardPlanDialog = ({
                                 className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
                               >
                                 <Plus className="h-3 w-3" />
-                                Add Task
+                                Thêm Nhiệm Vụ
                               </button>
                             </div>
 
@@ -776,7 +776,7 @@ export const CreateStandardPlanDialog = ({
                                       onClick={() => handleInsertTask(stageIndex, 0)}
                                       disabled={isLoading}
                                       className="absolute -left-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
-                                      title="Add task before"
+                                      title="Thêm nhiệm vụ trước"
                                     >
                                       <Plus className="h-3 w-3" />
                                     </button>
@@ -802,7 +802,7 @@ export const CreateStandardPlanDialog = ({
                                             onClick={() => handleMoveTaskLeft(stageIndex, taskIndex)}
                                             disabled={isLoading || taskIndex === 0}
                                             className="rounded p-0.5 text-blue-600 hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed"
-                                            title="Move task left"
+                                            title="Di chuyển nhiệm vụ sang trái"
                                           >
                                             <ChevronLeft className="h-3 w-3" />
                                           </button>
@@ -811,7 +811,7 @@ export const CreateStandardPlanDialog = ({
                                             onClick={() => handleMoveTaskRight(stageIndex, taskIndex)}
                                             disabled={isLoading || taskIndex === stage.tasks.length - 1}
                                             className="rounded p-0.5 text-blue-600 hover:bg-blue-50 disabled:opacity-30 disabled:cursor-not-allowed"
-                                            title="Move task right"
+                                            title="Di chuyển nhiệm vụ sang phải"
                                           >
                                             <ChevronRight className="h-3 w-3" />
                                           </button>
@@ -837,7 +837,7 @@ export const CreateStandardPlanDialog = ({
                                           })
                                         }
                                         disabled={isLoading}
-                                        placeholder="Task name"
+                                        placeholder="Tên nhiệm vụ"
                                         className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                       />
 
@@ -849,14 +849,14 @@ export const CreateStandardPlanDialog = ({
                                           })
                                         }
                                         disabled={isLoading}
-                                        placeholder="Description"
+                                        placeholder="Mô tả"
                                         rows={2}
                                         className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                       />
 
                                       <div className="grid grid-cols-2 gap-1.5">
                                         <div className="space-y-0.5">
-                                          <label className="block text-[10px] font-medium text-gray-600">Days After</label>
+                                          <label className="block text-[10px] font-medium text-gray-600">Sau Ngày</label>
                                           <input
                                             type="number"
                                             value={task.daysAfter}
@@ -871,7 +871,7 @@ export const CreateStandardPlanDialog = ({
                                           />
                                         </div>
                                         <div className="space-y-0.5">
-                                          <label className="block text-[10px] font-medium text-gray-600">Duration</label>
+                                          <label className="block text-[10px] font-medium text-gray-600">Thời Gian</label>
                                           <input
                                             type="number"
                                             value={task.durationDays}
@@ -889,7 +889,7 @@ export const CreateStandardPlanDialog = ({
                                       </div>
 
                                       <div className="space-y-0.5">
-                                        <label className="block text-[10px] font-medium text-gray-600">Task Type</label>
+                                        <label className="block text-[10px] font-medium text-gray-600">Loại Nhiệm Vụ</label>
                                         <select
                                           value={task.taskType}
                                           onChange={(e) =>
@@ -900,16 +900,16 @@ export const CreateStandardPlanDialog = ({
                                           disabled={isLoading}
                                           className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                         >
-                                          <option value="LandPreparation">Land Preparation</option>
-                                          <option value="Fertilization">Fertilization</option>
-                                          <option value="PestControl">Pest Control</option>
-                                          <option value="Harvesting">Harvesting</option>
-                                          <option value="Sowing">Sowing</option>
+                                          <option value="LandPreparation">Chuẩn bị đất</option>
+                                          <option value="Fertilization">Bón phân</option>
+                                          <option value="PestControl">Kiểm soát sâu bệnh</option>
+                                          <option value="Harvesting">Thu hoạch</option>
+                                          <option value="Sowing">Gieo trồng</option>
                                         </select>
                                       </div>
 
                                       <div className="space-y-0.5">
-                                        <label className="block text-[10px] font-medium text-gray-600">Priority</label>
+                                        <label className="block text-[10px] font-medium text-gray-600">Ưu Tiên</label>
                                         <select
                                           value={task.priority}
                                           onChange={(e) =>
@@ -920,11 +920,19 @@ export const CreateStandardPlanDialog = ({
                                           disabled={isLoading}
                                           className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                         >
-                                          {PRIORITIES.map((priority) => (
-                                            <option key={priority} value={priority}>
-                                              {priority}
-                                            </option>
-                                          ))}
+                                          {PRIORITIES.map((priority) => {
+                                            const priorityLabels: { [key: string]: string } = {
+                                              'Low': 'Thấp',
+                                              'Normal': 'Bình thường',
+                                              'High': 'Cao',
+                                              'Critical': 'Khẩn cấp'
+                                            };
+                                            return (
+                                              <option key={priority} value={priority}>
+                                                {priorityLabels[priority] || priority}
+                                              </option>
+                                            );
+                                          })}
                                         </select>
                                       </div>
 
@@ -932,7 +940,7 @@ export const CreateStandardPlanDialog = ({
                                       <div className="rounded-md border border-gray-200 bg-gray-50 p-1.5 space-y-1.5">
                                         <div className="flex items-center justify-between">
                                           <span className="text-[10px] font-semibold text-gray-700">
-                                            Materials
+                                            Vật Liệu
                                           </span>
                                           <button
                                             type="button"
@@ -940,7 +948,7 @@ export const CreateStandardPlanDialog = ({
                                             disabled={isLoading}
                                             className="text-[10px] font-medium text-blue-600 hover:text-blue-700 underline"
                                           >
-                                            + Add
+                                            + Thêm
                                           </button>
                                         </div>
                                         {task.materials.map((material, materialIndex) => (
@@ -962,13 +970,13 @@ export const CreateStandardPlanDialog = ({
                                               disabled={isLoading || fertilizersQuery.isLoading || pesticidesQuery.isLoading}
                                               className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500 disabled:bg-gray-100"
                                             >
-                                              <option value="">Select material...</option>
+                                              <option value="">Chọn vật liệu...</option>
                                               {fertilizersQuery.isLoading || pesticidesQuery.isLoading ? (
-                                                <option disabled>Loading...</option>
+                                                <option disabled>Đang tải...</option>
                                               ) : (
                                                 <>
                                                   {fertilizers.length > 0 && (
-                                                    <optgroup label="Fertilizers">
+                                                    <optgroup label="Phân bón">
                                                       {fertilizers.map((mat: Material) => (
                                                         <option key={mat.materialId} value={mat.materialId}>
                                                           {mat.name} ({mat.unit})
@@ -977,7 +985,7 @@ export const CreateStandardPlanDialog = ({
                                                     </optgroup>
                                                   )}
                                                   {pesticides.length > 0 && (
-                                                    <optgroup label="Pesticides">
+                                                    <optgroup label="Thuốc trừ sâu">
                                                       {pesticides.map((mat: Material) => (
                                                         <option key={mat.materialId} value={mat.materialId}>
                                                           {mat.name} ({mat.unit})
@@ -986,7 +994,7 @@ export const CreateStandardPlanDialog = ({
                                                     </optgroup>
                                                   )}
                                                   {seeds.length > 0 && (
-                                                    <optgroup label="Seeds">
+                                                    <optgroup label="Hạt giống">
                                                       {seeds.map((mat: Material) => (
                                                         <option key={mat.materialId} value={mat.materialId}>
                                                           {mat.name} ({mat.unit})
@@ -1013,7 +1021,7 @@ export const CreateStandardPlanDialog = ({
                                                 disabled={isLoading}
                                                 min="0"
                                                 step="0.1"
-                                                placeholder="Qty/ha"
+                                                placeholder="Số lượng/ha"
                                                 className="flex-1 rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                               />
                                               <button
@@ -1035,7 +1043,7 @@ export const CreateStandardPlanDialog = ({
                                         ))}
                                         {task.materials.length === 0 && (
                                           <p className="text-[10px] text-gray-500 italic text-center py-0.5">
-                                            No materials
+                                            Không có vật liệu
                                           </p>
                                         )}
                                       </div>
@@ -1048,7 +1056,7 @@ export const CreateStandardPlanDialog = ({
                                     onClick={() => handleInsertTask(stageIndex, taskIndex + 1)}
                                     disabled={isLoading}
                                     className="absolute -right-3 top-1/2 -translate-y-1/2 z-10 w-6 h-6 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center shadow-md transition-colors"
-                                    title="Add task after"
+                                    title="Thêm nhiệm vụ sau"
                                   >
                                     <Plus className="h-3 w-3" />
                                   </button>
@@ -1058,7 +1066,7 @@ export const CreateStandardPlanDialog = ({
 
                             {stage.tasks.length === 0 && (
                               <p className="text-xs text-gray-500 italic text-center py-4 bg-gray-50 rounded-md">
-                                No tasks. Click "Add Task" to create one.
+                                Chưa có nhiệm vụ. Nhấp "Thêm Nhiệm Vụ" để tạo.
                               </p>
                             )}
                           </div>
@@ -1070,7 +1078,7 @@ export const CreateStandardPlanDialog = ({
                           onClick={() => handleInsertStage(stageIndex + 1)}
                           disabled={isLoading}
                           className="absolute -bottom-3 left-1/2 -translate-x-1/2 z-10 w-6 h-6 rounded-full bg-green-500 hover:bg-green-600 text-white flex items-center justify-center shadow-md transition-colors"
-                          title="Add stage after"
+                          title="Thêm giai đoạn sau"
                         >
                           <Plus className="h-3.5 w-3.5" />
                         </button>
@@ -1084,11 +1092,11 @@ export const CreateStandardPlanDialog = ({
                   <div className="flex justify-between items-center">
                     <Button variant="outline" onClick={() => setStep('basic')} disabled={isLoading} size="sm">
                       <ArrowLeft className="h-4 w-4 mr-1" />
-                      Back
+                      Quay lại
                     </Button>
                     <div className="flex gap-2 items-center">
                       <p className="text-xs text-gray-600">
-                        {stages.length} stage{stages.length !== 1 ? 's' : ''} • {stages.reduce((sum, s) => sum + s.tasks.length, 0)} tasks
+                        {stages.length} giai đoạn • {stages.reduce((sum, s) => sum + s.tasks.length, 0)} nhiệm vụ
                       </p>
                       <Button
                         onClick={handleToPreview}
@@ -1096,7 +1104,7 @@ export const CreateStandardPlanDialog = ({
                         size="sm"
                         icon={<ArrowRight className="h-4 w-4" />}
                       >
-                        Next: Preview
+                        Tiếp: Xem Trước
                       </Button>
                     </div>
                   </div>
@@ -1110,16 +1118,16 @@ export const CreateStandardPlanDialog = ({
                 {/* Summary */}
                 <div className="rounded-lg border bg-gray-50 p-4">
                   <h4 className="font-semibold text-gray-900">{planName}</h4>
-                  <p className="mt-2 text-sm text-gray-600">{description || 'No description'}</p>
+                  <p className="mt-2 text-sm text-gray-600">{description || 'Không có mô tả'}</p>
                   <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="font-medium text-gray-700">Duration:</span>{' '}
-                      <span className="text-gray-900">{totalDurationDays} days</span>
+                      <span className="font-medium text-gray-700">Thời gian:</span>{' '}
+                      <span className="text-gray-900">{totalDurationDays} ngày</span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Category:</span>{' '}
+                      <span className="font-medium text-gray-700">Danh mục:</span>{' '}
                       <span className="text-gray-900">
-                        {categories.find((c: any) => c.id === categoryId)?.categoryName || 'Unknown'}
+                        {categories.find((c: any) => c.id === categoryId)?.categoryName || 'Không xác định'}
                       </span>
                     </div>
                   </div>
@@ -1129,7 +1137,7 @@ export const CreateStandardPlanDialog = ({
                 <div className="max-h-[400px] overflow-y-auto rounded-lg border">
                   <div className="space-y-3 p-4">
                     <h4 className="sticky top-0 z-10 bg-white pb-2 font-semibold text-gray-900">
-                      Stages & Tasks ({stages.length} stages, {stages.reduce((sum, s) => sum + s.tasks.length, 0)} tasks)
+                      Giai Đoạn & Nhiệm Vụ ({stages.length} giai đoạn, {stages.reduce((sum, s) => sum + s.tasks.length, 0)} nhiệm vụ)
                     </h4>
                     {stages.map((stage, idx) => (
                       <div key={idx} className="rounded-lg border bg-white p-3">
@@ -1139,8 +1147,8 @@ export const CreateStandardPlanDialog = ({
                           </span>
                           <span className="font-medium text-gray-900">{stage.stageName}</span>
                           <span className="text-xs text-gray-500">
-                            • {stage.expectedDurationDays} days
-                            {stage.isMandatory && ' • Mandatory'}
+                            • {stage.expectedDurationDays} ngày
+                            {stage.isMandatory && ' • Bắt buộc'}
                           </span>
                         </div>
                         {stage.notes && (
@@ -1155,12 +1163,12 @@ export const CreateStandardPlanDialog = ({
                                   <div className="text-xs text-gray-500">{task.description}</div>
                                 )}
                                 <div className="text-xs text-gray-500">
-                                  Day {task.daysAfter} • Duration: {task.durationDays} day(s) • {task.taskType} • Priority: {task.priority}
+                                  Ngày {task.daysAfter} • Thời gian: {task.durationDays} ngày • {task.taskType} • Ưu tiên: {task.priority}
                                 </div>
                                 {task.materials.length > 0 && (
                                   <div className="mt-1 space-y-1">
                                     <div className="text-xs text-gray-600">
-                                      Materials:{' '}
+                                      Vật liệu:{' '}
                                       {task.materials
                                         .map((m) => {
                                           const mat = [...fertilizers, ...pesticides].find(
@@ -1192,17 +1200,17 @@ export const CreateStandardPlanDialog = ({
                   <div className="rounded-lg border bg-gradient-to-r from-green-50 to-emerald-50 p-4">
                     <div className="mb-3 flex items-center gap-2">
                       <h4 className="font-semibold text-gray-900">
-                        Cost Estimate (per hectare)
+                        Ước Tính Chi Phí (mỗi hecta)
                       </h4>
                       {calculateCostMutation.isPending && <Spinner size="sm" />}
                     </div>
                     {calculateCostMutation.isPending ? (
                       <div className="py-4 text-center text-gray-500">
-                        Calculating costs...
+                        Đang tính toán chi phí...
                       </div>
                     ) : materialCosts.length === 0 ? (
                       <div className="py-4 text-center text-gray-500">
-                        Unable to load cost information
+                        Không thể tải thông tin chi phí
                       </div>
                     ) : (
                       <div className="space-y-2">
@@ -1216,8 +1224,8 @@ export const CreateStandardPlanDialog = ({
                                 {item.materialName}
                               </p>
                               <p className="text-xs text-gray-500">
-                                {item.quantityPerHa} {item.unit}/ha • {item.packagesNeeded}{' '}
-                                package(s) needed ({item.amountPerMaterial} {item.unit}/package)
+                                {item.quantityPerHa} {item.unit}/ha • Cần {item.packagesNeeded}{' '}
+                                gói ({item.amountPerMaterial} {item.unit}/gói)
                               </p>
                             </div>
                             <div className="text-right">
@@ -1231,7 +1239,7 @@ export const CreateStandardPlanDialog = ({
                           </div>
                         ))}
                         <div className="mt-3 flex items-center justify-between border-t pt-3">
-                          <p className="text-lg font-bold text-gray-900">Total Cost</p>
+                          <p className="text-lg font-bold text-gray-900">Tổng Chi Phí</p>
                           <p className="text-2xl font-bold text-green-700">
                             {totalCostPerHa.toFixed(0)} VND/ha
                           </p>
@@ -1246,7 +1254,7 @@ export const CreateStandardPlanDialog = ({
                   <div className="flex justify-between items-center">
                     <Button variant="outline" onClick={() => setStep('stages')} disabled={isLoading} size="sm">
                       <ArrowLeft className="h-4 w-4 mr-1" />
-                      Back
+                      Quay lại
                     </Button>
                     <Button
                       onClick={handleSubmit}
@@ -1254,7 +1262,7 @@ export const CreateStandardPlanDialog = ({
                       disabled={isLoading}
                       size="sm"
                     >
-                      Create Plan
+                      Tạo Kế Hoạch
                     </Button>
                   </div>
                 </div>
