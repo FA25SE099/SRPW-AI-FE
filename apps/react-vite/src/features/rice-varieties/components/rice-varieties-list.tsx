@@ -72,7 +72,7 @@ export const RiceVarietiesList = () => {
       </div>
     );
   }
-  
+
   // Group by category
   const groupedVarieties = riceVarieties.reduce((acc: Record<string, RiceVarietyWithSeasons[]>, variety: RiceVarietyWithSeasons) => {
     if (!acc[variety.categoryName]) {
@@ -88,7 +88,11 @@ export const RiceVarietiesList = () => {
     if (!existing) {
       acc.push({
         id: variety.categoryId,
-        name: variety.categoryName,
+        categoryName: variety.categoryName,
+        categoryCode: '',
+        minGrowthDays: 0,
+        maxGrowthDays: 0,
+        isActive: true,
       });
     }
     return acc;
@@ -163,7 +167,7 @@ export const RiceVarietiesList = () => {
                 <h2 className="text-lg font-semibold text-gray-900">{categoryName}</h2>
                 <p className="text-sm text-gray-500">{varieties.length} giống</p>
               </div>
-              
+
               <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
                 {varieties.map((variety: RiceVarietyWithSeasons) => (
                   <div
@@ -183,11 +187,10 @@ export const RiceVarietiesList = () => {
                         </div>
                       </div>
                       <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${
-                          variety.isActive
+                        className={`rounded-full px-2 py-1 text-xs font-medium ${variety.isActive
                             ? 'bg-green-100 text-green-700'
                             : 'bg-gray-100 text-gray-700'
-                        }`}
+                          }`}
                       >
                         {variety.isActive ? 'Đang Hoạt Động' : 'Không Hoạt Động'}
                       </span>
@@ -259,7 +262,7 @@ export const RiceVarietiesList = () => {
                           Thêm Mùa Vụ
                         </Button>
                       </div>
-                      
+
                       {variety.associatedSeasons && variety.associatedSeasons.length > 0 ? (
                         <div className="space-y-2">
                           {variety.associatedSeasons.map((association) => (

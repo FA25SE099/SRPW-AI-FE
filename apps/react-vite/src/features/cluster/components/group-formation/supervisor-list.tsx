@@ -23,11 +23,11 @@ export const SupervisorList = ({
         <div className="flex items-center gap-2">
           <Users className="w-5 h-5 text-blue-600" />
           <CardTitle className="text-base">
-            Available Supervisors ({availableSupervisors.length})
+            Giám Sát Viên Sẵn Sàng ({availableSupervisors.length})
           </CardTitle>
         </div>
         <p className="text-xs text-muted-foreground">
-          Click to view details or assign to a group
+          Nhấp để xem chi tiết hoặc phân công cho một nhóm
         </p>
       </CardHeader>
       <CardContent className="space-y-2 max-h-[400px] overflow-y-auto">
@@ -36,11 +36,10 @@ export const SupervisorList = ({
           availableSupervisors.map((supervisor) => (
             <div
               key={supervisor.supervisorId}
-              className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                selectedSupervisorId === supervisor.supervisorId
+              className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${selectedSupervisorId === supervisor.supervisorId
                   ? 'border-blue-500 bg-blue-50'
                   : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-              }`}
+                }`}
               onClick={() => onSelectSupervisor?.(supervisor.supervisorId)}
             >
               <div className="space-y-2">
@@ -63,20 +62,20 @@ export const SupervisorList = ({
                 {/* Workload Stats */}
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <div className="text-muted-foreground">Groups</div>
+                    <div className="text-muted-foreground">Nhóm</div>
                     <div className="font-semibold">{supervisor.currentGroupCount}</div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Area Used</div>
+                    <div className="text-muted-foreground">DT Đang Dùng</div>
                     <div className="font-semibold">
                       {supervisor.currentTotalArea.toFixed(1)} ha
                     </div>
                   </div>
                   {supervisor.maxAreaCapacity && (
                     <div className="col-span-2">
-                      <div className="text-muted-foreground">Remaining</div>
+                      <div className="text-muted-foreground">Còn Lại</div>
                       <div className="font-semibold text-green-600">
-                        {(supervisor.remainingAreaCapacity ?? 
+                        {(supervisor.remainingAreaCapacity ??
                           (supervisor.maxAreaCapacity - supervisor.currentTotalArea)).toFixed(1)} ha
                       </div>
                     </div>
@@ -87,7 +86,7 @@ export const SupervisorList = ({
                 {supervisor.maxAreaCapacity && (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground">Area Capacity</span>
+                      <span className="text-muted-foreground">Năng Lực DT</span>
                       <span className="font-medium">
                         {Math.round(
                           (supervisor.currentTotalArea / supervisor.maxAreaCapacity) * 100,
@@ -97,13 +96,12 @@ export const SupervisorList = ({
                     </div>
                     <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${
-                          (supervisor.currentTotalArea / supervisor.maxAreaCapacity) * 100 > 90
+                        className={`h-full rounded-full transition-all ${(supervisor.currentTotalArea / supervisor.maxAreaCapacity) * 100 > 90
                             ? 'bg-red-600'
                             : (supervisor.currentTotalArea / supervisor.maxAreaCapacity) * 100 > 75
                               ? 'bg-orange-500'
                               : 'bg-green-600'
-                        }`}
+                          }`}
                         style={{
                           width: `${Math.min(
                             (supervisor.currentTotalArea / supervisor.maxAreaCapacity) * 100,
@@ -115,19 +113,19 @@ export const SupervisorList = ({
                   </div>
                 )}
 
-                {supervisor.maxAreaCapacity && 
-                 (supervisor.remainingAreaCapacity ?? 
-                  (supervisor.maxAreaCapacity - supervisor.currentTotalArea)) < 10 && (
-                  <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700">
-                    Low remaining capacity
-                  </Badge>
-                )}
+                {supervisor.maxAreaCapacity &&
+                  (supervisor.remainingAreaCapacity ??
+                    (supervisor.maxAreaCapacity - supervisor.currentTotalArea)) < 10 && (
+                    <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700">
+                      Năng lực còn lại thấp
+                    </Badge>
+                  )}
               </div>
             </div>
           ))
         ) : (
           <div className="p-4 text-center text-sm text-muted-foreground">
-            No available supervisors
+            Không có giám sát viên sẵn sàng
           </div>
         )}
 
@@ -138,7 +136,7 @@ export const SupervisorList = ({
               <div className="flex items-center gap-2 mb-2">
                 <AlertCircle className="w-4 h-4 text-orange-600" />
                 <h4 className="text-sm font-semibold text-orange-900">
-                  Unavailable ({unavailableSupervisors.length})
+                  Không Sẵn Sàng ({unavailableSupervisors.length})
                 </h4>
               </div>
             </div>

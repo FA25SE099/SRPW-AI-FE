@@ -52,7 +52,7 @@ export const ReadinessCard = ({ readiness }: ReadinessCardProps) => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
-          <span>Production Plan Readiness</span>
+          <span>Sẵn Sàng Kế Hoạch Sản Xuất</span>
           <Badge variant={getBadgeVariant()}>
             {readiness.readinessLevel}
           </Badge>
@@ -62,7 +62,7 @@ export const ReadinessCard = ({ readiness }: ReadinessCardProps) => {
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Readiness Score</span>
+            <span className="text-sm font-medium">Điểm Sẵn Sàng</span>
             <span className={cn("text-2xl font-bold", getColorClass())}>
               {readiness.readinessScore}%
             </span>
@@ -72,19 +72,19 @@ export const ReadinessCard = ({ readiness }: ReadinessCardProps) => {
 
         {/* Checklist */}
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold">Requirements Checklist</h4>
+          <h4 className="text-sm font-semibold">Danh Sách Yêu Cầu</h4>
           <div className="space-y-2">
             <CheckItem
               passed={readiness.hasRiceVariety}
-              label="Rice Variety Selected"
+              label="Đã Chọn Giống Lúa"
             />
             <CheckItem
               passed={readiness.hasTotalArea}
-              label="Total Area Defined"
+              label="Đã Xác Định Tổng Diện Tích"
             />
             <CheckItem
               passed={readiness.hasPlots}
-              label="All Plots Assigned"
+              label="Đã Phân Công Tất Cả Thửa Đất"
             />
             {/* <CheckItem 
               passed={readiness.allPlotsHavePolygons} 
@@ -97,7 +97,7 @@ export const ReadinessCard = ({ readiness }: ReadinessCardProps) => {
         {readiness.blockingIssues.length > 0 && (
           <Alert variant="destructive">
             <XCircle className="h-4 w-4" />
-            <AlertTitle>Blocking Issues</AlertTitle>
+            <AlertTitle>Vấn Đề Cản Trở</AlertTitle>
             <AlertDescription>
               <ul className="mt-2 list-disc list-inside space-y-1">
                 {readiness.blockingIssues.map((issue, index) => (
@@ -112,7 +112,7 @@ export const ReadinessCard = ({ readiness }: ReadinessCardProps) => {
         {readiness.warnings.length > 0 && (
           <Alert>
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Warnings</AlertTitle>
+            <AlertTitle>Cảnh Báo</AlertTitle>
             <AlertDescription>
               <ul className="mt-2 list-disc list-inside space-y-1">
                 {readiness.warnings.map((warning, index) => (
@@ -127,9 +127,9 @@ export const ReadinessCard = ({ readiness }: ReadinessCardProps) => {
         {readiness.isReady && (
           <Alert className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
             <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <AlertTitle className="text-green-900 dark:text-green-100">Ready to Create Production Plan</AlertTitle>
+            <AlertTitle className="text-green-900 dark:text-green-100">Sẵn Sàng Tạo Kế Hoạch Sản Xuất</AlertTitle>
             <AlertDescription className="text-green-800 dark:text-green-200">
-              All requirements met. You can now create a production plan for this group.
+              Đã đáp ứng tất cả yêu cầu. Bạn có thể tạo kế hoạch sản xuất cho nhóm này.
             </AlertDescription>
           </Alert>
         )}

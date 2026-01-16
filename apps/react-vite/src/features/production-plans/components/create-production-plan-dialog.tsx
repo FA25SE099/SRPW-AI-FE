@@ -11,6 +11,7 @@ import { useMaterials } from '@/features/materials/api/get-materials';
 import { useCalculateGroupMaterialCost, GroupMaterialCostResponse } from '@/features/materials/api/calculate-group-material-cost';
 import { useValidateProductionPlan, YearSeasonContextCard } from '@/features/yearseason';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { translateValidationMessage } from '@/utils/validation-translations';
 import {
   Calendar,
   DollarSign,
@@ -64,7 +65,7 @@ type EditableTask = {
 };
 
 const TASK_TYPES = ['LandPreparation', 'Fertilization', 'PestControl', 'Harvesting', 'Sowing'];
-const PRIORITIES = ['Low', 'Normal', 'High', 'Critical'];
+const PRIORITIES = ['Thấp', 'Bình thường', 'Cao', 'Khẩn cấp'];
 
 export const CreateProductionPlanDialog = ({
   isOpen,
@@ -137,16 +138,16 @@ export const CreateProductionPlanDialog = ({
       onSuccess: () => {
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: 'Production plan created successfully',
+          title: 'Thành công',
+          message: 'Tạo kế hoạch sản xuất thành công',
         });
         handleClose();
       },
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Error',
-          message: error.message || 'Failed to create production plan',
+          title: 'Lỗi',
+          message: error.message || 'Không thể tạo kế hoạch sản xuất',
         });
       },
     },
@@ -493,13 +494,13 @@ export const CreateProductionPlanDialog = ({
   const getTitle = () => {
     switch (step) {
       case 'select':
-        return 'Create Production Plan - Select Template';
+        return 'Tạo Kế Hoạch Sản Xuất - Chọn Mẫu';
       case 'edit':
-        return 'Create Production Plan - Adapt Plan';
+        return 'Tạo Kế Hoạch Sản Xuất - Điều Chỉnh Kế Hoạch';
       case 'preview':
-        return 'Create Production Plan - Review';
+        return 'Tạo Kế Hoạch Sản Xuất - Xem Lại';
       default:
-        return 'Create Production Plan';
+        return 'Tạo Kế Hoạch Sản Xuất';
     }
   };
 
@@ -532,9 +533,9 @@ export const CreateProductionPlanDialog = ({
                   <div className="flex items-start gap-3">
                     <FileText className="h-5 w-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-blue-900">Step 1: Select Standard Plan Template</h4>
+                      <h4 className="font-semibold text-blue-900">Bước 1: Chọn Mẫu Kế Hoạch Chuẩn</h4>
                       <p className="text-sm text-blue-700 mt-1">
-                        Choose a standard plan template and set the base planting date. You'll be able to customize it in the next step.
+                        Chọn một mẫu kế hoạch chuẩn và đặt ngày gieo trồng cơ bản. Bạn sẽ có thể tùy chỉnh nó ở bước tiếp theo.
                       </p>
                     </div>
                   </div>
@@ -551,7 +552,7 @@ export const CreateProductionPlanDialog = ({
                     {validationResult.errors.map((error, idx) => (
                       <Alert key={idx} variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>{error.message}</AlertDescription>
+                        <AlertDescription>{translateValidationMessage(error.message)}</AlertDescription>
                       </Alert>
                     ))}
                   </div>
@@ -563,7 +564,7 @@ export const CreateProductionPlanDialog = ({
                     {validationResult.warnings.map((warning, idx) => (
                       <Alert key={idx}>
                         <AlertTriangle className="h-4 w-4" />
-                        <AlertDescription>{warning.message}</AlertDescription>
+                        <AlertDescription>{translateValidationMessage(warning.message)}</AlertDescription>
                       </Alert>
                     ))}
                   </div>
@@ -572,7 +573,7 @@ export const CreateProductionPlanDialog = ({
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Standard Plan Template *
+                      Mẫu Kế Hoạch Chuẩn *
                     </label>
                     {isLoadingPlans ? (
                       <div className="flex items-center justify-center p-4">
@@ -580,10 +581,10 @@ export const CreateProductionPlanDialog = ({
                       </div>
                     ) : (
                       <select
-                        {...register('standardPlanId', { required: 'Standard plan is required' })}
+                        {...register('standardPlanId', { required: 'Yêu cầu chọn kế hoạch chuẩn' })}
                         className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                       >
-                        <option value="">Select a standard plan...</option>
+                        <option value="">Chọn một kế hoạch chuẩn...</option>
                         {standardPlans.map((plan: any) => (
                           <option key={plan.id} value={plan.id}>
                             {plan.name} - {plan.totalDuration} days ({plan.totalStages || 0} stages)
@@ -598,18 +599,18 @@ export const CreateProductionPlanDialog = ({
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Base Planting Date *
+                      Ngày Gieo Trồng Cơ Bản *
                     </label>
                     <input
                       type="date"
                       min={new Date().toISOString().split('T')[0]}
                       {...register('basePlantingDate', {
-                        required: 'Planting date is required',
+                        required: 'Yêu cầu ngày gieo trồng',
                         validate: (value) => {
                           const selectedDate = new Date(value);
                           const today = new Date();
                           today.setHours(0, 0, 0, 0);
-                          return selectedDate >= today || 'Planting date cannot be in the past';
+                          return selectedDate >= today || 'Ngày gieo trồng không thể là quá khứ';
                         }
                       })}
                       className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
@@ -621,12 +622,12 @@ export const CreateProductionPlanDialog = ({
 
                   <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Plan Name *
+                      Tên Kế Hoạch *
                     </label>
                     <input
                       type="text"
-                      {...register('planName', { required: 'Plan name is required' })}
-                      placeholder="Enter production plan name"
+                      {...register('planName', { required: 'Yêu cầu tên kế hoạch' })}
+                      placeholder="Nhập tên kế hoạch sản xuất"
                       className="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                     />
                     {errors.planName && (
@@ -637,7 +638,7 @@ export const CreateProductionPlanDialog = ({
 
                 <div className="flex justify-end gap-2 pt-4 border-t">
                   <Button type="button" variant="outline" onClick={handleClose}>
-                    Cancel
+                    Hủy
                   </Button>
                   <Button
                     type="submit"
@@ -650,7 +651,7 @@ export const CreateProductionPlanDialog = ({
                     }
                     icon={<ArrowRight className="h-4 w-4" />}
                   >
-                    {validatePlanMutation.isPending ? 'Validating...' : 'Next: Adapt Plan'}
+                    {validatePlanMutation.isPending ? 'Đang xác thực...' : 'Tiếp theo: Điều chỉnh kế hoạch'}
                   </Button>
                 </div>
               </form>
@@ -669,9 +670,9 @@ export const CreateProductionPlanDialog = ({
                       <div className="flex items-start gap-3">
                         <FileText className="h-5 w-5 text-blue-600 mt-0.5" />
                         <div>
-                          <h4 className="font-semibold text-blue-900">Step 2: Adapt Plan to Your Needs</h4>
+                          <h4 className="font-semibold text-blue-900">Bước 2: Điều Chỉnh Kế Hoạch Theo Nhu Cầu</h4>
                           <p className="text-sm text-blue-700 mt-1">
-                            Customize the stages, tasks, and materials. Add or remove items as needed.
+                            Tùy chỉnh các giai đoạn, nhiệm vụ và vật liệu. Thêm hoặc xóa các mục khi cần.
                           </p>
                         </div>
                       </div>
@@ -759,7 +760,7 @@ export const CreateProductionPlanDialog = ({
                                         handleUpdateStage(stageIndex, { description: e.target.value })
                                       }
                                       disabled={isLoading}
-                                      placeholder="Stage description"
+                                      placeholder="Mô tả giai đoạn"
                                       className="block w-full rounded-md border border-gray-300 bg-white px-2.5 py-1 text-xs italic text-gray-600 focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                     />
                                   </div>
@@ -779,7 +780,7 @@ export const CreateProductionPlanDialog = ({
                                 <div className="space-y-2">
                                   <div className="flex items-center justify-between rounded-md bg-blue-50 px-2.5 py-1.5">
                                     <span className="text-xs font-semibold text-blue-900">
-                                      Tasks ({stage.tasks.length})
+                                      Công việc ({stage.tasks.length})
                                     </span>
                                     <button
                                       type="button"
@@ -788,7 +789,7 @@ export const CreateProductionPlanDialog = ({
                                       className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
                                     >
                                       <Plus className="h-3 w-3" />
-                                      Add Task at End
+                                      Thêm Công Việc
                                     </button>
                                   </div>
 
@@ -833,7 +834,7 @@ export const CreateProductionPlanDialog = ({
                                             <div className="space-y-2 flex-1">
                                               <div className="space-y-0.5">
                                                 <label className="block text-[10px] font-medium text-gray-600">
-                                                  Task name *
+                                                  Tên công việc *
                                                 </label>
                                                 <input
                                                   type="text"
@@ -844,17 +845,17 @@ export const CreateProductionPlanDialog = ({
                                                     })
                                                   }
                                                   disabled={isLoading}
-                                                  placeholder="Task name"
+                                                  placeholder="Tên công việc"
                                                   className={`block w-full rounded-md border ${hasTaskError ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-white'
                                                     } px-2 py-1 text-xs font-medium focus:border-blue-500 focus:outline-none focus:ring-blue-500`}
                                                 />
                                                 {hasTaskError && (
-                                                  <p className="text-[10px] text-red-600 mt-0.5">Task name is required</p>
+                                                  <p className="text-[10px] text-red-600 mt-0.5">Yêu cầu tên công việc</p>
                                                 )}
                                               </div>
 
                                               <div className="space-y-0.5">
-                                                <label className="block text-[10px] font-medium text-gray-600">Description</label>
+                                                <label className="block text-[10px] font-medium text-gray-600">Mô tả</label>
                                                 <textarea
                                                   value={task.description || ''}
                                                   onChange={(e) =>
@@ -863,7 +864,7 @@ export const CreateProductionPlanDialog = ({
                                                     })
                                                   }
                                                   disabled={isLoading}
-                                                  placeholder="Description"
+                                                  placeholder="Mô tả"
                                                   rows={2}
                                                   className="block w-full rounded-md border border-gray-300 bg-white px-2 py-1 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                                 />
@@ -871,7 +872,7 @@ export const CreateProductionPlanDialog = ({
 
                                               <div className="grid grid-cols-2 gap-1.5">
                                                 <div className="space-y-0.5">
-                                                  <label className="block text-[10px] font-medium text-gray-600">Days After</label>
+                                                  <label className="block text-[10px] font-medium text-gray-600">Sau (ngày)</label>
                                                   <input
                                                     type="number"
                                                     value={task.daysAfter}
@@ -886,7 +887,7 @@ export const CreateProductionPlanDialog = ({
                                                   />
                                                 </div>
                                                 <div className="space-y-0.5">
-                                                  <label className="block text-[10px] font-medium text-gray-600">Duration</label>
+                                                  <label className="block text-[10px] font-medium text-gray-600">Thời lượng (ngày)</label>
                                                   <input
                                                     type="number"
                                                     value={task.durationDays}
@@ -904,7 +905,7 @@ export const CreateProductionPlanDialog = ({
                                               </div>
 
                                               <div className="space-y-0.5">
-                                                <label className="block text-[10px] font-medium text-gray-600">Task Type</label>
+                                                <label className="block text-[10px] font-medium text-gray-600">Loại công việc</label>
                                                 <select
                                                   value={task.taskType}
                                                   onChange={(e) =>
@@ -915,16 +916,16 @@ export const CreateProductionPlanDialog = ({
                                                   disabled={isLoading}
                                                   className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-xs focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                                 >
-                                                  <option value="LandPreparation">Land Preparation</option>
-                                                  <option value="Fertilization">Fertilization</option>
-                                                  <option value="PestControl">Pest Control</option>
-                                                  <option value="Harvesting">Harvesting</option>
-                                                  <option value="Sowing">Sowing</option>
+                                                  <option value="LandPreparation">Chuẩn bị đất</option>
+                                                  <option value="Fertilization">Bón phân</option>
+                                                  <option value="PestControl">Kiểm soát sâu bệnh</option>
+                                                  <option value="Harvesting">Thu hoạch</option>
+                                                  <option value="Sowing">Gieo trồng</option>
                                                 </select>
                                               </div>
 
                                               <div className="space-y-0.5">
-                                                <label className="block text-[10px] font-medium text-gray-600">Priority</label>
+                                                <label className="block text-[10px] font-medium text-gray-600">Ưu tiên</label>
                                                 <select
                                                   value={task.priority}
                                                   onChange={(e) =>
@@ -947,7 +948,7 @@ export const CreateProductionPlanDialog = ({
                                               <div className="rounded-md border border-gray-200 bg-gray-50 p-1.5 space-y-1.5">
                                                 <div className="flex items-center justify-between">
                                                   <span className="text-[10px] font-semibold text-gray-700">
-                                                    Materials
+                                                    Vật liệu
                                                   </span>
                                                   <button
                                                     type="button"
@@ -955,7 +956,7 @@ export const CreateProductionPlanDialog = ({
                                                     disabled={isLoading}
                                                     className="text-[10px] font-medium text-blue-600 hover:text-blue-700 underline"
                                                   >
-                                                    + Add
+                                                    + Thêm
                                                   </button>
                                                 </div>
                                                 {task.materials.map((material, materialIndex) => (
@@ -977,9 +978,9 @@ export const CreateProductionPlanDialog = ({
                                                       disabled={isLoading}
                                                       className="block w-full rounded-md border border-gray-300 bg-white px-1.5 py-0.5 text-[10px] focus:border-blue-500 focus:outline-none focus:ring-blue-500"
                                                     >
-                                                      <option value="">Select material...</option>
+                                                      <option value="">Chọn vật liệu...</option>
                                                       {fertilizers.length > 0 && (
-                                                        <optgroup label="Fertilizers">
+                                                        <optgroup label="Phân bón">
                                                           {fertilizers.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
@@ -988,7 +989,7 @@ export const CreateProductionPlanDialog = ({
                                                         </optgroup>
                                                       )}
                                                       {pesticides.length > 0 && (
-                                                        <optgroup label="Pesticides">
+                                                        <optgroup label="Thuốc trừ sâu">
                                                           {pesticides.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
@@ -997,7 +998,7 @@ export const CreateProductionPlanDialog = ({
                                                         </optgroup>
                                                       )}
                                                       {seeds.length > 0 && (
-                                                        <optgroup label="Seeds">
+                                                        <optgroup label="Giống">
                                                           {seeds.map((mat: any) => (
                                                             <option key={mat.materialId} value={mat.materialId}>
                                                               {mat.name} ({mat.unit})
@@ -1044,7 +1045,7 @@ export const CreateProductionPlanDialog = ({
                                                 ))}
                                                 {task.materials.length === 0 && (
                                                   <p className="text-[10px] text-gray-500 italic text-center py-0.5">
-                                                    No materials
+                                                    Không có vật liệu
                                                   </p>
                                                 )}
                                               </div>
@@ -1104,19 +1105,19 @@ export const CreateProductionPlanDialog = ({
                     <div className="sticky bottom-0 bg-white border-t pt-3 pb-2 -mx-5 px-5">
                       <div className="flex justify-between items-center">
                         <p className="text-xs text-gray-600">
-                          {editableStages.length} stage{editableStages.length !== 1 ? 's' : ''} • {editableStages.reduce((sum, s) => sum + s.tasks.length, 0)} tasks
+                          {editableStages.length} giai đoạn • {editableStages.reduce((sum, s) => sum + s.tasks.length, 0)} công việc
                         </p>
                         <div className="flex gap-2">
                           <Button variant="outline" onClick={() => setStep('select')} disabled={isLoading}>
                             <ArrowLeft className="h-4 w-4 mr-1" />
-                            Back
+                            Quay lại
                           </Button>
                           <Button
                             onClick={handleToPreview}
                             disabled={isLoading || editableStages.length === 0}
                             icon={<ArrowRight className="h-4 w-4" />}
                           >
-                            Next: Preview
+                            Tiếp theo: Xem trước
                           </Button>
                         </div>
                       </div>
@@ -1133,9 +1134,9 @@ export const CreateProductionPlanDialog = ({
                   <div className="flex items-start gap-3">
                     <FileText className="h-5 w-5 text-blue-600 mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-blue-900">Step 3: Review & Create</h4>
+                      <h4 className="font-semibold text-blue-900">Bước 3: Xem Lại & Tạo</h4>
                       <p className="text-sm text-blue-700 mt-1">
-                        Review the adapted plan. Click "Create Plan" to finalize.
+                        Xem lại kế hoạch đã điều chỉnh. Nhấp "Tạo Kế Hoạch" để hoàn tất.
                       </p>
                     </div>
                   </div>
@@ -1146,7 +1147,7 @@ export const CreateProductionPlanDialog = ({
                   <div className="rounded-lg border bg-green-50 p-4">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium text-green-900">Total Cost</span>
+                      <span className="text-sm font-medium text-green-900">Tổng Chi Phí</span>
                     </div>
                     <p className="mt-2 text-2xl font-bold text-green-900">
                       {groupCostData ? groupCostData.totalGroupCost.toLocaleString('vi-VN') : 'N/A'}
@@ -1155,24 +1156,24 @@ export const CreateProductionPlanDialog = ({
                   </div>                  <div className="rounded-lg border bg-blue-50 p-4">
                     <div className="flex items-center gap-2">
                       <Package className="h-5 w-5 text-blue-600" />
-                      <span className="text-sm font-medium text-blue-900">Total Area</span>
+                      <span className="text-sm font-medium text-blue-900">Tổng Diện Tích</span>
                     </div>
                     <p className="mt-2 text-2xl font-bold text-blue-900">
                       {(totalArea || 0).toFixed(2)}
                     </p>
-                    <p className="text-xs text-blue-700">hectares</p>
+                    <p className="text-xs text-blue-700">hecta</p>
                   </div>
 
                   <div className="rounded-lg border bg-purple-50 p-4">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-5 w-5 text-purple-600" />
-                      <span className="text-sm font-medium text-purple-900">Stages</span>
+                      <span className="text-sm font-medium text-purple-900">Giai Đoạn</span>
                     </div>
                     <p className="mt-2 text-2xl font-bold text-purple-900">
                       {editableStages.length}
                     </p>
                     <p className="text-xs text-purple-700">
-                      {editableStages.reduce((sum, s) => sum + s.tasks.length, 0)} tasks total
+                      {editableStages.reduce((sum, s) => sum + s.tasks.length, 0)} công việc
                     </p>
                   </div>
                 </div>
@@ -1184,17 +1185,17 @@ export const CreateProductionPlanDialog = ({
                   </h4>
                   <div className="mt-2 grid grid-cols-1 gap-2 text-sm md:grid-cols-2">
                     <div>
-                      <span className="font-medium text-gray-700">Group:</span>{' '}
+                      <span className="font-medium text-gray-700">Nhóm:</span>{' '}
                       <span className="text-gray-900">{groupName}</span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Planting Date:</span>{' '}
+                      <span className="font-medium text-gray-700">Ngày Trồng:</span>{' '}
                       <span className="text-gray-900">
                         {formData && new Date(formData.basePlantingDate).toLocaleDateString()}
                       </span>
                     </div>
                     <div>
-                      <span className="font-medium text-gray-700">Total Area:</span>{' '}
+                      <span className="font-medium text-gray-700">Tổng Diện Tích:</span>{' '}
                       <span className="text-gray-900">{(totalArea || 0).toFixed(2)} ha</span>
                     </div>
                   </div>
@@ -1204,21 +1205,21 @@ export const CreateProductionPlanDialog = ({
                 {groupCostData && groupCostData.materialCostDetails.length > 0 && (
                   <div className="rounded-lg border bg-white">
                     <div className="bg-green-50 px-4 py-3 border-b">
-                      <h4 className="font-semibold text-green-900">Material Cost Breakdown</h4>
+                      <h4 className="font-semibold text-green-900">Chi Tiết Chi Phí Vật Liệu</h4>
                       <p className="text-xs text-green-700 mt-1">
-                        Total materials required for {groupCostData.totalGroupArea.toFixed(2)} ha
+                        Tổng vật liệu cần thiết cho {groupCostData.totalGroupArea.toFixed(2)} ha
                       </p>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Material</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Qty/ha</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Total Qty</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Packages</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Price/Package</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Total Cost</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Vật Liệu</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">SL/ha</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Tổng SL</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Gói</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Giá/Gói</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Tổng Chi Phí</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -1229,7 +1230,7 @@ export const CreateProductionPlanDialog = ({
                                 <td className="px-4 py-3">
                                   <div className="font-medium text-gray-900">{material.materialName}</div>
                                   <div className="text-xs text-gray-500">
-                                    Price valid from: {new Date(material.priceValidFrom).toLocaleDateString()}
+                                    Giá hiệu lực từ: {new Date(material.priceValidFrom).toLocaleDateString()}
                                   </div>
                                 </td>
                                 <td className="px-4 py-3 text-right text-gray-700">
@@ -1254,7 +1255,7 @@ export const CreateProductionPlanDialog = ({
                         <tfoot className="bg-gray-50 border-t-2">
                           <tr>
                             <td colSpan={5} className="px-4 py-3 text-right font-bold text-gray-900">
-                              Total Material Cost:
+                              Tổng Chi Phí Vật Liệu:
                             </td>
                             <td className="px-4 py-3 text-right font-bold text-green-700 text-lg">
                               {groupCostData.totalGroupCost.toLocaleString('vi-VN')} VND
@@ -1270,19 +1271,19 @@ export const CreateProductionPlanDialog = ({
                 {groupCostData && groupCostData.plotCostDetails.length > 0 && (
                   <div className="rounded-lg border bg-white">
                     <div className="bg-blue-50 px-4 py-3 border-b">
-                      <h4 className="font-semibold text-blue-900">Cost Allocation by Plot</h4>
+                      <h4 className="font-semibold text-blue-900">Phân Bổ Chi Phí Theo Thửa</h4>
                       <p className="text-xs text-blue-700 mt-1">
-                        Material costs distributed across {groupCostData.plotCostDetails.length} plots
+                        Chi phí vật liệu phân phối cho {groupCostData.plotCostDetails.length} thửa
                       </p>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead className="bg-gray-50">
                           <tr>
-                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Plot Name</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Area (ha)</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Area Ratio</th>
-                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Allocated Cost</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-700">Tên Thửa</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Diện tích (ha)</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Tỉ lệ diện tích</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium text-gray-700">Chi phí phân bổ</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200">
@@ -1303,7 +1304,7 @@ export const CreateProductionPlanDialog = ({
                         </tbody>
                         <tfoot className="bg-gray-50 border-t-2">
                           <tr>
-                            <td className="px-4 py-3 font-bold text-gray-900">Total</td>
+                            <td className="px-4 py-3 font-bold text-gray-900">Tổng</td>
                             <td className="px-4 py-3 text-right font-bold text-gray-900">
                               {groupCostData.totalGroupArea.toFixed(2)}
                             </td>
@@ -1324,7 +1325,7 @@ export const CreateProductionPlanDialog = ({
                     <div className="flex items-start gap-3">
                       <AlertTriangle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-semibold text-orange-900">Price Warnings</h4>
+                        <h4 className="font-semibold text-orange-900">Cảnh Báo Về Giá</h4>
                         <ul className="mt-2 space-y-1 text-sm text-orange-800">
                           {groupCostData.priceWarnings.map((warning, idx) => (
                             <li key={idx}>• {warning}</li>
@@ -1339,7 +1340,7 @@ export const CreateProductionPlanDialog = ({
                 <div className="max-h-[400px] overflow-y-auto rounded-lg border">
                   <div className="p-4 space-y-3">
                     <h4 className="font-semibold text-gray-900 sticky top-0 bg-white pb-2 z-10">
-                      Adapted Stages & Tasks
+                      Giai Đoạn & Công Việc Đã Điều Chỉnh
                     </h4>
                     {editableStages.map((stage, idx) => (
                       <div key={idx} className="rounded-lg border bg-white p-3">
@@ -1347,7 +1348,7 @@ export const CreateProductionPlanDialog = ({
                           {stage.sequenceOrder + 1}. {stage.stageName}
                         </div>
                         <p className="text-xs text-gray-600 mt-1">
-                          Duration: {stage.typicalDurationDays} days
+                          Thời lượng: {stage.typicalDurationDays} ngày
                           {stage.description && ` • ${stage.description}`}
                         </p>
                         {stage.tasks && stage.tasks.length > 0 ? (
@@ -1360,10 +1361,10 @@ export const CreateProductionPlanDialog = ({
                                 <div key={taskIdx} className="text-sm pl-4 border-l-2 border-gray-200">
                                   <div className="font-medium text-gray-700">{task.taskName}</div>
                                   <div className="text-gray-500 text-xs">
-                                    Scheduled: {scheduledDate.toLocaleDateString()} (Day {task.daysAfter})
+                                    Lên lịch: {scheduledDate.toLocaleDateString()} (Ngày {task.daysAfter})
                                   </div>
                                   <div className="text-gray-500 text-xs">
-                                    Duration: {task.durationDays} day{task.durationDays > 1 ? 's' : ''} • {task.taskType} • Priority: {task.priority}
+                                    Thời lượng: {task.durationDays} ngày • {task.taskType} • Ưu tiên: {task.priority}
                                   </div>
                                   {task.description && (
                                     <div className="text-gray-600 text-xs mt-1 italic">
@@ -1372,7 +1373,7 @@ export const CreateProductionPlanDialog = ({
                                   )}
                                   {task.materials && task.materials.length > 0 && (
                                     <div className="mt-1 text-xs text-gray-600">
-                                      <span className="font-medium">Materials:</span>
+                                      <span className="font-medium">Vật liệu:</span>
                                       <ul className="ml-4 mt-1">
                                         {task.materials.filter(m => m.materialId).map((material, matIdx) => {
                                           const materialData = [...fertilizers, ...pesticides].find(
@@ -1392,7 +1393,7 @@ export const CreateProductionPlanDialog = ({
                             })}
                           </div>
                         ) : (
-                          <p className="mt-2 text-sm text-gray-500 italic">No tasks defined for this stage</p>
+                          <p className="mt-2 text-sm text-gray-500 italic">Chưa xác định công việc cho giai đoạn này</p>
                         )}
                       </div>
                     ))}
@@ -1408,14 +1409,14 @@ export const CreateProductionPlanDialog = ({
                       disabled={createPlanMutation.isPending}
                     >
                       <ArrowLeft className="h-4 w-4 mr-1" />
-                      Back to Edit
+                      Quay lại Chỉnh Sửa
                     </Button>
                     <Button
                       onClick={handleCreatePlan}
                       disabled={createPlanMutation.isPending}
                       icon={createPlanMutation.isPending ? <Spinner size="sm" /> : <CheckCircle className="h-4 w-4" />}
                     >
-                      {createPlanMutation.isPending ? 'Creating...' : 'Create Plan'}
+                      {createPlanMutation.isPending ? 'Đang tạo...' : 'Tạo Kế Hoạch'}
                     </Button>
                   </div>
                 </div>

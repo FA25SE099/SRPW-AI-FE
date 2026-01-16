@@ -106,8 +106,8 @@ const ReportsRoute = () => {
 
     if (isLoading) {
         return (
-            <ContentLayout title="Emergency Reports">
-                <Head title="Emergency Reports" />
+            <ContentLayout title="Báo Cáo Khẩn Cấp">
+                <Head title="Báo Cáo Khẩn Cấp" />
                 <div className="flex h-96 items-center justify-center">
                     <Spinner size="lg" className="text-green-600" />
                 </div>
@@ -117,14 +117,14 @@ const ReportsRoute = () => {
 
     if (isError) {
         return (
-            <ContentLayout title="Emergency Reports">
-                <Head title="Emergency Reports" />
+            <ContentLayout title="Báo Cáo Khẩn Cấp">
+                <Head title="Báo Cáo Khẩn Cấp" />
                 <div className="flex h-96 items-center justify-center">
                     <div className="text-center">
                         <p className="text-lg font-semibold text-red-500">
-                            Failed to load reports
+                            Không thể tải báo cáo
                         </p>
-                        <p className="mt-2 text-muted-foreground">Please try again later</p>
+                        <p className="mt-2 text-muted-foreground">Vui lòng thử lại sau</p>
                     </div>
                 </div>
             </ContentLayout>
@@ -138,7 +138,7 @@ const ReportsRoute = () => {
     return (
         <>
             <div>
-                <Head title="Emergency Reports" />
+                <Head title="Báo Cáo Khẩn Cấp" />
                 <div className="space-y-6">
                     {/* Header */}
                     <div className="bg-white border-b border-neutral-200 px-6 py-4 shadow-sm">
@@ -148,10 +148,10 @@ const ReportsRoute = () => {
                             </div>
                             <div>
                                 <h1 className="text-3xl font-bold text-neutral-900">
-                                    Emergency Reports
+                                    Báo Cáo Khẩn Cấp
                                 </h1>
                                 <p className="text-sm text-neutral-600 mt-1">
-                                    View and manage emergency reports from your farmers
+                                    Xem và quản lý báo cáo khẩn cấp từ nông dân của bạn
                                 </p>
                             </div>
                         </div>
@@ -166,7 +166,7 @@ const ReportsRoute = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                                        Total Reports
+                                        Tổng Báo Cáo
                                     </p>
                                     <p className="mt-1 text-2xl font-bold text-gray-900">
                                         {totalCount}
@@ -182,7 +182,7 @@ const ReportsRoute = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                                        Pending
+                                        Chờ Xử Lý
                                     </p>
                                     <p className="mt-1 text-2xl font-bold text-gray-900">
                                         {reports.filter((r: any) => r.status === 'Pending').length}
@@ -198,7 +198,7 @@ const ReportsRoute = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                                        Resolved
+                                        Đã Giải Quyết
                                     </p>
                                     <p className="mt-1 text-2xl font-bold text-gray-900">
                                         {reports.filter((r: any) => r.status === 'Resolved').length}
@@ -214,7 +214,7 @@ const ReportsRoute = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                                        Critical
+                                        Nghiêm Trọng
                                     </p>
                                     <p className="mt-1 text-2xl font-bold text-gray-900">
                                         {reports.filter((r: any) => r.severity === 'Critical').length}
@@ -231,7 +231,7 @@ const ReportsRoute = () => {
                                 <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Search reports..."
+                                    placeholder="Tìm kiếm báo cáo..."
                                     value={searchTerm}
                                     onChange={(e) => {
                                         setSearchTerm(e.target.value);
@@ -251,9 +251,9 @@ const ReportsRoute = () => {
                                 }}
                                 className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                             >
-                                <option value="">All Statuses</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Resolved">Resolved</option>
+                                <option value="">Tất Cả Trạng Thái</option>
+                                <option value="Pending">Chờ Xử Lý</option>
+                                <option value="Resolved">Đã Giải Quyết</option>
                             </select>
 
                             <select
@@ -264,11 +264,11 @@ const ReportsRoute = () => {
                                 }}
                                 className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                             >
-                                <option value="">All Severities</option>
-                                <option value="Low">Low</option>
-                                <option value="Medium">Medium</option>
-                                <option value="High">High</option>
-                                <option value="Critical">Critical</option>
+                                <option value="">Tất Cả Mức Độ</option>
+                                <option value="Low">Thấp</option>
+                                <option value="Medium">Trung Bình</option>
+                                <option value="High">Cao</option>
+                                <option value="Critical">Nghiêm Trọng</option>
                             </select>
 
                             <select
@@ -279,11 +279,11 @@ const ReportsRoute = () => {
                                 }}
                                 className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                             >
-                                <option value="">All Types</option>
-                                <option value="Pest">Pest</option>
-                                <option value="Weather">Weather</option>
-                                <option value="Disease">Disease</option>
-                                <option value="Other">Other</option>
+                                <option value="">Tất Cả Loại</option>
+                                <option value="Pest">Sâu Bệnh</option>
+                                <option value="Weather">Thời Tiết</option>
+                                <option value="Disease">Dịch Bệnh</option>
+                                <option value="Other">Khác</option>
                             </select>
 
                             {(statusFilter || severityFilter || reportTypeFilter) && (
@@ -297,7 +297,7 @@ const ReportsRoute = () => {
                                         setPageNumber(1);
                                     }}
                                 >
-                                    Clear Filters
+                                    Xóa Bộ Lọc
                                 </Button>
                             )}
                         </div>
@@ -308,12 +308,12 @@ const ReportsRoute = () => {
                         <div className="rounded-lg border border-dashed border-gray-200 bg-white py-16 text-center">
                             <AlertTriangle className="mx-auto mb-4 size-16 text-gray-300" />
                             <h3 className="text-lg font-semibold text-gray-900">
-                                No reports found
+                                Không tìm thấy báo cáo
                             </h3>
                             <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">
                                 {searchTerm || statusFilter || severityFilter || reportTypeFilter
-                                    ? 'Try adjusting your filters'
-                                    : 'No emergency reports have been submitted'}
+                                    ? 'Thử điều chỉnh bộ lọc của bạn'
+                                    : 'Chưa có báo cáo khẩn cấp nào được gửi'}
                             </p>
                         </div>
                     ) : (
@@ -358,14 +358,14 @@ const ReportsRoute = () => {
                                                     {report.farmerName && (
                                                         <div className="flex items-center gap-1.5 text-gray-600">
                                                             <span>
-                                                                Farmer: <span className="font-medium text-gray-900">{report.farmerName}</span>
+                                                                Nông Dân: <span className="font-medium text-gray-900">{report.farmerName}</span>
                                                             </span>
                                                         </div>
                                                     )}
                                                     {report.plotName && (
                                                         <div className="flex items-center gap-1.5 text-gray-600">
                                                             <span>
-                                                                Plot: <span className="font-medium text-gray-900">{report.plotName}</span>
+                                                                Thửa Đất: <span className="font-medium text-gray-900">{report.plotName}</span>
                                                                 {report.plotArea && <span className="text-xs ml-1">({report.plotArea} ha)</span>}
                                                             </span>
                                                         </div>
@@ -373,20 +373,20 @@ const ReportsRoute = () => {
                                                     {report.cultivationPlanName && (
                                                         <div className="flex items-center gap-1.5 text-gray-600">
                                                             <span>
-                                                                Plan: <span className="font-medium text-gray-900">{report.cultivationPlanName}</span>
+                                                                Kế Hoạch: <span className="font-medium text-gray-900">{report.cultivationPlanName}</span>
                                                             </span>
                                                         </div>
                                                     )}
                                                     <div className="flex items-center gap-1.5 text-gray-600">
                                                         <Calendar className="h-4 w-4" />
                                                         <span>
-                                                            Reported: <span className="font-medium text-gray-900">{formatDate(report.reportedAt)}</span>
+                                                            Báo Cáo: <span className="font-medium text-gray-900">{formatDate(report.reportedAt)}</span>
                                                         </span>
                                                     </div>
                                                     {report.reportedBy && (
                                                         <div className="flex items-center gap-1.5 text-gray-600">
                                                             <span>
-                                                                By: <span className="font-medium text-gray-900">{report.reportedBy}</span>
+                                                                Bởi: <span className="font-medium text-gray-900">{report.reportedBy}</span>
                                                                 {report.reportedByRole && <span className="text-xs ml-1">({report.reportedByRole})</span>}
                                                             </span>
                                                         </div>
@@ -395,7 +395,7 @@ const ReportsRoute = () => {
                                                         <div className="flex items-center gap-1.5 text-gray-600">
                                                             <Calendar className="h-4 w-4" />
                                                             <span>
-                                                                Resolved: <span className="font-medium text-gray-900">{formatDate(report.resolvedAt)}</span>
+                                                                Giải Quyết: <span className="font-medium text-gray-900">{formatDate(report.resolvedAt)}</span>
                                                             </span>
                                                         </div>
                                                     )}
@@ -404,7 +404,7 @@ const ReportsRoute = () => {
                                                 {report.resolutionNotes && (
                                                     <div className="mt-3 pt-3 border-t border-gray-200">
                                                         <p className="text-xs font-medium text-gray-700">
-                                                            Resolution Notes:
+                                                            Ghi Chú Giải Quyết:
                                                         </p>
                                                         <p className="text-xs text-gray-600 mt-1">
                                                             {report.resolutionNotes}
@@ -439,7 +439,7 @@ const ReportsRoute = () => {
                                                     className="whitespace-nowrap"
                                                 >
                                                     <Eye className="h-4 w-4 mr-1" />
-                                                    View Details
+                                                    Xem Chi Tiết
                                                 </Button>
                                             </div>
                                         </div>
@@ -453,7 +453,7 @@ const ReportsRoute = () => {
                     {totalPages > 1 && (
                         <div className="flex items-center justify-between border-t border-gray-200 pt-4">
                             <div className="text-sm text-gray-600">
-                                Showing page {currentPage} of {totalPages} ({totalCount} total reports)
+                                Hiển thị trang {currentPage} / {totalPages} (Tổng {totalCount} báo cáo)
                             </div>
                             <div className="flex gap-2">
                                 <Button
@@ -462,7 +462,7 @@ const ReportsRoute = () => {
                                     disabled={currentPage === 1}
                                     onClick={() => setPageNumber((prev) => Math.max(1, prev - 1))}
                                 >
-                                    Previous
+                                    Trước
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -472,7 +472,7 @@ const ReportsRoute = () => {
                                         setPageNumber((prev) => Math.min(totalPages, prev + 1))
                                     }
                                 >
-                                    Next
+                                    Tiếp
                                 </Button>
                             </div>
                         </div>

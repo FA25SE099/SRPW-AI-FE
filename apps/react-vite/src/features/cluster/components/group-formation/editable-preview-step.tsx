@@ -211,7 +211,7 @@ export const EditablePreviewStep = ({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Settings className="w-5 h-5" />
-                <CardTitle className="text-base">Formation Parameters</CardTitle>
+                <CardTitle className="text-base">Tham Số Gom Nhóm</CardTitle>
               </div>
               {showParameters ? (
                 <ChevronUp className="w-4 h-4" />
@@ -227,10 +227,10 @@ export const EditablePreviewStep = ({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="w-4 h-4" />
-                  <Label className="font-medium">Proximity Threshold</Label>
+                  <Label className="font-medium">Ngưỡng Gần Kề</Label>
                 </div>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Maximum distance between plots (meters)
+                  Khoảng cách tối đa giữa các thửa đất (mét)
                 </p>
                 <div className="flex items-center gap-2">
                   <Input
@@ -257,10 +257,10 @@ export const EditablePreviewStep = ({
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4" />
-                  <Label className="font-medium">Planting Date Tolerance</Label>
+                  <Label className="font-medium">Dung Sai Ngày Giống</Label>
                 </div>
                 <p className="text-xs text-muted-foreground mb-2">
-                  Days difference allowed in planting dates
+                  Số ngày chênh lệch cho phép trong ngày giống
                 </p>
                 <div className="flex items-center gap-2">
                   <Input
@@ -285,11 +285,11 @@ export const EditablePreviewStep = ({
               {/* Area Constraints */}
               <div className="bg-muted/50 p-3 rounded-lg space-y-3">
                 <div className="font-medium text-sm text-muted-foreground">
-                  AREA CONSTRAINTS
+                  RÀNG BUỘC DIỆN TÍCH
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs">Min Area</Label>
+                    <Label className="text-xs">DT Tối Thiểu</Label>
                     <div className="flex items-center gap-1 mt-1">
                       <Input
                         type="number"
@@ -306,7 +306,7 @@ export const EditablePreviewStep = ({
                     </div>
                   </div>
                   <div>
-                    <Label className="text-xs">Max Area</Label>
+                    <Label className="text-xs">DT Tối Đa</Label>
                     <div className="flex items-center gap-1 mt-1">
                       <Input
                         type="number"
@@ -328,11 +328,11 @@ export const EditablePreviewStep = ({
               {/* Plot Count Constraints */}
               <div className="bg-muted/50 p-3 rounded-lg space-y-3">
                 <div className="font-medium text-sm text-muted-foreground">
-                  PLOT COUNT CONSTRAINTS
+                  RÀNG BUỘC SỐ THỮA ĐẤT
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label className="text-xs">Min Plots</Label>
+                    <Label className="text-xs">Số Thửa Tối Thiểu</Label>
                     <div className="flex items-center gap-1 mt-1">
                       <Input
                         type="number"
@@ -345,11 +345,11 @@ export const EditablePreviewStep = ({
                         }
                         className="h-8"
                       />
-                      <span className="text-xs text-muted-foreground">plots</span>
+                      <span className="text-xs text-muted-foreground">thừa</span>
                     </div>
                   </div>
                   <div>
-                    <Label className="text-xs">Max Plots</Label>
+                    <Label className="text-xs">Số Thừa Tối Đa</Label>
                     <div className="flex items-center gap-1 mt-1">
                       <Input
                         type="number"
@@ -362,7 +362,7 @@ export const EditablePreviewStep = ({
                         }
                         className="h-8"
                       />
-                      <span className="text-xs text-muted-foreground">plots</span>
+                      <span className="text-xs text-muted-foreground">thừa</span>
                     </div>
                   </div>
                 </div>
@@ -378,12 +378,12 @@ export const EditablePreviewStep = ({
                 {isRecalculating ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Recalculating...
+                    Đang tính lại...
                   </>
                 ) : (
                   <>
                     <Layers className="w-4 h-4 mr-2" />
-                    Recalculate Groups
+                    Tính Lại Nhóm
                   </>
                 )}
               </Button>
@@ -404,10 +404,10 @@ export const EditablePreviewStep = ({
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="w-5 h-5 text-orange-600" />
-                <CardTitle className="text-base">Ungrouped Plots</CardTitle>
+                <CardTitle className="text-base">Thừa Đất Chưa Gom Nhóm</CardTitle>
               </div>
               <p className="text-sm text-muted-foreground">
-                These plots don't fit current parameters and will need manual assignment.
+                Các thửa đất này không phù hợp với tham số hiện tại và cần phân công thủ công.
               </p>
             </CardHeader>
             <CardContent className="space-y-2 max-h-64 overflow-y-auto">
@@ -428,11 +428,11 @@ export const EditablePreviewStep = ({
 
                   <div className="text-xs space-y-1">
                     <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground">Variety:</span>
+                      <span className="text-muted-foreground">Giống:</span>
                       <span className="font-medium">{plot.riceVarietyName}</span>
                     </div>
                     <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground">Planting:</span>
+                      <span className="text-muted-foreground">Giống:</span>
                       <span>{new Date(plot.plantingDate).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -454,10 +454,10 @@ export const EditablePreviewStep = ({
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Trash2 className="w-5 h-5 text-red-600" />
-                <CardTitle className="text-base">Removed Plots ({removedPlots.length})</CardTitle>
+                <CardTitle className="text-base">Thừa Đất Đã Gỡ ({removedPlots.length})</CardTitle>
               </div>
               <p className="text-sm text-muted-foreground">
-                Plots removed from groups. Click "Add to Group" to reassign them.
+                Các thừa đất đã gỡ khỏi nhóm. Nhấp "Thêm Vào Nhóm" để phân công lại.
               </p>
             </CardHeader>
             <CardContent className="space-y-2 max-h-64 overflow-y-auto">
@@ -487,12 +487,12 @@ export const EditablePreviewStep = ({
                   <div className="pt-2 border-t border-red-200">
                     <Select onValueChange={(value) => addPlotToGroup(parseInt(value), plot)}>
                       <SelectTrigger className="h-8 text-xs">
-                        <SelectValue placeholder="Add to group..." />
+                        <SelectValue placeholder="Thêm vào nhóm..." />
                       </SelectTrigger>
                       <SelectContent>
                         {editedGroups.map((group) => (
                           <SelectItem key={group.groupNumber} value={group.groupNumber.toString()}>
-                            {group.groupName} ({group.plotCount} plots)
+                            {group.groupName} ({group.plotCount} thừa)
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -514,7 +514,7 @@ export const EditablePreviewStep = ({
               <div className="flex items-start gap-3">
                 <Layers className="w-5 h-5 text-muted-foreground mt-1" />
                 <div>
-                  <div className="text-sm text-muted-foreground">Total Plots</div>
+                  <div className="text-sm text-muted-foreground">Tổng Thừa Đất</div>
                   <div className="text-3xl font-bold">{availablePlots}</div>
                 </div>
               </div>
@@ -538,7 +538,7 @@ export const EditablePreviewStep = ({
                   />
                 </svg>
                 <div>
-                  <div className="text-sm text-muted-foreground">Total Area</div>
+                  <div className="text-sm text-muted-foreground">Tổng Diện Tích</div>
                   <div className="text-3xl font-bold">
                     {editedGroups.reduce((sum, g) => sum + g.totalArea, 0).toFixed(1)} ha
                   </div>
@@ -552,7 +552,7 @@ export const EditablePreviewStep = ({
               <div className="flex items-start gap-3">
                 <Users className="w-5 h-5 text-muted-foreground mt-1" />
                 <div>
-                  <div className="text-sm text-muted-foreground">Proposed Groups</div>
+                  <div className="text-sm text-muted-foreground">Nhóm Đề Xuất</div>
                   <div className="text-3xl font-bold">{editedGroups.length}</div>
                 </div>
               </div>
@@ -564,7 +564,7 @@ export const EditablePreviewStep = ({
               <div className="flex items-start gap-3">
                 <AlertTriangle className="w-5 h-5 text-orange-600 mt-1" />
                 <div>
-                  <div className="text-sm text-orange-800">Ungrouped Plots</div>
+                  <div className="text-sm text-orange-800">Thừa Chưa Gom</div>
                   <div className="text-3xl font-bold text-orange-600">
                     {preview.ungroupedPlots.length}
                   </div>
@@ -582,7 +582,7 @@ export const EditablePreviewStep = ({
                 <AlertCircle className={`w-5 h-5 mt-0.5 ${hasErrors ? 'text-red-600' : 'text-yellow-600'}`} />
                 <div className="flex-1">
                   <h4 className={`font-semibold text-sm ${hasErrors ? 'text-red-900' : 'text-yellow-900'}`}>
-                    {hasErrors ? 'Validation Errors' : 'Warnings'}
+                    {hasErrors ? 'Lỗi Xác Thực' : 'Cảnh Báo'}
                   </h4>
                   <ul className="mt-2 space-y-1 text-sm">
                     {validationErrors.map((error, index) => (
@@ -635,11 +635,11 @@ export const EditablePreviewStep = ({
             <div className="flex items-center gap-2">
               <Edit2 className="w-5 h-5 text-blue-600" />
               <CardTitle className="text-base">
-                Editable Groups ({editedGroups.length})
+                Nhóm Có Thể Chỉnh Sửa ({editedGroups.length})
               </CardTitle>
             </div>
             <p className="text-xs text-muted-foreground">
-              Edit group names, assign supervisors, and manage plots
+              Chỉnh sửa tên nhóm, phân công giám sát viên và quản lý thừa đất
             </p>
           </CardHeader>
           <CardContent className="space-y-3 max-h-[500px] overflow-y-auto">
@@ -652,7 +652,7 @@ export const EditablePreviewStep = ({
                 <div className="p-4 space-y-3">
                   {/* Group Name (Inline Editable) */}
                   <div>
-                    <Label className="text-xs text-muted-foreground">Group Name</Label>
+                    <Label className="text-xs text-muted-foreground">Tên Nhóm</Label>
                     <div className="flex items-center gap-2 mt-1">
                       <div
                         className="w-3 h-3 rounded-full flex-shrink-0"
@@ -723,7 +723,7 @@ export const EditablePreviewStep = ({
 
                   {/* Supervisor Selection */}
                   <div>
-                    <Label className="text-xs text-muted-foreground">Assign Supervisor</Label>
+                    <Label className="text-xs text-muted-foreground">Phân Công Giám Sát Viên</Label>
                     <Select
                       value={group.supervisorId || 'none'}
                       onValueChange={(value) =>
@@ -731,24 +731,24 @@ export const EditablePreviewStep = ({
                       }
                     >
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="No Supervisor" />
+                        <SelectValue placeholder="Không Giám Sát Viên" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="none">
-                          <span className="font-medium">No Supervisor</span>
+                          <span className="font-medium">Không Giám Sát Viên</span>
                         </SelectItem>
                         {preview.availableSupervisors.map((supervisor) => {
                           const capacityPercent = supervisor.maxAreaCapacity
                             ? Math.round(
-                                (supervisor.currentTotalArea / supervisor.maxAreaCapacity) * 100
-                              )
+                              (supervisor.currentTotalArea / supervisor.maxAreaCapacity) * 100
+                            )
                             : 0;
                           const remainingCapacity =
-                            supervisor.remainingAreaCapacity ?? 
-                            (supervisor.maxAreaCapacity 
-                              ? supervisor.maxAreaCapacity - supervisor.currentTotalArea 
+                            supervisor.remainingAreaCapacity ??
+                            (supervisor.maxAreaCapacity
+                              ? supervisor.maxAreaCapacity - supervisor.currentTotalArea
                               : 0);
-                          
+
                           return (
                             <SelectItem
                               key={supervisor.supervisorId}
@@ -760,13 +760,12 @@ export const EditablePreviewStep = ({
                                   {supervisor.fullName}
                                 </span>
                                 <span
-                                  className={`text-xs ${
-                                    !supervisor.isAvailable
-                                      ? 'text-red-600'
-                                      : capacityPercent > 75
-                                        ? 'text-orange-600'
-                                        : 'text-green-600'
-                                  }`}
+                                  className={`text-xs ${!supervisor.isAvailable
+                                    ? 'text-red-600'
+                                    : capacityPercent > 75
+                                      ? 'text-orange-600'
+                                      : 'text-green-600'
+                                    }`}
                                 >
                                   {supervisor.isAvailable
                                     ? `${remainingCapacity.toFixed(1)} ha left`
@@ -804,7 +803,7 @@ export const EditablePreviewStep = ({
                     <div className="text-xs text-muted-foreground flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       <span>
-                        Planting: {new Date(group.plantingWindowStart).toLocaleDateString()} -{' '}
+                        Giống: {new Date(group.plantingWindowStart).toLocaleDateString()} -{' '}
                         {new Date(group.plantingWindowEnd).toLocaleDateString()}
                       </span>
                     </div>
@@ -820,12 +819,12 @@ export const EditablePreviewStep = ({
                     {expandedGroups.has(group.groupNumber) ? (
                       <>
                         <ChevronUp className="w-4 h-4 mr-2" />
-                        Hide Plots
+                        Ẩn Thừa Đất
                       </>
                     ) : (
                       <>
                         <ChevronDown className="w-4 h-4 mr-2" />
-                        Show Plots ({group.plotCount})
+                        Hiển Thừa Đất ({group.plotCount})
                       </>
                     )}
                   </Button>
@@ -859,16 +858,16 @@ export const EditablePreviewStep = ({
 
                           <dl className="space-y-1 text-xs">
                             <div className="flex justify-between">
-                              <dt className="text-muted-foreground">Farmer:</dt>
+                              <dt className="text-muted-foreground">Nông Dân:</dt>
                               <dd className="font-medium text-right">{plot.farmerName}</dd>
                             </div>
                             <div className="flex justify-between">
-                              <dt className="text-muted-foreground">Area:</dt>
+                              <dt className="text-muted-foreground">Diện Tích:</dt>
                               <dd className="font-medium">{plot.area.toFixed(1)} ha</dd>
                             </div>
                             {plot.plantingDate && (
                               <div className="flex justify-between">
-                                <dt className="text-muted-foreground">Planting:</dt>
+                                <dt className="text-muted-foreground">Giống:</dt>
                                 <dd className="font-medium">
                                   {new Date(plot.plantingDate).toLocaleDateString()}
                                 </dd>
@@ -888,7 +887,7 @@ export const EditablePreviewStep = ({
         {/* Action Buttons */}
         <div className="flex gap-3 pt-2 pb-4 flex-shrink-0">
           <Button variant="outline" onClick={onCancel} disabled={isLoading} size="lg">
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleConfirm}
@@ -899,12 +898,12 @@ export const EditablePreviewStep = ({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Creating...
+                Đang tạo...
               </>
             ) : (
               <>
                 <CheckCircle className="mr-2 h-5 w-5" />
-                Create {editedGroups.length} Groups
+                Gom {editedGroups.length} Nhóm
               </>
             )}
           </Button>

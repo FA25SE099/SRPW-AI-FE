@@ -36,21 +36,21 @@ export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: Plot
           <MapPin className="h-8 w-8 text-blue-600" />
           <div>
             <p className="text-2xl font-bold">{plots.length}</p>
-            <p className="text-sm text-muted-foreground">Total Plots</p>
+            <p className="text-sm text-muted-foreground">Tổng Số Thửa</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4 border rounded-lg bg-green-50 dark:bg-green-950">
           <CheckCircle2 className="h-8 w-8 text-green-600" />
           <div>
             <p className="text-2xl font-bold text-green-600">{plotsWithPolygon}</p>
-            <p className="text-sm text-muted-foreground">With Polygon</p>
+            <p className="text-sm text-muted-foreground">Có Đa Giác</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4 border rounded-lg bg-red-50 dark:bg-red-950">
           <XCircle className="h-8 w-8 text-red-600" />
           <div>
             <p className="text-2xl font-bold text-red-600">{plotsWithoutPolygon}</p>
-            <p className="text-sm text-muted-foreground">Missing Polygon</p>
+            <p className="text-sm text-muted-foreground">Thiếu Đa Giác</p>
           </div>
         </div>
       </div>
@@ -60,22 +60,22 @@ export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: Plot
         <TableElement>
           <TableHeader>
             <TableRow>
-              <TableHead>Plot ID</TableHead>
+              <TableHead>Mã Thửa</TableHead>
               <TableHead>Tờ / Thửa</TableHead>
-              <TableHead>Area (ha)</TableHead>
-              <TableHead>Soil Type</TableHead>
-              <TableHead>Polygon</TableHead>
-              <TableHead>Farmer</TableHead>
-              <TableHead>Contact</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>Diện tích (ha)</TableHead>
+              <TableHead>Loại Đất</TableHead>
+              <TableHead>Đa Giác</TableHead>
+              <TableHead>Nông Dân</TableHead>
+              <TableHead>Liên Hệ</TableHead>
+              <TableHead>Trạng Thái</TableHead>
+              <TableHead>Hành Động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {plots.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={9} className="text-center text-muted-foreground py-8">
-                  No plots assigned to this group yet.
+                  Chưa có thửa đất nào được phân công cho nhóm này.
                 </TableCell>
               </TableRow>
             ) : (
@@ -98,7 +98,7 @@ export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: Plot
                           <span className="font-medium">Thửa {plot.soThua}</span>
                         </>
                       ) : (
-                        <span className="text-muted-foreground">Not set</span>
+                        <span className="text-muted-foreground">Chưa đặt</span>
                       )}
                     </div>
                   </TableCell>
@@ -107,7 +107,7 @@ export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: Plot
                   </TableCell>
                   <TableCell>
                     {plot.soilType || (
-                      <span className="text-muted-foreground">Unknown</span>
+                      <span className="text-muted-foreground">Không rõ</span>
                     )}
                   </TableCell>
                   <TableCell>
@@ -115,12 +115,12 @@ export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: Plot
                       {plot.hasPolygon ? (
                         <span className="flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" />
-                          Assigned
+                          Đã Phân Công
                         </span>
                       ) : (
                         <span className="flex items-center gap-1">
                           <XCircle className="h-3 w-3" />
-                          Missing
+                          Thiếu
                         </span>
                       )}
                     </Badge>
@@ -130,12 +130,12 @@ export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: Plot
                       <div className="flex items-center gap-2">
                         <User className="h-3 w-3 text-muted-foreground" />
                         <span className="text-sm font-medium">
-                          {plot.farmerName || 'Unknown'}
+                          {plot.farmerName || 'Không rõ'}
                         </span>
                       </div>
                       {plot.farmCode && (
                         <div className="text-xs text-muted-foreground">
-                          Code: {plot.farmCode}
+                          Mã: {plot.farmCode}
                         </div>
                       )}
                     </div>
@@ -167,7 +167,7 @@ export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: Plot
                           size="sm"
                           onClick={() => onViewPolygon(plot)}
                         >
-                          View Map
+                          Xem Bản Đồ
                         </Button>
                       )}
                       {onViewDetail && groupId && (
@@ -177,7 +177,7 @@ export const PlotsTable = ({ plots, onViewPolygon, onViewDetail, groupId }: Plot
                           onClick={() => onViewDetail(plot)}
                         >
                           <FileText className="mr-2 h-4 w-4" />
-                          Detail
+                          Chi Tiết
                         </Button>
                       )}
                     </div>

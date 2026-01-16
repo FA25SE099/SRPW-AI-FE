@@ -105,20 +105,20 @@ const Plots = () => {
 
   if (isError) {
     return (
-      <ContentLayout title="Plots Management">
+      <ContentLayout title="Quản Lý Thửa Đất">
         <div className="flex h-96 items-center justify-center">
           <div className="text-center">
             <AlertTriangle className="mx-auto mb-4 size-12 text-red-500" />
             <h3 className="text-lg font-semibold text-gray-900">
-              Failed to load plots
+              Tải dữ liệu thừa đất thất bại
             </h3>
-            <p className="mt-2 text-sm text-gray-600">Please try again later</p>
+            <p className="mt-2 text-sm text-gray-600">Vui lòng thử lại sau</p>
             <Button
               onClick={() => window.location.reload()}
               variant="outline"
               className="mt-6"
             >
-              Retry
+              Thử Lại
             </Button>
           </div>
         </div>
@@ -137,10 +137,10 @@ const Plots = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-neutral-900">
-                Plots Management
+                Quản Lý Thửa Đất
               </h1>
               <p className="text-sm text-neutral-600 mt-1">
-                Manage and monitor all farm plots in your cluster
+                Quản lý và giám sát tất cả thừa đất nông nghiệp trong cụm
               </p>
             </div>
           </div>
@@ -151,7 +151,7 @@ const Plots = () => {
               className="items-center gap-2 bg-green-600 text-white hover:bg-green-700"
             >
               <Plus className="size-4" />
-              Add Plots
+              Thêm Thừa Đất
             </Button>
             <Button
               onClick={() => setShowImportDialog(true)}
@@ -159,7 +159,7 @@ const Plots = () => {
               className="items-center gap-2 border-green-600 text-green-600 hover:bg-green-50"
             >
               <Upload className="size-4" />
-              Import Excel
+              Nhập Excel
             </Button>
           </div>
         </div>
@@ -174,7 +174,7 @@ const Plots = () => {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                Total Plots
+                Tổng Thừa Đất
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                 {totalCount}
@@ -190,7 +190,7 @@ const Plots = () => {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                Active
+                Hoạt Động
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                 {plots.filter((p: any) => p.status === 'Active').length}
@@ -206,7 +206,7 @@ const Plots = () => {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                Out of Season
+                Ngoài Mùa Vụ
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                 {outSeasonPlots.length}
@@ -222,7 +222,7 @@ const Plots = () => {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                Awaiting Polygon
+                Chờ Đa Giác
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                 {awaitingPolygonResponse?.totalCount || 0}
@@ -238,7 +238,7 @@ const Plots = () => {
             </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-gray-600">
-                Total Area
+                Tổng Diện Tích
               </p>
               <p className="mt-1 text-2xl font-bold leading-snug text-gray-900">
                 {plots.reduce((sum: number, p: any) => sum + p.area, 0).toFixed(1)}{' '}
@@ -255,7 +255,7 @@ const Plots = () => {
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by Sở Thửa, Sở Tờ, or farmer name..."
+            placeholder="Tìm kiếm theo Số Thừa, Số Tờ, hoặc tên nông dân..."
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -272,14 +272,14 @@ const Plots = () => {
               type="date"
               value={selectedDate || ''}
               onChange={(e) => setSelectedDate(e.target.value || undefined)}
-              placeholder="Test with date..."
+              placeholder="Thử với ngày..."
               className="rounded-md border border-gray-300 py-2 pl-10 pr-4 text-sm transition-colors focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
             />
             {selectedDate && (
               <button
                 onClick={() => setSelectedDate(undefined)}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                title="Clear date"
+                title="Xóa ngày"
               >
                 ×
               </button>
@@ -299,21 +299,21 @@ const Plots = () => {
             className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
           >
             <FileText className="mr-2 size-4" />
-            <span>All Plots ({plotsResponse?.totalCount || 0})</span>
+            <span>Tất Cả ({plotsResponse?.totalCount || 0})</span>
           </TabsTrigger>
           <TabsTrigger
             value="out-season"
             className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
           >
             <AlertTriangle className="mr-2 size-4" />
-            <span>Out of Season ({outSeasonPlots.length})</span>
+            <span>Ngoài Mùa Vụ ({outSeasonPlots.length})</span>
           </TabsTrigger>
           <TabsTrigger
             value="awaiting-polygon"
             className="data-[state=active]:bg-white data-[state=active]:shadow-sm"
           >
             <MapPin className="mr-2 size-4" />
-            <span>Awaiting Polygon ({awaitingPolygonResponse?.totalCount || 0})</span>
+            <span>Chờ Đa Giác ({awaitingPolygonResponse?.totalCount || 0})</span>
           </TabsTrigger>
         </TabsList>
 
@@ -326,12 +326,12 @@ const Plots = () => {
             <div className="rounded-lg border border-dashed border-gray-200 bg-white py-16 text-center">
               <MapPin className="mx-auto mb-4 size-16 text-gray-300" />
               <h3 className="text-lg font-semibold text-gray-900">
-                No plots found
+                Không tìm thấy thừa đất
               </h3>
               <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">
                 {searchTerm
-                  ? 'Try adjusting your search criteria'
-                  : 'Start by creating your first plot'}
+                  ? 'Thử điều chỉnh tiêu chí tìm kiếm'
+                  : 'Bắt đầu bằng cách tạo thừa đất đầu tiên'}
               </p>
               {!searchTerm && (
                 <Button
@@ -339,7 +339,7 @@ const Plots = () => {
                   className="mt-6 gap-2 bg-green-600 font-semibold text-white hover:bg-green-700"
                 >
                   <Plus className="size-4" />
-                  Create your first plot
+                  Tạo thừa đất đầu tiên
                 </Button>
               )}
             </div>
@@ -350,25 +350,25 @@ const Plots = () => {
                   <thead className="border-b border-gray-200 bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Plot Info
+                        Thông Tin Thừa
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Farmer
+                        Nông Dân
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Area (ha)
+                        Diện Tích (ha)
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Status
+                        Trạng Thái
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Soil / Variety
+                        Đất / Giống
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Active Seasons
+                        Mùa Vụ Hoạt Động
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Actions
+                        Thao Tác
                       </th>
                     </tr>
                   </thead>
@@ -413,7 +413,7 @@ const Plots = () => {
                             {plot.soilType}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {plot.varietyName || 'No variety'}
+                            {plot.varietyName || 'Chưa có giống'}
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -433,7 +433,7 @@ const Plots = () => {
                               ))
                             ) : (
                               <span className="text-xs italic text-gray-400">
-                                None
+                                Không có
                               </span>
                             )}
                           </div>
@@ -445,7 +445,7 @@ const Plots = () => {
                             className="text-green-600 hover:bg-green-50 hover:text-green-700"
                             onClick={() => setSelectedPlotId(plot.plotId)}
                           >
-                            View Details
+                            Xem Chi Tiết
                           </Button>
                         </td>
                       </tr>
@@ -457,8 +457,8 @@ const Plots = () => {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
                   <div className="text-sm text-gray-600">
-                    Showing page {pageNumber} of {totalPages} ({totalCount}{' '}
-                    total plots)
+                    Hiển thị trang {pageNumber} / {totalPages} ({totalCount}{' '}
+                    thừa đất)
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -468,7 +468,7 @@ const Plots = () => {
                       onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
                       className="border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
-                      Previous
+                      Trước
                     </Button>
                     <Button
                       variant="outline"
@@ -479,7 +479,7 @@ const Plots = () => {
                       }
                       className="border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
-                      Next
+                      Sau
                     </Button>
                   </div>
                 </div>
@@ -498,13 +498,13 @@ const Plots = () => {
               <Calendar className="mx-auto mb-4 size-16 text-green-400" />
               <h3 className="text-lg font-semibold text-gray-900">
                 {selectedDate
-                  ? `No plots out of season on ${selectedDate}`
-                  : 'All plots in season'}
+                  ? `Không có thừa đất ngoài mùa vụ vào ${selectedDate}`
+                  : 'Tất cả đang trong mùa vụ'}
               </h3>
               <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">
                 {selectedDate
-                  ? 'Try selecting a different date to test'
-                  : 'No plots are currently out of season. All farming operations are active.'}
+                  ? 'Thử chọn ngày khác để kiểm tra'
+                  : 'Không có thừa đất nào ngoài mùa vụ. Tất cả hoạt động canh tác đang hoạt động.'}
               </p>
             </div>
           ) : (
@@ -514,22 +514,22 @@ const Plots = () => {
                   <thead className="border-b border-gray-200 bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Plot Info
+                        Thông Tin Thừa
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Farmer
+                        Nông Dân
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Area (ha)
+                        Diện Tích (ha)
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Status
+                        Trạng Thái
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Soil / Variety
+                        Đất / Giống
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Actions
+                        Thao Tác
                       </th>
                     </tr>
                   </thead>
@@ -543,7 +543,7 @@ const Plots = () => {
                             </div>
                             <div>
                               <div className="text-sm font-semibold text-gray-900">
-                                Plot {plot.soThua ?? 'N/A'} /{' '}
+                                Thừa {plot.soThua ?? 'N/A'} /{' '}
                                 {plot.soTo ?? 'N/A'}
                               </div>
                               <div className="font-mono text-xs text-gray-500">
@@ -574,7 +574,7 @@ const Plots = () => {
                             {plot.soilType}
                           </div>
                           <div className="text-xs text-gray-500">
-                            {plot.varietyName || 'No variety'}
+                            {plot.varietyName || 'Chưa có giống'}
                           </div>
                         </td>
                         <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
@@ -584,7 +584,7 @@ const Plots = () => {
                             className="text-green-600 hover:bg-green-50 hover:text-green-700"
                             onClick={() => setSelectedPlotId(plot.plotId)}
                           >
-                            View Details
+                            Xem Chi Tiết
                           </Button>
                         </td>
                       </tr>
@@ -605,10 +605,10 @@ const Plots = () => {
             <div className="rounded-lg border border-dashed border-gray-200 bg-white py-16 text-center">
               <MapPin className="mx-auto mb-4 size-16 text-green-400" />
               <h3 className="text-lg font-semibold text-gray-900">
-                No plots awaiting polygon
+                Không có thừa đất chờ đa giác
               </h3>
               <p className="mx-auto mt-2 max-w-sm text-sm text-gray-600">
-                All plots have been assigned polygon boundaries.
+                Tất cả thừa đất đã được gán ranh giới đa giác.
               </p>
             </div>
           ) : (
@@ -618,22 +618,22 @@ const Plots = () => {
                   <thead className="border-b border-gray-200 bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Plot Info
+                        Thông Tin Thừa
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Farmer
+                        Nông Dân
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Area (m²)
+                        Diện Tích (m²)
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Status
+                        Trạng Thái
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Days Waiting
+                        Ngày Chờ
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        Assignment
+                        Phân Công
                       </th>
                     </tr>
                   </thead>
@@ -647,7 +647,7 @@ const Plots = () => {
                             </div>
                             <div>
                               <div className="text-sm font-semibold text-gray-900">
-                                Plot {plot.soThua ?? 'N/A'} / {plot.soTo ?? 'N/A'}
+                                Thừa {plot.soThua ?? 'N/A'} / {plot.soTo ?? 'N/A'}
                               </div>
                               {plot.soilType && (
                                 <div className="text-xs text-gray-500">{plot.soilType}</div>
@@ -657,7 +657,7 @@ const Plots = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm font-medium text-gray-900">
-                            {plot.farmerName || 'Unknown'}
+                            {plot.farmerName || 'Không rõ'}
                           </div>
                           {plot.farmerPhone && (
                             <div className="text-xs text-gray-500">{plot.farmerPhone}</div>
@@ -687,7 +687,7 @@ const Plots = () => {
                                 ? 'text-yellow-600'
                                 : 'text-gray-900'
                               }`}>
-                              {plot.daysAwaitingPolygon} days
+                              {plot.daysAwaitingPolygon} ngày
                             </span>
                           </div>
                         </td>
@@ -695,7 +695,7 @@ const Plots = () => {
                           {plot.hasActiveTask ? (
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {plot.assignedToSupervisorName || 'Assigned'}
+                                {plot.assignedToSupervisorName || 'Đã phân công'}
                               </div>
                               <div className="flex items-center gap-2 mt-1">
                                 <Badge
@@ -713,7 +713,7 @@ const Plots = () => {
                             </div>
                           ) : (
                             <span className="text-xs italic text-gray-400">
-                              Not assigned
+                              Chưa phân công
                             </span>
                           )}
                         </td>
@@ -726,7 +726,7 @@ const Plots = () => {
               {awaitingPolygonResponse && awaitingPolygonResponse.totalPages > 1 && (
                 <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
                   <div className="text-sm text-gray-600">
-                    Showing page {awaitingPolygonResponse.currentPage} of {awaitingPolygonResponse.totalPages} ({awaitingPolygonResponse.totalCount} total plots)
+                    Hiển thị trang {awaitingPolygonResponse.currentPage} / {awaitingPolygonResponse.totalPages} ({awaitingPolygonResponse.totalCount} thừa đất)
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -736,7 +736,7 @@ const Plots = () => {
                       onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
                       className="border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
-                      Previous
+                      Trước
                     </Button>
                     <Button
                       variant="outline"
@@ -745,7 +745,7 @@ const Plots = () => {
                       onClick={() => setPageNumber((p) => Math.min(awaitingPolygonResponse.totalPages, p + 1))}
                       className="border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
-                      Next
+                      Sau
                     </Button>
                   </div>
                 </div>

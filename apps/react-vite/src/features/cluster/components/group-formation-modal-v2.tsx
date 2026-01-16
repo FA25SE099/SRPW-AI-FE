@@ -8,15 +8,15 @@ import {
 } from '@/components/ui/dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { Map, CheckCircle } from 'lucide-react';
-import { 
-  GroupFormationParams, 
+import {
+  GroupFormationParams,
   PreviewGroupsResponse,
   PreviewGroup,
   FormGroupsFromPreviewRequest,
 } from '../types';
-import { 
-  usePreviewGroupFormationV2, 
-  useFormGroupsFromPreview 
+import {
+  usePreviewGroupFormationV2,
+  useFormGroupsFromPreview
 } from '../api';
 import { EditablePreviewStep } from './group-formation/editable-preview-step';
 import { SuccessStep } from './group-formation/success-step';
@@ -74,8 +74,8 @@ export const GroupFormationModalV2 = ({
         onError: (error: any) => {
           addNotification({
             type: 'error',
-            title: 'Preview Failed',
-            message: error?.message || 'Failed to generate preview',
+            title: 'Xem Trước Thất Bại',
+            message: error?.message || 'Không thể tạo xem trước',
           });
         },
       });
@@ -93,15 +93,15 @@ export const GroupFormationModalV2 = ({
         setPreviewData(data);
         addNotification({
           type: 'success',
-          title: 'Groups Recalculated',
-          message: `${data.summary.groupsToBeFormed} groups formed with ${data.summary.plotsGrouped} plots`,
+          title: 'Đã Tính Toán Lại Nhóm',
+          message: `Đã gom ${data.summary.groupsToBeFormed} nhóm với ${data.summary.plotsGrouped} thửa đất`,
         });
       },
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Recalculation Failed',
-          message: error?.message || 'Failed to recalculate preview',
+          title: 'Tính Toán Lại Thất Bại',
+          message: error?.message || 'Không thể tính toán lại xem trước',
         });
       },
     });
@@ -131,11 +131,11 @@ export const GroupFormationModalV2 = ({
         // Note: API client unwraps Result<T> responses, so data is already the inner data object
         setCreatedGroupsCount(data.groupsCreated);
         setStep('success');
-        
+
         addNotification({
           type: 'success',
-          title: 'Success',
-          message: `${data.groupsCreated} groups created successfully`,
+          title: 'Thành Công',
+          message: `Đã tạo ${data.groupsCreated} nhóm thành công`,
         });
 
         // Show warnings if any
@@ -143,7 +143,7 @@ export const GroupFormationModalV2 = ({
           data.warnings.forEach((warning) => {
             addNotification({
               type: 'warning',
-              title: 'Warning',
+              title: 'Cảnh Báo',
               message: warning,
             });
           });
@@ -155,8 +155,8 @@ export const GroupFormationModalV2 = ({
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Creation Failed',
-          message: error?.message || 'Failed to create groups',
+          title: 'Tạo Nhóm Thất Bại',
+          message: error?.message || 'Không thể tạo nhóm',
         });
       },
     });
@@ -175,18 +175,18 @@ export const GroupFormationModalV2 = ({
         return (
           <div className="flex items-center gap-2">
             <Map className="w-5 h-5" />
-            Group Formation Preview (New Workflow)
+            Xem Trước Gom Nhóm (Quy Trình Mới)
           </div>
         );
       case 'success':
         return (
           <div className="flex items-center gap-2">
             <CheckCircle className="w-5 h-5 text-green-600" />
-            Groups Created Successfully
+            Gom Nhóm Thành Công
           </div>
         );
       default:
-        return 'Group Formation';
+        return 'Gom Nhóm';
     }
   };
 
@@ -204,7 +204,7 @@ export const GroupFormationModalV2 = ({
                 <div className="text-center">
                   <Spinner size="lg" className="mx-auto mb-4" />
                   <p className="text-muted-foreground">
-                    Analyzing plots and generating groups with supervisor assignments...
+                    Đang phân tích thửa đất và gom nhóm với phân công giám sát viên...
                   </p>
                 </div>
               </div>
@@ -223,7 +223,7 @@ export const GroupFormationModalV2 = ({
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">
-                  Failed to generate preview
+                  Không thể tạo xem trước
                 </p>
               </div>
             )}

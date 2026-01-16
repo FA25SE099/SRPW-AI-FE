@@ -199,8 +199,8 @@ const UavOrdersRoute = () => {
       onSuccess: (response) => {
         addNotification({
           type: 'success',
-          title: 'UAV Order Created',
-          message: response.message || 'UAV order has been created successfully',
+          title: 'Đã Tạo Đơn Hàng UAV',
+          message: response.message || 'Đơn hàng UAV đã được tạo thành công',
         });
         setIsOrderDialogOpen(false);
         setSelectedTasks(new Set());
@@ -211,8 +211,8 @@ const UavOrdersRoute = () => {
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Failed to Create Order',
-          message: error.message || 'An error occurred while creating the order',
+          title: 'Tạo Đơn Hàng Thất Bại',
+          message: error.message || 'Đã xảy ra lỗi khi tạo đơn hàng',
         });
       },
     },
@@ -242,8 +242,8 @@ const UavOrdersRoute = () => {
     if (!selectedTasks.has(cultivationTaskId) && plotHasSelectedTask(plotId, cultivationTaskId)) {
       addNotification({
         type: 'error',
-        title: 'Cannot Select Task',
-        message: 'Another task from the same plot is already selected. Only one task per plot can be selected.',
+        title: 'Không Thể Chọn Nhiệm Vụ',
+        message: 'Một nhiệm vụ khác từ cùng thửa đất đã được chọn. Chỉ có thể chọn một nhiệm vụ mỗi thửa đất.',
       });
       return;
     }
@@ -285,8 +285,8 @@ const UavOrdersRoute = () => {
     if (!selectedGroupId || selectedTasks.size === 0) {
       addNotification({
         type: 'error',
-        title: 'Invalid Selection',
-        message: 'Please select a group and at least one task',
+        title: 'Lựa Chọn Không Hợp Lệ',
+        message: 'Vui lòng chọn một nhóm và ít nhất một nhiệm vụ',
       });
       return;
     }
@@ -297,8 +297,8 @@ const UavOrdersRoute = () => {
     if (!selectedGroupId || !uavVendorId || !scheduledDate) {
       addNotification({
         type: 'error',
-        title: 'Missing Information',
-        message: 'Please fill in all required fields',
+        title: 'Thiếu Thông Tin',
+        message: 'Vui lòng điền đầy đủ các trường bắt buộc',
       });
       return;
     }
@@ -411,7 +411,7 @@ const UavOrdersRoute = () => {
 
   if (isLoadingGroups) {
     return (
-      <ContentLayout title="UAV Order Management">
+      <ContentLayout title="Quản Lý Đơn Hàng UAV">
         <div className="flex h-96 items-center justify-center">
           <Spinner size="lg" className="text-blue-600" />
         </div>
@@ -428,9 +428,9 @@ const UavOrdersRoute = () => {
             <Plane className="size-7 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">UAV Order Management</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Quản Lý Đơn Hàng UAV</h1>
             <p className="text-sm text-gray-600 mt-1">
-              Create and manage UAV service orders for plot spraying and pest control
+              Tạo và quản lý đơn hàng dịch vụ UAV cho phun tâu và kiểm soát sâu bệnh
             </p>
           </div>
         </div>
@@ -439,8 +439,8 @@ const UavOrdersRoute = () => {
       {/* Tabs */}
       <Tabs
         tabs={[
-          { id: 'create', label: 'Create Order', icon: Plane },
-          { id: 'orders', label: 'All Orders', icon: List },
+          { id: 'create', label: 'Tạo Đơn Hàng', icon: Plane },
+          { id: 'orders', label: 'Tất Cả Đơn Hàng', icon: List },
         ]}
         defaultTab={activeTab}
         onTabChange={setActiveTab}
@@ -455,7 +455,7 @@ const UavOrdersRoute = () => {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-muted-foreground">Total Orders</p>
+                          <p className="text-sm text-muted-foreground">Tổng Đơn Hàng</p>
                           <p className="text-2xl font-bold">{ordersData?.totalCount || 0}</p>
                         </div>
                         <Package className="h-8 w-8 text-blue-600" />
@@ -467,7 +467,7 @@ const UavOrdersRoute = () => {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-muted-foreground">In Progress</p>
+                          <p className="text-sm text-muted-foreground">Đang Thực Hiện</p>
                           <p className="text-2xl font-bold text-blue-600">
                             {ordersData?.data?.filter(o => o.status === 'InProgress').length || 0}
                           </p>
@@ -481,7 +481,7 @@ const UavOrdersRoute = () => {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-muted-foreground">Completed</p>
+                          <p className="text-sm text-muted-foreground">Đã Hoàn Thành</p>
                           <p className="text-2xl font-bold text-green-600">
                             {ordersData?.data?.filter(o => o.status === 'Completed').length || 0}
                           </p>
@@ -495,7 +495,7 @@ const UavOrdersRoute = () => {
                     <CardContent className="pt-6">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-sm text-muted-foreground">Pending Approval</p>
+                          <p className="text-sm text-muted-foreground">Đang Chờ Duyệt</p>
                           <p className="text-2xl font-bold text-yellow-600">
                             {ordersData?.data?.filter(o => o.status === 'PendingApproval').length || 0}
                           </p>
@@ -511,7 +511,7 @@ const UavOrdersRoute = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <List className="h-5 w-5" />
-                      All UAV Orders
+                      Tất Cả Đơn Hàng UAV
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -523,10 +523,10 @@ const UavOrdersRoute = () => {
                       <div className="flex flex-col items-center justify-center py-16 text-center">
                         <Plane className="h-16 w-16 text-gray-300 mb-4" />
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          No Orders Found
+                          Không Có Đơn Hàng
                         </h3>
                         <p className="text-sm text-gray-600 max-w-sm">
-                          You haven't created any UAV orders yet. Start by creating a new order.
+                          Bạn chưa tạo đơn hàng UAV nào. Bắt đầu bằng cách tạo đơn hàng mới.
                         </p>
                       </div>
                     ) : (
@@ -578,7 +578,7 @@ const UavOrdersRoute = () => {
                                       </div>
                                       {order.creatorName && (
                                         <div className="text-xs text-gray-500 mt-1">
-                                          by {order.creatorName}
+                                          bởi {order.creatorName}
                                         </div>
                                       )}
                                     </td>
@@ -607,7 +607,7 @@ const UavOrdersRoute = () => {
                                         {order.totalArea.toFixed(2)} ha
                                       </div>
                                       <div className="text-xs text-gray-500">
-                                        {order.totalPlots} plot{order.totalPlots !== 1 ? 's' : ''}
+                                        {order.totalPlots} thửa đất
                                       </div>
                                     </td>
                                     {/* <td className="px-6 py-4 whitespace-nowrap">
@@ -655,10 +655,10 @@ const UavOrdersRoute = () => {
                               onClick={() => setOrdersPage(p => Math.max(1, p - 1))}
                               disabled={!ordersData.hasPrevious}
                             >
-                              Previous
+                              Trước
                             </Button>
                             <span className="text-xs text-gray-600">
-                              Page {ordersPage} of {ordersData.totalPages} ({ordersData.totalCount} total)
+                              Trang {ordersPage} / {ordersData.totalPages} (Tổng {ordersData.totalCount})
                             </span>
                             <Button
                               variant="outline"
@@ -666,7 +666,7 @@ const UavOrdersRoute = () => {
                               onClick={() => setOrdersPage(p => p + 1)}
                               disabled={!ordersData.hasNext}
                             >
-                              Next
+                              Tiếp
                             </Button>
                           </div>
                         )}
@@ -681,10 +681,10 @@ const UavOrdersRoute = () => {
                     <DialogHeader>
                       <DialogTitle className="flex items-center gap-2">
                         <Plane className="h-5 w-5 text-blue-600" />
-                        <span>UAV Order Detail</span>
+                        <span>Chi Tiết Đơn Hàng UAV</span>
                       </DialogTitle>
                       <DialogDescription>
-                        View detailed information and plot assignments for this UAV order.
+                        Xem thông tin chi tiết và phân công thửa đất cho đơn hàng UAV này.
                       </DialogDescription>
                     </DialogHeader>
 
@@ -697,7 +697,7 @@ const UavOrdersRoute = () => {
                         {/* Summary */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div className="space-y-2">
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Order</p>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Đơn Hàng</p>
                             <p className="text-lg font-bold text-gray-900">{orderDetail.orderName}</p>
                             <div className="flex flex-wrap gap-2 mt-1">
                               <Badge className={`text-xs ${getOrderStatusColor(orderDetail.status)}`}>
@@ -709,39 +709,39 @@ const UavOrdersRoute = () => {
                             </div>
                             {orderDetail.vendorName && (
                               <p className="text-xs text-gray-600 mt-2">
-                                Vendor: <span className="font-medium">{orderDetail.vendorName}</span>
+                                Nhà Cung Cấp: <span className="font-medium">{orderDetail.vendorName}</span>
                               </p>
                             )}
                             {orderDetail.creatorName && (
                               <p className="text-xs text-gray-600">
-                                Created by: <span className="font-medium">{orderDetail.creatorName}</span>
+                                Tạo bởi: <span className="font-medium">{orderDetail.creatorName}</span>
                               </p>
                             )}
                           </div>
 
                           <div className="space-y-2">
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Schedule</p>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Lịch Trình</p>
                             <p className="text-sm text-gray-900 flex items-center gap-1">
                               <Calendar className="h-4 w-4 text-gray-400" />
                               {formatScheduledDateTime(orderDetail.scheduledDate, orderDetail.scheduledTime)}
                             </p>
                             <p className="text-xs text-gray-600">
-                              Group: <span className="font-medium">{orderDetail.groupName}</span>
+                              Nhóm: <span className="font-medium">{orderDetail.groupName}</span>
                             </p>
                             {orderDetail.startedAt && (
                               <p className="text-xs text-gray-600">
-                                Started: <span className="font-medium">{formatDate(orderDetail.startedAt)}</span>
+                                Bắt Đầu: <span className="font-medium">{formatDate(orderDetail.startedAt)}</span>
                               </p>
                             )}
                             {orderDetail.completedAt && (
                               <p className="text-xs text-gray-600">
-                                Completed: <span className="font-medium">{formatDate(orderDetail.completedAt)}</span>
+                                Hoàn Thành: <span className="font-medium">{formatDate(orderDetail.completedAt)}</span>
                               </p>
                             )}
                           </div>
 
                           <div className="space-y-2">
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Performance</p>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Hiệu Suất</p>
                             <div className="flex items-center gap-2">
                               <div className="flex-1 bg-gray-200 rounded-full h-2">
                                 <div
@@ -754,10 +754,10 @@ const UavOrdersRoute = () => {
                               </span>
                             </div>
                             <p className="text-xs text-gray-600">
-                              Area: <span className="font-medium">{orderDetail.totalArea.toFixed(2)} ha</span>
+                              Diện Tích: <span className="font-medium">{orderDetail.totalArea.toFixed(2)} ha</span>
                             </p>
                             <p className="text-xs text-gray-600">
-                              Plots: <span className="font-medium">{orderDetail.totalPlots}</span>
+                              Thửa Đất: <span className="font-medium">{orderDetail.totalPlots}</span>
                             </p>
                           </div>
                         </div>
@@ -767,7 +767,7 @@ const UavOrdersRoute = () => {
                           <div>
                             <h3 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
                               <MapPin className="h-4 w-4 text-blue-600" />
-                              Plot Assignments
+                              Phân Công Thửa Đất
                             </h3>
                             <div className="space-y-2 max-h-64 overflow-y-auto">
                               {orderDetail.plotAssignments.map((p) => (
@@ -781,11 +781,11 @@ const UavOrdersRoute = () => {
                                         {p.plotName}
                                       </p>
                                       <p className="text-xs text-gray-600 mt-1">
-                                        Area: <span className="font-medium">{p.servicedArea.toFixed(2)} ha</span>
+                                        Diện Tích: <span className="font-medium">{p.servicedArea.toFixed(2)} ha</span>
                                       </p>
                                       {p.completionDate && (
                                         <p className="text-xs text-gray-600">
-                                          Completed:{' '}
+                                          Hoàn Thành:{' '}
                                           <span className="font-medium">
                                             {formatDate(p.completionDate)}
                                           </span>
@@ -793,7 +793,7 @@ const UavOrdersRoute = () => {
                                       )}
                                       {p.reportNotes && (
                                         <p className="text-xs text-gray-600 mt-1">
-                                          Notes: <span className="italic">{p.reportNotes}</span>
+                                          Ghi Chú: <span className="italic">{p.reportNotes}</span>
                                         </p>
                                       )}
                                     </div>
@@ -804,7 +804,7 @@ const UavOrdersRoute = () => {
                                       {p.proofUrls && p.proofUrls.length > 0 && (
                                         <div className="flex flex-col items-end gap-1">
                                           <span className="text-[10px] text-gray-500">
-                                            {p.proofUrls.length} proof image{p.proofUrls.length !== 1 ? 's' : ''}
+                                            {p.proofUrls.length} hình ảnh
                                           </span>
                                           <div className="mt-1 flex flex-wrap justify-end gap-1">
                                             {p.proofUrls.slice(0, 4).map((url, idx) => (
@@ -852,10 +852,10 @@ const UavOrdersRoute = () => {
                 >
                   <DrawerContent side="bottom" className="max-h-[90vh] w-full sm:max-w-3xl mx-auto rounded-t-2xl">
                     <DrawerHeader>
-                      <DrawerTitle>Proof Image</DrawerTitle>
+                      <DrawerTitle>Hình Ảnh Minh Chứng</DrawerTitle>
                       {currentProofUrls.length > 0 && (
                         <DrawerDescription>
-                          Image {currentProofIndex + 1} of {currentProofUrls.length}
+                          Hình {currentProofIndex + 1} / {currentProofUrls.length}
                         </DrawerDescription>
                       )}
                     </DrawerHeader>
@@ -877,7 +877,7 @@ const UavOrdersRoute = () => {
                               disabled={currentProofUrls.length <= 1}
                             >
                               <ChevronLeft className="h-4 w-4 mr-1" />
-                              Prev
+                              Trước
                             </Button>
                             <span className="text-xs text-gray-600">
                               {currentProofIndex + 1} / {currentProofUrls.length}
@@ -888,7 +888,7 @@ const UavOrdersRoute = () => {
                               onClick={showNextProof}
                               disabled={currentProofUrls.length <= 1}
                             >
-                              Next
+                              Tiếp
                               <ChevronRight className="h-4 w-4 ml-1" />
                             </Button>
                           </div>
@@ -910,7 +910,7 @@ const UavOrdersRoute = () => {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Total Groups</p>
+                        <p className="text-sm text-muted-foreground">Tổng Nhóm</p>
                         <p className="text-2xl font-bold">{groupsData?.totalCount || 0}</p>
                       </div>
                       <Users className="h-8 w-8 text-blue-600" />
@@ -922,7 +922,7 @@ const UavOrdersRoute = () => {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Active Groups</p>
+                        <p className="text-sm text-muted-foreground">Nhóm Hoạt Động</p>
                         <p className="text-2xl font-bold text-green-600">
                           {groups.filter(g => g.status === 'Active').length}
                         </p>
@@ -936,7 +936,7 @@ const UavOrdersRoute = () => {
                   <CardContent className="pt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-muted-foreground">Selected Tasks</p>
+                        <p className="text-sm text-muted-foreground">Nhiệm Vụ Đã Chọn</p>
                         <p className="text-2xl font-bold text-blue-600">{selectedTasks.size}</p>
                       </div>
                       <MapPin className="h-8 w-8 text-blue-600" />
@@ -952,7 +952,7 @@ const UavOrdersRoute = () => {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <Users className="h-5 w-5" />
-                        Groups
+                        Nhóm
                       </CardTitle>
                       <Select
                         value={statusFilter || 'all'}
@@ -962,12 +962,12 @@ const UavOrdersRoute = () => {
                       >
                         <SelectTrigger className="w-32 h-8 text-xs">
                           <Filter className="h-3 w-3 mr-1" />
-                          <SelectValue placeholder="Filter" />
+                          <SelectValue placeholder="Lọc" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="all">Tất Cả</SelectItem>
                           {isLoadingStatuses ? (
-                            <SelectItem value="loading" disabled>Loading...</SelectItem>
+                            <SelectItem value="loading" disabled>Đang tải...</SelectItem>
                           ) : groupStatusesData && Array.isArray(groupStatusesData) && groupStatusesData.length > 0 ? (
                             groupStatusesData.map((status) => (
                               <SelectItem key={status.name} value={status.name}>
@@ -975,7 +975,7 @@ const UavOrdersRoute = () => {
                               </SelectItem>
                             ))
                           ) : (
-                            <SelectItem value="no-data" disabled>No statuses available</SelectItem>
+                            <SelectItem value="no-data" disabled>Không có trạng thái</SelectItem>
                           )}
                         </SelectContent>
                       </Select>
@@ -985,7 +985,7 @@ const UavOrdersRoute = () => {
                     <div className="space-y-2 max-h-[600px] overflow-y-auto">
                       {groups.length === 0 ? (
                         <p className="text-sm text-gray-500 text-center py-8">
-                          No groups found
+                          Không tìm thấy nhóm
                         </p>
                       ) : (
                         groups.map((group) => (
@@ -993,8 +993,8 @@ const UavOrdersRoute = () => {
                             key={group.groupId}
                             onClick={() => handleGroupSelect(group.groupId)}
                             className={`w-full text-left p-3 rounded-lg border-2 transition-all ${selectedGroupId === group.groupId
-                                ? 'border-blue-500 bg-blue-50 shadow-md'
-                                : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                              ? 'border-blue-500 bg-blue-50 shadow-md'
+                              : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
                               }`}
                           >
                             <div className="flex items-start justify-between mb-2">
@@ -1018,7 +1018,7 @@ const UavOrdersRoute = () => {
                               </div>
                               <div className="flex items-center gap-1">
                                 <Package className="h-3 w-3" />
-                                <span>{group.totalPlots} plots</span>
+                                <span>{group.totalPlots} thửa đất</span>
                               </div>
                             </div>
 
@@ -1041,10 +1041,10 @@ const UavOrdersRoute = () => {
                           onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                           disabled={!groupsData.hasPrevious}
                         >
-                          Previous
+                          Trước
                         </Button>
                         <span className="text-xs text-gray-600">
-                          Page {currentPage} of {groupsData.totalPages}
+                          Trang {currentPage} / {groupsData.totalPages}
                         </span>
                         <Button
                           variant="outline"
@@ -1052,7 +1052,7 @@ const UavOrdersRoute = () => {
                           onClick={() => setCurrentPage(p => p + 1)}
                           disabled={!groupsData.hasNext}
                         >
-                          Next
+                          Tiếp
                         </Button>
                       </div>
                     )}
@@ -1065,7 +1065,7 @@ const UavOrdersRoute = () => {
                     <div className="flex items-center justify-between">
                       <CardTitle className="flex items-center gap-2">
                         <Plane className="h-5 w-5" />
-                        Plots Ready for UAV Service
+                        Thửa Đất Sẵn Sàng Cho Dịch Vụ UAV
                       </CardTitle>
                       {selectedGroupId && (
                         <div className="flex items-center gap-3">
@@ -1081,7 +1081,7 @@ const UavOrdersRoute = () => {
                             </SelectTrigger>
                             <SelectContent>
                               {isLoadingTaskTypes ? (
-                                <SelectItem value="loading" disabled>Loading...</SelectItem>
+                                <SelectItem value="loading" disabled>Đang tải...</SelectItem>
                               ) : taskTypesData && Array.isArray(taskTypesData) && taskTypesData.length > 0 ? (
                                 taskTypesData.map((taskType) => (
                                   <SelectItem key={taskType.name} value={taskType.name}>
@@ -1089,14 +1089,14 @@ const UavOrdersRoute = () => {
                                   </SelectItem>
                                 ))
                               ) : (
-                                <SelectItem value="no-data" disabled>No task types available</SelectItem>
+                                <SelectItem value="no-data" disabled>Không có loại nhiệm vụ</SelectItem>
                               )}
                             </SelectContent>
                           </Select>
 
                           <div className="flex items-center gap-2">
                             <Label htmlFor="daysFilter" className="text-xs text-gray-600 whitespace-nowrap">
-                              Days ahead:
+                              Số ngày tới:
                             </Label>
                             <Input
                               id="daysFilter"
@@ -1123,10 +1123,10 @@ const UavOrdersRoute = () => {
                       <div className="flex flex-col items-center justify-center py-16 text-center">
                         <Plane className="h-16 w-16 text-gray-300 mb-4" />
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          Select a Group
+                          Chọn Một Nhóm
                         </h3>
                         <p className="text-sm text-gray-600 max-w-sm">
-                          Choose a group from the list to view plots that are ready for UAV service
+                          Chọn một nhóm từ danh sách để xem các thửa đất sẵn sàng cho dịch vụ UAV
                         </p>
                       </div>
                     ) : isLoadingPlots ? (
@@ -1137,13 +1137,13 @@ const UavOrdersRoute = () => {
                       <div className="flex flex-col items-center justify-center py-16 text-center">
                         <AlertCircle className="h-16 w-16 text-gray-300 mb-4" />
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          No Plots Ready
+                          Không Có Thửa Đất Sẵn Sàng
                         </h3>
                         <p className="text-sm text-gray-600 max-w-sm">
-                          There are no plots ready for {selectedTaskType} service in this group within the next {daysBeforeScheduled} days
+                          Không có thửa đất nào sẵn sàng cho dịch vụ {selectedTaskType} trong nhóm này trong vòng {daysBeforeScheduled} ngày tới
                         </p>
                         <p className="text-xs text-gray-500 mt-2">
-                          Try increasing the "Days ahead" filter to see more plots
+                          Thử tăng bộ lọc "Số ngày tới" để xem thêm thửa đất
                         </p>
                       </div>
                     ) : (
@@ -1161,11 +1161,11 @@ const UavOrdersRoute = () => {
                                 const selectableTasks = readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder && p.cultivationTaskId);
                                 const uniquePlots = new Set(selectableTasks.map(p => p.plotId));
                                 const allSelected = selectableTasks.every(p => p.cultivationTaskId && selectedTasks.has(p.cultivationTaskId));
-                                return allSelected ? 'Deselect All' : `Select One Per Plot (${uniquePlots.size} plots)`;
+                                return allSelected ? 'Bỏ Chọn Tất Cả' : `Chọn Một Mỗi Thửa (${uniquePlots.size} thửa đất)`;
                               })()}
                             </Button>
                             <span className="text-sm text-gray-600">
-                              {selectedTasks.size} task{selectedTasks.size !== 1 ? 's' : ''} selected ({getSelectedPlotsCount()} plot{getSelectedPlotsCount() !== 1 ? 's' : ''})
+                              {selectedTasks.size} nhiệm vụ đã chọn ({getSelectedPlotsCount()} thữa đất)
                             </span>
                           </div>
 
@@ -1175,7 +1175,7 @@ const UavOrdersRoute = () => {
                             className="bg-blue-600 hover:bg-blue-700"
                           >
                             <Plane className="h-4 w-4 mr-2" />
-                            Create UAV Order
+                            Tạo Đơn Hàng UAV
                           </Button>
                         </div>
 
@@ -1185,15 +1185,15 @@ const UavOrdersRoute = () => {
                             <div className="grid grid-cols-3 gap-3 text-xs">
                               <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                <span className="text-gray-600">Ready: <span className="font-semibold text-gray-900">{readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder).length}</span></span>
+                                <span className="text-gray-600">Sẵn Sàng: <span className="font-semibold text-gray-900">{readyPlots.filter(p => p.isReady && !p.hasActiveUavOrder).length}</span></span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-purple-500"></div>
-                                <span className="text-gray-600">Has Order: <span className="font-semibold text-gray-900">{readyPlots.filter(p => p.hasActiveUavOrder).length}</span></span>
+                                <span className="text-gray-600">Có Đơn: <span className="font-semibold text-gray-900">{readyPlots.filter(p => p.hasActiveUavOrder).length}</span></span>
                               </div>
                               <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                                <span className="text-gray-600">Not Ready: <span className="font-semibold text-gray-900">{readyPlots.filter(p => !p.isReady).length}</span></span>
+                                <span className="text-gray-600">Chưa Sẵn Sàng: <span className="font-semibold text-gray-900">{readyPlots.filter(p => !p.isReady).length}</span></span>
                               </div>
                             </div>
                           </div>
@@ -1204,11 +1204,11 @@ const UavOrdersRoute = () => {
                           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
-                                <p className="text-gray-600 mb-1">Selected Tasks</p>
-                                <p className="font-bold text-gray-900">{selectedTasks.size} ({getSelectedPlotsCount()} plots)</p>
+                                <p className="text-gray-600 mb-1">Nhiệm Vụ Đã Chọn</p>
+                                <p className="font-bold text-gray-900">{selectedTasks.size} ({getSelectedPlotsCount()} thửa đất)</p>
                               </div>
                               <div>
-                                <p className="text-gray-600 mb-1">Total Area</p>
+                                <p className="text-gray-600 mb-1">Tổng Diện Tích</p>
                                 <p className="font-bold text-gray-900">
                                   {calculateTotalArea().toFixed(2)} ha
                                 </p>
@@ -1239,18 +1239,18 @@ const UavOrdersRoute = () => {
                                 key={taskKey}
                                 onClick={() => isSelectable ? handleTaskToggle(plot.cultivationTaskId!, plot.plotId) : undefined}
                                 className={`p-4 rounded-lg border-2 transition-all ${!isSelectable
-                                    ? 'opacity-60 cursor-not-allowed border-gray-200 bg-gray-50'
-                                    : isSelected
-                                      ? 'border-blue-500 bg-blue-50 shadow-md cursor-pointer'
-                                      : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50 cursor-pointer'
+                                  ? 'opacity-60 cursor-not-allowed border-gray-200 bg-gray-50'
+                                  : isSelected
+                                    ? 'border-blue-500 bg-blue-50 shadow-md cursor-pointer'
+                                    : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50 cursor-pointer'
                                   }`}
                               >
                                 <div className="flex items-start justify-between">
                                   <div className="flex items-start gap-3 flex-1">
                                     {isSelectable && (
                                       <div className={`mt-1 h-5 w-5 rounded border-2 flex items-center justify-center transition-colors ${isSelected
-                                          ? 'border-blue-600 bg-blue-600'
-                                          : 'border-gray-300'
+                                        ? 'border-blue-600 bg-blue-600'
+                                        : 'border-gray-300'
                                         }`}>
                                         {isSelected && (
                                           <CheckCircle2 className="h-4 w-4 text-white" />
@@ -1270,7 +1270,7 @@ const UavOrdersRoute = () => {
                                         )}
                                         {plot.hasActiveUavOrder && (
                                           <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
-                                            Has Active Order
+                                            Đã Có Đơn
                                           </Badge>
                                         )}
                                         {!plot.isReady && (
@@ -1280,12 +1280,12 @@ const UavOrdersRoute = () => {
                                         )}
                                         {plot.isReady && !plot.hasActiveUavOrder && !plotHasOtherSelectedTask && (
                                           <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200 text-xs">
-                                            ✓ Ready
+                                            ✓ Sẵn Sàng
                                           </Badge>
                                         )}
                                         {plotHasOtherSelectedTask && !isSelected && (
                                           <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-200 text-xs">
-                                            Another task in this plot selected
+                                            Nhiệm vụ khác đang chọn
                                           </Badge>
                                         )}
                                       </div>
@@ -1302,7 +1302,7 @@ const UavOrdersRoute = () => {
                                         {plot.readyDate && (
                                           <div className="flex items-center gap-1">
                                             <Calendar className="h-3 w-3" />
-                                            <span>Ready: {formatDate(plot.readyDate)}</span>
+                                            <span>Sẵn Sàng: {formatDate(plot.readyDate)}</span>
                                           </div>
                                         )}
                                         <div className="flex items-center gap-1">
@@ -1329,10 +1329,10 @@ const UavOrdersRoute = () => {
                   <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                       <Plane className="h-5 w-5 text-blue-600" />
-                      Create UAV Order
+                      Tạo Đơn Hàng UAV
                     </DialogTitle>
                     <DialogDescription>
-                      Configure and submit a new UAV service order for {selectedTasks.size} task{selectedTasks.size !== 1 ? 's' : ''} across {getSelectedPlotsCount()} plot{getSelectedPlotsCount() !== 1 ? 's' : ''}
+                      Cấu hình và gửi đơn hàng dịch vụ UAV mới cho {selectedTasks.size} nhiệm vụ trên {getSelectedPlotsCount()} thửa đất
                     </DialogDescription>
                   </DialogHeader>
 
@@ -1340,27 +1340,27 @@ const UavOrdersRoute = () => {
                     {/* Order Summary */}
                     <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Group:</span>
+                        <span className="text-gray-600">Nhóm:</span>
                         <span className="font-semibold">{selectedGroup?.groupName}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Task Type:</span>
+                        <span className="text-gray-600">Loại Nhiệm Vụ:</span>
                         <span className="font-semibold">{selectedTaskType}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Selected Tasks:</span>
+                        <span className="text-gray-600">Nhiệm Vụ Đã Chọn:</span>
                         <span className="font-semibold">{selectedTasks.size}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Total Plots:</span>
+                        <span className="text-gray-600">Tổng Thửa Đất:</span>
                         <span className="font-semibold">{getSelectedPlotsCount()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Total Area:</span>
+                        <span className="text-gray-600">Tổng Diện Tích:</span>
                         <span className="font-semibold">{calculateTotalArea().toFixed(2)} ha</span>
                       </div>
                       <div className="flex justify-between border-t pt-2">
-                        <span className="text-gray-600">Est. Cost:</span>
+                        <span className="text-gray-600">Chi Phí Ước Tính:</span>
                         <span className="font-bold text-blue-600">
                           {calculateTotalCost().toLocaleString()} đ
                         </span>
@@ -1369,17 +1369,17 @@ const UavOrdersRoute = () => {
 
                     {/* Form Fields */}
                     <div className="space-y-2">
-                      <Label htmlFor="uavVendorId">UAV Vendor *</Label>
+                      <Label htmlFor="uavVendorId">Nhà Cung Cấp UAV *</Label>
                       <Select
                         value={uavVendorId}
                         onValueChange={setUavVendorId}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select UAV vendor" />
+                          <SelectValue placeholder="Chọn nhà cung cấp UAV" />
                         </SelectTrigger>
                         <SelectContent>
                           {isLoadingVendors ? (
-                            <SelectItem value="loading" disabled>Loading vendors...</SelectItem>
+                            <SelectItem value="loading" disabled>Đang tải...</SelectItem>
                           ) : uavVendorsData && Array.isArray(uavVendorsData) && uavVendorsData.length > 0 ? (
                             uavVendorsData.map((vendor) => (
                               <SelectItem key={vendor.id} value={vendor.id}>
@@ -1390,19 +1390,19 @@ const UavOrdersRoute = () => {
                               </SelectItem>
                             ))
                           ) : (
-                            <SelectItem value="no-vendors" disabled>No vendors available</SelectItem>
+                            <SelectItem value="no-vendors" disabled>Không có nhà cung cấp</SelectItem>
                           )}
                         </SelectContent>
                       </Select>
                       {uavVendorId && uavVendorsData && (
                         <p className="text-xs text-gray-500 mt-1">
-                          Selected: {uavVendorsData.find(v => v.id === uavVendorId)?.name}
+                          Đã chọn: {uavVendorsData.find(v => v.id === uavVendorId)?.name}
                         </p>
                       )}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="scheduledDate">Scheduled Date *</Label>
+                      <Label htmlFor="scheduledDate">Ngày Lên Lịch *</Label>
                       <Input
                         id="scheduledDate"
                         type="datetime-local"
@@ -1414,25 +1414,25 @@ const UavOrdersRoute = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="priority">Priority</Label>
+                      <Label htmlFor="priority">Ưu Tiên</Label>
                       <Select value={priority} onValueChange={(value) => setPriority(value as TaskPriority)}>
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Low">Low</SelectItem>
-                          <SelectItem value="Normal">Normal</SelectItem>
-                          <SelectItem value="High">High</SelectItem>
-                          <SelectItem value="Critical">Critical</SelectItem>
+                          <SelectItem value="Low">Thấp</SelectItem>
+                          <SelectItem value="Normal">Bình Thường</SelectItem>
+                          <SelectItem value="High">Cao</SelectItem>
+                          <SelectItem value="Critical">Khẩn Cấp</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="orderName">Order Name (Optional)</Label>
+                      <Label htmlFor="orderName">Tên Đơn Hàng (Tùy Chọn)</Label>
                       <Input
                         id="orderName"
-                        placeholder="Custom order name"
+                        placeholder="Tên đơn hàng tùy chỉnh"
                         value={orderName}
                         onChange={(e) => setOrderName(e.target.value)}
                         maxLength={255}
@@ -1446,7 +1446,7 @@ const UavOrdersRoute = () => {
                       onClick={() => setIsOrderDialogOpen(false)}
                       disabled={createOrderMutation.isPending}
                     >
-                      Cancel
+                      Hủy
                     </Button>
                     <Button
                       onClick={handleSubmitOrder}
@@ -1456,12 +1456,12 @@ const UavOrdersRoute = () => {
                       {createOrderMutation.isPending ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Creating...
+                          Đang Tạo...
                         </>
                       ) : (
                         <>
                           <Plane className="h-4 w-4 mr-2" />
-                          Create Order
+                          Tạo Đơn Hàng
                         </>
                       )}
                     </Button>

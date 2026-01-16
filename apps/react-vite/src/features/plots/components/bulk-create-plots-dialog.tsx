@@ -74,8 +74,8 @@ export const BulkCreatePlotsDialog = ({
       onSuccess: (data) => {
         addNotification({
           type: 'success',
-          title: 'Plots Created',
-          message: `Successfully created ${data.length} plot(s)`,
+          title: 'Tạo Thừa Đất Thành Công',
+          message: `Đã tạo thành công ${data.length} thừa đất`,
         });
         reset();
         onOpenChange(false);
@@ -83,8 +83,8 @@ export const BulkCreatePlotsDialog = ({
       onError: (error: any) => {
         addNotification({
           type: 'error',
-          title: 'Creation Failed',
-          message: error.message || 'Failed to create plots',
+          title: 'Tạo Thất Bại',
+          message: error.message || 'Tạo thừa đất thất bại',
         });
       },
     },
@@ -137,9 +137,9 @@ export const BulkCreatePlotsDialog = ({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Multiple Plots</DialogTitle>
+          <DialogTitle>Tạo Nhiều Thừa Đất</DialogTitle>
           <DialogDescription>
-            Add multiple plots at once. You can assign them to different farmers.
+            Thêm nhiều thừa đất cùng lúc. Bạn có thể phân công chúng cho các nông dân khác nhau.
           </DialogDescription>
         </DialogHeader>
 
@@ -153,7 +153,7 @@ export const BulkCreatePlotsDialog = ({
               >
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-gray-900">
-                    Plot #{index + 1}
+                    Thừa #{index + 1}
                   </h4>
                   {fields.length > 1 && (
                     <Button
@@ -172,13 +172,13 @@ export const BulkCreatePlotsDialog = ({
                   {/* Farmer Select */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Farmer <span className="text-red-500">*</span>
+                      Nông Dân <span className="text-red-500">*</span>
                     </label>
                     <select
                       {...register(`plots.${index}.farmerId`)}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                     >
-                      <option value="">Select farmer</option>
+                      <option value="">Chọn nông dân</option>
                       {farmers.map((farmer) => (
                         <option key={farmer.farmerId} value={farmer.farmerId}>
                           {farmer.fullName} ({farmer.farmCode})
@@ -192,15 +192,15 @@ export const BulkCreatePlotsDialog = ({
                     )}
                   </div>
 
-                  {/* Sở Thửa */}
+                  {/* Số Thửa */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      So Thua <span className="text-red-500">*</span>
+                      Số Thừa <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       {...register(`plots.${index}.soThua`)}
-                      placeholder="e.g., 123"
+                      placeholder="ví dụ, 123"
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                     />
                     {errors.plots?.[index]?.soThua && (
@@ -210,15 +210,15 @@ export const BulkCreatePlotsDialog = ({
                     )}
                   </div>
 
-                  {/* Sở Tờ */}
+                  {/* Số Tờ */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      So To <span className="text-red-500">*</span>
+                      Số Tờ <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       {...register(`plots.${index}.soTo`)}
-                      placeholder="e.g., 456"
+                      placeholder="ví dụ, 456"
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                     />
                     {errors.plots?.[index]?.soTo && (
@@ -231,13 +231,13 @@ export const BulkCreatePlotsDialog = ({
                   {/* Area */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Area (ha) <span className="text-red-500">*</span>
+                      Diện Tích (ha) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       step="0.01"
                       {...register(`plots.${index}.area`)}
-                      placeholder="e.g., 2.5"
+                      placeholder="ví dụ, 2.5"
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                     />
                     {errors.plots?.[index]?.area && (
@@ -250,13 +250,13 @@ export const BulkCreatePlotsDialog = ({
                   {/* Soil Type */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Soil Type <span className="text-red-500">*</span>
+                      Loại Đất <span className="text-red-500">*</span>
                     </label>
                     <select
                       {...register(`plots.${index}.soilType`)}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                     >
-                      <option value="">Select soil type</option>
+                      <option value="">Chọn loại đất</option>
                       {commonSoilTypes.map((type) => (
                         <option key={type} value={type}>
                           {type}
@@ -273,13 +273,13 @@ export const BulkCreatePlotsDialog = ({
                   {/* Rice Variety */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Rice Variety <span className="text-red-500">*</span>
+                      Giống Lúa <span className="text-red-500">*</span>
                     </label>
                     <select
                       {...register(`plots.${index}.riceVarietyName`)}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-600"
                     >
-                      <option value="">Select rice variety</option>
+                      <option value="">Chọn giống lúa</option>
                       {commonRiceVarieties.map((variety) => (
                         <option key={variety} value={variety}>
                           {variety}
@@ -304,7 +304,7 @@ export const BulkCreatePlotsDialog = ({
               className="w-full border-dashed border-2 border-green-300 text-green-600 hover:bg-green-50"
             >
               <Plus className="size-4 mr-2" />
-              Add Another Plot
+              Thêm Thừa Khác
             </Button>
           </div>
 
@@ -323,7 +323,7 @@ export const BulkCreatePlotsDialog = ({
               onClick={handleClose}
               disabled={createMutation.isPending}
             >
-              Cancel
+              Hủy
             </Button>
             <Button
               type="submit"
@@ -332,21 +332,21 @@ export const BulkCreatePlotsDialog = ({
               icon={<Save className="size-4" />}
               className="gap-2 bg-green-600 hover:bg-green-700"
             >
-              Create {fields.length} Plot{fields.length > 1 ? 's' : ''}
+              Tạo {fields.length} Thừa{fields.length > 1 ? '' : ''}
             </Button>
           </div>
         </form>
 
         {farmersQuery.isLoading && (
           <div className="text-center py-4 text-sm text-gray-600">
-            Loading farmers...
+            Đang tải nông dân...
           </div>
         )}
 
         {farmers.length === 0 && !farmersQuery.isLoading && (
           <div className="rounded-md bg-yellow-50 p-4">
             <p className="text-sm text-yellow-800">
-              No farmers available. Please add farmers first before creating plots.
+              Không có nông dân nào. Vui lòng thêm nông dân trước khi tạo thừa đất.
             </p>
           </div>
         )}

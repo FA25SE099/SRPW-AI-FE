@@ -114,7 +114,7 @@ export const PlotsDetailDialog = ({
               </DialogTitle>
               {plot?.farmerName && (
                 <p className="mt-2 text-sm text-neutral-600">
-                  Farmer:{' '}
+                  Nông dân:{' '}
                   <span className="font-semibold text-neutral-900">
                     {plot.farmerName}
                   </span>
@@ -142,7 +142,7 @@ export const PlotsDetailDialog = ({
             <div className="text-center">
               <Spinner size="lg" className="mx-auto mb-4 text-emerald-600" />
               <p className="font-medium text-neutral-600">
-                Loading plot details...
+                Đang tải thông tin thừa đất...
               </p>
             </div>
           </div>
@@ -154,17 +154,17 @@ export const PlotsDetailDialog = ({
               <AlertTriangle className="size-8 text-red-600" />
             </div>
             <h3 className="text-lg font-semibold text-neutral-900">
-              Failed to load plot details
+              Tải thông tin thừa đất thất bại
             </h3>
             <p className="mt-2 text-sm text-neutral-600">
-              Please try again later
+              Vui lòng thử lại sau
             </p>
             <Button
               variant="outline"
               className="mt-6 border-neutral-300 bg-transparent"
               onClick={() => window.location.reload()}
             >
-              Retry
+              Thử Lại
             </Button>
           </div>
         )}
@@ -181,14 +181,14 @@ export const PlotsDetailDialog = ({
                 className="gap-2 rounded-none border-b-2 border-transparent px-0 py-4 text-sm font-medium text-neutral-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600"
               >
                 <FileText className="size-4" />
-                Overview
+                Tổng Quan
               </TabsTrigger>
               <TabsTrigger
                 value="seasons"
                 className="gap-2 rounded-none border-b-2 border-transparent px-0 py-4 text-sm font-medium text-neutral-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600"
               >
                 <Calendar className="size-4" />
-                Seasons ({plot.seasons?.length || 0})
+                Mùa Vụ ({plot.seasons?.length || 0})
               </TabsTrigger>
               {/* <TabsTrigger
                 value="plans"
@@ -202,7 +202,7 @@ export const PlotsDetailDialog = ({
                 className="gap-2 rounded-none border-b-2 border-transparent px-0 py-4 text-sm font-medium text-neutral-600 data-[state=active]:border-b-2 data-[state=active]:border-emerald-600 data-[state=active]:text-emerald-600"
               >
                 <Leaf className="size-4" />
-                Cultivations ({plot.plotCultivations?.length || 0})
+                Quá Trình Canh Tác ({plot.plotCultivations?.length || 0})
               </TabsTrigger>
             </TabsList>
 
@@ -215,22 +215,22 @@ export const PlotsDetailDialog = ({
                         <MapPin className="size-5 text-emerald-600" />
                       </div>
                       <h3 className="text-base font-semibold text-neutral-900">
-                        Plot Information
+                        Thông Tin Thừa Đất
                       </h3>
                     </div>
                     <div className="space-y-4">
                       <div>
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                          Area
+                          Diện Tích
                         </p>
                         <p className="text-2xl font-bold text-emerald-600">
                           {plot.area?.toFixed(2) || 'N/A'}
                         </p>
-                        <p className="text-sm text-neutral-600">hectares</p>
+                        <p className="text-sm text-neutral-600">hécta</p>
                       </div>
                       <div className="border-t border-neutral-100 pt-4">
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                          Soil Type
+                          Loại Đất
                         </p>
                         <p className="text-sm font-medium text-neutral-900">
                           {plot.soilType || 'N/A'}
@@ -238,7 +238,7 @@ export const PlotsDetailDialog = ({
                       </div>
                       <div className="border-t border-neutral-100 pt-4">
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                          Rice Variety
+                          Giống Lúa
                         </p>
                         <p className="text-sm font-medium text-neutral-900">
                           {plot.varietyName || 'N/A'}
@@ -253,13 +253,13 @@ export const PlotsDetailDialog = ({
                         <User className="size-5 text-blue-600" />
                       </div>
                       <h3 className="text-base font-semibold text-neutral-900">
-                        Farmer Information
+                        Thông Tin Nông Dân
                       </h3>
                     </div>
                     <div className="space-y-4">
                       <div>
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                          Farmer Name
+                          Tên Nông Dân
                         </p>
                         <p className="text-lg font-semibold text-neutral-900">
                           {plot.farmerName || 'N/A'}
@@ -267,7 +267,7 @@ export const PlotsDetailDialog = ({
                       </div>
                       <div className="border-t border-neutral-100 pt-4">
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                          Farmer ID
+                          Mã Nông Dân
                         </p>
                         <p className="break-all font-mono text-xs text-neutral-600">
                           {plot.farmerId || 'N/A'}
@@ -275,7 +275,7 @@ export const PlotsDetailDialog = ({
                       </div>
                       <div className="border-t border-neutral-100 pt-4">
                         <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                          Group ID
+                          Mã Nhóm
                         </p>
                         <p className="break-all font-mono text-xs text-neutral-600">
                           {plot.groupId || 'N/A'}
@@ -292,7 +292,7 @@ export const PlotsDetailDialog = ({
                         <Map className="size-5 text-purple-600" />
                       </div>
                       <h3 className="text-base font-semibold text-neutral-900">
-                        Geographic Location
+                        Vị Trí Địa Lý
                       </h3>
                     </div>
                     <PlotMapSnapshot
@@ -315,7 +315,7 @@ export const PlotsDetailDialog = ({
                       {plot.seasons?.filter((s) => s.isActive).length || 0}
                     </p>
                     <p className="text-sm font-medium text-emerald-700">
-                      Active Seasons
+                      Mùa Vụ Đang Hoạt Động
                     </p>
                   </div>
 
@@ -323,14 +323,14 @@ export const PlotsDetailDialog = ({
                     <div className="mb-3 flex items-center justify-between">
                       <TrendingUp className="size-5 text-blue-600" />
                       <span className="text-xs font-semibold uppercase text-blue-700">
-                        Total
+                        Tổng
                       </span>
                     </div>
                     <p className="text-3xl font-bold text-blue-900">
                       {plot.productionPlans?.length || 0}
                     </p>
                     <p className="text-sm font-medium text-blue-700">
-                      Production Plans
+                      Kế Hoạch Sản Xuất
                     </p>
                   </div>
 
@@ -338,14 +338,14 @@ export const PlotsDetailDialog = ({
                     <div className="mb-3 flex items-center justify-between">
                       <Leaf className="size-5 text-amber-600" />
                       <span className="text-xs font-semibold uppercase text-amber-700">
-                        Records
+                        Hồ Sơ
                       </span>
                     </div>
                     <p className="text-3xl font-bold text-amber-900">
                       {plot.plotCultivations?.length || 0}
                     </p>
                     <p className="text-sm font-medium text-amber-700">
-                      Cultivations
+                      Quá Trình Canh Tác
                     </p>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export const PlotsDetailDialog = ({
                   <div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 py-16 text-center">
                     <Calendar className="mx-auto mb-3 size-12 text-neutral-300" />
                     <p className="font-medium text-neutral-600">
-                      No seasons available
+                      Không có mùa vụ
                     </p>
                   </div>
                 ) : (
@@ -563,7 +563,7 @@ export const PlotsDetailDialog = ({
                   <div className="rounded-lg border border-dashed border-neutral-300 bg-neutral-50 py-16 text-center">
                     <Leaf className="mx-auto mb-3 size-12 text-neutral-300" />
                     <p className="font-medium text-neutral-600">
-                      No cultivation records
+                      Không có hồ sơ canh tác
                     </p>
                   </div>
                 ) : (

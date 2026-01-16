@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ContentLayout } from '@/components/layouts';
-import { 
-  PlanExecutionDashboard, 
+import {
+  PlanExecutionDashboard,
   CultivationTasksList,
-  PlotImplementationDialog 
+  PlotImplementationDialog
 } from '@/features/production-plans/components';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,10 +18,10 @@ const PlanExecutionPage = () => {
 
   if (!planId) {
     return (
-      <ContentLayout title="Plan Execution">
+      <ContentLayout title="Thực Thi Kế Hoạch">
         <Card className="border-destructive/50">
           <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">Plan ID is required</p>
+            <p className="text-muted-foreground">Yêu cầu ID kế hoạch</p>
           </CardContent>
         </Card>
       </ContentLayout>
@@ -29,8 +29,8 @@ const PlanExecutionPage = () => {
   }
 
   return (
-    <ContentLayout 
-      title={showTasks ? "Cultivation Tasks" : "Plan Execution"}
+    <ContentLayout
+      title={showTasks ? "Nhiệm Vụ Canh Tác" : "Thực Thi Kế Hoạch"}
     >
       <div className="space-y-6">
         <div className="flex items-center gap-2">
@@ -40,7 +40,7 @@ const PlanExecutionPage = () => {
             onClick={() => navigate(-1)}
             icon={<ArrowLeft className="h-4 w-4" />}
           >
-            Back
+            Quay Lại
           </Button>
           {showTasks && (
             <Button
@@ -48,7 +48,7 @@ const PlanExecutionPage = () => {
               size="sm"
               onClick={() => setShowTasks(false)}
             >
-              View Summary
+              Xem Tóm Tắt
             </Button>
           )}
         </div>

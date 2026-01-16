@@ -60,7 +60,7 @@ export const ExportDialog = ({
               <option value="">Tất Cả Danh Mục</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
-                  {category.name}
+                  {category.categoryName}
                 </option>
               ))}
             </select>
@@ -90,7 +90,7 @@ export const ExportDialog = ({
           <p className="text-sm text-blue-700">
             <strong>Xuất sẽ bao gồm:</strong>
             <br />
-            • {selectedCategoryId ? categories.find(c => c.id === selectedCategoryId)?.name || 'Danh mục đã chọn' : 'Tất cả danh mục'}
+            • {selectedCategoryId ? categories.find(c => c.id === selectedCategoryId)?.categoryName || 'Danh mục đã chọn' : 'Tất cả danh mục'}
             <br />
             • {isActiveFilter === undefined ? 'Tất cả trạng thái' : isActiveFilter ? 'Chỉ đang hoạt động' : 'Chỉ không hoạt động'}
             <br />

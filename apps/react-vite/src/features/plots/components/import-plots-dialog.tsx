@@ -42,8 +42,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                     setEditableRows(convertPreviewToImportRows(invalidRowsToEdit))
                     addNotification({
                         type: 'success',
-                        title: 'Preview Successful',
-                        message: `Found ${data.data.validRowsCount} valid, ${data.data.invalidRowsCount} invalid, ${data.data.duplicateRowsCount} duplicate, and ${data.data.skippedRowsCount} skipped rows`,
+                        title: 'Xem Trước Thành Công',
+                        message: `Tìm thấy ${data.data.validRowsCount} hàng hợp lệ, ${data.data.invalidRowsCount} hàng không hợp lệ, ${data.data.duplicateRowsCount} hàng trùng lặp, và ${data.data.skippedRowsCount} hàng đã bỏ qua`,
                     })
                 }
             },
@@ -51,8 +51,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                 console.error('Preview error:', error)
                 addNotification({
                     type: 'error',
-                    title: 'Preview Failed',
-                    message: error?.response?.data?.message || 'Failed to preview import',
+                    title: 'Xem Trước Thất Bại',
+                    message: error?.response?.data?.message || 'Không thể xem trước file nhập',
                 })
             },
         },
@@ -64,8 +64,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                 if (data.success) {
                     addNotification({
                         type: 'success',
-                        title: 'Import Successful',
-                        message: data.message || `Successfully imported ${data.data?.length || 0} plots!`,
+                        title: 'Nhập Thành Công',
+                        message: data.message || `Đã nhập thành công ${data.data?.length || 0} thừa đất!`,
                     })
                     setTimeout(() => {
                         onOpenChange(false)
@@ -79,8 +79,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                 console.error('Import error:', error)
                 addNotification({
                     type: 'error',
-                    title: 'Import Failed',
-                    message: error?.response?.data?.message || 'Failed to import plots',
+                    title: 'Nhập Thất Bại',
+                    message: error?.response?.data?.message || 'Không thể nhập thừa đất',
                 })
             },
         },
@@ -104,16 +104,16 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
         if (!validTypes.includes(file.type)) {
             addNotification({
                 type: 'error',
-                title: 'Invalid File Type',
-                message: 'Please select a valid Excel file (.xlsx or .xls)',
+                title: 'Loại File Không Hợp Lệ',
+                message: 'Vui lòng chọn file Excel hợp lệ (.xlsx hoặc .xls)',
             })
             return false
         }
         if (file.size > 10 * 1024 * 1024) {
             addNotification({
                 type: 'error',
-                title: 'File Too Large',
-                message: 'File size must be less than 10MB',
+                title: 'File Quá Lớn',
+                message: 'Kích thước file phải nhỏ hơn 10MB',
             })
             return false
         }
@@ -160,8 +160,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
         if (!selectedFile) {
             addNotification({
                 type: 'error',
-                title: 'No File Selected',
-                message: 'Please select a file to preview',
+                title: 'Chưa Chọn File',
+                message: 'Vui lòng chọn file để xem trước',
             })
             return
         }
@@ -181,8 +181,8 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
         if (!previewData) {
             addNotification({
                 type: 'error',
-                title: 'No Preview Data',
-                message: 'Please preview the file first',
+                title: 'Không Có Dữ Liệu Xem Trước',
+                message: 'Vui lòng xem trước file trước',
             })
             return
         }
@@ -204,15 +204,15 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
             await plotTemplate.download()
             addNotification({
                 type: 'success',
-                title: 'Download Successful',
-                message: 'Plot template downloaded successfully!',
+                title: 'Tải Thành Công',
+                message: 'Mẫu thừa đất đã được tải xuống!',
             })
         } catch (error: any) {
             console.error('Template download error:', error)
             addNotification({
                 type: 'error',
-                title: 'Download Failed',
-                message: error.message || 'Failed to download template. Please ensure farmers have been imported first.',
+                title: 'Tải Thất Bại',
+                message: error.message || 'Tải mẫu thất bại. Vui lòng đảm bảo nông dân đã được nhập trước.',
             })
         } finally {
             setIsDownloading(false)
@@ -225,10 +225,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <FileSpreadsheet className="size-5 text-green-600" />
-                        Import Plots from Excel
+                        Nhập Thừa Đất Từ Excel
                     </DialogTitle>
                     <DialogDescription>
-                        Upload an Excel file to preview and import multiple plots at once
+                        Tải lên file Excel để xem trước và nhập nhiều thừa đất cùng lúc
                     </DialogDescription>
                 </DialogHeader>
 
@@ -240,11 +240,11 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                                 <FileSpreadsheet className="size-5 text-green-600 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-green-900 mb-1">
-                                        Download Personalized Plot Template
+                                        Tải Mẫu Thừa Đất Cá Nhân Hóa
                                     </p>
                                     <p className="text-xs text-green-700">
-                                        Template will be pre-filled with your imported farmers and their plot counts.
-                                        Includes a reference sheet with rice varieties.
+                                        Mẫu sẽ được điền sẵn với nông dân và số lượng thừa đất của họ.
+                                        Bao gồm trang tham chiếu với các giống lúa.
                                     </p>
                                 </div>
                             </div>
@@ -258,12 +258,12 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                                 {isDownloading ? (
                                     <>
                                         <Loader2 className="size-4 mr-2 animate-spin" />
-                                        Downloading...
+                                        Đang tải...
                                     </>
                                 ) : (
                                     <>
                                         <Download className="size-4 mr-2" />
-                                        Download Template
+                                        Tải Mẫu
                                     </>
                                 )}
                             </Button>
@@ -274,7 +274,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                     {!isPreviewMode && (
                         <div className="space-y-3">
                             <label className="block text-sm font-medium text-gray-700">
-                                Excel File <span className="text-red-500">*</span>
+                                File Excel <span className="text-red-500">*</span>
                             </label>
                             <div className="flex items-center gap-3">
                                 <input
@@ -299,10 +299,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                                     <Upload className="size-6 text-gray-400" />
                                     <div className="text-center">
                                         <p className="text-sm font-medium text-gray-700">
-                                            {selectedFile ? selectedFile.name : 'Click to upload or drag and drop'}
+                                            {selectedFile ? selectedFile.name : 'Nhấp để tải lên hoặc kéo thả vào'}
                                         </p>
                                         <p className="text-xs text-gray-500 mt-1">
-                                            Excel files only (.xlsx, .xls) - Max 10MB
+                                            Chỉ file Excel (.xlsx, .xls) - Tối đa 10MB
                                         </p>
                                     </div>
                                 </div>
@@ -340,10 +340,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                                 <div className="flex items-center justify-between mb-3">
                                     <div>
                                         <p className="text-sm font-medium text-blue-900">
-                                            Preview Results
+                                            Kết Quả Xem Trước
                                         </p>
                                         <p className="text-xs text-blue-700 mt-1">
-                                            Total: {previewData.totalRows} rows
+                                            Tổng: {previewData.totalRows} hàng
                                         </p>
                                     </div>
                                     <Button
@@ -356,32 +356,51 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                                         }}
                                     >
                                         <X className="size-4 mr-2" />
-                                        Close Preview
+                                        Đóng Xem Trước
                                     </Button>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
                                     <div className="bg-green-100 rounded p-2 text-center">
                                         <p className="font-medium text-green-900">{previewData.validRowsCount}</p>
-                                        <p className="text-green-700">Valid</p>
+                                        <p className="text-green-700">Hợp Lệ</p>
                                     </div>
                                     <div className="bg-red-100 rounded p-2 text-center">
                                         <p className="font-medium text-red-900">{previewData.invalidRowsCount}</p>
-                                        <p className="text-red-700">Invalid</p>
+                                        <p className="text-red-700">Không Hợp Lệ</p>
                                     </div>
                                     <div className="bg-yellow-100 rounded p-2 text-center">
                                         <p className="font-medium text-yellow-900">{previewData.duplicateRowsCount}</p>
-                                        <p className="text-yellow-700">Duplicate</p>
+                                        <p className="text-yellow-700">Trùng Lặp</p>
                                     </div>
                                     <div className="bg-gray-100 rounded p-2 text-center">
                                         <p className="font-medium text-gray-900">{previewData.skippedRowsCount}</p>
-                                        <p className="text-gray-700">Skipped</p>
+                                        <p className="text-gray-700">Đã Bỏ Qua</p>
                                     </div>
                                     <div className="bg-blue-100 rounded p-2 text-center">
                                         <p className="font-medium text-blue-900">{previewData.summary?.rowsCreatingCultivation || 0}</p>
-                                        <p className="text-blue-700">Cultivation</p>
+                                        <p className="text-blue-700">Canh Tác</p>
                                     </div>
                                 </div>
                             </div>
+
+                            {/* General Errors */}
+                            {previewData.generalErrors && previewData.generalErrors.length > 0 && (
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                    <div className="flex items-start gap-3">
+                                        <AlertCircle className="size-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                        <div className="flex-1">
+                                            <p className="text-sm font-medium text-red-900 mb-2">
+                                                Lỗi Chung:
+                                            </p>
+                                            <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
+                                                {previewData.generalErrors.map((error, index) => (
+                                                    <li key={index}>{error}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* General Errors */}
                             {previewData.generalErrors && previewData.generalErrors.length > 0 && (
@@ -406,7 +425,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                             {previewData.validRows.length > 0 && (
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-medium text-gray-700">
-                                        Valid Rows ({previewData.validRows.length})
+                                        Hàng Hợp Lệ ({previewData.validRows.length})
                                     </h4>
                                     <div className="border rounded-lg overflow-hidden">
                                         <div className="max-h-48 overflow-y-auto">
@@ -461,7 +480,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                         <AlertTriangle className="size-4 text-yellow-600" />
-                                        Duplicate Rows ({previewData.invalidRows.filter(row => row.isDuplicate).length}) - Will be skipped
+                                        Hàng Trùng Lặp ({previewData.invalidRows.filter(row => row.isDuplicate).length}) - Sẽ được bỏ qua
                                     </h4>
                                     <div className="border border-yellow-200 rounded-lg overflow-hidden bg-yellow-50">
                                         <div className="max-h-32 overflow-y-auto">
@@ -501,10 +520,10 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                                 <div className="space-y-2">
                                     <h4 className="text-sm font-medium text-gray-700 flex items-center gap-2">
                                         <Edit2 className="size-4" />
-                                        Fix Errors ({editableRows.length})
+                                        Sửa Lỗi ({editableRows.length})
                                     </h4>
                                     <p className="text-xs text-gray-500">
-                                        Please fix the errors below. Duplicate rows will be automatically skipped during import.
+                                        Vui lòng sửa các lỗi bên dưới. Các hàng trùng lặp sẽ tự động được bỏ qua khi nhập.
                                     </p>
                                     <div className="border rounded-lg overflow-hidden">
                                         <div className="max-h-64 overflow-y-auto">
@@ -590,7 +609,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                         }}
                         disabled={previewMutation.isPending || importMutation.isPending}
                     >
-                        Cancel
+                        Hủy
                     </Button>
                     {!isPreviewMode ? (
                         <Button
@@ -599,7 +618,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                             className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
                         >
                             {previewMutation.isPending && <Spinner size="sm" />}
-                            Preview Import
+                            Xem Trước
                         </Button>
                     ) : (
                         <Button
@@ -609,7 +628,7 @@ export const ImportPlotsDialog = ({ open, onOpenChange, clusterManagerId }: Impo
                         >
                             {importMutation.isPending && <Spinner size="sm" />}
                             <Save className="size-4" />
-                            Import Fixed Data
+                            Nhập Dữ Liệu Đã Sửa
                         </Button>
                     )}
                 </div>

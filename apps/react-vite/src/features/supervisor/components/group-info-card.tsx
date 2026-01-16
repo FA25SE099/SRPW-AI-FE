@@ -9,13 +9,13 @@ interface GroupInfoCardProps {
   group: MyGroupResponse;
 }
 
-const InfoItem = ({ 
-  icon: Icon, 
-  label, 
-  value 
-}: { 
-  icon: React.ElementType; 
-  label: string; 
+const InfoItem = ({
+  icon: Icon,
+  label,
+  value
+}: {
+  icon: React.ElementType;
+  label: string;
   value: string | number | null | undefined;
 }) => {
   return (
@@ -60,38 +60,38 @@ export const GroupInfoCard = ({ group }: GroupInfoCardProps) => {
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <InfoItem 
-              icon={Calendar} 
-              label="Season" 
+            <InfoItem
+              icon={Calendar}
+              label="Mùa Vụ"
               value={`${group.season.seasonName} (${group.season.seasonType})`}
             />
-            <InfoItem 
-              icon={Calendar} 
-              label="Season Period" 
+            <InfoItem
+              icon={Calendar}
+              label="Giai Đoạn Mùa Vụ"
               value={`${group.season.startDate} - ${group.season.endDate}`}
             />
-            <InfoItem 
-              icon={MapPin} 
-              label="Cluster" 
+            <InfoItem
+              icon={MapPin}
+              label="Cụm"
               value={group.clusterName}
             />
           </div>
-          
+
           <div className="space-y-4">
-            <InfoItem 
-              icon={Sprout} 
-              label="Rice Variety" 
+            <InfoItem
+              icon={Sprout}
+              label="Giống Gạo"
               value={group.riceVarietyName}
             />
-            <InfoItem 
-              icon={Calendar} 
-              label="Planting Date" 
+            <InfoItem
+              icon={Calendar}
+              label="Ngày Trồng"
               value={group.plantingDate ? formatDate(group.plantingDate) : 'Not set'}
             />
-            <InfoItem 
-              icon={Users} 
-              label="Total Area" 
-              value={group.totalArea ? `${group.totalArea} hectares` : 'Not calculated'}
+            <InfoItem
+              icon={Users}
+              label="Tổng Diện Tích"
+              value={group.totalArea ? `${group.totalArea} hecta` : 'Not calculated'}
             />
           </div>
         </div>

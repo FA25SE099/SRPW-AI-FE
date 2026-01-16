@@ -64,7 +64,7 @@ export const LateFarmersList = ({
     if (!agronomyExpertId && !supervisorId) {
         return (
             <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-                <p className="text-gray-600">Unable to load data. User ID not available.</p>
+                <p className="text-gray-600">Không thể tải dữ liệu. ID người dùng không khả dụng.</p>
             </div>
         );
     }
@@ -103,14 +103,14 @@ export const LateFarmersList = ({
                 <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                     <Input
-                        placeholder="Search by farmer name or phone..."
+                        placeholder="Tìm kiếm theo tên hoặc số điện thoại..."
                         value={searchTerm}
                         onChange={(e) => handleSearch(e.target.value)}
                         className="pl-10"
                     />
                 </div>
                 <div className="text-sm text-gray-600">
-                    Total: {totalCount} farmers
+                    Tổng: {totalCount} nông dân
                 </div>
             </div>
 
@@ -127,8 +127,8 @@ export const LateFarmersList = ({
                     <div className="flex items-start gap-2">
                         <AlertTriangle className="h-5 w-5 mt-0.5 flex-shrink-0" />
                         <div>
-                            <p className="font-semibold">Failed to load farmers</p>
-                            <p className="text-sm mt-1">{(error as any)?.response?.data?.message || (error as any)?.message || 'Unknown error occurred'}</p>
+                            <p className="font-semibold">Không thể tải dữ liệu nông dân</p>
+                            <p className="text-sm mt-1">{(error as any)?.response?.data?.message || (error as any)?.message || 'Đã xảy ra lỗi không xác định'}</p>
                         </div>
                     </div>
                 </div>
@@ -142,25 +142,25 @@ export const LateFarmersList = ({
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Farmer
+                                        Nông Dân
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Phone Number
+                                        Số Điện Thoại
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Farm Code
+                                        Mã Trang Trại
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Plots
+                                        Thửa Đất
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Late Count
+                                        Số Lần Trễ
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
+                                        Trạng Thái
                                     </th>
                                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
+                                        Hành Động
                                     </th>
                                 </tr>
                             </thead>
@@ -168,7 +168,7 @@ export const LateFarmersList = ({
                                 {farmers.length === 0 ? (
                                     <tr>
                                         <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                                            No farmers found with late records
+                                            Không tìm thấy nông dân có hồ sơ trễ hạn
                                         </td>
                                     </tr>
                                 ) : (
@@ -200,7 +200,7 @@ export const LateFarmersList = ({
                                                             : 'bg-yellow-100 text-yellow-800'
                                                         }`}
                                                 >
-                                                    {farmer.lateCount} times
+                                                    {farmer.lateCount} lần
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -210,7 +210,7 @@ export const LateFarmersList = ({
                                                         : 'bg-gray-100 text-gray-800'
                                                         }`}
                                                 >
-                                                    {farmer.isActive ? 'Active' : 'Inactive'}
+                                                    {farmer.isActive ? 'Hoạt động' : 'Không hoạt động'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
@@ -220,7 +220,7 @@ export const LateFarmersList = ({
                                                     onClick={() => handleViewDetail(farmer.farmerId)}
                                                 >
                                                     <Eye className="mr-1 h-4 w-4" />
-                                                    Detail
+                                                    Chi tiết
                                                 </Button>
                                             </td>
                                         </tr>
@@ -234,7 +234,7 @@ export const LateFarmersList = ({
                     {totalPages > 1 && (
                         <div className="flex items-center justify-between">
                             <div className="text-sm text-gray-600">
-                                Page {page} of {totalPages}
+                                Trang {page} / {totalPages}
                             </div>
                             <div className="flex gap-2">
                                 <Button
@@ -243,7 +243,7 @@ export const LateFarmersList = ({
                                     onClick={() => setPage((p) => Math.max(1, p - 1))}
                                     disabled={page === 1}
                                 >
-                                    Previous
+                                    Trước
                                 </Button>
                                 <Button
                                     variant="outline"
@@ -251,7 +251,7 @@ export const LateFarmersList = ({
                                     onClick={() => setPage((p) => p + 1)}
                                     disabled={page >= totalPages}
                                 >
-                                    Next
+                                    Tiếp
                                 </Button>
                             </div>
                         </div>
@@ -263,7 +263,7 @@ export const LateFarmersList = ({
             <Dialog open={!!selectedFarmerId} onOpenChange={handleCloseDetail}>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto" aria-describedby="farmer-detail-description">
                     <DialogHeader>
-                        <DialogTitle>Farmer Late Records Detail</DialogTitle>
+                        <DialogTitle>Chi Tiết Hồ Sơ Trễ Hạn Của Nông Dân</DialogTitle>
                     </DialogHeader>
 
                     {isLoadingDetail && (
@@ -276,17 +276,17 @@ export const LateFarmersList = ({
                         <div className="rounded-lg border border-red-200 bg-red-50 p-4">
                             <div className="flex items-center gap-2 text-red-800">
                                 <AlertTriangle className="h-5 w-5" />
-                                <span className="font-semibold">Error Loading Detail</span>
+                                <span className="font-semibold">Lỗi Khi Tải Chi Tiết</span>
                             </div>
                             <p className="mt-2 text-sm text-red-700">
-                                {detailError instanceof Error ? detailError.message : 'Failed to load farmer detail'}
+                                {detailError instanceof Error ? detailError.message : 'Không thể tải chi tiết nông dân'}
                             </p>
                         </div>
                     )}
 
                     {!isLoadingDetail && !detailError && !farmerDetail && (
                         <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-                            <p className="text-gray-600">No detail data available</p>
+                            <p className="text-gray-600">Không có dữ liệu chi tiết</p>
                         </div>
                     )}
 
@@ -295,35 +295,35 @@ export const LateFarmersList = ({
                             {/* Farmer Info */}
                             <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                                    Farmer Information
+                                    Thông Tin Nông Dân
                                 </h3>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <span className="text-gray-600">Name:</span>{' '}
+                                        <span className="text-gray-600">Tên:</span>{' '}
                                         <span className="font-medium text-gray-900">
                                             {farmerDetail.fullName || 'N/A'}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="text-gray-600">Phone:</span>{' '}
+                                        <span className="text-gray-600">Điện thoại:</span>{' '}
                                         <span className="font-medium text-gray-900">
                                             {farmerDetail.phoneNumber || 'N/A'}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="text-gray-600">Farm Code:</span>{' '}
+                                        <span className="text-gray-600">Mã Trang Trại:</span>{' '}
                                         <span className="font-medium text-gray-900">
                                             {farmerDetail.farmCode || 'N/A'}
                                         </span>
                                     </div>
                                     <div>
-                                        <span className="text-gray-600">Total Late Count:</span>{' '}
+                                        <span className="text-gray-600">Tổng Số Lần Trễ:</span>{' '}
                                         <span className="font-semibold text-red-600">
-                                            {farmerDetail.totalLateCount} times
+                                            {farmerDetail.totalLateCount} lần
                                         </span>
                                     </div>
                                     <div className="col-span-2">
-                                        <span className="text-gray-600">Address:</span>{' '}
+                                        <span className="text-gray-600">Địa chỉ:</span>{' '}
                                         <span className="font-medium text-gray-900">
                                             {farmerDetail.address || 'N/A'}
                                         </span>
@@ -334,32 +334,32 @@ export const LateFarmersList = ({
                             {/* Late Records */}
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                                    Late Records History
+                                    Lịch Sử Hồ Sơ Trễ Hạn
                                 </h3>
                                 <div className="overflow-hidden rounded-lg border border-gray-200">
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gray-50">
                                             <tr>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                    Date
+                                                    Ngày
                                                 </th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                    Task
+                                                    Công việc
                                                 </th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                    Plot
+                                                    Thửa
                                                 </th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                    Group
+                                                    Nhóm
                                                 </th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                    Season
+                                                    Mùa vụ
                                                 </th>
                                                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                                                    Notes
+                                                    Ghi chú
                                                 </th>
                                                 <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                                    Actions
+                                                    Hành động
                                                 </th>
                                             </tr>
                                         </thead>
@@ -367,7 +367,7 @@ export const LateFarmersList = ({
                                             {farmerDetail.lateRecords?.length === 0 ? (
                                                 <tr>
                                                     <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                                                        No late records found
+                                                        Không tìm thấy hồ sơ trễ hạn
                                                     </td>
                                                 </tr>
                                             ) : (
@@ -400,7 +400,7 @@ export const LateFarmersList = ({
                                                                 onClick={() => handleViewCultivationPlan(record)}
                                                             >
                                                                 <Eye className="mr-1 h-4 w-4" />
-                                                                Detail
+                                                                Chi tiết
                                                             </Button>
                                                         </td>
                                                     </tr>
